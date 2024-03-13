@@ -185,17 +185,17 @@ class RunJob():
             if self.kill_job_var is True:
                 # stop the job
                 self.kill_job_var = False
+                self.job_pending = False
                 Logger.debug_print("Kill the Job here by running powershell script")
                 # set job status to killed
 
-            elif self.job_pending is True and self.stop_job_var is False: # Run the job if a job is pending. If the job is not stopped state
+            elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
                 Logger.debug_print("Run the Job Here by running powershell script")
                 # set job status to running
                 self.job_running_var = True # set job running to true
 
-                # Run the Job
             time.sleep(5)
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
@@ -669,6 +669,32 @@ class FlaskServer():
         Triggers the RunJob with the job assigned to this computer
         """
         RUN_JOB_OBJECT.trigger_job()
+        return "200 OK"
+    @app.route('/stop_job', methods=['POST'], )
+    @staticmethod
+    def stop_job():
+        """
+        Triggers the stopjob with the job assigned to this computer
+        """
+        RUN_JOB_OBJECT.stop_job()
+        return "200 OK"
+    
+    @app.route('/kill_job', methods=['POST'], )
+    @staticmethod
+    def kill_job():
+        """
+        Triggers the killjob with the job assigned to this computer
+        """
+        RUN_JOB_OBJECT.kill_job()
+        return "200 OK"
+    
+    @app.route('/enable_job', methods=['POST'], )
+    @staticmethod
+    def enable_job():
+        """
+        Triggers the RunJob with the job assigned to this computer
+        """
+        RUN_JOB_OBJECT.enable_job()
         return "200 OK"
 
 
