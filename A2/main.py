@@ -508,9 +508,14 @@ class IconManager():
         """
         Changes the status of the job every 5 seconds
         """
+        l = Logger()
         while True :
             time.sleep(POLLING_INTERVAL)
-            menu = IconManager.create_menu(IconManager.get_status(), IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal)
+            status = IconManager.get_status()
+            percent = IconManager.get_percent()
+            version = IconManager.get_version()
+            menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
+            l.log("INFO", "change_status", "Status changed to "+str(status) + ":"+str(percent)+ ":"+str(version), "0", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             self.update_menu(menu)
 
     # stop the tray icon
