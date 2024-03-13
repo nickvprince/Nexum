@@ -88,6 +88,7 @@ CLIENT_SECRET = None # secret for the client to communicate with A2
 jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
+RUN_JOB_OBJECT = None
 
 
 class API():
@@ -170,7 +171,9 @@ class RunJob():
     job_pending = False # Has a job been missed or been queued
     leave = False # triggers internal exit
     thread = None # thread that is running the job
-
+    stop_job_var = False # stop the job
+    kill_job_var = False # stop the job
+    job_running_var = False
     def run(self):
         """
         Runs the backup job. This is the main function that runs the backup job
@@ -178,16 +181,23 @@ class RunJob():
         The LOCAL_JOB may be assigned using the API class to get it from the tenant server API
         @param: self
         """
-        Logger.debug_print("Backup check")
         while self.leave is False: # As long as the job is not terminated
-            #check if job is terminated
-            if self.job_pending is True: # if a job is pending
-                Logger.debug_print("Job Triggered by pending state")
-                # Run the Job
-                self.job_pending = False
-                self.leave = True
-            time.sleep(5)
+            if self.kill_job_var is True:
+                # stop the job
+                self.kill_job_var = False
+                Logger.debug_print("Kill the Job here by running powershell script")
+                # set job status to killed
 
+            elif self.job_pending is True and self.stop_job_var is False: # Run the job if a job is pending. If the job is not stopped state
+                # run the job
+                self.job_pending = False # set job pending to false since it was just run
+                Logger.debug_print("Run the Job Here by running powershell script")
+                # set job status to running
+                self.job_running_var = True # set job running to true
+
+                # Run the Job
+            time.sleep(5)
+            Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
             if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
                 LOCAL_JOB.settings.start_time = ""
@@ -201,20 +211,30 @@ class RunJob():
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
-
-
+    def trigger_job(self):
+        """
+        Triggers the job to run
+        """
+        self.job_pending = True
+    def enable_job(self):
+        """
+        Enables the job to run
+        """
+        self.stop_job_var = False
     def stop_job(self):
         """
         Sets the job_stop state to True thus stopping the job.
         This does not stop active jobs. It will only prevent new jobs from being started.
         """
-        self.job_pending = True
+        self.stop_job_var = True
     def kill_job(self):
         """
         Stops the currently running job
         """
         # stop the job
-
+        self.kill_job_var = True
+# daemon thread to trigger job from schedule?
+        
 class InitSql():
     """
     Initialized SQL information files. This includes
@@ -642,6 +662,16 @@ class FlaskServer():
 
     # POST ROUTES
 
+    @app.route('/start_job', methods=['POST'], )
+    @staticmethod
+    def start_job():
+        """
+        Triggers the RunJob with the job assigned to this computer
+        """
+        RUN_JOB_OBJECT.trigger_job()
+        return "200 OK"
+
+
 
     @app.route('/get_files', methods=['POST'], )
     @staticmethod
@@ -972,7 +1002,9 @@ def main():
     # log a message
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
-    j = RunJob()
+    global RUN_JOB_OBJECT
+    RUN_JOB_OBJECT = RunJob()
+    
     # run server to listen for requests
     f = FlaskServer()
 
