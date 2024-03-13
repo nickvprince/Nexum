@@ -41,7 +41,7 @@ Error Codes
 1004 - Decryption failed
 1005 - Permission error
 404 - Not found
-405 - Access denied
+401 - Access denied
 500 - Internal server error
 """
 # pylint: disable=line-too-long
@@ -675,39 +675,45 @@ class FlaskServer():
             msg = "Access Denied"
         # pylint: enable=unused-variable, enable=invalid-name
         # check if the path exists
-        if not os.path.exists(path):
+        elif not os.path.exists(path):
             logger.log("ERROR", "get_files", "Path not found", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Incorrect path"
         # check if the path is a directory
-        if not os.path.isdir(path):
+        elif not os.path.isdir(path):
             logger.log("ERROR", "get_files", "Path is not a directory", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Path is not a directory"
         # check if the path is accessible
-        if not os.access(path, os.R_OK):
+        elif not os.access(path, os.R_OK):
             logger.log("ERROR", "get_files", "Path is not accessible", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404 
             msg="Path is not accessible"
         # check if the path is empty
-        if not os.listdir(path):
+        elif not os.listdir(path):
             logger.log("ERROR", "get_files", "Path is empty", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            code=404 
+            code=404
             msg="Path is empty"
-        # get the files and directories in the path
-        try:
-            files = os.listdir(path)
-        except PermissionError:
-            logger.log("ERROR", "get_files", "Permission error", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            code = 401
-            msg = "Access Denied"
-        except:
-            logger.log("ERROR", "get_files", "General Error getting files", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            code= 500 
-            msg = "Internal server error"
+        else:
+            msg = "Unknown Error"
+            code = 500
+        # get the files and directories in the path     
+        # if error is returned, do not get file directories
+        if code==0:
+            try:
+                files = os.listdir(path)
+            except PermissionError:
+                logger.log("ERROR", "get_files", "Permission error", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                code = 401
+                msg = "Access Denied"
+            except:
+                logger.log("ERROR", "get_files", "General Error getting files", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                code= 500
+                msg = "Internal server error"
+        else:
+            return make_response(msg, code) 
         # <-- Turn into a method
-        if code!=0:
-            return make_response(msg, code)
+
         return files
 
 
