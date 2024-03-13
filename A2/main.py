@@ -66,11 +66,11 @@ import winreg
 import pystray
 from PIL import Image
 import pandas as pd
-from flask import Flask
+from flask import Flask, request,Response,make_response
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import job
-import pyuac
+from pyuac import main_requires_admin
 
 # Global variables
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
@@ -349,9 +349,9 @@ def get_client_info():
         settings_df = pd.read_sql_query("SELECT * FROM settings", conn)
         conn.close()
     except FileNotFoundError:
-        logger.log("ERROR", "get_client_info", "Settings file not found", "1003", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "Settings file not found", "1003", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
-        logger.log("ERROR", "get_client_info", "General Error getting settings", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "General Error getting settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
 
     # Append each setting and value to a dictionary
     for row in settings_df.iterrows():
@@ -366,10 +366,10 @@ def get_client_info():
         client_id_set = True
     except KeyError:
         CLIENT_ID = -1
-        logger.log("ERROR", "get_client_info", "CLIENT_ID not found in settings", "1001", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "CLIENT_ID not found in settings", "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
         CLIENT_ID = -1
-        logger.log("ERROR", "get_client_info", "General Error getting CLIENT_ID from settings", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "General Error getting CLIENT_ID from settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
 
     # get tenant ID
     try:
@@ -377,10 +377,10 @@ def get_client_info():
         tenant_id_set = True
     except KeyError:
         TENANT_ID = -1
-        logger.log("ERROR", "get_client_info", "TENANT_ID not found in settings", "1001", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "TENANT_ID not found in settings", "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
         TENANT_ID = -1
-        logger.log("ERROR", "get_client_info", "General Error getting TENANT_ID from settings", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "General Error getting TENANT_ID from settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
 
     # Get tenant portal
     try:
@@ -388,10 +388,10 @@ def get_client_info():
         tenant_portal_url_set = True
     except KeyError:
         TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
-        logger.log("ERROR", "get_client_info", "TENANT_PORTAL_URL not found in settings", "1001", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "TENANT_PORTAL_URL not found in settings", "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
         TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
-        logger.log("ERROR", "get_client_info", "General Error getting TENANT_PORTAL_URL from settings", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "get_client_info", "General Error getting TENANT_PORTAL_URL from settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
 
     API.get_job()
 
@@ -449,9 +449,9 @@ def logs():
         # Print the logs to csv
         logs_df.to_csv(file_path, index=False)
     except FileNotFoundError:
-        logger.log("ERROR", "logs", "Log file not found", "1003", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "logs", "Log file not found", "1003", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
-        logger.log("ERROR", "logs", "General Error getting logs", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        logger.log("ERROR", "logs", "General Error getting logs", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
 
 def tenant_portal():
     """
@@ -584,49 +584,8 @@ class FlaskServer():
     """
     Class to manage the server
     """
-    app = Flask(__name__)
-
-
-
-
-    # GET ROUTES
-
-
-
-
-    # POST ROUTES
-
-
-    @app.route('/get_files', methods=['POST'], )
     @staticmethod
-    def get_files(request):
-        """
-        Server requests a path such as C: and returns a list of files and directories in that path
-        requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, pepper, and salt2. It must also be encrypted with the pre-determined password and the ID for the salt, pepper, and salt2 is required
-        returns: a list of files and directories in the path
-        if the clientSecret is incorrect returns "405 access denied"
-        if the ID is incorrect returns "405 Incorrect ID"
-        if the path is not a directory returns "404 Path is not a directory"
-        if the path is not accessible returns "404 Path is not accessible"
-        if the path is empty returns "404 Path is empty"
-        if the path is not found returns "404 Path not found"
-        else return 500 internal server error
-        @param request: the request from the client
-        """
-        logger=Logger()
-        # --> Turn into a method
-        # get the json body
-        # pylint: disable=no-member
-        data = request.get_json()
-        # pylint: enable=no-member
-        # get the path from the json body
-        path = data.get('path', '')
-        # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
-        # get the ID from the json body
-        # pylint: disable=unused-variable, disable=invalid-name
-        ID = data.get('ID', '')
-        # pylint: enable=unused-variable, enable=invalid-name
+    def auth(recieved_client_secret, logger,id):
         """     This is substituted with local clientSecret
         try:
             # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
@@ -657,40 +616,93 @@ class FlaskServer():
         # compare the hash to the decrypted data
         # if they match the KEY is valid
         recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
-        salt="salt"
-        pepper="pepper"
-        salt2="salt2"
-        temp = Security.add_salt_pepper(salt, pepper, salt2)
-        temp = Security.sha256_string(temp)
-        if recieved_client_secret != temp:
-            logger.log("ERROR", "get_files", "Access denied", "405", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "405 access denied"
+
+        temp = Security.sha256_string(CLIENT_SECRET)
+        temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+
+
+        if str(recieved_client_secret) != temp:
+            logger.log("ERROR", "get_files", "Access denied", "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            return 405
+        return 200
+    app = Flask(__name__)
+
+
+
+
+    # GET ROUTES
+
+
+
+
+    # POST ROUTES
+
+
+    @app.route('/get_files', methods=['POST'], )
+    @staticmethod
+    def get_files():
+        """
+        Server requests a path such as C: and returns a list of files and directories in that path
+        requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, pepper, and salt2. It must also be encrypted with the pre-determined password and the ID for the salt, pepper, and salt2 is required
+        returns: a list of files and directories in the path
+        if the clientSecret is incorrect returns "401 Access Denied"
+        if the ID is incorrect returns "405 Incorrect ID"
+        if the path is not a directory returns "404 Path is not a directory"
+        if the path is not accessible returns "404 Path is not accessible"
+        if the path is empty returns "404 Path is empty"
+        if the path is not found returns "404 Path not found"
+        else return 500 internal server error
+        @param request: the request from the client
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the path from the json body
+        path = data.get('path', '')
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        # pylint: enable=unused-variable, enable=invalid-name
         # check if the path exists
         if not os.path.exists(path):
-            logger.log("ERROR", "get_files", "Path not found", "404", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "404 Incorrect path"
+            logger.log("ERROR", "get_files", "Path not found", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            code=404
+            msg="Incorrect path"
         # check if the path is a directory
         if not os.path.isdir(path):
-            logger.log("ERROR", "get_files", "Path is not a directory", "404", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "404 Path is not a directory"
+            logger.log("ERROR", "get_files", "Path is not a directory", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            code=404
+            msg="Path is not a directory"
         # check if the path is accessible
         if not os.access(path, os.R_OK):
-            logger.log("ERROR", "get_files", "Path is not accessible", "404", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "404 Path is not accessible"
+            logger.log("ERROR", "get_files", "Path is not accessible", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            code=404 
+            msg="Path is not accessible"
         # check if the path is empty
         if not os.listdir(path):
-            logger.log("ERROR", "get_files", "Path is empty", "404", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "404 Path is empty"
+            logger.log("ERROR", "get_files", "Path is empty", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            code=404 
+            msg="Path is empty"
         # get the files and directories in the path
         try:
             files = os.listdir(path)
         except PermissionError:
-            logger.log("ERROR", "get_files", "Permission error", "1005", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "405 access denied"
+            logger.log("ERROR", "get_files", "Permission error", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            code = 401
+            msg = "Access Denied"
         except:
-            logger.log("ERROR", "get_files", "General Error getting files", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
-            return "500 Internal server error"
+            logger.log("ERROR", "get_files", "General Error getting files", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            code= 500 
+            msg = "Internal server error"
         # <-- Turn into a method
+        if code!=0:
+            return make_response(msg, code)
         return files
 
 
@@ -800,7 +812,7 @@ class Security():
             l.log("ERROR", "decrypt_string", "Decryption failed", "1004", time.asctime())
             return "Decryption failed"
         except:
-            l.log("ERROR", "decrypt_string", "General Error decrypting string", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+            l.log("ERROR", "decrypt_string", "General Error decrypting string", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return "Decryption failed"
 
     # add salt, pepper, and salt2 to the string
@@ -853,7 +865,14 @@ class Security():
         password = ""
         for i in range(16):
             password += CLIENT_SECRET[i] + CLIENT_SECRET[31-i]
-        return Security.decrypt_string(password, client_secret_in)
+        try:
+            return Security.decrypt_string(password, client_secret_in).strip()
+        except ValueError:
+            l = Logger()
+            l.log("ERROR", "decrypt_client_secret", "Decryption failed", "1004", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            return "Decryption failed"
+        except:
+            return ""
     # uses plaintext clientSecret to encrypt the clientSecret
     # clientSecret is the global clientSecret
     # given clientSecret is 32 characters long set the password to [0][31][1][30][2][29]...[15][16]
@@ -916,47 +935,17 @@ def check_first_run(arg):
     except FileNotFoundError:
         return first_run(arg)
     except PermissionError:
-        l.log("ERROR", "check_first_run", "Permission Error checking registry", "1005", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        l.log("ERROR", "check_first_run", "Permission Error checking registry", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
-        l.log("ERROR", "check_first_run", "General Error checking registry", "1002", time.localtime("YYYY-MM-DD HH:MM:SS:MS"))
+        l.log("ERROR", "check_first_run", "General Error checking registry", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
 
+#@main_requires_admin
 def main():
+    global CLIENT_SECRET
+    CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # used to ensure proper secret testing would be given from a USB install then setting files
     """
     Main method of the program for testing and starting the program
     """
-
-    # pylint: disable=unused-variable, disable=invalid-name
-    global CLIENT_SECRET
-    CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD"
-    print("Client Secret: ", CLIENT_SECRET)
-    # hash the clientSecret
-    clientSecret_hashed_pre_send = Security.sha256_string(CLIENT_SECRET)
-    print("Client Secret hashed unsalted", clientSecret_hashed_pre_send)
-    # add salt, pepper, and salt2 to the clientSecret
-    # salt pepper and salt 2 are stored at NEXUM-SQL in the Security table with the ID of x which will be sent to the client for reference. The client will then use the ID to get the salt, pepper, and salt2 from the database
-    SaltPepper_hashed__clientSecret_PreSend = Security.add_salt_pepper(clientSecret_hashed_pre_send, "salt", "pepricart", "salt2")
-    print("SaltPepper_hashed__clientSecret_PreSend: ", SaltPepper_hashed__clientSecret_PreSend)
-    # encrypt the clientSecret
-    encrypted_clientSecret = Security.encrypt_client_secret(SaltPepper_hashed__clientSecret_PreSend)
-    print("Encrypted salt pepper hashed Client Secret: ", encrypted_clientSecret)
-
-
-
-    #decrypt the clientSecret
-    decrypted_clientSecret = Security.decrypt_client_secret(encrypted_clientSecret)
-    break_attemp = Security.decrypt_string("passwordforit", encrypted_clientSecret)
-    print("Decrypted Client Secret failed break attempt: ", break_attemp, " V/S", decrypted_clientSecret)
-    print("Decrypted Client Secret hashed and salted: ", decrypted_clientSecret)
-    # using the ID recieved from the client get the salt, pepper, and salt2 from the database then use it to remove the salt, pepper, and salt2 from the decrypted clientSecret and verify it is accurate
-    unsalted_clientSecret = Security.remove_salt_pepper(decrypted_clientSecret, "salt", "pepricart", "salt2")
-    print("Unsalted Client Secret hashed", unsalted_clientSecret)
-
-
-
-
-
-
-
     # check if this is the first run
     check_first_run("1234")
     # create a Logger
@@ -977,8 +966,5 @@ def main():
     f = FlaskServer()
 
 if __name__ == "__main__":
-    if not pyuac.isUserAdmin():
-        print("Re-launching as admin!")
-        pyuac.runAsAdmin()
-    else:       
-        main()  # Already an admin here.
+    print(time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+    main()
