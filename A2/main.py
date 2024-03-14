@@ -55,6 +55,7 @@ Error Codes
 # pylint: disable= no-member
 # pylint: disable= import-error
 
+import subprocess
 import time
 import traceback
 import threading
@@ -174,6 +175,7 @@ class RunJob():
     stop_job_var = False # stop the job
     kill_job_var = False # stop the job
     job_running_var = False
+
     def run(self):
         """
         Runs the backup job. This is the main function that runs the backup job
@@ -186,13 +188,22 @@ class RunJob():
                 # stop the job
                 self.kill_job_var = False
                 self.job_pending = False
+                command = "wbadmin stop job -quiet"
                 Logger.debug_print("Kill the Job here by running powershell script")
+                p = subprocess.Popen(['powershell.exe', command])
+                time.sleep(10)
+                p.kill()
+                self.job_running_var = False
                 # set job status to killed
 
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
-                Logger.debug_print("Run the Job Here by running powershell script")
+                command='wbadmin start backup -backupTarget:\\\\192.168.2.201\\backups -include:C: -allCritical -vssFull -quiet -user:tenant\\Danny -password:'
+                p=subprocess.Popen(['powershell.exe', command])
+                time.sleep(10)
+                p.kill()
+
                 # set job status to running
                 self.job_running_var = True # set job running to true
 
@@ -204,6 +215,11 @@ class RunJob():
                 LOCAL_JOB.settings.stop_time = ""
             if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
                 Logger.debug_print("Job Triggered by time")
+                command='wbadmin start backup -backupTarget:\\\\192.168.2.201\\backups -include:C: -allCritical -vssFull -quiet -user:tenant\\Danny -password:'
+                p = subprocess.Popen(['powershell.exe', command])
+
+                time.sleep(10)
+                p.kill()
                 # Run the Job
 
 
@@ -1066,7 +1082,7 @@ def check_first_run(arg):
         l.log("ERROR", "check_first_run", "General Error checking registry", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     return False
 
-#@main_requires_admin
+@main_requires_admin
 def main():
     """
     Main method of the program for testing and starting the program
