@@ -13,7 +13,13 @@ class Security():
     Type: Security
     Relationship: NONE
     """
-
+    @staticmethod
+    def set_client_secret(secret):
+        """
+        Set the client secret
+        """
+        global CLIENT_SECRET
+        CLIENT_SECRET = secret
     @staticmethod
     def split_string(string):
         """
@@ -139,6 +145,7 @@ class Security():
         """
         password = ""
         for i in range(16):
+            print(CLIENT_SECRET)
             password += str(CLIENT_SECRET)[i] + str(CLIENT_SECRET)[31-i]
         try:
             return Security.decrypt_string(password, client_secret_in).strip()
