@@ -57,261 +57,39 @@ Error Codes
 # pylint: disable= undefined-variable
 # pylint: disable= no-name-in-module
 
-import subprocess
+
 import time
 import traceback
 import threading
 import os
-import sqlite3
 import base64
 import hashlib
 import winreg
 import pystray
 from PIL import Image
-import pandas as pd
 from flask import Flask, request,Response,make_response
-import job
 from pyuac import main_requires_admin
 from api import API
 from logger import Logger
 from initsql import current_dir, SETTINGS_PATH,InitSql, logdirectory, logpath
+from runjob import RunJob, LOCAL_JOB
+from helperfunctions import get_client_info, save_client_info, logs, tenant_portal,POLLING_INTERVAL
 # Global variables
 
 image_path = os.path.join(current_dir, '../Data/n.png') # path to the icon image
-POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id
 TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
-
-
-
-LOCAL_JOB = job.Job() # job assigned to this computer
 CLIENT_SECRET = None # secret for the client to communicate with A2
-
 RUN_JOB_OBJECT = None
 
 
-class RunJob():
-    """
-    Class to run the job assigned to this computer and manage the job
-    Type: Controller
-    Relationship: LOCAL_JOB 1..1
-    """
-    job_pending = False # Has a job been missed or been queued
-    leave = False # triggers internal exit
-    thread = None # thread that is running the job
-    stop_job_var = False # stop the job
-    kill_job_var = False # stop the job
-    job_running_var = False
-
-    def run(self):
-        """
-        Runs the backup job. This is the main function that runs the backup job
-        the backup job is run by filling the LOCAL_JOB with the job assigned to this computer
-        The LOCAL_JOB may be assigned using the API class to get it from the tenant server API
-        @param: self
-        """
-        while self.leave is False: # As long as the job is not terminated
-            if self.kill_job_var is True:
-                # stop the job
-                self.kill_job_var = False
-                self.job_pending = False
-                command = "wbadmin stop job -quiet"
-                Logger.debug_print("Kill the Job here by running powershell script")
-                p = subprocess.Popen(['powershell.exe', command])
-                time.sleep(10)
-                p.kill()
-                self.job_running_var = False
-                # set job status to killed
-
-            elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
-                # run the job
-                self.job_pending = False # set job pending to false since it was just run
-                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
-                p=subprocess.Popen(['powershell.exe', command])
-                time.sleep(10)
-                p.kill()
-
-                # set job status to running
-                self.job_running_var = True # set job running to true
-
-            time.sleep(5)
-            Logger.debug_print("Check backup status schedule here and run accordingly")
-            # check if time has passed since it should have run
-            if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
-                LOCAL_JOB.settings.start_time = ""
-                LOCAL_JOB.settings.stop_time = ""
-            if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
-                Logger.debug_print("Job Triggered by time")
-                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
-                p = subprocess.Popen(['powershell.exe', command])
-
-                time.sleep(10)
-                p.kill()
-                # Run the Job
-
-
-    def __init__(self):
-        self.thread = threading.Thread(target=self.run)
-        self.thread.daemon = True
-        self.thread.start()
-    def trigger_job(self):
-        """
-        Triggers the job to run
-        """
-        self.job_pending = True
-    def enable_job(self):
-        """
-        Enables the job to run
-        """
-        self.stop_job_var = False
-    def stop_job(self):
-        """
-        Sets the job_stop state to True thus stopping the job.
-        This does not stop active jobs. It will only prevent new jobs from being started.
-        """
-        self.stop_job_var = True
-    def kill_job(self):
-        """
-        Stops the currently running job
-        """
-        # stop the job
-        self.kill_job_var = True
 
 
 
 
 
-def get_client_info():
-    """
-    Used to pull information from database and pull remaining information from the server
-    """
-    global CLIENT_ID
-    global TENANT_ID
-    global TENANT_PORTAL_URL
-    client_id_set = False
-    tenant_id_set = False
-    tenant_portal_url_set = False
-    settings_dict = {}
-    logger = Logger()
-    #ensure settings files are ready
-    InitSql.settings()
 
-    #create connection
-    try:
-        conn = sqlite3.connect(SETTINGS_PATH)
-        settings_df = pd.read_sql_query("SELECT * FROM settings", conn)
-        conn.close()
-    except FileNotFoundError:
-        logger.log("ERROR", "get_client_info", "Settings file not found", "1003", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-    except:
-        logger.log("ERROR", "get_client_info", "General Error getting settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-
-    # Append each setting and value to a dictionary
-    for row in settings_df.iterrows():
-        setting = row[0]
-        value = row[1]
-        settings_dict[setting] = value
-
-    # Assign the values to the global variables
-    # get client ID
-    try:
-        CLIENT_ID = settings_dict.get('CLIENT_ID', -1)
-        client_id_set = True
-    except KeyError:
-        CLIENT_ID = -1
-        logger.log("ERROR", "get_client_info", "CLIENT_ID not found in settings", "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-    except:
-        CLIENT_ID = -1
-        logger.log("ERROR", "get_client_info", "General Error getting CLIENT_ID from settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-
-    # get tenant ID
-    try:
-        TENANT_ID = settings_dict.get('TENANT_ID', -1)
-        tenant_id_set = True
-    except KeyError:
-        TENANT_ID = -1
-        logger.log("ERROR", "get_client_info", "TENANT_ID not found in settings", "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-    except:
-        TENANT_ID = -1
-        logger.log("ERROR", "get_client_info", "General Error getting TENANT_ID from settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-
-    # Get tenant portal
-    try:
-        TENANT_PORTAL_URL = settings_dict.get('TENANT_PORTAL_URL', "https://nexum.com/tenant_portal")
-        tenant_portal_url_set = True
-    except KeyError:
-        TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
-        logger.log("ERROR", "get_client_info", "TENANT_PORTAL_URL not found in settings", "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-    except:
-        TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
-        logger.log("ERROR", "get_client_info", "General Error getting TENANT_PORTAL_URL from settings", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-
-    API.get_job()
-
-    # call API from A3 to get the rest of the information that wasnt set
-    if client_id_set:
-        CLIENT_ID = API.get_client_id()
-    if tenant_id_set:
-        TENANT_ID = API.get_tenant_id()
-    if tenant_portal_url_set:
-        TENANT_PORTAL_URL = API.get_tenant_portal_url()
-
-def save_client_info():
-    """
-    Save the client info to the settings database
-    """
-
-    #ensure settings files are ready
-    InitSql.settings()
-
-    #create connection
-    conn = sqlite3.connect(SETTINGS_PATH)
-    cursor = conn.cursor()
-
-    # Insert the client_id, TENANT_ID, and TENANT_PORTAL_URL and Polling interval into the settings table
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('client_id', ?)", (CLIENT_ID,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_ID', ?)", (TENANT_ID,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_PORTAL_URL', ?)", (TENANT_PORTAL_URL,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('POLLING_INTERVAL', ?)", (POLLING_INTERVAL,))
-
-    #write local job to database
-
-
-    # Close the connection
-    conn.commit()
-    conn.close()
-
-def logs():
-    """ 
-    Writes logs to the users downloads folder
-    """
-    logger = Logger()
-    current_user = os.getlogin()
-    file_path = f"C:\\Users\\{current_user}\\Downloads\\nexumlog.csv" # download logs to CSV file in users downloads
-    InitSql.log_files()
-    try:
-        # Connect to the logs database
-        conn = sqlite3.connect(logdirectory+logpath)
-        # Query all logs from the logs table
-        query = "SELECT * FROM logs"
-        logs_df = pd.read_sql_query(query, conn)
-
-        # Close the database connection
-        conn.close()
-
-        # Print the logs to csv
-        logs_df.to_csv(file_path, index=False)
-    except FileNotFoundError:
-        logger.log("ERROR", "logs", "Log file not found", "1003", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-    except:
-        logger.log("ERROR", "logs", "General Error getting logs", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-
-def tenant_portal():
-    """
-    Opens the tenant portal in the default web browser
-    """
-    os.system(f"start {TENANT_PORTAL_URL}")
 
 
 

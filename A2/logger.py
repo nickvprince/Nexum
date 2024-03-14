@@ -1,7 +1,7 @@
 """
 info
 """
-from initsql import *
+from initsql import InitSql,sqlite3,logdirectory,logpath
     
 class Logger():
 
