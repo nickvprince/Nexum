@@ -233,8 +233,7 @@ class RunJob():
         """
         # stop the job
         self.kill_job_var = True
-# daemon thread to trigger job from schedule?
-        
+
 class InitSql():
     """
     Initialized SQL information files. This includes
@@ -352,7 +351,7 @@ def get_client_info():
     """
     Used to pull information from database and pull remaining information from the server
     """
-    global CLIENT_ID 
+    global CLIENT_ID
     global TENANT_ID
     global TENANT_PORTAL_URL
     client_id_set = False
@@ -609,6 +608,7 @@ class FlaskServer():
     """
     Class to manage the server
     """
+    app = Flask(__name__)
     @staticmethod
     def auth(recieved_client_secret, logger,id):
         """     This is substituted with local clientSecret
@@ -650,56 +650,13 @@ class FlaskServer():
             logger.log("ERROR", "get_files", "Access denied", "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return 405
         return 200
-    app = Flask(__name__)
+
 
 
 
 
     # GET ROUTES
-
-
-
-
-    # POST ROUTES
-
-    @app.route('/start_job', methods=['POST'], )
-    @staticmethod
-    def start_job():
-        """
-        Triggers the RunJob with the job assigned to this computer
-        """
-        RUN_JOB_OBJECT.trigger_job()
-        return "200 OK"
-    @app.route('/stop_job', methods=['POST'], )
-    @staticmethod
-    def stop_job():
-        """
-        Triggers the stopjob with the job assigned to this computer
-        """
-        RUN_JOB_OBJECT.stop_job()
-        return "200 OK"
-    
-    @app.route('/kill_job', methods=['POST'], )
-    @staticmethod
-    def kill_job():
-        """
-        Triggers the killjob with the job assigned to this computer
-        """
-        RUN_JOB_OBJECT.kill_job()
-        return "200 OK"
-    
-    @app.route('/enable_job', methods=['POST'], )
-    @staticmethod
-    def enable_job():
-        """
-        Triggers the RunJob with the job assigned to this computer
-        """
-        RUN_JOB_OBJECT.enable_job()
-        return "200 OK"
-
-
-
-    @app.route('/get_files', methods=['POST'], )
+    @app.route('/get_files', methods=['GET'], )
     @staticmethod
     def get_files():
         """
@@ -743,17 +700,14 @@ class FlaskServer():
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
             logger.log("ERROR", "get_files", "Path is not accessible", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            code=404 
+            code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
             logger.log("ERROR", "get_files", "Path is empty", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Path is empty"
-        else:
-            msg = "Unknown Error"
-            code = 500
-        # get the files and directories in the path     
+        # get the files and directories in the path
         # if error is returned, do not get file directories
         if code==0:
             try:
@@ -767,10 +721,115 @@ class FlaskServer():
                 code= 500
                 msg = "Internal server error"
         else:
-            return make_response(msg, code) 
+            return make_response(msg, code)
         # <-- Turn into a method
 
         return files
+
+
+
+    # POST ROUTES
+
+    @app.route('/start_job', methods=['POST'], )
+    @staticmethod
+    def start_job():
+        """
+        Triggers the RunJob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.trigger_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+    @app.route('/stop_job', methods=['POST'], )
+    @staticmethod
+    def stop_job():
+        """
+        Triggers the stopjob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.stop_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+    @app.route('/kill_job', methods=['POST'], )
+    @staticmethod
+    def kill_job():
+        """
+        Triggers the killjob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.kill_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+    @app.route('/enable_job', methods=['POST'], )
+    @staticmethod
+    def enable_job():
+        """
+        Triggers the RunJob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.enable_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+
+
+   
 
 
 
@@ -974,7 +1033,7 @@ def first_run(arg):
         key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Nexum")
         winreg.CloseKey(key)
         key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Nexum\\Client")
-        winreg.CloseKey(key) 
+        winreg.CloseKey(key)
         API.send_success_install(CLIENT_ID,TENANT_ID,CLIENT_SECRET)
         return True
     except FileNotFoundError:
@@ -1005,14 +1064,16 @@ def check_first_run(arg):
         l.log("ERROR", "check_first_run", "Permission Error checking registry", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
         l.log("ERROR", "check_first_run", "General Error checking registry", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+    return False
 
 #@main_requires_admin
 def main():
-    global CLIENT_SECRET
-    CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # used to ensure proper secret testing would be given from a USB install then setting files
     """
     Main method of the program for testing and starting the program
     """
+    global CLIENT_SECRET
+    CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # used to ensure proper secret testing would be given from a USB install then setting files
+
     # check if this is the first run
     check_first_run("1234")
     # create a Logger
@@ -1030,7 +1091,7 @@ def main():
     # run the job
     global RUN_JOB_OBJECT
     RUN_JOB_OBJECT = RunJob()
-    
+
     # run server to listen for requests
     f = FlaskServer()
 
