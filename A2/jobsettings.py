@@ -17,11 +17,22 @@ class JobSettings():
     last_job = None
     notify_email = None
     heartbeat_interval = None
+    backup_path = None
+    user = None
+    password = None
 
     # pylint: disable=missing-function-docstring
     # Getters and setters
 
     # Getters
+    def get_user(self):
+        return self.user
+    def get_password(self):
+        return self.password
+    def set_backup_path(self, backup_path_in):
+        self.backup_path = backup_path_in
+    def get_backup_path(self):
+        return self.backup_path
     def get_id(self):
         return self.id
     def get_schedule(self):
@@ -44,6 +55,10 @@ class JobSettings():
         return self.heartbeat_interval
 
     # Setters
+    def set_user(self, user_in):
+        self.user = user_in
+    def set_password(self, password_in):
+        self.password = password_in
     def set_id(self, incoming_id):
         self.id = incoming_id
     def set_schedule(self, schedule_in):

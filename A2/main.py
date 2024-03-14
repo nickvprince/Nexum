@@ -55,6 +55,7 @@ Error Codes
 # pylint: disable= no-member
 # pylint: disable= import-error
 
+import subprocess
 import time
 import traceback
 import threading
@@ -88,6 +89,7 @@ CLIENT_SECRET = None # secret for the client to communicate with A2
 jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
+RUN_JOB_OBJECT = None
 
 
 class API():
@@ -170,6 +172,9 @@ class RunJob():
     job_pending = False # Has a job been missed or been queued
     leave = False # triggers internal exit
     thread = None # thread that is running the job
+    stop_job_var = False # stop the job
+    kill_job_var = False # stop the job
+    job_running_var = False
 
     def run(self):
         """
@@ -178,22 +183,43 @@ class RunJob():
         The LOCAL_JOB may be assigned using the API class to get it from the tenant server API
         @param: self
         """
-        Logger.debug_print("Backup check")
         while self.leave is False: # As long as the job is not terminated
-            #check if job is terminated
-            if self.job_pending is True: # if a job is pending
-                Logger.debug_print("Job Triggered by pending state")
-                # Run the Job
+            if self.kill_job_var is True:
+                # stop the job
+                self.kill_job_var = False
                 self.job_pending = False
-                self.leave = True
-            time.sleep(5)
+                command = "wbadmin stop job -quiet"
+                Logger.debug_print("Kill the Job here by running powershell script")
+                p = subprocess.Popen(['powershell.exe', command])
+                time.sleep(10)
+                p.kill()
+                self.job_running_var = False
+                # set job status to killed
 
+            elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
+                # run the job
+                self.job_pending = False # set job pending to false since it was just run
+                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                p=subprocess.Popen(['powershell.exe', command])
+                time.sleep(10)
+                p.kill()
+
+                # set job status to running
+                self.job_running_var = True # set job running to true
+
+            time.sleep(5)
+            Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
             if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
                 LOCAL_JOB.settings.start_time = ""
                 LOCAL_JOB.settings.stop_time = ""
             if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
                 Logger.debug_print("Job Triggered by time")
+                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                p = subprocess.Popen(['powershell.exe', command])
+
+                time.sleep(10)
+                p.kill()
                 # Run the Job
 
 
@@ -201,19 +227,28 @@ class RunJob():
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
-
-
+    def trigger_job(self):
+        """
+        Triggers the job to run
+        """
+        self.job_pending = True
+    def enable_job(self):
+        """
+        Enables the job to run
+        """
+        self.stop_job_var = False
     def stop_job(self):
         """
         Sets the job_stop state to True thus stopping the job.
         This does not stop active jobs. It will only prevent new jobs from being started.
         """
-        self.job_pending = True
+        self.stop_job_var = True
     def kill_job(self):
         """
         Stops the currently running job
         """
         # stop the job
+        self.kill_job_var = True
 
 class InitSql():
     """
@@ -332,7 +367,7 @@ def get_client_info():
     """
     Used to pull information from database and pull remaining information from the server
     """
-    global CLIENT_ID 
+    global CLIENT_ID
     global TENANT_ID
     global TENANT_PORTAL_URL
     client_id_set = False
@@ -589,6 +624,7 @@ class FlaskServer():
     """
     Class to manage the server
     """
+    app = Flask(__name__)
     @staticmethod
     def auth(recieved_client_secret, logger,id):
         """     This is substituted with local clientSecret
@@ -630,20 +666,13 @@ class FlaskServer():
             logger.log("ERROR", "get_files", "Access denied", "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return 405
         return 200
-    app = Flask(__name__)
+
 
 
 
 
     # GET ROUTES
-
-
-
-
-    # POST ROUTES
-
-
-    @app.route('/get_files', methods=['POST'], )
+    @app.route('/get_files', methods=['GET'], )
     @staticmethod
     def get_files():
         """
@@ -687,17 +716,14 @@ class FlaskServer():
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
             logger.log("ERROR", "get_files", "Path is not accessible", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            code=404 
+            code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
             logger.log("ERROR", "get_files", "Path is empty", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Path is empty"
-        else:
-            msg = "Unknown Error"
-            code = 500
-        # get the files and directories in the path     
+        # get the files and directories in the path
         # if error is returned, do not get file directories
         if code==0:
             try:
@@ -711,10 +737,115 @@ class FlaskServer():
                 code= 500
                 msg = "Internal server error"
         else:
-            return make_response(msg, code) 
+            return make_response(msg, code)
         # <-- Turn into a method
 
         return files
+
+
+
+    # POST ROUTES
+
+    @app.route('/start_job', methods=['POST'], )
+    @staticmethod
+    def start_job():
+        """
+        Triggers the RunJob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.trigger_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+    @app.route('/stop_job', methods=['POST'], )
+    @staticmethod
+    def stop_job():
+        """
+        Triggers the stopjob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.stop_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+    @app.route('/kill_job', methods=['POST'], )
+    @staticmethod
+    def kill_job():
+        """
+        Triggers the killjob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.kill_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+    @app.route('/enable_job', methods=['POST'], )
+    @staticmethod
+    def enable_job():
+        """
+        Triggers the RunJob with the job assigned to this computer
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        RUN_JOB_OBJECT.enable_job()
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
+
+
+
+   
 
 
 
@@ -918,7 +1049,7 @@ def first_run(arg):
         key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Nexum")
         winreg.CloseKey(key)
         key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Nexum\\Client")
-        winreg.CloseKey(key) 
+        winreg.CloseKey(key)
         API.send_success_install(CLIENT_ID,TENANT_ID,CLIENT_SECRET)
         return True
     except FileNotFoundError:
@@ -949,14 +1080,23 @@ def check_first_run(arg):
         l.log("ERROR", "check_first_run", "Permission Error checking registry", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
     except:
         l.log("ERROR", "check_first_run", "General Error checking registry", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+    return False
 
-#@main_requires_admin
+@main_requires_admin
 def main():
-    global CLIENT_SECRET
-    CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # used to ensure proper secret testing would be given from a USB install then setting files
     """
     Main method of the program for testing and starting the program
     """
+    global CLIENT_SECRET
+    global LOCAL_JOB
+    from jobsettings import JobSettings
+    t = JobSettings()
+    t.backup_path = "\\\\192.168.2.201\\Backups"
+    t.user = "tenant\\Backup"
+    t.password = "Test123"
+    LOCAL_JOB.set_settings(t)
+    CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # used to ensure proper secret testing would be given from a USB install then setting files
+
     # check if this is the first run
     check_first_run("1234")
     # create a Logger
@@ -972,10 +1112,12 @@ def main():
     # log a message
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
-    j = RunJob()
+    global RUN_JOB_OBJECT
+    RUN_JOB_OBJECT = RunJob()
+
     # run server to listen for requests
     f = FlaskServer()
 
 if __name__ == "__main__":
-    print(time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+
     main()
