@@ -84,7 +84,7 @@ def main():
     get_client_info()
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
-    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum",l)
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
     # run the icon
     i.run()
     # log a message
