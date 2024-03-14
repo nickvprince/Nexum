@@ -54,6 +54,8 @@ Error Codes
 # pylint: disable= relative-beyond-top-level
 # pylint: disable= no-member
 # pylint: disable= import-error
+# pylint: disable= undefined-variable
+# pylint: disable= no-name-in-module
 
 import subprocess
 import time
@@ -68,100 +70,26 @@ import pystray
 from PIL import Image
 import pandas as pd
 from flask import Flask, request,Response,make_response
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
 import job
 from pyuac import main_requires_admin
-
+from api import API
+from logger import Logger
+from initsql import current_dir, SETTINGS_PATH,InitSql, logdirectory, logpath
 # Global variables
-current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
+
 image_path = os.path.join(current_dir, '../Data/n.png') # path to the icon image
 POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id
 TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
-logdirectory = os.path.join(current_dir,'../logs') # directory for logs
-logpath = os.path.join('/log.db') # path to the log database
-settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
-SETTINGS_PATH= os.path.join(current_dir, settingsDirectory+'\\settings.db') # path to the settings database
+
+
+
 LOCAL_JOB = job.Job() # job assigned to this computer
 CLIENT_SECRET = None # secret for the client to communicate with A2
-jobFile=os.path.join('/settings.db')
-configFile=os.path.join('/settings.db')
-job_settingsFile=os.path.join('/settings.db')
+
 RUN_JOB_OBJECT = None
 
-
-class API():
-    """
-    Class to interact with the API. Used for local API calls and easy integration when API calls are changed
-    Type: Connector
-    Relationship: NONE
-    """
-
-    def get_tenant_portal_url():
-        """
-        Gets the tenant portal URL from the tenant server device
-        """
-        Logger.debug_print("Getting tenant portal url")
-        # call the API from tenant server to get the tenant portal URL
-        return "https://nexum.com/tenant_portal"
-    def get_status():
-        """
-        Call the API from tenant server to get the status of the client
-        """
-        Logger.debug_print("Getting status")
-        # call the API from tenant server to get the status of the client
-        return "running"
-    def get_percent():
-        """
-        call the API from tenant server to get the percent complete of the job
-        """
-        Logger.debug_print("Getting percent")
-        # call the API from tenant server to get the percent complete of the job
-        return 70
-    def get_version():
-        """
-        Call the API from tenant server to get the version of the program
-        """
-        Logger.debug_print("Getting version")
-        # call the API from tenant server to get the version of the program
-        return "1.2.7"
-    def get_job():
-        """
-        Call the API from tenant server to get the job assigned to this computer
-        """
-        Logger.debug_print("Getting job")
-        # call the API from tenant server to get the job assigned to this computer
-        return "backup"
-    def get_client_id():
-        """
-        Call the API from tenant server to get the client id
-        """
-        Logger.debug_print("Getting client id")
-        # call the API from tenant server to get the client id
-        return 1
-    def get_tenant_id():
-        """
-        Call the API from tenant server to get the tenant id
-        """
-        Logger.debug_print("Getting tenant id")
-        # call the API from tenant server to get the tenant id
-        return 1
-    def get_download_key():
-        """
-        call the API from tenant server to get the download key
-        """
-        Logger.debug_print("Getting download key")
-        # call the API from tenant server to get the download key
-        return "1234"
-    def send_success_install(client_id,tenant_id,client_secret):
-        """
-        Call the API from tenant server to send the success install
-        """
-        Logger.debug_print("Sending success install")
-        # call the API from tenant server to send the success install
-        return True
 
 class RunJob():
     """
@@ -250,118 +178,9 @@ class RunJob():
         # stop the job
         self.kill_job_var = True
 
-class InitSql():
-    """
-    Initialized SQL information files. This includes
-    Type: File IO
-    Relationship: NONE
-    
-    1. job_settings
-    2. config
-    3. job
-    4. logs
-    5. settings
-
-    Use this at the beginning of the program to ensure all tables
-    are created when at the beginning rather then runtime
-
-    """
-
-    def job_settings():
-        """
-        ensure job settings file exists and the table is created
-        """
-        create_db_file(settingsDirectory,job_settingsFile)
-        # create settings table
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
-                            (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, notifyEmail TEXT, heartbeatInterval TEXT)''')
-        # Close connection
-        conn.commit()
-        conn.close()
-
-    def config_files():
-        """ 
-        Ensure config file exists and the table is created
-        """
-        create_db_file(settingsDirectory,configFile)
-           # create log table
-        conn = sqlite3.connect(settingsDirectory+configFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS config
-                                    (ID TEXT, tenantSecret TEXT, Address TEXT)''')
-        # close connection
-        conn.commit()
-        conn.close()
-
-    def job_files():
-        """
-        Ensure job file exists and the table is created
-        """
-        create_db_file(settingsDirectory,jobFile)
-           # create log table
-        conn = sqlite3.connect(settingsDirectory+jobFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS job
-                                    (ID TEXT, Title TEXT, created TEXT, configID TEXT, settingsID TEXT)''')
-        # close connection
-        conn.commit()
-        conn.close()
-
-    def log_files():
-        """
-        Ensure log file exists and the table is created
-        """
-        create_db_file(logdirectory,logpath)
-           # create log table
-        conn = sqlite3.connect(logdirectory+logpath)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS logs
-                                    (severity TEXT, subject TEXT, message TEXT, code TEXT, date TEXT)''')
-        # close connection
-        conn.commit()
-        conn.close()
-
-    def settings():
-        """
-        Ensure settings file exists and the table is created
-        """
-        create_db_file(settingsDirectory,"\\Settings.db")
-        # create settings table
-        conn = sqlite3.connect(SETTINGS_PATH)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS settings
-                            (setting TEXT, value TEXT)''')
-        # Close connection
-        conn.commit()
-        conn.close()
 
 
-    def __init__(self):
-        # initialize all tables when the object is created
-        InitSql.log_files()
-        InitSql.settings()
-        InitSql.job_files()
-        InitSql.config_files()
-        InitSql.job_settings()
 
-def create_db_file(directory,path):
-    """
-    create the database file if it does not exist and the folder for it
-    """
-    # ensure ../ logs directory exists
-    if not os.path.exists(os.path.join(directory)):
-        os.makedirs(os.path.join(directory))
-    # if file does not exist create it
-    if not os.path.exists(directory+path):
-        if path=="":
-            conn = sqlite3.connect(directory)
-        elif directory=="" :
-            conn = sqlite3.connect(path)
-        else:
-            conn = sqlite3.connect(directory+path)
-        conn.close()
 
 def get_client_info():
     """
@@ -494,39 +313,7 @@ def tenant_portal():
     """
     os.system(f"start {TENANT_PORTAL_URL}")
 
-class Logger():
-    """
-    Logger class to log messages to the database file
-    Type: File IO
-    Relationship: NONE
-    """
-    conn = None
-    cursor = None
 
-    # create the database file if it does not exist and connect to it then create the table
-    def __init__(self):
-        #ensure log files are ready
-        InitSql.log_files()
-
-        #create connection
-        self.conn = sqlite3.connect(logdirectory+logpath)
-        self.cursor = self.conn.cursor()
-
-    # log a message to the database
-    def log(self, severity, subject, message, code, date):
-        """
-        Information
-        """
-        self.cursor.execute('''INSERT INTO logs (severity, subject, message, code, date)
-                    VALUES (?, ?, ?, ?, ?)''', (severity, subject, message, code, date))
-        self.conn.commit()
-
-    def debug_print(message):
-        """
-        Used to print information in debugging to be easily switched during implementation
-        @param message: the message to be printed
-        """
-        print(message)
 
 class IconManager():
     """
@@ -619,6 +406,7 @@ class IconManager():
     def get_version():
         return API.get_version()
     # pylint: enable=no-method-argument, enable=no-self-argument, enable=missing-function-docstring
+
 
 class FlaskServer():
     """
@@ -845,7 +633,6 @@ class FlaskServer():
 
 
 
-   
 
 
 
@@ -858,13 +645,6 @@ class FlaskServer():
 
 
     # HELPERS
-
-
-
-
-
-
-
     def run(self):
         """
         Runs the server
