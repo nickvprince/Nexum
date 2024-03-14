@@ -1,10 +1,23 @@
+import os
 from flask import Flask, request,Response,make_response
-
+from security import Security, CLIENT_SECRET
+import time
+from logger import Logger
+RUN_JOB_OBJECT = None
 class FlaskServer():
     """
     Class to manage the server
     """
+
     app = Flask(__name__)
+
+    @staticmethod
+    def set_run_job_object(run_job_object):
+        """
+        Set the run job object
+        """
+        global RUN_JOB_OBJECT
+        RUN_JOB_OBJECT = run_job_object
     @staticmethod
     def auth(recieved_client_secret, logger,id):
         """     This is substituted with local clientSecret
