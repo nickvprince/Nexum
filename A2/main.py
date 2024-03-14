@@ -199,7 +199,7 @@ class RunJob():
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
-                command='wbadmin start backup -backupTarget:\\\\192.168.2.201\\backups -include:C: -allCritical -vssFull -quiet -user:tenant\\Danny -password:'
+                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
                 p=subprocess.Popen(['powershell.exe', command])
                 time.sleep(10)
                 p.kill()
@@ -215,7 +215,7 @@ class RunJob():
                 LOCAL_JOB.settings.stop_time = ""
             if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
                 Logger.debug_print("Job Triggered by time")
-                command='wbadmin start backup -backupTarget:\\\\192.168.2.201\\backups -include:C: -allCritical -vssFull -quiet -user:tenant\\Danny -password:'
+                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
                 p = subprocess.Popen(['powershell.exe', command])
 
                 time.sleep(10)
@@ -1088,6 +1088,13 @@ def main():
     Main method of the program for testing and starting the program
     """
     global CLIENT_SECRET
+    global LOCAL_JOB
+    from jobsettings import JobSettings
+    t = JobSettings()
+    t.backup_path = "\\\\192.168.2.201\\Backups"
+    t.user = "tenant\\Backup"
+    t.password = "Test123"
+    LOCAL_JOB.set_settings(t)
     CLIENT_SECRET ="ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # used to ensure proper secret testing would be given from a USB install then setting files
 
     # check if this is the first run
@@ -1112,5 +1119,5 @@ def main():
     f = FlaskServer()
 
 if __name__ == "__main__":
-    print(time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+
     main()
