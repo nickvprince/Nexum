@@ -2,7 +2,7 @@
 info
 """
 from initsql import InitSql,sqlite3,logdirectory,logpath
-    
+
 class Logger():
 
     """
@@ -15,14 +15,14 @@ class Logger():
 
     # create the database file if it does not exist and connect to it then create the table
     def __init__(self):
-        
+
         #ensure log files are ready
         InitSql.log_files()      
 
         #create connection
         self.conn = sqlite3.connect(logdirectory+logpath)
         self.cursor = self.conn.cursor()
-        
+
     # log a message to the database
     def log(self, severity, subject, message, code, date):
         """

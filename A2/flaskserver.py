@@ -1,9 +1,18 @@
+"""
+Information
+"""
+# pylint: disable= global-statement
 import os
-from flask import Flask, request,Response,make_response
-from security import Security, CLIENT_SECRET
 import time
+from flask import Flask, request,make_response
+from security import Security, CLIENT_SECRET
 from logger import Logger
 RUN_JOB_OBJECT = None
+
+
+
+
+# pylint: disable= bare-except
 class FlaskServer():
     """
     Class to manage the server
@@ -23,7 +32,8 @@ class FlaskServer():
         """     This is substituted with local clientSecret
         try:
             # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=NEXUM-SQL;DATABASE=your_database_name;Trusted_Connection=yes;')
+            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=NEXUM-SQL;
+            DATABASE=your_database_name;Trusted_Connection=yes;')
             cursor = conn.cursor()
             query = "SELECT * FROM Security WHERE ID = ?"
             cursor.execute(query, (ID,))
@@ -56,7 +66,8 @@ class FlaskServer():
 
 
         if str(recieved_client_secret) != temp:
-            logger.log("ERROR", "get_files", "Access denied", "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("ERROR", "get_files", "Access denied",
+            "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return 405
         return 200
 
@@ -70,7 +81,9 @@ class FlaskServer():
     def get_files():
         """
         Server requests a path such as C: and returns a list of files and directories in that path
-        requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, pepper, and salt2. It must also be encrypted with the pre-determined password and the ID for the salt, pepper, and salt2 is required
+        requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, 
+        pepper, and salt2. It must also be encrypted with the pre-determined password and the ID 
+        for the salt, pepper, and salt2 is required
         returns: a list of files and directories in the path
         if the clientSecret is incorrect returns "401 Access Denied"
         if the ID is incorrect returns "405 Incorrect ID"
@@ -98,22 +111,26 @@ class FlaskServer():
         # pylint: enable=unused-variable, enable=invalid-name
         # check if the path exists
         elif not os.path.exists(path):
-            logger.log("ERROR", "get_files", "Path not found", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("ERROR", "get_files", "Path not found",
+            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Incorrect path"
         # check if the path is a directory
         elif not os.path.isdir(path):
-            logger.log("ERROR", "get_files", "Path is not a directory", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("ERROR", "get_files", "Path is not a directory",
+            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Path is not a directory"
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
-            logger.log("ERROR", "get_files", "Path is not accessible", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("ERROR", "get_files", "Path is not accessible",
+            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
-            logger.log("ERROR", "get_files", "Path is empty", "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("ERROR", "get_files", "Path is empty",
+            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             code=404
             msg="Path is empty"
         # get the files and directories in the path
@@ -122,11 +139,13 @@ class FlaskServer():
             try:
                 files = os.listdir(path)
             except PermissionError:
-                logger.log("ERROR", "get_files", "Permission error", "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                logger.log("ERROR", "get_files", "Permission error",
+                "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
                 code = 401
                 msg = "Access Denied"
             except:
-                logger.log("ERROR", "get_files", "General Error getting files", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                logger.log("ERROR", "get_files", "General Error getting files",
+                "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
                 code= 500
                 msg = "Internal server error"
         else:

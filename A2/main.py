@@ -62,17 +62,6 @@ from flaskserver import FlaskServer
 # Global variables
 
 
-
-
-
-
-
-
-CLIENT_ID = -1 # client id
-TENANT_ID = -1 # tenant id
-TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
-
-
 @main_requires_admin
 def main():
     """

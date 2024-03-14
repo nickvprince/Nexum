@@ -1,8 +1,15 @@
-from logger import Logger
+"""
+Information
+"""
 import subprocess
 import time
-import job
 import threading
+import job
+from logger import Logger
+
+# pylint: disable=line-too-long
+
+
 
 LOCAL_JOB = job.Job() # job assigned to this computer
 class RunJob():
@@ -42,6 +49,7 @@ class RunJob():
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
                 command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+
                 p=subprocess.Popen(['powershell.exe', command])
                 time.sleep(10)
                 p.kill()

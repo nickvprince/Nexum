@@ -1,3 +1,7 @@
+"""
+Information
+"""
+# pylint: disable= global-statement
 import base64
 import hashlib
 import time
@@ -93,7 +97,8 @@ class Security():
             l.log("ERROR", "decrypt_string", "Decryption failed", "1004", time.asctime())
             return "Decryption failed"
         except:
-            l.log("ERROR", "decrypt_string", "General Error decrypting string", "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            l.log("ERROR", "decrypt_string", "General Error decrypting string",
+            "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return "Decryption failed"
 
     # add salt, pepper, and salt2 to the string
@@ -151,7 +156,8 @@ class Security():
             return Security.decrypt_string(password, client_secret_in).strip()
         except ValueError:
             l = Logger()
-            l.log("ERROR", "decrypt_client_secret", "Decryption failed", "1004", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            l.log("ERROR", "decrypt_client_secret", "Decryption failed",
+            "1004", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return "Decryption failed"
         except:
             return ""

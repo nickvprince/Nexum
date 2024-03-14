@@ -1,8 +1,13 @@
+"""
+Information
+"""
+
 import os
 import sqlite3
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
-SETTINGS_PATH= os.path.join(current_dir, settingsDirectory+'\\settings.db') # path to the settings database
+SETTINGS_PATH= os.path.join(current_dir, 
+    settingsDirectory+'\\settings.db') # path to the settings database
 jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
@@ -51,7 +56,9 @@ class InitSql():
         conn = sqlite3.connect(settingsDirectory+job_settingsFile)
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
-                            (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, notifyEmail TEXT, heartbeatInterval TEXT)''')
+            (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
+                retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
+                    notifyEmail TEXT, heartbeatInterval TEXT)''')
         # Close connection
         conn.commit()
         conn.close()
@@ -80,7 +87,8 @@ class InitSql():
         conn = sqlite3.connect(settingsDirectory+jobFile)
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS job
-                                    (ID TEXT, Title TEXT, created TEXT, configID TEXT, settingsID TEXT)''')
+             (ID TEXT, Title TEXT, created TEXT, 
+                configID TEXT, settingsID TEXT)''')
         # close connection
         conn.commit()
         conn.close()

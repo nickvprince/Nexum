@@ -1,3 +1,6 @@
+"""
+Information
+"""
 from logger import Logger
 class API():
     """
@@ -71,7 +74,7 @@ class API():
         Logger.debug_print("Getting download key")
         # call the API from tenant server to get the download key
         return "1234"
-    
+
     @staticmethod
     def send_success_install(client_id,tenant_id,client_secret):
         """
