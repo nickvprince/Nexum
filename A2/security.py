@@ -8,7 +8,7 @@ import time
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from logger import Logger
-CLIENT_SECRET = None # secret for the client to communicate with A2
+CLIENT_SECRET = "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # secret for the client to communicate with A2
 # pylint: disable= bare-except
 
 class Security():

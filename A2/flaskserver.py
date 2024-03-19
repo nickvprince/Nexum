@@ -62,7 +62,9 @@ class FlaskServer():
         recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
 
         temp = Security.sha256_string(CLIENT_SECRET)
+
         temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+
 
 
         if str(recieved_client_secret) != temp:

@@ -90,11 +90,14 @@ def main():
     # log a message
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
+    temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+    print(Security.encrypt_client_secret(temp))
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
     FlaskServer()
 
 if __name__ == "__main__":
-
+    
     main()
