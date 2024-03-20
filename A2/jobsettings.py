@@ -1,6 +1,19 @@
 """
-Information
+# Program: Tenant-Client
+# File: jobsettings.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the JobSettings class. This class is used
+# to hold job setting information
+
+
+# Class Types: 
+#               1. JobSettings - Entity
+
 """
+# pylint: disable= import-error, unused-argument
 class JobSettings():
     """
     Holds job setting information

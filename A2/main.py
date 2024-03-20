@@ -45,8 +45,7 @@ Error Codes
 500 - Internal server error
 """
 
-# pylint: disable= no-member
-# pylint: disable= no-name-in-module
+# pylint: disable= no-member,no-name-in-module, import-error
 
 
 import time
@@ -99,5 +98,5 @@ def main():
     FlaskServer()
 
 if __name__ == "__main__":
-    
+
     main()
