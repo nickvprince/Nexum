@@ -1,5 +1,5 @@
 """
-# Program: Tenant-Client
+# Program: Tenant-server
 # File: job.py
 # Authors: 1. Danny Smith
 #

@@ -1,5 +1,5 @@
 """
-# Program: Tenant-Client
+# Program: Tenant-server
 # File: conf.py
 # Authors: 1. Danny Smith
 #
@@ -12,6 +12,7 @@
 #               1. Configuration - Entity
 
 """
+
 
 class Configuration():
     """
