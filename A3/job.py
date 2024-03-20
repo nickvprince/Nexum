@@ -1,6 +1,18 @@
 """
-Information
+# Program: Tenant-server
+# File: job.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the Job class. This class is used 
+# to hold the entire job information and its settings
+
+# Class Types: 
+#               1. Job - Entity
+
 """
+# pylint: disable= import-error, unused-argument
 import conf
 import jobsettings
 class Job():

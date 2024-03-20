@@ -1,6 +1,20 @@
 """
-Information
+# Program: Tenant-Client
+# File: runjob.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the runjob class. This class is used 
+# to run the job assigned to this computer and manage the job
+
+# Class Types: 
+#               1. RunJob - Controller
+
 """
+
+# pylint: disable= import-error, unused-argument
+
 import subprocess
 import time
 import threading

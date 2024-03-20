@@ -1,6 +1,18 @@
 """
-Information
+# Program: Tenant-server
+# File: iconmanager.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the IconManager class. This class is used
+# to interact with the tray icon
+
+# Class Types: 
+#               1. IconManager - Controller
+
 """
+# pylint: disable= import-error, unused-argument
 
 import threading
 import time

@@ -1,6 +1,18 @@
 """
-info
+# Program: Tenant-server
+# File: logger.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the Logger class. This class is used
+# to log messages to the database file
+
+# Class Types: 
+#               1. Logger - File IO
+
 """
+# pylint: disable= import-error, unused-argument
 from initsql import InitSql,sqlite3,logdirectory,logpath
 
 class Logger():

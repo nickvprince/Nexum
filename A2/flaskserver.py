@@ -1,7 +1,19 @@
 """
-Information
+# Program: Tenant-Client
+# File: flaskserver.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the FlaskServer class. This class is used 
+# to host the tenant-client REST API
+
+# Class Types: 
+#               1. FlaskServer - API
+
 """
-# pylint: disable= global-statement
+# pylint: disable= import-error, global-statement,unused-argument
+
 import os
 import time
 from flask import Flask, request,make_response
@@ -27,8 +39,9 @@ class FlaskServer():
         """
         global RUN_JOB_OBJECT
         RUN_JOB_OBJECT = run_job_object
+
     @staticmethod
-    def auth(recieved_client_secret, logger,id):
+    def auth(recieved_client_secret, logger,identification):
         """     This is substituted with local clientSecret
         try:
             # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
@@ -62,7 +75,9 @@ class FlaskServer():
         recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
 
         temp = Security.sha256_string(CLIENT_SECRET)
+
         temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+
 
 
         if str(recieved_client_secret) != temp:

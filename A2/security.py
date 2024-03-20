@@ -1,14 +1,25 @@
 """
-Information
+# Program: Tenant-Client
+# File: security.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the Security class. This class is used 
+# to manage security, encrypt and decrypt strings, and manage the client secret
+
+# Class Types: 
+#               1. API - Connector
+
 """
-# pylint: disable= global-statement
+# pylint: disable= import-error, unused-argument, global-statement
 import base64
 import hashlib
 import time
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from logger import Logger
-CLIENT_SECRET = None # secret for the client to communicate with A2
+CLIENT_SECRET = "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # secret for the client to communicate with A2
 # pylint: disable= bare-except
 
 class Security():

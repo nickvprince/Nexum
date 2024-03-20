@@ -1,6 +1,18 @@
 """
-Information
+# Program: Tenant-server
+# File: api.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the API class. This class is used 
+# to interact with the tenant-server REST API it is a connector.
+
+# Class Types: 
+#               1. API - Connector
+
 """
+# pylint: disable= import-error, unused-argument
 from logger import Logger
 class API():
     """

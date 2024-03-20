@@ -1,15 +1,27 @@
 """
-Information
+# Program: Tenant-Client
+# File: test_main.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the tests for the main.py file
+
+
 """
+# pylint: disable= import-error, unused-argument
 import time
 import unittest
 import os
-import coverage
-import pytest
 import main
 import job
 import conf
 import jobsettings
+from initsql import InitSql
+from security import Security
+from helperfunctions import get_client_info
+from helperfunctions import *
+from api import API
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 
@@ -19,43 +31,43 @@ class TestAPI(unittest.TestCase):
 
     def test_get_tenant_portal_url(self):
         expected_url = "https://nexum.com/tenant_portal"
-        self.assertEqual(main.API.get_tenant_portal_url(), expected_url)
+        self.assertEqual(API.get_tenant_portal_url(), expected_url)
 
     def test_get_status(self):
         expected_status = "running"
-        self.assertEqual(main.API.get_status(), expected_status)
+        self.assertEqual(API.get_status(), expected_status)
 
     def test_get_percent(self):
         expected_percent = 70
-        self.assertEqual(main.API.get_percent(), expected_percent)
+        self.assertEqual(API.get_percent(), expected_percent)
 
     def test_get_version(self):
         expected_version = "1.2.7"
-        self.assertEqual(main.API.get_version(), expected_version)
+        self.assertEqual(API.get_version(), expected_version)
 
     def test_get_job(self):
         expected_job = "backup"
-        self.assertEqual(main.API.get_job(), expected_job)
+        self.assertEqual(API.get_job(), expected_job)
 
     def test_get_client_id(self):
         expected_client_id = 1
-        self.assertEqual(main.API.get_client_id(), expected_client_id)
+        self.assertEqual(API.get_client_id(), expected_client_id)
 
     def test_get_tenant_id(self):
         expected_tenant_id = 1
-        self.assertEqual(main.API.get_tenant_id(), expected_tenant_id)
+        self.assertEqual(API.get_tenant_id(), expected_tenant_id)
 
     def test_get_download_key(self):
         expected_download_key = "1234"
-        self.assertEqual(main.API.get_download_key(), expected_download_key)
+        self.assertEqual(API.get_download_key(), expected_download_key)
     def test_send_success_install(self):
         expected_status = True
-        self.assertEqual(main.API.send_success_install(0,0,0), expected_status)
+        self.assertEqual(API.send_success_install(0,0,0), expected_status)
 
 # test run job test init sql, test Logger, test Icon Manager
 
 
-class Security(unittest.TestCase):
+class SecurityTests(unittest.TestCase):
 
     def test_split_string(self):
         """
@@ -74,7 +86,7 @@ class Security(unittest.TestCase):
 
         for i, (input_str, expected_output) in enumerate(test_cases):
             with self.subTest(test=i):
-                result = main.Security.split_string(input_str)
+                result = Security.split_string(input_str)
                 self.assertEqual(result, expected_output)
 
     def test_sha(self):
@@ -90,7 +102,7 @@ class Security(unittest.TestCase):
         ]
         for i, (input_str, expected_output) in enumerate(test_cases):
             with self.subTest(test=i):
-                result = main.Security.sha256_string(input_str)
+                result = Security.sha256_string(input_str)
                 self.assertEqual(result, expected_output)
 
     def test_encrypt(self):
@@ -99,7 +111,7 @@ class Security(unittest.TestCase):
         to ensure the correct encrypted string is generated
         @test: "WelcomeHome","Password" -> "b'gAAAAABgF9Xf2PvH3lK6X6wBQ7Xm0g7nL2Qf8xw5Lz5Zp4rY5eXc
         """
-        result = main.Security.encrypt_string("WelcomeHome", "Password")
+        result = Security.encrypt_string("WelcomeHome", "Password")
         self.assertEqual(result,"v2lpkJw3rLrXCDmeci/ZxQ==")
     def test_encrypt_different_password(self):
         """
@@ -107,7 +119,7 @@ class Security(unittest.TestCase):
         to ensure the correct encrypted string is generated
         @test: "WelcomeHome","Passwrd" !="b'gAAAAABgF9Xf2PvH3lK6X6wBQ7Xm0g7nL2Qf8xw5Lz5Zp4rY5eXc
         """
-        result = main.Security.encrypt_string("WelcomeHome", "Pasword")
+        result = Security.encrypt_string("WelcomeHome", "Pasword")
         self.assertNotEqual(result,"v2lpkJw3rLrXCDmeci/ZxQ==")
     def test_decrypt_wrong_password(self):
         """
@@ -115,7 +127,7 @@ class Security(unittest.TestCase):
         to ensure the correct encrypted string is generated
         @test: "WelcomeHome","Passwrd" !="b'gAAAAABgF9Xf2PvH3lK6X6wBQ7Xm0g7nL2Qf8xw5Lz5Zp4rY5eXc
         """
-        result = main.Security.decrypt_string("WelcomHome", "v2lpkJw3rLrXCDmeci/ZxQ==")
+        result = Security.decrypt_string("WelcomHome", "v2lpkJw3rLrXCDmeci/ZxQ==")
         self.assertNotEqual(result,"Password")
     def test_decrypt_right_password(self):
         """
@@ -123,14 +135,14 @@ class Security(unittest.TestCase):
         to ensure the correct encrypted string is generated
         @test: "WelcomeHome","Passwrd" !="b'gAAAAABgF9Xf2PvH3lK6X6wBQ7Xm0g7nL2Qf8xw5Lz5Zp4rY5eXc
         """
-        print(main.Security.encrypt_string("WelcomeHome", "Password"))
-        print(main.Security.decrypt_string("WelcomeHome", "v2lpkJw3rLrXCDmeci/ZxQ=="))
+        print(Security.encrypt_string("WelcomeHome", "Password"))
+        print(Security.decrypt_string("WelcomeHome", "v2lpkJw3rLrXCDmeci/ZxQ=="))
 class TestMain(unittest.TestCase):
 
     def test_create_db_file(self):
         dir = "logs/"
         path = "test.db"
-        main.create_db_file(dir, path)
+        create_db_file(dir, path)
         self.assertTrue(os.path.exists(dir + path))
         # Delete the file
         os.remove(dir + path)
@@ -141,12 +153,12 @@ class TestMain(unittest.TestCase):
         expected_tenant_portal_url = "https://nexum.com/tenant_portal"
 
         # Call the function to get the client info
-        main.get_client_info()
+        get_client_info()
 
         # Check if the global variables are assigned correctly
-        self.assertEqual(main.CLIENT_ID, expected_client_id)
-        self.assertEqual(main.TENANT_ID, expected_tenant_id)
-        self.assertEqual(main.TENANT_PORTAL_URL, expected_tenant_portal_url)
+        self.assertEqual(CLIENT_ID, expected_client_id)
+        self.assertEqual(TENANT_ID, expected_tenant_id)
+        self.assertEqual(TENANT_PORTAL_URL, expected_tenant_portal_url)
         time.sleep(0.2)
 
 

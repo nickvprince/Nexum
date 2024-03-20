@@ -1,6 +1,19 @@
 """
-Information
+# Program: Tenant-Client
+# File: initsql.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the InitSql class. This class is used
+# to initialize the SQL files and tables 
+# at the beginning of the program and ensure they exist
+
+# Class Types: 
+#               1. InitSql - File IO
+
 """
+
 
 import os
 import sqlite3

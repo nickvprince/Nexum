@@ -1,5 +1,16 @@
 """
-information about the configuration of the tenant
+# Program: Tenant-server
+# File: conf.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains the Configuration class. This class is used 
+# as a entity to hold configuration information
+
+# Class Types: 
+#               1. Configuration - Entity
+
 """
 
 

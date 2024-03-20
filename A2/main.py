@@ -1,5 +1,5 @@
 """
-# Program: A2
+# Program: tenant-client
 # File: main.py
 # Authors: 1. Danny Smith
 #
@@ -45,8 +45,7 @@ Error Codes
 500 - Internal server error
 """
 
-# pylint: disable= no-member
-# pylint: disable= no-name-in-module
+# pylint: disable= no-member,no-name-in-module, import-error
 
 
 import time
@@ -90,6 +89,9 @@ def main():
     # log a message
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
+    temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+    print(Security.encrypt_client_secret(temp))
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
