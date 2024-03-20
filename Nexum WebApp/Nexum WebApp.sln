@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexum WebApp", "Nexum WebApp.csproj", "{5447A1CD-D0E8-4A88-9EF6-1B59E96F5AB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexum WebApp Class Library", "..\Nexum WebApp Class Library\Nexum WebApp Class Library.csproj", "{69F13A1A-8CFD-41AB-B7C8-F7388566D2BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5447A1CD-D0E8-4A88-9EF6-1B59E96F5AB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5447A1CD-D0E8-4A88-9EF6-1B59E96F5AB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5447A1CD-D0E8-4A88-9EF6-1B59E96F5AB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5447A1CD-D0E8-4A88-9EF6-1B59E96F5AB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F13A1A-8CFD-41AB-B7C8-F7388566D2BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F13A1A-8CFD-41AB-B7C8-F7388566D2BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F13A1A-8CFD-41AB-B7C8-F7388566D2BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F13A1A-8CFD-41AB-B7C8-F7388566D2BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {79CE9B00-F8D7-465B-BA49-A020B6A1BC81}
+	EndGlobalSection
+EndGlobal

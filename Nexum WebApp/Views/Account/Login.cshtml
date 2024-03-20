@@ -1,0 +1,46 @@
+﻿@model AccountLoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="container">
+    <div class="">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-title d-flex justify-content-center mb-4">
+                            <img src="~/images/logo-center.png" alt="Nexum"
+                                style="width: 100%; max-width: 300px; height: auto;">
+                        </div>
+                        <form method="post">
+                            <div class="form-group mb-1">
+                                <span asp-validation-for="AccountLoginRequest.UserName" class="text-danger"></span>
+                                <div class="input-group">
+                                    <input type="text" asp-for="AccountLoginRequest.UserName" class="form-control" id="username" placeholder="Username" />
+                                </div>
+                            </div>
+                            <div class="form-group mb-1">
+                                <span asp-validation-for="AccountLoginRequest.CurrentPassword" class="text-danger"></span>
+                                <div class="input-group">
+                                    <input type="password" asp-for="AccountLoginRequest.CurrentPassword" class="form-control" id="password" placeholder="Password" />
+                                </div>
+                            </div>
+                            <div class="form-group d-flex justify-content-center">
+                                <button type="submit" class="btn btn-purple w-100">Login</button>
+                            </div>
+                            <div class="text-center mt-4">
+                                <a href="#" class="text-muted">Forgot Username / Password?</a>
+                            </div>
+                            <div class="text-center mt-4">
+                                <del>
+                                <span class="text-muted">Don't have an account?</span>
+                                <a asp-action="" class="ml-2">Register</a>
+                                </del>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
