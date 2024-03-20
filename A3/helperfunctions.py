@@ -1,6 +1,23 @@
 """
-Information
+# Program: Tenant-server
+# File: helperfunctions.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/19/2024
+# purpose: 
+# This file contains functions to assist with the main program
+
+# Functions
+# ---------- Version 1.0
+# get_client_info - Pulls information from database and pulls remaining information from the server
+# save_client_info - Saves the client info to the settings database
+# logs - Writes logs to the users downloads folder
+# tenant_portal - Opens the tenant portal in the default web browser
+# first_run - The first run function checks if this program has been run before.
+# check_first_run - The check_first_run function checks if this program has been run before.
+
 """
+# pylint: disable= import-error, global-statement,unused-argument
 
 import os
 import time

@@ -1,5 +1,5 @@
 """
-# Program: A2
+# Program: tenant-client
 # File: main.py
 # Authors: 1. Danny Smith
 #
