@@ -85,13 +85,8 @@ class FlaskServer():
         return 200
 
 
-
-
-
-    # GET ROUTES
-    @app.route('/get_files', methods=['GET'], )
     @staticmethod
-    def get_files():
+    def get_local_files(request):
         """
         Server requests a path such as C: and returns a list of files and directories in that path
         requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, 
@@ -167,6 +162,56 @@ class FlaskServer():
 
         return files
 
+    # GET ROUTES
+    @app.route('/get_files', methods=['GET'], )
+    @staticmethod
+    def get_files():
+        """
+        Get list of files from a provided path
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        client_id = data.get('clientid', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        else:
+            for i in CLIENTS:
+                msg = "Client not found"
+                code=5
+                if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
+                    url = f"http://{i[0]}:5000/start_job"
+                    try:
+                        if i[0]== "127.0.0.1":
+                            return FlaskServer.get_local_files(request)
+                        else:
+                            return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
+                    except requests.exceptions.ConnectTimeout :
+                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
+                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        code=402
+                        msg=f"Timeout connecting to {i[0]}"
+                    except requests.exceptions.ConnectionError:
+                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
+                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        code=402
+                        msg=f"Error connecting to {i[0]}"
+                    except:
+                        msg = "Internal server error"
+                        code = 500
+
+
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
 
 
     # POST ROUTES
@@ -201,7 +246,7 @@ class FlaskServer():
                         if i[0]== "127.0.0.1":
                             code = 200
                             msg= "local job triggered"
-                            print("h1")
+
                             logger=Logger()
                             # get the json body
                             data = request.get_json()
@@ -211,13 +256,11 @@ class FlaskServer():
                             identification = data.get('ID', '')
                             code = 0
                             msg = ""
-                            print("h2")
+
                             if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
                                 code = 401
-                                msg = "Access Denied"
-                            print("h3")
+                                msg = "Access Denied"             
                             RUN_JOB_OBJECT.trigger_job()
-                            print("h4")
                             if code==0:
                                 return "200 OK"
                             else:
@@ -268,7 +311,7 @@ class FlaskServer():
                 msg = "Client not found"
                 code=5
                 if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
-                    url = f"http://{i[0]}:5000/start_job"
+                    url = f"http://{i[0]}:5000/stop_job"
                     try:
                         if i[0]== "127.0.0.1":
                             logger=Logger()
@@ -319,28 +362,70 @@ class FlaskServer():
         logger=Logger()
         # get the json body
         data = request.get_json()
-
         # get the clientSecret from the json body
         recieved_client_secret = data.get('clientSecret', '')
         # get the ID from the json body
         identification = data.get('ID', '')
+        client_id = data.get('clientid', '')
         code = 0
         msg = ""
         if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
             code = 401
             msg = "Access Denied"
-        RUN_JOB_OBJECT.kill_job()
+        else:
+            for i in CLIENTS:
+                msg = "Client not found"
+                code=5
+                if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
+                    url = f"http://{i[0]}:5000/kill_job"
+                    try:
+                        if i[0]== "127.0.0.1":
+                            logger=Logger()
+                            # get the json body
+                            data = request.get_json()
+
+                            # get the clientSecret from the json body
+                            recieved_client_secret = data.get('clientSecret', '')
+                            # get the ID from the json body
+                            identification = data.get('ID', '')
+                            code = 0
+                            msg = ""
+                            if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+                                code = 401
+                                msg = "Access Denied"
+                            RUN_JOB_OBJECT.kill_job()
+                            if code==0:
+                                return "200 OK"
+                            else:
+                                return make_response(msg, code)
+                        else:
+                            return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
+                    except requests.exceptions.ConnectTimeout :
+                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
+                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        code=402
+                        msg=f"Timeout connecting to {i[0]}"
+                    except requests.exceptions.ConnectionError:
+                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
+                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        code=402
+                        msg=f"Error connecting to {i[0]}"
+                    except:
+                        msg = "Internal server error"
+                        code = 500
+
+
         if code==0:
             return "200 OK"
         else:
             return make_response(msg, code)
+
 
     @app.route('/enable_job', methods=['POST'], )
     @staticmethod
     def enable_job():
         """
         Triggers the RunJob with the job assigned to this computer
-        """
         logger=Logger()
         # get the json body
         data = request.get_json()
@@ -358,7 +443,67 @@ class FlaskServer():
             return "200 OK"
         else:
             return make_response(msg, code)
+        """
 
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = data.get('clientSecret', '')
+        # get the ID from the json body
+        identification = data.get('ID', '')
+        client_id = data.get('clientid', '')
+        code = 0
+        msg = ""
+        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+            code = 401
+            msg = "Access Denied"
+        else:
+            for i in CLIENTS:
+                msg = "Client not found"
+                code=5
+                if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
+                    url = f"http://{i[0]}:5000/kill_job"
+                    try:
+                        if i[0]== "127.0.0.1":
+                            logger=Logger()
+                            # get the json body
+                            data = request.get_json()
+                            # get the clientSecret from the json body
+                            recieved_client_secret = data.get('clientSecret', '')
+                            # get the ID from the json body
+                            identification = data.get('ID', '')
+                            code = 0
+                            msg = ""
+                            if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+                                code = 401
+                                msg = "Access Denied"
+                            RUN_JOB_OBJECT.enable_job()
+                            if code==0:
+                                return "200 OK"
+                            else:
+                                return make_response(msg, code)
+                        else:
+                            return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
+                    except requests.exceptions.ConnectTimeout :
+                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
+                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        code=402
+                        msg=f"Timeout connecting to {i[0]}"
+                    except requests.exceptions.ConnectionError:
+                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
+                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        code=402
+                        msg=f"Error connecting to {i[0]}"
+                    except:
+                        msg = "Internal server error"
+                        code = 500
+
+
+        if code==0:
+            return "200 OK"
+        else:
+            return make_response(msg, code)
 
 
 
