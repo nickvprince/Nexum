@@ -67,27 +67,27 @@ def main():
     Main method of the program for testing and starting the program
     """
 
-    t = JobSettings()
-    t.backup_path = "\\\\192.168.2.201\\Backups"
-    t.user = "tenant\\Backup"
-    t.password = "Test123"
-    LOCAL_JOB.set_settings(t)
+    job_settings = JobSettings()
+    job_settings.backup_path = "\\\\192.168.2.201\\Backups"
+    job_settings.user = "tenant\\Backup"
+    job_settings.password = "Test123"
+    LOCAL_JOB.set_settings(job_settings)
     Security.set_client_secret("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     # check if this is the first run
     check_first_run("1234")
     # create a Logger
-    l = Logger()
+    logger = Logger()
     # init databases
     InitSql()
     # get client info
     get_client_info()
     # create the IconManager
-    i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
-    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
+    icon_manager = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",logger)
     # run the icon
-    i.run()
+    icon_manager.run()
     # log a message
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    logger.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
     temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")

@@ -29,18 +29,18 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
-    l = Logger()
+    logger = Logger()
 
     # create the IconManager
-    i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
-    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Server",l)
+    icon_manager = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Server",logger)
     # run the icon
-    i.run()
+    icon_manager.run()
     # log a message
 
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
-    f = FlaskServer()
-    f.run()
+    logger.log("INFO", "Main", "Main has started", "000", time.asctime())
+    flask = FlaskServer()
+    flask.run()
 
 if __name__ == "__main__":
 
