@@ -590,6 +590,14 @@ class FlaskServer():
         """
         return "200 OK"
 
+    @website.route('/get_hash_by_id', methods=['GET'], )
+    @staticmethod
+    def get_hash_by_id():
+        """
+        gives salt, pepper, salt2 based on ID
+        """
+        return "200 OK"
+
 
 
     # PUT ROUTES

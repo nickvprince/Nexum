@@ -20,7 +20,7 @@ class HeartBeat:
     """
     server_address = None
     server_port = None
-    tenant_secret = None
+    client_secret = None
     interval = None
     last_heartbeat = None
     @staticmethod

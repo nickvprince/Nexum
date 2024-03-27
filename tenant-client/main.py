@@ -47,7 +47,13 @@ Error Codes
 
 # pylint: disable= no-member,no-name-in-module, import-error
 
-
+import win32serviceutil
+import win32service 
+import win32event
+import servicemanager
+import socket
+import sys
+import threading
 import time
 from pyuac import main_requires_admin
 from logger import Logger
@@ -59,7 +65,6 @@ from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 # Global variables
-
 
 @main_requires_admin
 def main():
@@ -97,6 +102,42 @@ def main():
     # run server to listen for requests
     FlaskServer()
 
-if __name__ == "__main__":
+class TestService(win32serviceutil.ServiceFramework):
+    _svc_name_ = "NexumClientService"
+    _svc_display_name_ = "Nexum Client"
 
+    def __init__(self, args):
+        win32serviceutil.ServiceFramework.__init__(self, args)
+        self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
+        self.is_alive = True
+
+    def SvcStop(self):
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        win32event.SetEvent(self.hWaitStop)
+        self.is_alive = False
+
+    def SvcDoRun(self):
+        servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
+                              servicemanager.PYS_SERVICE_STARTED,
+                              (self._svc_name_, ''))
+        self.main()
+    
+
+    def main(self):
+        t1 = threading.Thread(target=main)
+        t1.setDaemon(True)
+        t1.start()
+        win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+        while True:
+            pass
+
+if __name__ == "__main__":
     main()
+    if len(sys.argv) > 1:
+       # Called by Windows shell. Handling arguments such as: Install, Remove, etc.
+       win32serviceutil.HandleCommandLine(TestService)
+    else:
+       # Called by Windows Service. Initialize the service to communicate with the system operator
+       servicemanager.Initialize()
+       servicemanager.PrepareToHostSingle(TestService)
+       servicemanager.StartServiceCtrlDispatcher()
