@@ -565,7 +565,7 @@ class FlaskServer():
         Gets version information from the client
         """
         return "200 OK"
-
+ 
     @website.route('/get_backup', methods=['GET'], )
     @staticmethod
     def get_backup():
