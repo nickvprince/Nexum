@@ -17,6 +17,7 @@
 
 import os
 import sqlite3
+
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
 SETTINGS_PATH= os.path.join(current_dir, 
@@ -26,6 +27,7 @@ configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
+
 def create_db_file(directory,path):
     """
     create the database file if it does not exist and the folder for it

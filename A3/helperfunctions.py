@@ -36,6 +36,14 @@ TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
 # pylint: disable= bare-except
 # pylint: disable= global-statement
 
+def check_install_key(key, secret, server, port):
+    """
+    Check the install key with the server to see 
+    if the install is valid
+    """
+    # check the install key
+    return True
+
 def get_client_info():
     """
     Used to pull information from database and pull remaining information from the server
@@ -183,7 +191,7 @@ def tenant_portal():
     os.system(f"start {TENANT_PORTAL_URL}")
 
 @staticmethod
-def first_run(arg):
+def first_run(key,secret,server,port):
     """
     The first run function checks if this program has been run before. 
     If it has not been run before it will create a registry entry and 
@@ -193,31 +201,29 @@ def first_run(arg):
     :return: True if the first run is successful, False otherwise
     """
 
-    # call API.get_download_key
-    download_key = API.get_download_key()
-    if download_key != arg :
-        return False
-        # create registry entry Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Nexum\A2
-    try:
-        get_client_info()
-        save_client_info()
-        key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Nexum")
-        winreg.CloseKey(key)
-        key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Nexum\\Client")
-        winreg.CloseKey(key)
-        API.send_success_install(CLIENT_ID,TENANT_ID,CLIENT_SECRET)
-        return True
-    except FileNotFoundError:
-        print(traceback.format_exc())
-        return False
-    except PermissionError:
-        print(traceback.format_exc())
-        return False
-    except:
-        print(traceback.format_exc())
+    if check_install_key(key,secret,server,port):
+        try:
+            get_client_info()
+            save_client_info()
+            key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Nexum")
+            winreg.CloseKey(key)
+            key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Nexum\\Client")
+            winreg.CloseKey(key)
+            API.send_success_install(CLIENT_ID,TENANT_ID,CLIENT_SECRET)
+            return True
+        except FileNotFoundError:
+            print(traceback.format_exc())
+            return False
+        except PermissionError:
+            print(traceback.format_exc())
+            return False
+        except:
+            print(traceback.format_exc())
+            return False
+    else:
         return False
 @staticmethod
-def check_first_run(arg):
+def check_first_run(key,secret,server,port):
 
     """
     The check_first_run function checks if this program has been run before.
@@ -231,7 +237,7 @@ def check_first_run(arg):
         winreg.CloseKey(key)
         return True
     except FileNotFoundError:
-        return first_run(arg)
+        return first_run(key,secret,server,port)
     except PermissionError:
         l.log("ERROR", "check_first_run", "Permission Error checking registry",
         "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))

@@ -36,6 +36,15 @@ TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
 # pylint: disable= bare-except
 # pylint: disable= global-statement
 
+def check_install_key(key, secret, server, port):
+    """
+    Check the install key with the server to see 
+    if the install is valid
+    """
+    # check the install key
+    return True
+
+
 def get_client_info():
     """
     Used to pull information from database and pull remaining information from the server
@@ -180,6 +189,7 @@ def tenant_portal():
     """
     Opens the tenant portal in the default web browser
     """
+    # add check here to ensure starts with https://
     os.system(f"start {TENANT_PORTAL_URL}")
 
 @staticmethod
@@ -199,6 +209,7 @@ def first_run(arg):
         return False
         # create registry entry Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Nexum\A2
     try:
+        check_install_key("","","",5001) # send install key and tenant secret to verify install
         get_client_info()
         save_client_info()
         key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Nexum")

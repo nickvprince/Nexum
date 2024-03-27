@@ -30,7 +30,7 @@ class FlaskServer():
     Class to manage the server
     """
 
-    app = Flask(__name__)
+    website = Flask(__name__)
 
     @staticmethod
     def set_run_job_object(run_job_object):
@@ -91,7 +91,7 @@ class FlaskServer():
 
 
     # GET ROUTES
-    @app.route('/get_files', methods=['GET'], )
+    @website.route('/get_files', methods=['GET'], )
     @staticmethod
     def get_files():
         """
@@ -169,11 +169,9 @@ class FlaskServer():
 
         return files
 
-
-
     # POST ROUTES
 
-    @app.route('/start_job', methods=['POST'], )
+    @website.route('/start_job', methods=['PUT'], )
     @staticmethod
     def start_job():
         """
@@ -197,7 +195,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/stop_job', methods=['POST'], )
+    @website.route('/stop_job', methods=['PUT'], )
     @staticmethod
     def stop_job():
         """
@@ -221,7 +219,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/kill_job', methods=['POST'], )
+    @website.route('/kill_job', methods=['PUT'], )
     @staticmethod
     def kill_job():
         """
@@ -246,7 +244,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/enable_job', methods=['POST'], )
+    @website.route('/enable_job', methods=['PUT'], )
     @staticmethod
     def enable_job():
         """
@@ -270,8 +268,58 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
+    @website.route('/modify_job', methods=['POST'], )
+    @staticmethod
+    def modify_job():
+        """
+        Sets the current job to the new job. Or creates on if it does not exist
+        """
+        return "200 OK"
+    @website.route('/get_job', methods=['GET'], )
+    @staticmethod
+    def get_job():
+        """
+        Gives Current Job Information
+        """
+        return "200 OK"
+    @website.route('/force_checkin', methods=['GET'], )
+    @staticmethod
+    def force_checkin():
+        """
+        Forces a heartbeat
+        """
+        return "200 OK"
+    @website.route('/restore', methods=['POST'], )
+    @staticmethod
+    def restore():
+        """
+        Restores files or directories
+        """
+        return "200 OK"
 
+    @website.route('/get_Status', methods=['GET'], )
+    @staticmethod
+    def get_status():
+        """
+        Gets the current status of running jobs or error state, version information etc
+        """
+        return "200 OK"
 
+    @website.route('/force_update', methods=['PUT'], )
+    @staticmethod
+    def force_update():
+        """
+        Forces the client to pull an update from the server
+        """
+        return "200 OK"
+
+    @website.route('/get_version', methods=['GET'], )
+    @staticmethod
+    def get_version():
+        """
+        Gets version information from the client
+        """
+        return "200 OK"
 
 
 
@@ -288,7 +336,7 @@ class FlaskServer():
         """
         Runs the server
         """
-        self.app.run()
+        self.website.run()
     def __init__(self):
         Logger.debug_print("flask server started")
         self.run()
