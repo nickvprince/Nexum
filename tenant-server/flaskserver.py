@@ -23,7 +23,7 @@ from runjob import RunJob
 
 RUN_JOB_OBJECT = None
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
-
+KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 
 
 # pylint: disable= bare-except
@@ -607,11 +607,23 @@ class FlaskServer():
         """
         Gets version information from the client
         """
+        secret = request.headers.get('secret')
+        key = request.args.get('key')
         Logger.debug_print("--------")
-        Logger.debug_print(request.headers.get('secret'))
-        Logger.debug_print(request.args.get('key'))
+        Logger.debug_print(secret)
+        Logger.debug_print(key)
+        Logger.debug_print(KEYS[0])
         Logger.debug_print("--------")
-        return make_response("200 ok", 200)
+
+        if secret == CLIENT_SECRET:
+            Logger.debug_print("secret matches")
+            for key_check in KEYS:
+                if key_check == key:
+                    Logger.debug_print("key matches")
+                    return make_response("200 ok", 200)
+            return make_response("403 Rejected", 403)
+        return make_response("401 Access Denied", 401)
+        
 
 
 

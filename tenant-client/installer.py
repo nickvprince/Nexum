@@ -7,6 +7,9 @@ import traceback
 from logger import Logger
 import time
 import requests
+import shutil
+import os
+
 REGISTRATION_PATH = "check-installer"
 
 def install(key:str, address:str, secret:str, port:int):
@@ -16,29 +19,52 @@ def install(key:str, address:str, secret:str, port:int):
     T = requests.Response()
     try:
         T = requests.request("GET", f"http://{address}:{port}/{REGISTRATION_PATH}?key={key}", timeout=5, headers={"Content-Type":"application/json", "secret":secret})
-
     except:
         l.debug_print("Error in reaching out to server")
-    
-        if T.status_code == 200:
-            # continue with the installation process
-            pass
-        else:
-            # handle the invalid download key case
-            pass
-        # if it is valid
+    if T.status_code == 200:
+          # if it is valid
             # Curl the executable from the server
-            # copy file to c:/program files/Nexum/
-            # run commands
-               # 1. cd.
-               # 2. nexum.exe install
-               # 3. sc config NexumClientServices_Second start=auto DisplayName="Nexum Client second" password=Nexum
-               # 4. sc failure NexumClientServices_Second reset= 30 actions= restart/1000/restart/1000/restart/1000
-               # 5. sc start NexumClientServices_Second
-            # Create .bat file with command "timeout 2\ndel installer.exe"
+
+        # currently copy since its local
+        # Copy file to c:/program files/Nexum/
+        shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "nexum.exe"), "C:/Program Files/Nexum/nexum.exe")
+
+        # Create .bat file with command "timeout 5\ndel C:/Users/teche/Conestoga College/Nicholas Prince - Capstone Collaboration/Danny vs-code/tenant-server/nexum.exe"
+        with open("C:/Program Files/Nexum/nexum.bat", "w") as file:
+            file.write("timeout 5\n")
+            file.write("del \"C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\nexum.exe\"\n")
+            file.write("del \"%~f0\"")
+            file.close()
             # run the bat file
+        os.system("\"C:/Program Files/Nexum/nexum.bat\"")
             # exit the program
-    pass
+        
+        # Add registry keys
+        try:
+            # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\nexum"
+            run_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_WRITE)
+            winreg.SetValueEx(run_key, "nexum", 0, winreg.REG_SZ, r"C:\Program Files\Nexum.exe")
+            winreg.CloseKey(run_key)
+
+            # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\nexum"
+            app_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths", 0, winreg.KEY_WRITE)
+            nexum_key = winreg.CreateKey(app_key, "nexum")
+            winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, r"C:\Program Files\Nexum\nexum.exe")
+            winreg.SetValueEx(nexum_key, "Path", 0, winreg.REG_SZ, r"C:\Program Files\Nexum")
+            winreg.CloseKey(nexum_key)
+            winreg.CloseKey(app_key)
+
+            l.debug_print("Registry keys added successfully")
+        except Exception as e:
+            l.debug_print(f"Error adding registry keys: {str(e)}")
+        l.debug_print("Valid Key")
+    elif T.status_code == 401:
+        l.debug_print("Invalid Secret")
+    elif T.status_code == 403:
+        l.debug_print("Invalid Key")
+    else:
+        l.debug_print("Invalid Key")
+
 def main(key:str, address:str, secret:str, port:int):
     """ 
     Runs the Installation
@@ -67,5 +93,4 @@ def main(key:str, address:str, secret:str, port:int):
     pass
 
 if __name__ == "__main__":
-    main("Install Key","127.0.0.1","Secret",5000)
-
+    main("LJA;HFLASBFOIASH[jfnW.FJPIH","127.0.0.1","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD",5000)
