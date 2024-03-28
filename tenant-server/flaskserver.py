@@ -601,7 +601,17 @@ class FlaskServer():
 
 
     # PUT ROUTES
-
+    @website.route('/check-installer', methods=['GET'], )
+    @staticmethod
+    def check_installer():
+        """
+        Gets version information from the client
+        """
+        Logger.debug_print("--------")
+        Logger.debug_print(request.headers.get('secret'))
+        Logger.debug_print(request.args.get('key'))
+        Logger.debug_print("--------")
+        return make_response("200 ok", 200)
 
 
 

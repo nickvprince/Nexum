@@ -15,7 +15,6 @@
 
 
 import time
-from pyuac import main_requires_admin
 from iconmanager import IconManager, image_path
 from helperfunctions import logs, tenant_portal
 from logger import Logger
@@ -24,7 +23,6 @@ from flaskserver import FlaskServer
 # Global variables
 
 
-@main_requires_admin
 def main():
     """
     Main method of the program for testing and starting the program
