@@ -168,7 +168,6 @@ class FlaskServer():
         # <-- Turn into a method
 
         return files
-
     # POST ROUTES
 
     @website.route('/start_job', methods=['PUT'], )
@@ -333,6 +332,7 @@ class FlaskServer():
 
 
 
+
     # PUT ROUTES
 
 
@@ -348,3 +348,4 @@ class FlaskServer():
     def __init__(self):
         Logger.debug_print("flask server started")
         self.run()
+        
