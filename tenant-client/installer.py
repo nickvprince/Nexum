@@ -9,6 +9,7 @@ import time
 import requests
 import shutil
 import os
+import subprocess
 
 REGISTRATION_PATH = "check-installer"
 
@@ -28,7 +29,7 @@ def install(key:str, address:str, secret:str, port:int):
         # currently copy since its local
         # Copy file to c:/program files/Nexum/
         shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "nexum.exe"), "C:/Program Files/Nexum/nexum.exe")
-
+        shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "watchdog.exe"), "C:/Program Files/Nexum/watchdog.exe")
         # Create .bat file with command "timeout 5\ndel C:/Users/teche/Conestoga College/Nicholas Prince - Capstone Collaboration/Danny vs-code/tenant-server/nexum.exe"
         with open("C:/Program Files/Nexum/nexum.bat", "w") as file:
             file.write("timeout 5\n")
@@ -43,7 +44,7 @@ def install(key:str, address:str, secret:str, port:int):
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\nexum"
             run_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_WRITE)
-            winreg.SetValueEx(run_key, "nexum", 0, winreg.REG_SZ, r"C:\Program Files\Nexum.exe")
+            winreg.SetValueEx(run_key, "nexum", 0, winreg.REG_SZ, r"C:\Program Files\Nexum\Nexum.exe")
             winreg.CloseKey(run_key)
 
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\nexum"
@@ -74,11 +75,13 @@ def main(key:str, address:str, secret:str, port:int):
     try:
         key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\microsoft\\windows\\currentversion\\app paths\\nexum")
         winreg.CloseKey(key)
+       
         l.debug_print("key exists")
         #start program here
         return True
     except FileNotFoundError:
         # if not installed install the program
+
         return install(key, address, secret, port)
     except PermissionError:
         l.log("ERROR", "check_first_run", "Permission Error checking registry",
