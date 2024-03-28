@@ -282,6 +282,13 @@ class FlaskServer():
         Gives Current Job Information
         """
         return "200 OK"
+    
+    @staticmethod
+    def get_jobs():
+        """
+        Gives job information for all clients
+        """
+        return "200 OK"
     @website.route('/force_checkin', methods=['GET'], )
     @staticmethod
     def force_checkin():
@@ -299,7 +306,7 @@ class FlaskServer():
 
     @website.route('/get_Status', methods=['GET'], )
     @staticmethod
-    def get_status():
+    def get_job_status():
         """
         Gets the current status of running jobs or error state, version information etc
         """
@@ -319,7 +326,8 @@ class FlaskServer():
         """
         Gets version information from the client
         """
-        return "200 OK"
+        return "200 ok"
+
 
 
 
