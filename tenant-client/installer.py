@@ -3,17 +3,18 @@ Installer file for the program
 """
 #pylint: disable= bare-except, import-error, wrong-import-order
 import winreg
-import traceback
 from logger import Logger
 import time
 import requests
 import shutil
 import os
-import subprocess
-
+# pylint: disable= line-too-long
 REGISTRATION_PATH = "check-installer"
 
 def install(key:str, address:str, secret:str, port:int):
+    """ 
+    Installs the program
+    """
     l = Logger()
     l.debug_print("Installing")
      # reach out to server to see if download key is valid
@@ -31,7 +32,7 @@ def install(key:str, address:str, secret:str, port:int):
         shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "nexum.exe"), "C:/Program Files/Nexum/nexum.exe")
         shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "watchdog.exe"), "C:/Program Files/Nexum/watchdog.exe")
         # Create .bat file with command "timeout 5\ndel C:/Users/teche/Conestoga College/Nicholas Prince - Capstone Collaboration/Danny vs-code/tenant-server/nexum.exe"
-        with open("C:/Program Files/Nexum/nexum.bat", "w") as file:
+        with open("C:/Program Files/Nexum/nexum.bat", "w", encoding="utf-8") as file:
             file.write("timeout 5\n")
             file.write("del \"C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\nexum.exe\"\n")
             file.write("del \"%~f0\"")
@@ -39,7 +40,7 @@ def install(key:str, address:str, secret:str, port:int):
             # run the bat file
         os.system("\"C:/Program Files/Nexum/nexum.bat\"")
             # exit the program
-        
+
         # Add registry keys
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\nexum"
@@ -71,11 +72,13 @@ def main(key:str, address:str, secret:str, port:int):
     Runs the Installation
     """
     l = Logger()
-    # Check if registry key exists for the program "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\nexum"
+    # Check if registry key exists for the program 
+    #"Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\nexum"
     try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\microsoft\\windows\\currentversion\\app paths\\nexum")
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+        r"SOFTWARE\\microsoft\\windows\\currentversion\\app paths\\nexum")
         winreg.CloseKey(key)
-       
+
         l.debug_print("key exists")
         #start program here
         return True
@@ -89,11 +92,6 @@ def main(key:str, address:str, secret:str, port:int):
     except:
         l.log("ERROR", "check_first_run", "General Error checking registry",
         "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-
-
-    
-       
-    pass
 
 if __name__ == "__main__":
     main("LJA;HFLASBFOIASH[jfnW.FJPIH","127.0.0.1","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD",5000)
