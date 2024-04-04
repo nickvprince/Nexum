@@ -312,7 +312,7 @@ class FlaskServer():
             job_to_save.set_config(config)
             job_to_save.save()
  
-    
+     
             return "200 OK"
         elif FlaskServer.auth(secret, logger, id) == 405:
             return "401 Access Denied"
