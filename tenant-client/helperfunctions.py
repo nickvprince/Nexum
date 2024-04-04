@@ -27,7 +27,7 @@ import pandas as pd
 from security import CLIENT_SECRET
 from api import API
 from logger import Logger
-from initsql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH
+from sql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH
 POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id

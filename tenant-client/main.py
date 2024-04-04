@@ -51,7 +51,7 @@ Error Codes
 
 import time
 from logger import Logger
-from initsql import InitSql
+from sql import InitSql
 from runjob import RunJob, LOCAL_JOB
 from helperfunctions import get_client_info, logs, tenant_portal
 from security import Security

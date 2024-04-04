@@ -15,6 +15,8 @@
 # pylint: disable= import-error, unused-argument
 import conf
 import jobsettings
+import sqlite3
+from sql import settingsDirectory, jobFile, configFile, job_settingsFile
 class Job():
     """
     Class that holds the entire job
@@ -55,3 +57,59 @@ class Job():
     def set_settings(self, settings_in):
         self.settings = settings_in
     #pylint: enable=missing-function-docstring
+
+    def save(self):
+        """
+        Saves the job to the database
+        """
+        conn1 = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor1 = conn1.cursor()
+        cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention, lastJob, notifyEmail, heartbeatInterval)'
+                        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (self.settings.get_id(), self.settings.get_schedule(), self.settings.get_start_time(), self.settings.get_stop_time(), self.settings.get_retry_count(), self.settings.get_sampling(), self.settings.get_retention(), self.settings.get_last_job(), self.settings.get_notify_email(), self.settings.get_heartbeat_interval()))
+        conn1.commit()
+        conn1.close()
+        conn2 = sqlite3.connect(settingsDirectory+configFile)
+        cursor2 = conn2.cursor()
+        cursor2.execute('INSERT INTO config (ID, tenantSecret, Address)'
+                        'VALUES (?, ?, ?)', (self.config.get_id(), self.config.get_tenant_secret(), self.config.get_address()))
+        conn2.commit()
+        conn2.close()
+        conn = sqlite3.connect(settingsDirectory+jobFile)
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO job (ID, Title, created, configID, settingsID)'
+                        'VALUES (?, ?, ?, ?, ?)', (self.get_id(), self.get_title(), self.get_created(), self.config.get_id(), self.settings.get_id()))
+        conn.commit()
+        conn.close()
+    def load(self,id_in):
+        """
+        Loads the job from the database
+        """
+        my_job = Job()
+        conn = sqlite3.connect(settingsDirectory+jobFile)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
+        my_job = cursor.fetchone()
+        conn.close()
+
+        conn = sqlite3.connect(settingsDirectory+configFile)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM config WHERE ID = ?', (my_job[3],))
+        my_config = cursor.fetchone()
+        conn.close()
+
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (my_job[4],))
+        my_settings = cursor.fetchone()
+        conn.close()
+
+        my_job.set_id(my_job[0])
+        my_job.set_title(my_job[1])
+        my_job.set_created(my_job[2])
+        my_job.set_config(my_config)
+        my_job.set_settings(my_settings)
+    def delete(self):
+        """ 
+        Deletes the job from the database
+        """
+        pass

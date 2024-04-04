@@ -29,6 +29,7 @@ def install(key:str, address:str, secret:str, port:int):
 
         # currently copy since its local
         # Copy file to c:/program files/Nexum/
+        # os.environ["ProgramFiles"] 
         shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "nexum.exe"), "C:/Program Files/Nexum/nexum.exe")
         shutil.copy(os.path.join("C:\\Users\\teche\\Conestoga College\\Nicholas Prince - Capstone Collaboration\\Danny vs-code\\tenant-server\\", "watchdog.exe"), "C:/Program Files/Nexum/watchdog.exe")
         # Create .bat file with command "timeout 5\ndel C:/Users/teche/Conestoga College/Nicholas Prince - Capstone Collaboration/Danny vs-code/tenant-server/nexum.exe"
