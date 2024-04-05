@@ -20,7 +20,9 @@ from flask import Flask, request,make_response
 from security import Security, CLIENT_SECRET
 from logger import Logger
 from runjob import RunJob  
-
+from job import Job
+from jobsettings import JobSettings
+from conf import Configuration
 RUN_JOB_OBJECT = None
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
@@ -511,7 +513,48 @@ class FlaskServer():
         """
         Sets the current job to the new job. Or creates on if it does not exist
         """
-        return "200 OK"
+        global RUN_JOB_OBJECT
+        logger=Logger()
+        data = request.get_json()
+        # get client secret from header
+        secret = request.headers.get('clientSecret')
+        id = request.headers.get('ID')
+
+        if FlaskServer.auth(secret, logger, id) == 200:
+            recieved_job = data.get(id, '')
+            # recieve settings as json
+            recieved_settings = recieved_job.get('settings', '')
+
+            job_to_save = Job()
+            job_to_save.set_id(id)
+            job_to_save.set_title(recieved_job.get('title', ''))
+            settings = JobSettings()
+            settings.set_id(0)
+            settings.set_schedule(recieved_settings.get('schedule', ''))
+            settings.set_start_time(recieved_settings.get('startTime', ''))
+            settings.set_stop_time(recieved_settings.get('stopTime', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_sampling(recieved_settings.get('sampling', ''))
+            settings.set_notify_email(recieved_settings.get('notifyEmail', ''))
+            settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_retention(recieved_settings.get('retention', ''))
+            settings.backup_path=recieved_settings.get('path', '')
+            config = Configuration(0, 0, secret)
+            config.address = recieved_settings.get('path', '')
+            settings.set_user(recieved_settings.get('user', ''))
+            settings.set_password(recieved_settings.get('password', ''))
+
+            job_to_save.set_settings(settings)
+            job_to_save.set_config(config)
+            job_to_save.save()
+ 
+     
+            return "200 OK"
+        elif FlaskServer.auth(secret, logger, id) == 405:
+            return "401 Access Denied"
+        else:
+            return "500 Internal Server Error"
     @website.route('/get_job', methods=['GET'], )
     @staticmethod
     def get_job():

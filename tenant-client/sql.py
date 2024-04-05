@@ -98,9 +98,9 @@ class MySqlite():
 
 
         cursor.execute('''SELECT MAX(id) FROM logs''')
-        result = cursor.fetchone()
-        if result[0] is not None:
-            id = result[0] + 1
+        result = cursor.fetchone()[0]
+        if result is not None:
+            id = int(result) + 1
         else:
             id = 1
 
