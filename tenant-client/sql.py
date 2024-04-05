@@ -39,11 +39,49 @@ class MySqlite():
         Write a log to the database
         """
         conn = sqlite3.connect(logdirectory+logpath)
+        id = 0
         cursor = conn.cursor()
-        cursor.execute('''INSERT INTO logs (severity, subject, message, code, date)
-                    VALUES (?, ?, ?, ?, ?)''', (severity, subject, message, code, date))
+
+
+        cursor.execute('''SELECT MAX(id) FROM logs''')
+        result = cursor.fetchone()
+        if result[0] is not None:
+            id = result[0] + 1
+        else:
+            id = 1
+
+
+        cursor.execute('''INSERT INTO logs (id,severity, subject, message, code, date)
+                    VALUES (?,?, ?, ?, ?, ?)''', (id, severity, subject, message, code, date))
         conn.commit()
         conn.close()
+    @staticmethod
+    def write_setting(setting, value):
+        """
+        Write a setting to the database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+        existing_value = cursor.fetchone()
+        if existing_value:
+            cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
+        else:
+            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''', (setting, value))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def read_setting(setting):
+        """
+        Read a setting from the database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+        value = cursor.fetchone()
+        conn.close()
+        return value
 
 def create_db_file(directory,path):
     """
@@ -135,7 +173,7 @@ class InitSql():
         conn = sqlite3.connect(logdirectory+logpath)
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS logs
-        (severity TEXT, subject TEXT, message TEXT, code TEXT, date TEXT)''')
+        (id TEXT,severity TEXT, subject TEXT, message TEXT, code TEXT, date TEXT)''')
         # close connection
         conn.commit()
         conn.close()

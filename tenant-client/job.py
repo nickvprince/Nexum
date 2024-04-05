@@ -84,30 +84,31 @@ class Job():
         """
         Loads the job from the database
         """
-        my_job = Job()
+        
         conn = sqlite3.connect(settingsDirectory+jobFile)
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
-        my_job = cursor.fetchone()
+        info = cursor.fetchone()
+        self.set_id(info[0])
+        self.set_title(info[1])
+        self.set_created(info[2])
         conn.close()
 
         conn = sqlite3.connect(settingsDirectory+configFile)
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM config WHERE ID = ?', (my_job[3],))
+        cursor.execute('SELECT * FROM config WHERE ID = ?', (self.get_id(),))
         my_config = cursor.fetchone()
         conn.close()
 
         conn = sqlite3.connect(settingsDirectory+job_settingsFile)
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (my_job[4],))
+        cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (self.get_id(),))
         my_settings = cursor.fetchone()
         conn.close()
+        
+        self.set_config(my_config)
+        self.set_settings(my_settings)
 
-        my_job.set_id(my_job[0])
-        my_job.set_title(my_job[1])
-        my_job.set_created(my_job[2])
-        my_job.set_config(my_config)
-        my_job.set_settings(my_settings)
     def delete(self):
         """ 
         Deletes the job from the database
