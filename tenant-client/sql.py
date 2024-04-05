@@ -17,6 +17,10 @@
 
 import os
 import sqlite3
+import subprocess
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import base64
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
@@ -27,6 +31,56 @@ configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
+
+    # encrypt a string using AES
+@staticmethod
+def encrypt_string(password, string):
+    """
+    Encrypt a string with AES-256 bit encryption
+    """
+    # Pad the password to be 16 bytes long
+    password_hashed = str(password).ljust(16).encode('utf-8')
+
+    # Create a new AES cipher with the password as the key
+    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
+    encryptor = cipher.encryptor()
+
+    # Pad the string to be a multiple of 16 bytes long
+    string = string.ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+
+    # Encrypt the string using AES
+    encrypted_string = encryptor.update(string) + encryptor.finalize()
+
+    # Encode the encrypted string in base64
+    encoded_string = base64.b64encode(encrypted_string)
+
+    return encoded_string.decode('utf-8')
+
+# decrypt a string using AES
+@staticmethod
+def decrypt_string(password, string):
+    """
+    Decrypt a string with AES-256 bit decryption
+    """
+    # Pad the password to be 16 bytes long
+    password_hashed = str(password).ljust(16).encode('utf-8')
+
+    # Create a new AES cipher with the password as the key
+    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+
+    # Decode the string from base64
+    decoded_string = base64.b64decode(string)
+
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    try:
+        return decrypted_string.decode('utf-8')
+    except UnicodeDecodeError:
+        return "Decryption failed"
+    except:
+        return "Decryption failed"
+        
 class MySqlite():
     """
     Class to interact with the sqlite database
@@ -60,6 +114,13 @@ class MySqlite():
         """
         Write a setting to the database
         """
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'], capture_output=True, text=True)
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:24]
+
+        value = encrypt_string(output,value)
+
         conn = sqlite3.connect(SETTINGS_PATH)
         cursor = conn.cursor()
         cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
@@ -76,12 +137,18 @@ class MySqlite():
         """
         Read a setting from the database
         """
+
         conn = sqlite3.connect(SETTINGS_PATH)
         cursor = conn.cursor()
         cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
-        value = cursor.fetchone()
+        value = cursor.fetchone()[0]
         conn.close()
-        return value
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'], capture_output=True, text=True) # enc with uuid
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:24]
+        value = decrypt_string(output,value)
+        return value.rstrip()
 
 def create_db_file(directory,path):
     """

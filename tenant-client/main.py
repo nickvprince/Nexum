@@ -112,8 +112,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     init()
-    l=Logger()
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
     main()
