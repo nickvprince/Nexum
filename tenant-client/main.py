@@ -51,21 +51,33 @@ Error Codes
 
 import time
 from logger import Logger
-from initsql import InitSql
+from sql import InitSql, MySqlite
 from runjob import RunJob, LOCAL_JOB
-from helperfunctions import get_client_info, logs, tenant_portal
+from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
+from job import Job
 from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
+from HeartBeat import HeartBeat
 # Global variables
 
+def init():
+    """
+    Initializes the program
+    """
+    global LOCAL_JOB
+    InitSql()
+    LOCAL_JOB.load(0)
+    Security.load_client_secret()
+    load()
 
+    
 def main():
     """
     Main method of the program for testing and starting the program
     """
-
+    
     t = JobSettings()
     t.backup_path = "\\\\192.168.2.201\\Backups"
     t.user = "tenant\\Backup"
@@ -99,5 +111,6 @@ def main():
 
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
+    init()
     main()

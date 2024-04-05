@@ -27,7 +27,7 @@ import pandas as pd
 from security import CLIENT_SECRET
 from api import API
 from logger import Logger
-from initsql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH
+from sql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH,MySqlite
 POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id
@@ -35,6 +35,18 @@ TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
 
 # pylint: disable= bare-except
 # pylint: disable= global-statement
+def load():
+    """
+    Load the client secret
+    """
+    global TENANT_ID
+    global CLIENT_ID
+    global TENANT_PORTAL_URL
+    global POLLING_INTERVAL
+    TENANT_ID = MySqlite.read_setting("TENANT_ID")
+    CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
+    TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
+    POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
 
 def check_install_key(key, secret, server, port):
     """
