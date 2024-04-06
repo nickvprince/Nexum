@@ -101,7 +101,17 @@ class MySqlite():
     Class to interact with the sqlite database
     Type: File IO
     """
-
+    @staticmethod
+    def load_clients():
+        """
+        Load clients from the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT * FROM clients''')
+        clients = cursor.fetchall()
+        conn.close()
+        return clients
     @staticmethod 
     def write_log(severity, subject, message, code, date):
         """ 
@@ -164,6 +174,37 @@ class MySqlite():
         output = output[:24]
         value = decrypt_string(output,value)
         return value.rstrip()
+    @staticmethod 
+    def get_next_client_id():
+        """
+        Get the next client id
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT MAX(id) FROM clients''')
+        result = cursor.fetchone()[0]
+        if result is not None:
+            id = int(result) + 1
+        else:
+            id = 1
+        conn.close()
+        return id
+    @staticmethod
+    def write_client(id, name, address, port, status, mac):
+        """
+        Write a client to the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT Address FROM clients WHERE Address = ?''', (address,))
+        existing_address = cursor.fetchone()
+        if existing_address:
+            return 500
+        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC)
+                    VALUES (?, ?, ?, ?, ?, ?)''', (id, name, address, port, status, mac))
+        conn.commit()
+        conn.close()
+        return 200
 class InitSql():
     """
     Initialized SQL information files. This includes
@@ -193,6 +234,19 @@ class InitSql():
             (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
                 retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
                     notifyEmail TEXT, heartbeatInterval TEXT)''')
+        # Close connection
+        conn.commit()
+        conn.close()
+    @staticmethod
+    def clients():
+        """ 
+        ensure clients db table is created
+        """
+        create_db_file(settingsDirectory,job_settingsFile)
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS clients
+                        (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT)''')
         # Close connection
         conn.commit()
         conn.close()
