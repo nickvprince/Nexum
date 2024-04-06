@@ -22,6 +22,8 @@ from flaskserver import FlaskServer
 from sql import InitSql
 from runjob import LOCAL_JOB
 from security import Security
+from HeartBeat import HeartBeat
+from sql import MySqlite
 # Global variables
 def init():
     """
@@ -37,7 +39,9 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
+    clients = MySqlite.load_clients()
     l = Logger()
+    H = HeartBeat(Security.get_client_secret(), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),

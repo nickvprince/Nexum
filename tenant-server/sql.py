@@ -222,6 +222,18 @@ class InitSql():
 
     """
     @staticmethod
+    def heartbeat():
+        """
+        Ensure heartbeat file exists and the table is created
+        """
+        create_db_file(settingsDirectory,job_settingsFile)
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS heartbeat
+                        (id TEXT, interval TEXT, lastCheckin TEXT, missedNotifyCount TEXT)''')
+        conn.commit()
+        conn.close()
+    @staticmethod
     def job_settings():
         """
         ensure job settings file exists and the table is created

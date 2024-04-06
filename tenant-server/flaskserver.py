@@ -21,13 +21,13 @@ import requests
 from flask import Flask, request,make_response
 from security import Security, CLIENT_SECRET
 from logger import Logger
-from runjob import RunJob  
+from runjob import RunJob
 from job import Job
 from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
+from HeartBeat import MY_CLIENTS
 RUN_JOB_OBJECT = None
-MY_CLIENTS = []
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 
@@ -265,7 +265,7 @@ class FlaskServer():
 
                             if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
                                 code = 401
-                                msg = "Access Denied"             
+                                msg = "Access Denied"
                             RUN_JOB_OBJECT.trigger_job()
                             if code==0:
                                 return "200 OK"
@@ -552,8 +552,7 @@ class FlaskServer():
             job_to_save.set_settings(settings)
             job_to_save.set_config(config)
             job_to_save.save()
- 
-     
+
             return "200 OK"
         elif FlaskServer.auth(secret, logger, id) == 405:
             return "401 Access Denied"
@@ -609,15 +608,15 @@ class FlaskServer():
     @staticmethod
     def get_heartbeats():
         """
-        Gets version information from the client
+        Gets heartbeat information from the client
         """
         return "200 OK"
- 
+
     @website.route('/get_backup', methods=['GET'], )
     @staticmethod
     def get_backup():
         """
-        Gets version information from the client
+        Gets backup information from the client
         """
         return "200 OK"
 
@@ -625,7 +624,7 @@ class FlaskServer():
     @staticmethod
     def get_jobs():
         """
-        Gets version information from the client
+        Gets jobs information from the client
         """
         return "200 OK"
 
@@ -633,7 +632,7 @@ class FlaskServer():
     @staticmethod
     def verify_backup():
         """
-        Gets version information from the client
+        Verifies a backup
         """
         return "200 OK"
 
@@ -645,6 +644,18 @@ class FlaskServer():
         """
         return "200 OK"
 
+    @website.route('/beat', methods=['POST'], )
+    @staticmethod
+    def beat():
+        """
+        A spot for clients to send heartbeats to
+        """
+        # authenticate client
+        # if authenticated 
+        # update the client's checkin time
+        # return 200 ok
+        # else return 401 access denied
+        return "200 OK"
 
 
     # PUT ROUTES
