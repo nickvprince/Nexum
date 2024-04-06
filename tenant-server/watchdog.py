@@ -1,7 +1,18 @@
 """
-Information
+# Program: Tenant-server, Tenant-Client
+# File: watchdog.py
+# Authors: 1. Danny Smith
+#
+# Date: 3/28/2024
+# purpose: 
+# This file runs a watchdog program that ensures
+# nexum.exe is running. If it is not it starts it
+
+# Class Types: 
+#               1. Watchdog
+
 """
-import os
+# pylint: disable= import-error
 import subprocess
 import psutil
 

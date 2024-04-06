@@ -16,12 +16,22 @@
 
 import time
 from iconmanager import IconManager, image_path
-from helperfunctions import logs, tenant_portal
+from helperfunctions import logs, tenant_portal,load
 from logger import Logger
 from flaskserver import FlaskServer
-
+from sql import InitSql
+from runjob import LOCAL_JOB
+from security import Security
 # Global variables
-
+def init():
+    """
+    Initializes the program
+    """
+    global LOCAL_JOB
+    InitSql()
+    LOCAL_JOB.load(0)
+    Security.load_tenant_secret()
+    load()
 
 def main():
     """
@@ -41,5 +51,4 @@ def main():
     f.run()
 
 if __name__ == "__main__":
-
     main()

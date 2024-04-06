@@ -11,6 +11,8 @@
 # Class Types: 
 #               1. FlaskServer - API
 
+Error Code:
+1000 - Writing to the database failed. Address already exists in the database.
 """
 # pylint: disable= import-error, global-statement,unused-argument, line-too-long
 import os
@@ -20,8 +22,12 @@ from flask import Flask, request,make_response
 from security import Security, CLIENT_SECRET
 from logger import Logger
 from runjob import RunJob  
-
+from job import Job
+from jobsettings import JobSettings
+from conf import Configuration
+from sql import InitSql, MySqlite
 RUN_JOB_OBJECT = None
+MY_CLIENTS = []
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 
@@ -511,7 +517,48 @@ class FlaskServer():
         """
         Sets the current job to the new job. Or creates on if it does not exist
         """
-        return "200 OK"
+        global RUN_JOB_OBJECT
+        logger=Logger()
+        data = request.get_json()
+        # get client secret from header
+        secret = request.headers.get('clientSecret')
+        id = request.headers.get('ID')
+
+        if FlaskServer.auth(secret, logger, id) == 200:
+            recieved_job = data.get(id, '')
+            # recieve settings as json
+            recieved_settings = recieved_job.get('settings', '')
+
+            job_to_save = Job()
+            job_to_save.set_id(id)
+            job_to_save.set_title(recieved_job.get('title', ''))
+            settings = JobSettings()
+            settings.set_id(0)
+            settings.set_schedule(recieved_settings.get('schedule', ''))
+            settings.set_start_time(recieved_settings.get('startTime', ''))
+            settings.set_stop_time(recieved_settings.get('stopTime', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_sampling(recieved_settings.get('sampling', ''))
+            settings.set_notify_email(recieved_settings.get('notifyEmail', ''))
+            settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_retention(recieved_settings.get('retention', ''))
+            settings.backup_path=recieved_settings.get('path', '')
+            config = Configuration(0, 0, secret)
+            config.address = recieved_settings.get('path', '')
+            settings.set_user(recieved_settings.get('user', ''))
+            settings.set_password(recieved_settings.get('password', ''))
+
+            job_to_save.set_settings(settings)
+            job_to_save.set_config(config)
+            job_to_save.save()
+ 
+     
+            return "200 OK"
+        elif FlaskServer.auth(secret, logger, id) == 405:
+            return "401 Access Denied"
+        else:
+            return "500 Internal Server Error"
     @website.route('/get_job', methods=['GET'], )
     @staticmethod
     def get_job():
@@ -601,26 +648,40 @@ class FlaskServer():
 
 
     # PUT ROUTES
-    @website.route('/check-installer', methods=['GET'], )
+    @website.route('/check-installer', methods=['POST'], )
     @staticmethod
     def check_installer():
         """
         Gets version information from the client
         """
-        secret = request.headers.get('secret')
-        key = request.args.get('key')
+        secret = request.headers.get('clientSecret')
+        key = request.headers.get('key')
         Logger.debug_print("--------")
         Logger.debug_print(secret)
         Logger.debug_print(key)
         Logger.debug_print(KEYS[0])
         Logger.debug_print("--------")
-
-        if secret == CLIENT_SECRET:
+        logger = Logger()
+        if FlaskServer.auth(secret, logger, 0) == 200:
             Logger.debug_print("secret matches")
             for key_check in KEYS:
                 if key_check == key:
                     Logger.debug_print("key matches")
-                    return make_response("200 ok", 200)
+                    # LATER: Call out to MSP. 200 ok do below, else reject
+                    InitSql.clients()
+                    # Call the method to get the body as JSON
+                    body = request.get_json()
+                    id = MySqlite.get_next_client_id()
+                    name = body.get('name', '')
+                    ip = body.get('ip', '')
+                    port = body.get('port', '')
+                    status = 'Installing'
+                    mac = body.get('mac', '')
+                    result = MySqlite.write_client(id, name, ip, port, status, mac)
+                    if (result == 200):
+                        return make_response("200 ok", 200)
+                    else:
+                        return make_response("500 Internal Server Error - CODE: 1000", 403)
             return make_response("403 Rejected", 403)
         return make_response("401 Access Denied", 401)
         
@@ -637,5 +698,7 @@ class FlaskServer():
         RUN_JOB_OBJECT = RunJob()
         self.website.run()
     def __init__(self):
+        # load all clients from DB
+        MY_CLIENTS = MySqlite.load_clients()
         Logger.debug_print("flask server started")
         self.run()

@@ -13,6 +13,8 @@
 
 """
 import time
+from sql import MySqlite
+from security import CLIENT_SECRET
 
 class HeartBeat:
     """
@@ -20,9 +22,11 @@ class HeartBeat:
     """
     server_address = None
     server_port = None
-    client_secret = None
     interval = None
     last_heartbeat = None
+
+
+
     @staticmethod
     def checkin():
         """
@@ -34,7 +38,10 @@ class HeartBeat:
 
     def __init__(self):
         # open thread to ping server indefinitely
-        pass
+        self.server_address = MySqlite.read_setting("server_address")
+        self.server_port = MySqlite.read_setting("server_port")
+        self.interval = MySqlite.read_setting("heartbeat_interval")
+        self.last_heartbeat = MySqlite.read_setting("last_heartbeat")
 
     def ping_server(self):
         """
