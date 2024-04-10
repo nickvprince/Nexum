@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App", "App\App.csproj", "{F37E30BF-CF3A-4F90-BB24-58608EAE7646}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App", "App\App.csproj", "{F37E30BF-CF3A-4F90-BB24-58608EAE7646}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedComponents", "SharedComponents\SharedComponents.csproj", "{DE3DDE58-EE43-4581-8532-1A389565A129}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedComponents", "SharedComponents\SharedComponents.csproj", "{DE3DDE58-EE43-4581-8532-1A389565A129}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{3CE13471-B912-4FE0-9132-0D0FA890EE29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{DE3DDE58-EE43-4581-8532-1A389565A129}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE3DDE58-EE43-4581-8532-1A389565A129}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE3DDE58-EE43-4581-8532-1A389565A129}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CE13471-B912-4FE0-9132-0D0FA890EE29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CE13471-B912-4FE0-9132-0D0FA890EE29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CE13471-B912-4FE0-9132-0D0FA890EE29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CE13471-B912-4FE0-9132-0D0FA890EE29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

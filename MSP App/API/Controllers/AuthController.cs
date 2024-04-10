@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Models;
 
-namespace App.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginModel loginModel)
+        public IActionResult Login([FromBody] LoginViewModel loginModel)
         {
             // Authentication logic here...
             // For demo purposes, let's just assume successful login

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Models
 {
-    public class LoginModel
+    public class LoginViewModel
     {
         [Required]
         [StringLength(100, ErrorMessage = "Username is too long.")]

@@ -7,7 +7,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient("BlazorClient", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["WebAppSettings:BaseUri"] + ":" + builder.Configuration["WebAppSettings:BasePort"]);
+    client.BaseAddress = new Uri(builder.Configuration["WebAppSettings:APIBaseUri"] + ":" + builder.Configuration["WebAppSettings:APIBasePort"]);
 });
 
 /*builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
