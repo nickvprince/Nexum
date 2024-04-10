@@ -1,13 +1,21 @@
-using Microsoft.AspNetCore.Authentication.Negotiate;
+//using Microsoft.AspNetCore.Authentication.Negotiate;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddServerSideBlazor();
+//builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient("BlazorClient", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["WebAppSettings:APIBaseUri"] + ":" + builder.Configuration["WebAppSettings:APIBasePort"]);
+});
+
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".Nexum.Session";
+    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 /*builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
@@ -35,12 +43,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+
 app.UseAuthorization();
-app.MapBlazorHub();
+//app.MapBlazorHub();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-//app.Run();
-app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);
+app.Run();
+//app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);

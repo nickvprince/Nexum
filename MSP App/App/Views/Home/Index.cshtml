@@ -1,4 +1,5 @@
-﻿@{
+﻿@model LoginViewModel
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -7,4 +8,4 @@
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 
-@(await Html.RenderComponentAsync<SharedComponents.Components.Account.Login>(RenderMode.Server))
+@* @(await Html.RenderComponentAsync<SharedComponents.Components.Account.Login>(RenderMode.Server)) *@
