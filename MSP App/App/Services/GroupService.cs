@@ -39,14 +39,14 @@ namespace App.Services
 
             List<Group> groups = new List<Group>();
 
-            foreach (JObject userObject in permissionArray)
+            foreach (JObject groupObject in permissionArray)
             {
                 Group group = new Group
                 {
-                    Id = (int)userObject["id"],
-                    Name = (string)userObject["name"],
-                    Description = (string)userObject["description"],
-                    IsActive = (bool)userObject["isActive"],
+                    Id = (int)groupObject["id"],
+                    Name = (string)groupObject["name"],
+                    Description = (string)groupObject["description"],
+                    IsActive = (bool)groupObject["isActive"],
                 };
                 groups.Add(group);
             }
