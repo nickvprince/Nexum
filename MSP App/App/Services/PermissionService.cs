@@ -35,9 +35,22 @@ namespace App.Services
             var responseObject = await ProcessResponse(await _httpClient.GetAsync("api/Permission/Get"));
             var objectProperty = responseObject.GetType().GetProperty("Object");
             var objectValue = objectProperty.GetValue(responseObject);
-            JObject data = JObject.Parse(objectValue.ToString());
+            JArray permissionArray = JArray.Parse(objectValue.ToString());
 
-            List<Permission> permissions = JsonSerializer.Deserialize<List<Permission>>(objectValue.ToString());
+            List<Permission> permissions = new List<Permission>();
+
+            foreach (JObject userObject in permissionArray)
+            {
+                Permission permission = new Permission
+                {
+                    Id = (int)userObject["id"],
+                    Name = (string)userObject["name"],
+                    Description = (string)userObject["description"],
+                    IsActive = (bool)userObject["isActive"],
+                };
+                permissions.Add(permission);
+            }
+
             return permissions;
         }
     }
