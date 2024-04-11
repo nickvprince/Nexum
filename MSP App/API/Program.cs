@@ -1,4 +1,5 @@
 using API.DataAccess;
+using API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedComponents.Entities;
@@ -15,6 +16,8 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 var connStr = builder.Configuration.GetConnectionString("NexumAppDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connStr));
+builder.Services.AddScoped<DbPermissionService>();
+builder.Services.AddScoped<DbUserService>();
 
 builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequiredLength = 6;

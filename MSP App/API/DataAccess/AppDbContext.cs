@@ -55,12 +55,35 @@ namespace API.DataAccess
             }
         }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Permission>().HasData(
+                new Permission()
+                {
+                    Id = 1,
+                    Name = "Create User",
+                    Description = "Create a new user",
+                    IsActive = true
+                },
+                new Permission()
+                {
+                    Id = 2,
+                    Name = "Edit User",
+                    Description = "Edit an existing user",
+                    IsActive = true
+                },
+                new Permission()
+                {
+                    Id = 3,
+                    Name = "Delete User",
+                    Description = "Delete an existing user",
+                    IsActive = true
+                }
+            );
         }
 
     }

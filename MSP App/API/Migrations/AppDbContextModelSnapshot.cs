@@ -155,6 +155,56 @@ namespace API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Create a new user",
+                            IsActive = true,
+                            Name = "Create User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Edit an existing user",
+                            IsActive = true,
+                            Name = "Edit User"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Delete an existing user",
+                            IsActive = true,
+                            Name = "Delete User"
+                        });
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -162,9 +212,6 @@ namespace API.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("AccountType")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -278,6 +325,18 @@ namespace API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.User", null)
+                        .WithMany("Permissions")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.User", b =>
+                {
+                    b.Navigation("Permissions");
                 });
 #pragma warning restore 612, 618
         }
