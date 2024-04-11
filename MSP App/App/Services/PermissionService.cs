@@ -10,7 +10,7 @@ namespace App.Services
         public PermissionService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
         {
         }
-        public Task<bool> AddAsync(Permission permission)
+        public Task<bool> CreateAsync(Permission permission)
         {
             throw new NotImplementedException();
         }

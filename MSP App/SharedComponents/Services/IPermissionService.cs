@@ -9,7 +9,7 @@ namespace SharedComponents.Services
 {
     public interface IPermissionService
     {
-        public Task<bool> AddAsync(Permission permission);
+        public Task<bool> CreateAsync(Permission permission);
         public Task<bool> EditAsync(Permission permission);
         public Task<bool> DeleteAsync(int id);
         public Task<Permission> GetAsync(int id);
