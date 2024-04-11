@@ -12,7 +12,7 @@ namespace SharedComponents.DbServices
         public Task<bool> AddAsync(User user);
         public Task<bool> EditAsync(User user);
         public Task<bool> DeleteAsync(int id);
-        public Task<User> GetAsync(int id);
+        public Task<User?> GetAsync(string username);
         public Task<List<User>> GetAllAsync();
     }
 }

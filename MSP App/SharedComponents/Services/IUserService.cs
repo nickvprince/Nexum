@@ -12,7 +12,7 @@ namespace SharedComponents.Services
         public Task<bool> CreateAsync(User user);
         public Task<bool> EditAsync(User user);
         public Task<bool> DeleteAsync(string username);
-        public Task<User> GetAsync(string username);
+        public Task<User?> GetAsync(string username);
         public Task<List<User>> GetAllAsync();
     }
 }

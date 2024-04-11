@@ -36,31 +36,5 @@ namespace App.Services
             };
             return user;
         }
-
-        public Task<bool> EditAsync(User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<User> GetUserAsync(string username)
-        {
-            GetUserRequest getUserRequest = new GetUserRequest
-            {
-                Username = username
-            };
-
-            var responseObject = await ProcessResponse(await _httpClient.PostAsJsonAsync("api/Auth/GetUser", getUserRequest));
-            var objectProperty = responseObject.GetType().GetProperty("Object");
-            var objectValue = objectProperty.GetValue(responseObject);
-            JObject data = JObject.Parse(objectValue.ToString());
-
-            User user = new User
-            {
-                UserName = (string)data["userName"],
-                PasswordHash = (string)data["passwordHash"],
-                Email = (string)data["email"],
-            };
-            return user;
-        }
     }
 }

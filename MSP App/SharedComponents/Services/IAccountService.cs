@@ -10,7 +10,5 @@ namespace SharedComponents.Services
     public interface IAccountService
     {
         public Task<User> LoginAsync(string username, string password);
-        public Task<bool> EditAsync(User user);
-        public Task<User> GetUserAsync(string username);
     }
 }

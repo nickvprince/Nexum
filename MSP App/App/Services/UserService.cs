@@ -26,9 +26,23 @@ namespace App.Services
             throw new NotImplementedException();
         }
 
-        public Task<User> GetAsync(string username)
+        public async Task<User?> GetAsync(string username)
         {
-            throw new NotImplementedException();
+            var responseObject = await ProcessResponse(await _httpClient.GetAsync($"api/User/Get/{username}"));
+            var objectProperty = responseObject.GetType().GetProperty("Object");
+            var objectValue = objectProperty.GetValue(responseObject);
+            JObject userObject = JObject.Parse(objectValue.ToString());
+
+            string? passwordHash = userObject["passwordHash"]?.ToString();
+
+            User user = new User
+            {
+                UserName = userObject["userName"]?.ToString(),
+                PasswordHash = passwordHash?.Substring(0, 25),
+                Email = userObject["email"]?.ToString(),
+            };
+
+            return user;
         }
 
         public async Task<List<User>> GetAllAsync()

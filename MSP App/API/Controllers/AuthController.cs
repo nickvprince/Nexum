@@ -40,25 +40,5 @@ namespace API.Controllers
             }
             return BadRequest(new { Message = $"Login failed. Please fill out the username and password and try again." });
         }
-
-        [HttpPost("GetUser")]
-        public async Task<IActionResult> GetUserAsync([FromBody] GetUserRequest  getUserRequest)
-        {
-            if (ModelState.IsValid)
-            {
-                User? user = await _userManager.FindByNameAsync(getUserRequest.Username);
-
-                if (user != null)
-                {
-                    var response = new
-                    {
-                        data = user,
-                        message = $"'{user.UserName}' - Account Retrieved."
-                    };
-                    return Ok(response);
-                }
-            }
-            return BadRequest(new { Message = $"Please provide a username and try again." });
-        }
     }
 }

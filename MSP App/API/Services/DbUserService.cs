@@ -29,9 +29,9 @@ namespace API.Services
             throw new NotImplementedException();
         }
 
-        public Task<User> GetAsync(int id)
+        public async Task<User?> GetAsync(string username)
         {
-            throw new NotImplementedException();
+            return await _appDbContext.Users.FirstOrDefaultAsync(u => u.UserName == username);
         }
         public async Task<List<User>> GetAllAsync()
         {

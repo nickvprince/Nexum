@@ -9,10 +9,12 @@ namespace App.Controllers
     public class AccountController : Controller
     {
         private readonly AccountService _accountService;
+        private readonly UserService _userService;
 
-        public AccountController(AccountService accountService)
+        public AccountController(AccountService accountService, UserService userService)
         {
             _accountService = accountService;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -48,13 +50,12 @@ namespace App.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAsync()
         {
-            User user = await _accountService.GetUserAsync(HttpContext.Session.GetString("Username"));
+            User user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
             if (user != null)
             {
                 AccountViewModel accountViewModel = new AccountViewModel
                 {
                     Username = user.UserName,
-                    Password = "user.PasswordHash",
                     Email = user.Email
                 };
                 return View(accountViewModel);
@@ -66,7 +67,9 @@ namespace App.Controllers
         [HttpPost]
         public async Task<IActionResult> EditAsync(AccountViewModel accountViewModel)
         {
-            return View(accountViewModel);
+            // Do Edit
+            // Return to Page get
+            return RedirectToAction("Edit");
         }
 
     }

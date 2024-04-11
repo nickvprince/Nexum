@@ -38,11 +38,22 @@ namespace API.Controllers
             return Ok($"User deleted successfully.");
         }
 
-        [HttpGet("Get/{id}")]
-        public IActionResult GetUser(string id)
+        [HttpGet("Get/{username}")]
+        public async Task<IActionResult> GetUserAsync(string username)
         {
             //Get the user
-            return Ok($"Retrieved user successfully.");
+            User? user = await _dbUserService.GetAsync(username);
+
+            if (user != null)
+            {
+                var response = new
+                {
+                    data = user,
+                    message = $"Retrieved user successfully."
+                };
+                return Ok(response);
+            }
+            return NotFound(new { message = "User not found." });
         }
 
         [HttpGet("Get")]
