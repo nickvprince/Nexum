@@ -9,9 +9,9 @@
 <table class="table">
     <thead>
         <tr>
-            <th>PasswordHash</th>
             <th>Name</th>
             <th>Email</th>
+            <th>PasswordHash</th>
             <th></th>
         </tr>
     </thead>
@@ -19,9 +19,9 @@
         @foreach (var user in Model.Users)
         {
             <tr>
-                <td>@user.PasswordHash</td>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
+                <td>@user.PasswordHash</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@user.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@user.Id">Details</a> |
