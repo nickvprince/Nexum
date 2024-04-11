@@ -39,14 +39,14 @@ namespace App.Services
 
             List<Permission> permissions = new List<Permission>();
 
-            foreach (JObject userObject in permissionArray)
+            foreach (JObject permissionObject in permissionArray)
             {
                 Permission permission = new Permission
                 {
-                    Id = (int)userObject["id"],
-                    Name = (string)userObject["name"],
-                    Description = (string)userObject["description"],
-                    IsActive = (bool)userObject["isActive"],
+                    Id = (int)permissionObject["id"],
+                    Name = (string)permissionObject["name"],
+                    Description = (string)permissionObject["description"],
+                    IsActive = (bool)permissionObject["isActive"],
                 };
                 permissions.Add(permission);
             }
