@@ -1,7 +1,6 @@
-﻿@model LoginViewModel
-
+﻿@model AccountViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = $"Account: {Model.Username}";
 }
 
 <div class="container bg-dark-subtle">
@@ -15,20 +14,23 @@
                             <div class="form-group mb-1">
                                 <span asp-validation-for="Username" class="text-danger"></span>
                                 <div class="input-group">
-                                    <input type="text" asp-for="Username" class="form-control" id="username" placeholder="Username" />
+                                    <input type="text" asp-for="Username" class="form-control" id="username" placeholder="Username" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group mb-1">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                                <div class="input-group">
+                                    <input type="email" asp-for="Email" class="form-control" id="email" placeholder="Email" />
                                 </div>
                             </div>
                             <div class="form-group mb-1">
                                 <span asp-validation-for="Password" class="text-danger"></span>
                                 <div class="input-group">
-                                    <input type="password" asp-for="Password" class="form-control" id="password" placeholder="Password" />
+                                    <input type="password" asp-for="Password" class="form-control" id="password" placeholder="Confirm Password to Save Changes" />
                                 </div>
                             </div>
                             <div class="form-group d-flex justify-content-center">
-                                <button type="submit" class="btn btn-dark w-100">Login</button>
-                            </div>
-                            <div class="text-center mt-4">
-                                <a href="#" class="text-muted">Forgot Username / Password?</a>
+                                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
                             </div>
                         </form>
                     </div>

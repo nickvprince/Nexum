@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 
 namespace SharedComponents.Services
 {
@@ -23,6 +25,27 @@ namespace SharedComponents.Services
             {
                 // Log or handle the missing configuration setting
                 Console.WriteLine("Invalid API Base URL format or 'WebAppSettings:APIBaseUri' or 'WebAppSettings:APIBasePort' not found.");
+            }
+        }
+
+        public async Task<dynamic> ProcessResponse(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                // Read the response content as a dynamic object
+                //dynamic content = await response.Content.ReadFromJsonAsync<dynamic>();
+                JsonNode content = await JsonNode.ParseAsync(await response.Content.ReadAsStreamAsync());
+                // Return the extracted properties
+                return new
+                {
+                    Object = content["data"],
+                    Message = content["message"],
+                };
+            }
+            else
+            {
+                // Handle error cases (you might want to throw an exception here)
+                return null;
             }
         }
     }

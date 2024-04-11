@@ -27,18 +27,38 @@ namespace API.Controllers
 
                 if (result.Succeeded)
                 {
-                    var appUser = await _userManager.FindByNameAsync(loginRequest.Username);
+                    User? user = await _userManager.FindByNameAsync(loginRequest.Username);
 
                     var response = new
                     {
-                        appUser,
-                        Message = $"'{loginRequest.Username}' - Login Successful."
+                        data = user,
+                        message = $"'{loginRequest.Username}' - Login Successful."
                     };
                     return Ok(response);
                 }
                 return Unauthorized(new { Message = $"Login failed for user '{loginRequest.Username}'. Please try again." });
             }
             return BadRequest(new { Message = $"Login failed. Please fill out the username and password and try again." });
+        }
+
+        [HttpPost("GetUser")]
+        public async Task<IActionResult> GetUserAsync([FromBody] GetUserRequest  getUserRequest)
+        {
+            if (ModelState.IsValid)
+            {
+                User? user = await _userManager.FindByNameAsync(getUserRequest.Username);
+
+                if (user != null)
+                {
+                    var response = new
+                    {
+                        data = user,
+                        message = $"'{user.UserName}' - Account Retrieved."
+                    };
+                    return Ok(response);
+                }
+            }
+            return BadRequest(new { Message = $"Please provide a username and try again." });
         }
     }
 }
