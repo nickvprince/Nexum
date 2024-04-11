@@ -35,11 +35,11 @@ namespace App.Services
             var responseObject = await ProcessResponse(await _httpClient.GetAsync("api/Group/Get"));
             var objectProperty = responseObject.GetType().GetProperty("Object");
             var objectValue = objectProperty.GetValue(responseObject);
-            JArray permissionArray = JArray.Parse(objectValue.ToString());
+            JArray groupArray = JArray.Parse(objectValue.ToString());
 
             List<Group> groups = new List<Group>();
 
-            foreach (JObject groupObject in permissionArray)
+            foreach (JObject groupObject in groupArray)
             {
                 Group group = new Group
                 {

@@ -13,6 +13,7 @@ namespace App.Controllers
             _tenantService = tenantService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> IndexAsync()
         {
             TenantViewModel tenantViewModel = new TenantViewModel
