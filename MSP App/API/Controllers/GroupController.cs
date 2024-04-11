@@ -17,14 +17,14 @@ namespace API.Controllers
         }
 
         [HttpPost("Create")]
-        public IActionResult CreateGroup([FromBody] object permission)
+        public IActionResult CreateGroup([FromBody] object group)
         {
             //Create the permission
             return Ok($"Group created successfully.");
         }
 
         [HttpPut("Update")]
-        public IActionResult UpdateGroup([FromBody] object permission)
+        public IActionResult UpdateGroup([FromBody] object group)
         {
             //Update the permission
             return Ok($"Group updated successfully.");
