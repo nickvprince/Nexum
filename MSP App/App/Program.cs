@@ -1,4 +1,5 @@
 //using Microsoft.AspNetCore.Authentication.Negotiate;
+using App.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,8 @@ builder.Services.AddAuthorization(options =>
 });*/
 //builder.Services.AddRazorPages();
 
+builder.Services.AddScoped<AccountService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,7 +53,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();
 //app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);
