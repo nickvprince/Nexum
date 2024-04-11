@@ -57,6 +57,7 @@ namespace API.DataAccess
 
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<Tenant> Tenants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -106,6 +107,30 @@ namespace API.DataAccess
                     Id = 3,
                     Name = "Culinary",
                     Description = "Group for managing culinary businesses",
+                    IsActive = true
+                }
+            );
+
+            modelBuilder.Entity<Tenant>().HasData(
+                new Tenant()
+                {
+                    Id = 1,
+                    Name = "BMO",
+                    ApiKey = "4732-1849-3021-0438",
+                    IsActive = true
+                },
+                new Tenant()
+                {
+                    Id = 2,
+                    Name = "TD",
+                    ApiKey = "2313-5435-5432-7654",
+                    IsActive = true
+                },
+                new Tenant()
+                {
+                    Id = 3,
+                    Name = "RBC",
+                    ApiKey = "7654-4522-6546-4231",
                     IsActive = true
                 }
             );
