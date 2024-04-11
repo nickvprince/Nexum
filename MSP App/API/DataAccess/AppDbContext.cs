@@ -56,6 +56,7 @@ namespace API.DataAccess
         }
 
         public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Group> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -81,6 +82,30 @@ namespace API.DataAccess
                     Id = 3,
                     Name = "Delete User",
                     Description = "Delete an existing user",
+                    IsActive = true
+                }
+            );
+
+            modelBuilder.Entity<Group>().HasData(
+                new Group()
+                {
+                    Id = 1,
+                    Name = "Banks",
+                    Description = "Group for managing banks",
+                    IsActive = true
+                },
+                new Group()
+                {
+                    Id = 2,
+                    Name = "Tech",
+                    Description = "Group for managing tech businesses",
+                    IsActive = true
+                },
+                new Group()
+                {
+                    Id = 3,
+                    Name = "Culinary",
+                    Description = "Group for managing culinary businesses",
                     IsActive = true
                 }
             );

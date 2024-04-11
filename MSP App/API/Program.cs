@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 var connStr = builder.Configuration.GetConnectionString("NexumAppDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connStr));
+builder.Services.AddScoped<DbGroupService>();
 builder.Services.AddScoped<DbPermissionService>();
 builder.Services.AddScoped<DbUserService>();
 

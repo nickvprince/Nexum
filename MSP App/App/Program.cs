@@ -14,7 +14,7 @@ builder.Services.AddHttpClient("BlazorClient", client =>
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".Nexum.Session";
-    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.IdleTimeout = TimeSpan.FromMinutes(15);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -32,6 +32,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<GroupService>();
 
 var app = builder.Build();
 
