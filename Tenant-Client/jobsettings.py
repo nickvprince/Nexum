@@ -1,5 +1,5 @@
 """
-# Program: Tenant-server
+# Program: Tenant-Client
 # File: jobsettings.py
 # Authors: 1. Danny Smith
 #
@@ -9,7 +9,7 @@
 # to hold job setting information
 
 
-# Class Types:  
+# Class Types: 
 #               1. JobSettings - Entity
 
 """
