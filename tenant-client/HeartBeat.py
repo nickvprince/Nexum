@@ -17,7 +17,7 @@ from sql import MySqlite
 from security import CLIENT_SECRET
 
 class HeartBeat:
-    """
+    """ 
     Heartbeat class containing the heartbeat logic
     """
     server_address = None
