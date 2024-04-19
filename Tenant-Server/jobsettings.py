@@ -9,7 +9,7 @@
 # to hold job setting information
 
 
-# Class Types: 
+# Class Types:  
 #               1. JobSettings - Entity
 
 """

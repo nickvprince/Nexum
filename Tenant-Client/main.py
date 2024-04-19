@@ -40,41 +40,59 @@ Error Codes
 1003 - File not found
 1004 - Decryption failed
 1005 - Permission error
+
 404 - Not found
 401 - Access denied
-500 - Internal server error
+503 - Internal server error
 """
 
 # pylint: disable= no-member,no-name-in-module, import-error
 
 
 import time
-from pyuac import main_requires_admin
 from logger import Logger
-from initsql import InitSql
+from sql import InitSql, MySqlite
 from runjob import RunJob, LOCAL_JOB
-from helperfunctions import get_client_info, logs, tenant_portal,check_first_run
+from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
+from job import Job
 from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
+from HeartBeat import HeartBeat
 # Global variables
 
+def init():
+    """
+    Initializes the program
+    """
+    global LOCAL_JOB
+    InitSql()
+    LOCAL_JOB.load(0)
+    Security.load_client_secret()
+    load()
 
-@main_requires_admin
+    
 def main():
     """
     Main method of the program for testing and starting the program
     """
+<<<<<<<< HEAD:tenant-client/main.py
+    
+    t = JobSettings()
+    t.backup_path = "\\\\192.168.2.201\\Backups"
+    t.user = "tenant\\Backup"
+    t.password = "Test123"
+    LOCAL_JOB.set_settings(t)
+========
 
     job_settings = JobSettings()
     job_settings.backup_path = "\\\\192.168.2.201\\Backups"
     job_settings.user = "tenant\\Backup"
     job_settings.password = "Test123"
     LOCAL_JOB.set_settings(job_settings)
+>>>>>>>> nex/main:Tenant-Client/main.py
     Security.set_client_secret("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    # check if this is the first run
-    check_first_run("1234")
     # create a Logger
     logger = Logger()
     # init databases
@@ -96,7 +114,12 @@ def main():
 
     # run server to listen for requests
     FlaskServer()
+    while True:
+        pass
+
+
+
 
 if __name__ == "__main__":
-
+    init()
     main()

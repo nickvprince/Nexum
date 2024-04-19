@@ -13,8 +13,7 @@
 
 """
 # pylint: disable= import-error, unused-argument
-from initsql import InitSql,sqlite3,logdirectory,logpath
-
+from sql import MySqlite,InitSql
 class Logger():
 
     """
@@ -31,18 +30,14 @@ class Logger():
         #ensure log files are ready
         InitSql.log_files()      
 
-        #create connection
-        self.conn = sqlite3.connect(logdirectory+logpath)
-        self.cursor = self.conn.cursor()
+
 
     # log a message to the database
     def log(self, severity, subject, message, code, date):
         """
         Information
         """
-        self.cursor.execute('''INSERT INTO logs (severity, subject, message, code, date)
-                    VALUES (?, ?, ?, ?, ?)''', (severity, subject, message, code, date))
-        self.conn.commit()
+        MySqlite.write_log(severity, subject, message, code, date)
     @staticmethod
     def debug_print(message):
         """

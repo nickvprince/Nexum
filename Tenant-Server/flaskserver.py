@@ -11,6 +11,8 @@
 # Class Types: 
 #               1. FlaskServer - API
 
+Error Code:
+1000 - Writing to the database failed. Address already exists in the database.
 """
 # pylint: disable= import-error, global-statement,unused-argument, line-too-long
 import os
@@ -19,11 +21,15 @@ import requests
 from flask import Flask, request,make_response
 from security import Security, CLIENT_SECRET
 from logger import Logger
-from runjob import RunJob  
-
+from runjob import RunJob
+from job import Job
+from jobsettings import JobSettings
+from conf import Configuration
+from sql import InitSql, MySqlite
+from HeartBeat import MY_CLIENTS
 RUN_JOB_OBJECT = None
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
-
+KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 
 
 # pylint: disable= bare-except
@@ -32,7 +38,7 @@ class FlaskServer():
     Class to manage the server
     """
 
-    app = Flask(__name__)
+    website = Flask(__name__)
 
     @staticmethod
     def set_run_job_object(run_job_object):
@@ -86,7 +92,7 @@ class FlaskServer():
 
 
     @staticmethod
-    def get_local_files(request):
+    def get_local_files():
         """
         Server requests a path such as C: and returns a list of files and directories in that path
         requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, 
@@ -163,7 +169,7 @@ class FlaskServer():
         return files
 
     # GET ROUTES
-    @app.route('/get_files', methods=['GET'], )
+    @website.route('/get_files', methods=['GET'], )
     @staticmethod
     def get_files():
         """
@@ -190,7 +196,7 @@ class FlaskServer():
                     url = f"http://{i[0]}:5000/start_job"
                     try:
                         if i[0]== "127.0.0.1":
-                            return FlaskServer.get_local_files(request)
+                            return FlaskServer.get_local_files()
                         else:
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
@@ -216,7 +222,7 @@ class FlaskServer():
 
     # POST ROUTES
 
-    @app.route('/start_job', methods=['POST'], )
+    @website.route('/start_job', methods=['POST'], )
     @staticmethod
     def start_job():
         """
@@ -259,7 +265,7 @@ class FlaskServer():
 
                             if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
                                 code = 401
-                                msg = "Access Denied"             
+                                msg = "Access Denied"
                             RUN_JOB_OBJECT.trigger_job()
                             if code==0:
                                 return "200 OK"
@@ -287,7 +293,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/stop_job', methods=['POST'], )
+    @website.route('/stop_job', methods=['POST'], )
     @staticmethod
     def stop_job():
         """
@@ -353,7 +359,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/kill_job', methods=['POST'], )
+    @website.route('/kill_job', methods=['POST'], )
     @staticmethod
     def kill_job():
         """
@@ -421,7 +427,7 @@ class FlaskServer():
             return make_response(msg, code)
 
 
-    @app.route('/enable_job', methods=['POST'], )
+    @website.route('/enable_job', methods=['POST'], )
     @staticmethod
     def enable_job():
         """
@@ -505,14 +511,191 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
+    @website.route('/modify_job', methods=['POST'], )
+    @staticmethod
+    def modify_job():
+        """
+        Sets the current job to the new job. Or creates on if it does not exist
+        """
+        global RUN_JOB_OBJECT
+        logger=Logger()
+        data = request.get_json()
+        # get client secret from header
+        secret = request.headers.get('clientSecret')
+        id = request.headers.get('ID')
 
+        if FlaskServer.auth(secret, logger, id) == 200:
+            recieved_job = data.get(id, '')
+            # recieve settings as json
+            recieved_settings = recieved_job.get('settings', '')
 
+            job_to_save = Job()
+            job_to_save.set_id(id)
+            job_to_save.set_title(recieved_job.get('title', ''))
+            settings = JobSettings()
+            settings.set_id(0)
+            settings.set_schedule(recieved_settings.get('schedule', ''))
+            settings.set_start_time(recieved_settings.get('startTime', ''))
+            settings.set_stop_time(recieved_settings.get('stopTime', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_sampling(recieved_settings.get('sampling', ''))
+            settings.set_notify_email(recieved_settings.get('notifyEmail', ''))
+            settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_retention(recieved_settings.get('retention', ''))
+            settings.backup_path=recieved_settings.get('path', '')
+            config = Configuration(0, 0, secret)
+            config.address = recieved_settings.get('path', '')
+            settings.set_user(recieved_settings.get('user', ''))
+            settings.set_password(recieved_settings.get('password', ''))
 
+            job_to_save.set_settings(settings)
+            job_to_save.set_config(config)
+            job_to_save.save()
 
+            return "200 OK"
+        elif FlaskServer.auth(secret, logger, id) == 405:
+            return "401 Access Denied"
+        else:
+            return "500 Internal Server Error"
+    @website.route('/get_job', methods=['GET'], )
+    @staticmethod
+    def get_job():
+        """
+        Gives Current Job Information
+        """
+        return "200 OK"
+    @website.route('/force_checkin', methods=['GET'], )
+    @staticmethod
+    def force_checkin():
+        """
+        Forces a heartbeat
+        """
+        return "200 OK"
+    @website.route('/restore', methods=['POST'], )
+    @staticmethod
+    def restore():
+        """
+        Restores files or directories
+        """
+        return "200 OK"
+
+    @website.route('/get_Status', methods=['GET'], )
+    @staticmethod
+    def get_status():
+        """
+        Gets the current status of running jobs or error state, version information etc
+        """
+        return "200 OK"
+
+    @website.route('/force_update', methods=['PUT'], )
+    @staticmethod
+    def force_update():
+        """
+        Forces the client to pull an update from the server
+        """
+        return "200 OK"
+
+    @website.route('/get_version', methods=['GET'], )
+    @staticmethod
+    def get_version():
+        """
+        Gets version information from the client
+        """
+        return "200 OK"
+
+    @website.route('/get_heartbeats', methods=['GET'], )
+    @staticmethod
+    def get_heartbeats():
+        """
+        Gets heartbeat information from the client
+        """
+        return "200 OK"
+
+    @website.route('/get_backup', methods=['GET'], )
+    @staticmethod
+    def get_backup():
+        """
+        Gets backup information from the client
+        """
+        return "200 OK"
+
+    @website.route('/get_jobs', methods=['GET'], )
+    @staticmethod
+    def get_jobs():
+        """
+        Gets jobs information from the client
+        """
+        return "200 OK"
+
+    @website.route('/verify_backup', methods=['PUT'], )
+    @staticmethod
+    def verify_backup():
+        """
+        Verifies a backup
+        """
+        return "200 OK"
+
+    @website.route('/get_hash_by_id', methods=['GET'], )
+    @staticmethod
+    def get_hash_by_id():
+        """
+        gives salt, pepper, salt2 based on ID
+        """
+        return "200 OK"
+
+    @website.route('/beat', methods=['POST'], )
+    @staticmethod
+    def beat():
+        """
+        A spot for clients to send heartbeats to
+        """
+        # authenticate client
+        # if authenticated 
+        # update the client's checkin time
+        # return 200 ok
+        # else return 401 access denied
+        return "200 OK"
 
 
     # PUT ROUTES
-
+    @website.route('/check-installer', methods=['POST'], )
+    @staticmethod
+    def check_installer():
+        """
+        Gets version information from the client
+        """
+        secret = request.headers.get('clientSecret')
+        key = request.headers.get('key')
+        Logger.debug_print("--------")
+        Logger.debug_print(secret)
+        Logger.debug_print(key)
+        Logger.debug_print(KEYS[0])
+        Logger.debug_print("--------")
+        logger = Logger()
+        if FlaskServer.auth(secret, logger, 0) == 200:
+            Logger.debug_print("secret matches")
+            for key_check in KEYS:
+                if key_check == key:
+                    Logger.debug_print("key matches")
+                    # LATER: Call out to MSP. 200 ok do below, else reject
+                    InitSql.clients()
+                    # Call the method to get the body as JSON
+                    body = request.get_json()
+                    id = MySqlite.get_next_client_id()
+                    name = body.get('name', '')
+                    ip = body.get('ip', '')
+                    port = body.get('port', '')
+                    status = 'Installing'
+                    mac = body.get('mac', '')
+                    result = MySqlite.write_client(id, name, ip, port, status, mac)
+                    if (result == 200):
+                        return make_response("200 ok", 200)
+                    else:
+                        return make_response("500 Internal Server Error - CODE: 1000", 403)
+            return make_response("403 Rejected", 403)
+        return make_response("401 Access Denied", 401)
+        
 
 
 
@@ -524,7 +707,9 @@ class FlaskServer():
         """
         global RUN_JOB_OBJECT
         RUN_JOB_OBJECT = RunJob()
-        self.app.run()
+        self.website.run()
     def __init__(self):
+        # load all clients from DB
+        MY_CLIENTS = MySqlite.load_clients()
         Logger.debug_print("flask server started")
         self.run()

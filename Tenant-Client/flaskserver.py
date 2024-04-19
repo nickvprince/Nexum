@@ -19,6 +19,9 @@ import time
 from flask import Flask, request,make_response
 from security import Security, CLIENT_SECRET
 from logger import Logger
+from job import Job
+from jobsettings import JobSettings
+from conf import Configuration
 RUN_JOB_OBJECT = None
 
 
@@ -30,7 +33,7 @@ class FlaskServer():
     Class to manage the server
     """
 
-    app = Flask(__name__)
+    website = Flask(__name__)
 
     @staticmethod
     def set_run_job_object(run_job_object):
@@ -91,7 +94,7 @@ class FlaskServer():
 
 
     # GET ROUTES
-    @app.route('/get_files', methods=['GET'], )
+    @website.route('/get_files', methods=['GET'], )
     @staticmethod
     def get_files():
         """
@@ -168,12 +171,9 @@ class FlaskServer():
         # <-- Turn into a method
 
         return files
-
-
-
     # POST ROUTES
 
-    @app.route('/start_job', methods=['POST'], )
+    @website.route('/start_job', methods=['PUT'], )
     @staticmethod
     def start_job():
         """
@@ -197,7 +197,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/stop_job', methods=['POST'], )
+    @website.route('/stop_job', methods=['PUT'], )
     @staticmethod
     def stop_job():
         """
@@ -221,7 +221,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/kill_job', methods=['POST'], )
+    @website.route('/kill_job', methods=['PUT'], )
     @staticmethod
     def kill_job():
         """
@@ -246,7 +246,7 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
-    @app.route('/enable_job', methods=['POST'], )
+    @website.route('/enable_job', methods=['PUT'], )
     @staticmethod
     def enable_job():
         """
@@ -270,6 +270,106 @@ class FlaskServer():
         else:
             return make_response(msg, code)
 
+    @website.route('/modify_job', methods=['POST'], )
+    @staticmethod
+    def modify_job():
+        """
+        Sets the current job to the new job. Or creates on if it does not exist
+        """
+        global RUN_JOB_OBJECT
+        logger=Logger()
+        data = request.get_json()
+        # get client secret from header
+        secret = request.headers.get('clientSecret')
+        id = request.headers.get('ID')
+
+        if FlaskServer.auth(secret, logger, id) == 200:
+            recieved_job = data.get(id, '')
+            # recieve settings as json
+            recieved_settings = recieved_job.get('settings', '')
+
+            job_to_save = Job()
+            job_to_save.set_id(id)
+            job_to_save.set_title(recieved_job.get('title', ''))
+            settings = JobSettings()
+            settings.set_id(0)
+            settings.set_schedule(recieved_settings.get('schedule', ''))
+            settings.set_start_time(recieved_settings.get('startTime', ''))
+            settings.set_stop_time(recieved_settings.get('stopTime', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_sampling(recieved_settings.get('sampling', ''))
+            settings.set_notify_email(recieved_settings.get('notifyEmail', ''))
+            settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
+            settings.set_retry_count(recieved_settings.get('retryCount', ''))
+            settings.set_retention(recieved_settings.get('retention', ''))
+            settings.backup_path=recieved_settings.get('path', '')
+            config = Configuration(0, 0, secret)
+            config.address = recieved_settings.get('path', '')
+            settings.set_user(recieved_settings.get('user', ''))
+            settings.set_password(recieved_settings.get('password', ''))
+
+            job_to_save.set_settings(settings)
+            job_to_save.set_config(config)
+            job_to_save.save()
+ 
+     
+            return "200 OK"
+        elif FlaskServer.auth(secret, logger, id) == 405:
+            return "401 Access Denied"
+        else:
+            return "500 Internal Server Error"
+    @website.route('/get_job', methods=['GET'], )
+    @staticmethod
+    def get_job():
+        """
+        Gives Current Job Information
+        """
+        return "200 OK"
+    
+    @staticmethod
+    def get_jobs():
+        """
+        Gives job information for all clients
+        """
+        return "200 OK"
+    @website.route('/force_checkin', methods=['GET'], )
+    @staticmethod
+    def force_checkin():
+        """
+        Forces a heartbeat
+        """
+        return "200 OK"
+    @website.route('/restore', methods=['POST'], )
+    @staticmethod
+    def restore():
+        """
+        Restores files or directories
+        """
+        return "200 OK"
+
+    @website.route('/get_Status', methods=['GET'], )
+    @staticmethod
+    def get_job_status():
+        """
+        Gets the current status of running jobs or error state, version information etc
+        """
+        return "200 OK"
+
+    @website.route('/force_update', methods=['PUT'], )
+    @staticmethod
+    def force_update():
+        """
+        Forces the client to pull an update from the server
+        """
+        return "200 OK"
+
+    @website.route('/get_version', methods=['GET'], )
+    @staticmethod
+    def get_version():
+        """
+        Gets version information from the client
+        """
+        return "200 ok"
 
 
 
@@ -288,7 +388,8 @@ class FlaskServer():
         """
         Runs the server
         """
-        self.app.run()
+        self.website.run()
     def __init__(self):
         Logger.debug_print("flask server started")
         self.run()
+        

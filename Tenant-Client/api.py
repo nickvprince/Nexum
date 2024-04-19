@@ -95,3 +95,30 @@ class API():
         Logger.debug_print("Sending success install")
         # call the API from tenant server to send the success install
         return True
+
+    @staticmethod
+    def get_update_available():
+        """
+        Checks the server for a new update
+        """
+        Logger.debug_print("Checking Update Status")
+        # call the API from tenant server to send the success install
+        return True
+
+    @staticmethod
+    def get_update_path():
+        """
+        Checks the server for the update path
+        """
+        Logger.debug_print("Getting Update Path")
+        # call the API from tenant server to send the success install
+        return True
+
+    @staticmethod
+    def get_polling_interval():
+        """
+        Checks the server for a polling interval
+        """
+        Logger.debug_print("Checking Polling Interval")
+        # call the API from tenant server to send the success install
+        return True

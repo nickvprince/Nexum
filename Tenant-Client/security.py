@@ -19,7 +19,8 @@ import time
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from logger import Logger
-CLIENT_SECRET = "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # secret for the client to communicate with A2
+from sql import MySqlite
+CLIENT_SECRET = "" # secret for the client to communicate with A2
 # pylint: disable= bare-except
 
 class Security():
@@ -35,6 +36,24 @@ class Security():
         """
         global CLIENT_SECRET
         CLIENT_SECRET = secret
+    @staticmethod
+    def get_client_secret():
+        """
+        Get the client secret
+        """
+        global CLIENT_SECRET
+        return CLIENT_SECRET
+    @staticmethod
+    def load_client_secret():
+        """
+        Load the client secret from the db
+
+        """
+        global CLIENT_SECRET
+        temp = MySqlite.read_setting("client_secret")
+        CLIENT_SECRET = temp
+
+
     @staticmethod
     def split_string(string):
         """

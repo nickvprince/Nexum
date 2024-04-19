@@ -1,0 +1,125 @@
+"""
+# Program: tenant-client
+# File: main.py
+# Authors: 1. Danny Smith
+#
+# Date: 2/17/2024
+# purpose: This is the main file for the program A2. This program ensures connectivity
+# to A3, recieves jobs from A3 and executes backups and heartbeats. It has a tray icon
+# that the user may not interact with
+
+# Note. Requires admin to run
+# Note. Requires the following packages to be installed: cryptography, pystray, 
+# PIL, os, sqlite3, pandas, flask, base64, hashlib, winreg, time, traceback, threading
+
+Types
+-----
+
+1. Entity - Holds information such as a struct
+2. Connector - Connects local calls to an API call
+3. Controller - Manages a parts of the program
+4. File IO - Provides file IO functionality
+5. Security - provides security functionality
+
+
+Configuration: entity
+JobSettings: entity
+Job: entity
+API: connector
+RunJob: controller
+InitSql: file IO
+FlaskServer: API
+IconManager: controller
+Logger: file IO
+Security: Security
+
+Error Codes
+-----------
+1001 - Not found in settings
+1002 - General Error
+1003 - File not found
+1004 - Decryption failed
+1005 - Permission error
+
+404 - Not found
+401 - Access denied
+503 - Internal server error
+"""
+
+# pylint: disable= no-member,no-name-in-module, import-error
+
+
+import time
+from logger import Logger
+from sql import InitSql, MySqlite
+from runjob import RunJob, LOCAL_JOB
+from helperfunctions import get_client_info, logs, tenant_portal,load
+from security import Security
+from job import Job
+from jobsettings import JobSettings
+from iconmanager import IconManager, image_path
+from flaskserver import FlaskServer
+from HeartBeat import HeartBeat
+# Global variables
+
+def init():
+    """
+    Initializes the program
+    """
+    global LOCAL_JOB
+    InitSql()
+    LOCAL_JOB.load(0)
+    Security.load_client_secret()
+    load()
+
+    
+def main():
+    """
+    Main method of the program for testing and starting the program
+    """
+<<<<<<<< HEAD:tenant-client/main.py
+    
+    t = JobSettings()
+    t.backup_path = "\\\\192.168.2.201\\Backups"
+    t.user = "tenant\\Backup"
+    t.password = "Test123"
+    LOCAL_JOB.set_settings(t)
+========
+
+    job_settings = JobSettings()
+    job_settings.backup_path = "\\\\192.168.2.201\\Backups"
+    job_settings.user = "tenant\\Backup"
+    job_settings.password = "Test123"
+    LOCAL_JOB.set_settings(job_settings)
+>>>>>>>> nex/main:Tenant-Client/main.py
+    Security.set_client_secret("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    # create a Logger
+    logger = Logger()
+    # init databases
+    InitSql()
+    # get client info
+    get_client_info()
+    # create the IconManager
+    icon_manager = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",logger)
+    # run the icon
+    icon_manager.run()
+    # log a message
+    logger.log("INFO", "Main", "Main has started", "000", time.asctime())
+    # run the job
+    temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+    print(Security.encrypt_client_secret(temp))
+    FlaskServer.set_run_job_object(RunJob())
+
+    # run server to listen for requests
+    FlaskServer()
+    while True:
+        pass
+
+
+
+
+if __name__ == "__main__":
+    init()
+    main()
