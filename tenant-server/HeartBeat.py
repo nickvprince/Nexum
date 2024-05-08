@@ -12,9 +12,14 @@
 #               1. HeartBeat - Controller
 
 """
+# pylint: disable= line-too-long,global-statement
 import time
 import threading
-from sql import InitSql
+from sql import InitSql, MySqlite
+from api import API
+import datetime
+
+
 MY_CLIENTS = []
 class HeartBeat:
     """
@@ -43,11 +48,26 @@ class HeartBeat:
         """
         while True:
             print("Checking all checkins")
-            t = time.time()
             for client in MY_CLIENTS:
-                # accepted time = self.interval * get_from_db(interval)
-                # if get_from_db last checkin time+accpted time > current time
-                # set client to inactive
-                pass   
+                accepted_time = self.interval * int(MySqlite.get_heartbeat_missed_tolerance(client[0]))
+                if int(accepted_time) <= 0 :
+                    accepted_time = 15
+                print("Client: ",client[1])
+                print("Cline ID: ",client[0])
+                print("Accepted Time: ",accepted_time)
+                last_checkin = MySqlite.get_last_checkin(client[0])
+                current_time = datetime.datetime.now()
+                if last_checkin:
+                    last_checkin_time = datetime.datetime.strptime(last_checkin.split('.')[0], "%Y-%m-%d %H:%M:%S")
+                    target_time = last_checkin_time + datetime.timedelta(seconds=int(accepted_time))
+                    print("Current time:", current_time)
+                    print("Last checkin:", last_checkin_time)
+                    print("Target time:", target_time)
+                    if current_time > target_time:
+                        API.post_missing_heartbeat(client[0],self.tenant_secret)
+                        print("Heartbeat missed for client:", client[1])
+                else:
+                    print("No checkin found for client:", client[1])
+
             time.sleep(self.interval)
             print(MY_CLIENTS)

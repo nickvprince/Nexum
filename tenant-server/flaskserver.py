@@ -27,6 +27,8 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
+
+
 RUN_JOB_OBJECT = None
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
@@ -522,15 +524,15 @@ class FlaskServer():
         data = request.get_json()
         # get client secret from header
         secret = request.headers.get('clientSecret')
-        id = request.headers.get('ID')
+        identification = request.headers.get('ID')
 
-        if FlaskServer.auth(secret, logger, id) == 200:
-            recieved_job = data.get(id, '')
+        if FlaskServer.auth(secret, logger, identification) == 200:
+            recieved_job = data.get(identification, '')
             # recieve settings as json
             recieved_settings = recieved_job.get('settings', '')
 
             job_to_save = Job()
-            job_to_save.set_id(id)
+            job_to_save.set_id(identification)
             job_to_save.set_title(recieved_job.get('title', ''))
             settings = JobSettings()
             settings.set_id(0)
@@ -650,12 +652,16 @@ class FlaskServer():
         """
         A spot for clients to send heartbeats to
         """
-        # authenticate client
-        # if authenticated 
-        # update the client's checkin time
-        # return 200 ok
-        # else return 401 access denied
-        return "200 OK"
+        secret = request.headers.get('clientSecret')
+        logger = Logger()
+        identification = request.headers.get('ID')
+
+        if FlaskServer.auth(secret, logger, identification) == 200:
+            MySqlite.update_heartbeat_time(identification)
+            return "200 OK"
+        else:
+            return "401 Access Denied"
+        return "500 Internal Server Error"
 
 
     # PUT ROUTES
@@ -682,20 +688,20 @@ class FlaskServer():
                     InitSql.clients()
                     # Call the method to get the body as JSON
                     body = request.get_json()
-                    id = MySqlite.get_next_client_id()
+                    identification = MySqlite.get_next_client_id()
                     name = body.get('name', '')
                     ip = body.get('ip', '')
                     port = body.get('port', '')
                     status = 'Installing'
                     mac = body.get('mac', '')
-                    result = MySqlite.write_client(id, name, ip, port, status, mac)
-                    if (result == 200):
+                    result = MySqlite.write_client(identification, name, ip, port, status, mac)
+                    if result == 200:
                         return make_response("200 ok", 200)
                     else:
                         return make_response("500 Internal Server Error - CODE: 1000", 403)
             return make_response("403 Rejected", 403)
         return make_response("401 Access Denied", 401)
-        
+
 
 
 

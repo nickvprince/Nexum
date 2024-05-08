@@ -13,26 +13,32 @@
 #               1. InitSql - File IO
 
 """
-
+#pylint: disable= bare-except
 
 import os
 import sqlite3
 import subprocess
+import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-import base64
 
+# pah directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
-SETTINGS_PATH= os.path.join(current_dir, 
-    settingsDirectory+'\\settings.db') # path to the settings database
+logdirectory = os.path.join(current_dir,'../logs') # directory for logs
+
+
+# path files
+SETTINGS_PATH = os.path.join(current_dir,
+                            settingsDirectory+'\\settings.db') # path to the settings database
 jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
-logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
 
-    # encrypt a string using AES
+
+
+# encrypt a string using AES
 @staticmethod
 def encrypt_string(password, string):
     """
@@ -46,15 +52,24 @@ def encrypt_string(password, string):
     encryptor = cipher.encryptor()
 
     # Pad the string to be a multiple of 16 bytes long
-    string = string.ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+    try:
+        string = str(string).ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+
 
     # Encrypt the string using AES
-    encrypted_string = encryptor.update(string) + encryptor.finalize()
+        encrypted_string = encryptor.update(string) + encryptor.finalize()
 
     # Encode the encrypted string in base64
-    encoded_string = base64.b64encode(encrypted_string)
-
-    return encoded_string.decode('utf-8')
+        encoded_string = base64.b64encode(encrypted_string)
+        return encoded_string.decode('utf-8')
+    except UnicodeDecodeError:
+        MySqlite.write_log("ERROR", "SQL", "Failed to encrypt string - Unicode decode error",
+                            "1007", "Failed to encrypt string")
+        return "Encryption Failed"
+    except:
+        MySqlite.write_log("ERROR", "SQL", "Failed to encrypt string",
+                            "1007", "Failed to encrypt string")
+        return "Encryption Failed"
 
 # decrypt a string using AES
 @staticmethod
@@ -77,44 +92,50 @@ def decrypt_string(password, string):
     try:
         return decrypted_string.decode('utf-8')
     except UnicodeDecodeError:
+        MySqlite.write_log("ERROR", "SQL", "Failed to decrypt string - Unicode decode error",
+                            "1004", "Failed to decrypt string")
         return "Decryption failed"
     except:
+        MySqlite.write_log("ERROR", "SQL", "Failed to decrypt string",
+                           "1004", "Failed to decrypt string")
         return "Decryption failed"
-        
+
 class MySqlite():
     """
     Class to interact with the sqlite database
     Type: File IO
     """
-
-    @staticmethod 
+    @staticmethod
     def write_log(severity, subject, message, code, date):
         """ 
         Write a log to the database
         """
         conn = sqlite3.connect(logdirectory+logpath)
-        id = 0
+        identification= 0
         cursor = conn.cursor()
 
 
         cursor.execute('''SELECT MAX(id) FROM logs''')
         result = cursor.fetchone()[0]
         if result is not None:
-            id = int(result) + 1
+            identification = int(result) + 1
         else:
-            id = 1
+            identification = 1
 
 
         cursor.execute('''INSERT INTO logs (id,severity, subject, message, code, date)
-                    VALUES (?,?, ?, ?, ?, ?)''', (id, severity, subject, message, code, date))
+                    VALUES (?,?, ?, ?, ?, ?)''',
+                    (identification, severity, subject, message, code, date))
         conn.commit()
         conn.close()
+
     @staticmethod
     def write_setting(setting, value):
         """
         Write a setting to the database
         """
-        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'], capture_output=True, text=True)
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                        capture_output=True, text=True,check=True) # Use UUID to encrypt the data
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:24]
@@ -125,10 +146,11 @@ class MySqlite():
         cursor = conn.cursor()
         cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
         existing_value = cursor.fetchone()
-        if existing_value:
+        if existing_value: # if setting exists overwrite it
             cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
-        else:
-            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''', (setting, value))
+        else: # Write a setting
+            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''',
+                            (setting, value))
         conn.commit()
         conn.close()
 
@@ -141,14 +163,18 @@ class MySqlite():
         conn = sqlite3.connect(SETTINGS_PATH)
         cursor = conn.cursor()
         cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
-        value = cursor.fetchone()[0]
-        conn.close()
-        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'], capture_output=True, text=True) # enc with uuid
-        output = result.stdout.strip()
-        output = output.split('\n\n', 1)[-1]
-        output = output[:24]
-        value = decrypt_string(output,value)
-        return value.rstrip()
+        try:
+            value = cursor.fetchone()[0]
+            conn.close()
+            result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                    capture_output=True, text=True,check=True) # enc with uuid
+            output = result.stdout.strip()
+            output = output.split('\n\n', 1)[-1]
+            output = output[:24]
+            value = decrypt_string(output,value)
+            return value.rstrip()
+        except:
+            return None
 
 def create_db_file(directory,path):
     """
@@ -193,12 +219,12 @@ class InitSql():
         conn = sqlite3.connect(settingsDirectory+job_settingsFile)
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
-            (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
-                retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
-                    notifyEmail TEXT, heartbeatInterval TEXT)''')
-        # Close connection
+                (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
+                    retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
+                        notifyEmail TEXT, heartbeatInterval TEXT, user TEXT, 
+                        password TEXT, backupPath TEXT)''')
+            # Close connection
         conn.commit()
-        conn.close()
     @staticmethod
     def config_files():
         """ 
@@ -262,6 +288,9 @@ class InitSql():
 
 
     def __init__(self):
+        """
+        Initializing the initsql class will ensure all tables are created
+        """
         # initialize all tables when the object is created
         InitSql.log_files()
         InitSql.settings()

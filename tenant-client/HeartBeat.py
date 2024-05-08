@@ -14,10 +14,14 @@
 """
 import time
 from sql import MySqlite
+import requests
+from logger import Logger
 from security import CLIENT_SECRET
+from helperfunctions import CLIENT_ID
 
+#pylint: disable=bare-except,global-statement
 class HeartBeat:
-    """ 
+    """
     Heartbeat class containing the heartbeat logic
     """
     server_address = None
@@ -27,28 +31,62 @@ class HeartBeat:
 
 
 
-    @staticmethod
-    def checkin():
+
+    def checkin(self):
         """
         Sends a checkin to the server
         """
-        # send heartbeat to server
-        # set last heartbeat to now
+        global CLIENT_SECRET
+        global CLIENT_ID
+
+        CLIENT_SECRET = MySqlite.read_setting("client_secret")
+        CLIENT_ID = MySqlite.read_setting("client_id")
+        headers = {
+            "secret": str(CLIENT_SECRET),
+            "id": str(CLIENT_ID)
+        }
+        url = "http://"+self.server_address+":"+self.server_port+"/beat"
+        print("Sending heartbeat to: ",url)
+        print("Headers: ",headers)
+        try:
+            response = requests.post(url, headers=headers,timeout=15)
+            if response.status_code == 200:
+                # Handle success
+                print("Success: Heartbeat sent")
+            else:
+                # Handle error
+                print("Error: Failed to send heartbeat")
+        except:
+            logger = Logger()
+            logger.log("High","HeartBear","Failed to send heartbeat to server","1006",time.time())
+
+
 
 
     def __init__(self):
         # open thread to ping server indefinitely
         self.server_address = MySqlite.read_setting("server_address")
         self.server_port = MySqlite.read_setting("server_port")
-        self.interval = MySqlite.read_setting("heartbeat_interval")
-        self.last_heartbeat = MySqlite.read_setting("last_heartbeat")
-
+        try:
+            self.interval = MySqlite.read_setting("heartbeat_interval")
+        except:
+            self.interval = 5
+            MySqlite.write_setting("heartbeat_interval",5)
+        if self.interval is None or self.interval == '':
+            self.interval = 5
+            MySqlite.write_setting("heartbeat_interval",5)
+        try:
+            self.last_heartbeat = MySqlite.read_setting("last_heartbeat")
+        except:
+            pass
+        self.ping_server()
     def ping_server(self):
         """
-        --Thread Function--
+        Thread Function
         Sends a ping to the server on the server_address and server_port 
         on the specified interval
         """
+
         while True:
             self.checkin()
             time.sleep(self.interval)

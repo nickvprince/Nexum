@@ -11,7 +11,7 @@
 
 """
 
-# pylint: disable= no-member,no-name-in-module, import-error
+# pylint: disable= no-member,no-name-in-module, import-error,global-variable-not-assigned
 
 
 import time
@@ -24,6 +24,8 @@ from runjob import LOCAL_JOB
 from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
+
+
 # Global variables
 def init():
     """
@@ -39,24 +41,20 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
-<<<<<<<< HEAD:tenant-server/main.py
     clients = MySqlite.load_clients()
     l = Logger()
     H = HeartBeat(Security.get_client_secret(), 10,clients)
-========
-    logger = Logger()
->>>>>>>> nex/main:Tenant-Server/main.py
 
     # create the IconManager
-    icon_manager = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
-    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Server",logger)
+    i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Server",l)
     # run the icon
-    icon_manager.run()
+    i.run()
     # log a message
 
-    logger.log("INFO", "Main", "Main has started", "000", time.asctime())
-    flask = FlaskServer()
-    flask.run()
+    l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    f = FlaskServer()
+    f.run()
 
 if __name__ == "__main__":
     main()

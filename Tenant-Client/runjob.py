@@ -20,8 +20,9 @@ import time
 import threading
 import job
 from logger import Logger
+import jobsettings
 
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long,broad-except,global-variable-not-assigned
 
 
 
@@ -74,20 +75,26 @@ class RunJob():
             time.sleep(5)
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
-            if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
-                LOCAL_JOB.settings.start_time = ""
-                LOCAL_JOB.settings.stop_time = ""
-            if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
+            if LOCAL_JOB.settings[2] is None or LOCAL_JOB.settings[3] is None:
+                LOCAL_JOB.settings[2] = ""
+                LOCAL_JOB.settings[3] = ""
+            current_time = time.strftime("%H:%M")
+            if (LOCAL_JOB.settings[2] <= current_time) and (LOCAL_JOB.settings[3] > current_time):
                 Logger.debug_print("Job Triggered by time")
-                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
-                p = subprocess.Popen(['powershell.exe', command])
-
-                time.sleep(10)
-                p.kill()
+                try:
+                    command='wbadmin start backup -backupTarget:'+LOCAL_JOB.settings[12]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.settings[10]+' -password:'+LOCAL_JOB.settings[11]
+                    p = subprocess.Popen(['powershell.exe', command])
+                    time.sleep(10)
+                    Logger.log("INFO", "RunJob", p.stdout.read(), "0000", time.asctime())
+                    p.kill()
+                except Exception as e:
+                    Logger.log("ERROR", "RunJob", e, "1007", time.asctime())
                 # Run the Job
 
 
     def __init__(self):
+        global LOCAL_JOB
+        LOCAL_JOB.load(0)
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()

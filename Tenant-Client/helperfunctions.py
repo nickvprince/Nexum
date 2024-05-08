@@ -46,7 +46,7 @@ def load():
     CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
     TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
     POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
-    
+
 def check_install_key(key, secret, server, port):
     """
     Check the install key with the server to see 
@@ -202,4 +202,3 @@ def tenant_portal():
     """
     # add check here to ensure starts with https://
     os.system(f"start {TENANT_PORTAL_URL}")
-

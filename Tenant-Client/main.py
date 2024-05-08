@@ -40,6 +40,8 @@ Error Codes
 1003 - File not found
 1004 - Decryption failed
 1005 - Permission error
+1006 - Heartbeat failed to send
+1007 - Encryption Error
 
 404 - Not found
 401 - Access denied
@@ -60,52 +62,46 @@ from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 from HeartBeat import HeartBeat
+
 # Global variables
 
 def init():
     """
     Initializes the program
     """
+    # pylint: disable= global-variable-not-assigned
+    # Disabled since it is used with LOCAL_JOB.load(0)
     global LOCAL_JOB
+    # pylint: enable= global-variable-not-assigned
     InitSql()
     LOCAL_JOB.load(0)
     Security.load_client_secret()
     load()
 
-    
+
 def main():
     """
     Main method of the program for testing and starting the program
     """
-<<<<<<<< HEAD:tenant-client/main.py
-    
     t = JobSettings()
     t.backup_path = "\\\\192.168.2.201\\Backups"
     t.user = "tenant\\Backup"
     t.password = "Test123"
     LOCAL_JOB.set_settings(t)
-========
-
-    job_settings = JobSettings()
-    job_settings.backup_path = "\\\\192.168.2.201\\Backups"
-    job_settings.user = "tenant\\Backup"
-    job_settings.password = "Test123"
-    LOCAL_JOB.set_settings(job_settings)
->>>>>>>> nex/main:Tenant-Client/main.py
     Security.set_client_secret("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     # create a Logger
-    logger = Logger()
+    l = Logger()
     # init databases
-    InitSql()
+    init()
     # get client info
     get_client_info()
     # create the IconManager
-    icon_manager = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
-    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",logger)
+    i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
     # run the icon
-    icon_manager.run()
+    i.run()
     # log a message
-    logger.log("INFO", "Main", "Main has started", "000", time.asctime())
+    l.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
     temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
@@ -114,12 +110,10 @@ def main():
 
     # run server to listen for requests
     FlaskServer()
-    while True:
-        pass
 
 
 
 
 if __name__ == "__main__":
-    init()
+
     main()

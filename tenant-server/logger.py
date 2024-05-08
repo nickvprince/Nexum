@@ -14,6 +14,7 @@
 """
 # pylint: disable= import-error, unused-argument
 from sql import MySqlite,InitSql
+
 class Logger():
 
     """

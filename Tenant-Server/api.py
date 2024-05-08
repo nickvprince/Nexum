@@ -95,3 +95,12 @@ class API():
         Logger.debug_print("Sending success install")
         # call the API from tenant server to send the success install
         return True
+
+    @staticmethod
+    def post_missing_heartbeat(client_id,tenant_id):
+        """
+        Call the API from tenant server to post the missing heartbeat
+        """
+        Logger.debug_print("Posting missing heartbeat")
+        # call the API from tenant server to post the missing heartbeat
+        return True

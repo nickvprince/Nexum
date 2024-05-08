@@ -17,7 +17,7 @@ import main
 import job
 import conf
 import jobsettings
-from initsql import InitSql
+from sql import InitSql, create_db_file
 from security import Security
 from helperfunctions import get_client_info
 from helperfunctions import *
@@ -138,6 +138,29 @@ class SecurityTests(unittest.TestCase):
         print(Security.encrypt_string("WelcomeHome", "Password"))
         print(Security.decrypt_string("WelcomeHome", "v2lpkJw3rLrXCDmeci/ZxQ=="))
 class TestMain(unittest.TestCase):
+
+    def test_create_db_file(self):
+        dir = "logs/"
+        path = "test.db"
+        create_db_file(dir, path)
+        self.assertTrue(os.path.exists(dir + path))
+        # Delete the file
+        os.remove(dir + path)
+    def test_get_client_info(self):
+        # Set up the expected values
+        expected_client_id = -1
+        expected_tenant_id = -1
+        expected_tenant_portal_url = "https://nexum.com/tenant_portal"
+
+        # Call the function to get the client info
+        get_client_info()
+
+        # Check if the global variables are assigned correctly
+        self.assertEqual(CLIENT_ID, expected_client_id)
+        self.assertEqual(TENANT_ID, expected_tenant_id)
+        self.assertEqual(TENANT_PORTAL_URL, expected_tenant_portal_url)
+        time.sleep(0.2)
+
 
     def test_logs(self):
         current_user = os.getlogin()
