@@ -141,11 +141,11 @@ class MySqlite():
         current_time = datetime.datetime.now()
         conn = sqlite3.connect(SETTINGS_PATH)
         cursor = conn.cursor()
-        cursor.execute('''SELECT id, interval, lastCheckin, missedNotifyCount FROM heartBeat WHERE id = ?''', (input_id,))
+        cursor.execute('''SELECT id FROM heartBeat WHERE id = ?''', (input_id,))
         result = cursor.fetchone()
         if result:
-            id, interval, lastCheckin, missedNotifyCount = result
-            cursor.execute('''UPDATE heartBeat SET lastCheckin = ?, missedNotifyCount = ? WHERE id = ?''', (current_time, missedNotifyCount, input_id))
+            identification = result[0]
+            cursor.execute('''UPDATE heartBeat SET lastCheckin = ? WHERE id = ?''', (current_time, identification))
             # Do something with the retrieved values
         else:
             # Handle the case when no record is found

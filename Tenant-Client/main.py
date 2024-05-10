@@ -109,11 +109,12 @@ def main():
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
+    h = HeartBeat()
     FlaskServer()
 
 
 
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     main()

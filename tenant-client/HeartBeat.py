@@ -18,7 +18,8 @@ import requests
 from logger import Logger
 from security import CLIENT_SECRET
 from helperfunctions import CLIENT_ID
-
+import threading
+from security import Security
 #pylint: disable=bare-except,global-statement
 class HeartBeat:
     """
@@ -41,8 +42,11 @@ class HeartBeat:
 
         CLIENT_SECRET = MySqlite.read_setting("client_secret")
         CLIENT_ID = MySqlite.read_setting("client_id")
+        temp = Security.sha256_string(CLIENT_SECRET)
+        temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+        temp = Security.encrypt_client_secret(temp)
         headers = {
-            "secret": str(CLIENT_SECRET),
+            "secret": str(temp),
             "id": str(CLIENT_ID)
         }
         url = "http://"+self.server_address+":"+self.server_port+"/beat"
@@ -79,7 +83,10 @@ class HeartBeat:
             self.last_heartbeat = MySqlite.read_setting("last_heartbeat")
         except:
             pass
-        self.ping_server()
+        # Create a daemon thread to run the ping_server method
+        thread = threading.Thread(target=self.ping_server)
+        thread.daemon = True
+        thread.start()
     def ping_server(self):
         """
         Thread Function

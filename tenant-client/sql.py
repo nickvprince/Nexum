@@ -1,6 +1,6 @@
 """
 # Program: Tenant-Client
-# File: initsql.py
+# File: sql.py
 # Authors: 1. Danny Smith
 #
 # Date: 3/19/2024

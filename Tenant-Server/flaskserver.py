@@ -652,9 +652,9 @@ class FlaskServer():
         """
         A spot for clients to send heartbeats to
         """
-        secret = request.headers.get('clientSecret')
+        secret = request.headers.get('secret')
         logger = Logger()
-        identification = request.headers.get('ID')
+        identification = request.headers.get('id')
 
         if FlaskServer.auth(secret, logger, identification) == 200:
             MySqlite.update_heartbeat_time(identification)

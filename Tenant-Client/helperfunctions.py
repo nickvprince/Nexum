@@ -46,6 +46,7 @@ def load():
     CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
     TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
     POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
+    # add global variables from all other modules
 
 def check_install_key(key, secret, server, port):
     """

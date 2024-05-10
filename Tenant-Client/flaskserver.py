@@ -180,6 +180,7 @@ class FlaskServer():
         """
         return "200 OK"
 
+    @website.route('/get_jobs', methods=['GET'], )
     @staticmethod
     def get_jobs():
         """
@@ -393,4 +394,4 @@ class FlaskServer():
         self.website.run()
     def __init__(self):
         Logger.debug_print("flask server started")
-        self.run()
+        self.website.run(port=5001)
