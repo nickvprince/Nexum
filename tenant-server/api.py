@@ -104,3 +104,21 @@ class API():
         Logger.debug_print("Posting missing heartbeat")
         # call the API from tenant server to post the missing heartbeat
         return True
+
+    @staticmethod
+    def get_update_available():
+        """
+        Call the API from tenant server to get the update available
+        """
+        Logger.debug_print("Getting update available")
+        # call the API from tenant server to get the update available
+        return True
+
+    @staticmethod
+    def get_update_path():
+        """
+        Call the API from tenant server to get the update path
+        """
+        Logger.debug_print("Getting update path")
+        # call the API from tenant server to get the update path
+        return "https://nexum.com/tenant_portal?update=1.27.4"

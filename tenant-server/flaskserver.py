@@ -640,7 +640,7 @@ class FlaskServer():
 
     @website.route('/get_hash_by_id', methods=['GET'], )
     @staticmethod
-    def get_hash_by_id():
+    def get_hash_by_id(identification):
         """
         gives salt, pepper, salt2 based on ID
         """
