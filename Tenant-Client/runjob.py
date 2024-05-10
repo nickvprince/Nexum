@@ -75,21 +75,25 @@ class RunJob():
             time.sleep(5)
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
-            if LOCAL_JOB.settings[2] is None or LOCAL_JOB.settings[3] is None:
-                LOCAL_JOB.settings[2] = ""
-                LOCAL_JOB.settings[3] = ""
-            current_time = time.strftime("%H:%M")
-            if (LOCAL_JOB.settings[2] <= current_time) and (LOCAL_JOB.settings[3] > current_time):
-                Logger.debug_print("Job Triggered by time")
-                try:
-                    command='wbadmin start backup -backupTarget:'+LOCAL_JOB.settings[12]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.settings[10]+' -password:'+LOCAL_JOB.settings[11]
-                    p = subprocess.Popen(['powershell.exe', command])
-                    time.sleep(10)
-                    Logger.log("INFO", "RunJob", p.stdout.read(), "0000", time.asctime())
-                    p.kill()
-                except Exception as e:
-                    Logger.log("ERROR", "RunJob", e, "1007", time.asctime())
-                # Run the Job
+            try:
+                if LOCAL_JOB.settings[2] is None or LOCAL_JOB.settings[3] is None:
+                    LOCAL_JOB.settings[2] = ""
+                    LOCAL_JOB.settings[3] = ""
+                current_time = time.strftime("%H:%M")
+                if (LOCAL_JOB.settings[2] <= current_time) and (LOCAL_JOB.settings[3] > current_time):
+                    Logger.debug_print("Job Triggered by time")
+                    try:
+                        command='wbadmin start backup -backupTarget:'+LOCAL_JOB.settings[12]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.settings[10]+' -password:'+LOCAL_JOB.settings[11]
+                        p = subprocess.Popen(['powershell.exe', command])
+                        time.sleep(10)
+                        Logger.log("INFO", "RunJob", p.stdout.read(), "0000", time.asctime())
+                        p.kill()
+                    except Exception as e:
+                        Logger.log("ERROR", "RunJob", e, "1007", time.asctime())
+                    # Run the Job
+            except:
+                Logger.log("INFO", "RunJob", "Job may not be configured or failed to run", "1008", time.asctime())
+                pass
 
 
     def __init__(self):

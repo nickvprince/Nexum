@@ -41,7 +41,7 @@ class HeartBeat:
         global CLIENT_ID
 
         CLIENT_SECRET = MySqlite.read_setting("client_secret")
-        CLIENT_ID = MySqlite.read_setting("client_id")
+        CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
         temp = Security.sha256_string(CLIENT_SECRET)
         temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
         temp = Security.encrypt_client_secret(temp)
@@ -96,4 +96,4 @@ class HeartBeat:
 
         while True:
             self.checkin()
-            time.sleep(self.interval)
+            time.sleep(int(self.interval))

@@ -42,6 +42,7 @@ Error Codes
 1005 - Permission error
 1006 - Heartbeat failed to send
 1007 - Encryption Error
+1008 - Job not configured or failed to run
 
 404 - Not found
 401 - Access denied
@@ -117,4 +118,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()

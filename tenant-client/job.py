@@ -97,24 +97,28 @@ class Job():
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
         info = cursor.fetchone()
-        self.set_id(info[0])
-        self.set_title(info[1])
-        self.set_created(info[2])
-        conn.close()
+        try:
+            self.set_id(info[0])
+            self.set_title(info[1])
+            self.set_created(info[2])
+            conn.close()
 
-        conn = sqlite3.connect(settingsDirectory+configFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM config WHERE ID = ?', (self.get_id(),))
-        my_config = cursor.fetchone()
-        conn.close()
+            conn = sqlite3.connect(settingsDirectory+configFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM config WHERE ID = ?', (self.get_id(),))
+            my_config = cursor.fetchone()
+            conn.close()
 
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (self.get_id(),))
-        my_settings = cursor.fetchone()
-        conn.close()
-        self.set_config(my_config)
-        self.set_settings(my_settings)
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (self.get_id(),))
+            my_settings = cursor.fetchone()
+            conn.close()
+            self.set_config(my_config)
+            self.set_settings(my_settings)
+        except:
+            conn.close()
+            return False
 
     def delete(self):
         """ 
