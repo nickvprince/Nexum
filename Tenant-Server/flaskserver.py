@@ -665,7 +665,7 @@ class FlaskServer():
 
 
     # PUT ROUTES
-    @website.route('/check-installer', methods=['POST'], )
+    @website.route('/check-installer', methods=['GET'], )
     @staticmethod
     def check_installer():
         """
@@ -694,9 +694,14 @@ class FlaskServer():
                     port = body.get('port', '')
                     status = 'Installing'
                     mac = body.get('mac', '')
+                    clients = MySqlite.load_clients()
+                    for client in clients:
+                        if client[2] == ip:
+                            return make_response("403 - PC Already connected", 403)
                     result = MySqlite.write_client(identification, name, ip, port, status, mac)
+                    
                     if result == 200:
-                        return make_response("200 ok", 200)
+                        return make_response("200 ok", 200, {"clientid": identification})
                     else:
                         return make_response("500 Internal Server Error - CODE: 1000", 403)
             return make_response("403 Rejected", 403)

@@ -1,15 +1,20 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 import os
+import requests
 import winreg
 import shutil
 import subprocess
 import time
+import socket
+import uuid
+import json
 
+REGISTRATION_PATH = "check-installer"
 AUTO_RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 APP_PATH_KEY = r"Software\Microsoft\Windows\CurrentVersion\App Paths"
 TITLE = "Nexum"
-
+SECRET = "wQ75NoTBd/KF5fTvUTViY4IoXhdWL+zrJD0+DUtg6BD4l3XdB25elvUkNEKbIImFuM4o7ZCKrocWXEju26eNPoUbHVcmCxXNJNh2VN8tcxafMVgGGmcoaCJNhDj2bvIA"
 def uninstall_program():
 
     not_installed_indentifiers:int = 0
@@ -102,14 +107,27 @@ def notifyServer():
     print("Notifying Server")
     pass
 
-def installClientbackground(window:tk.Tk, backupserver:str, secret:str):
+def installClientbackground(window:tk.Tk, backupserver:str, key:str):
     print(backupserver)
-    print(secret)
+    print(key)
+    T = requests.Response()
+    try:
 
-    # check with server if the secret is correct and get a client id back
+        payload = {
+            "name":socket.gethostname(),
+            "ip":socket.gethostbyname(socket.gethostname()),
+            "port":"5001",
+            "mac":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1])
+        }
 
-    # CORRECT SECRET
-    if secret == "1234":
+        T = requests.request("GET", f"http://{backupserver}/{REGISTRATION_PATH}", timeout=5, headers={"Content-Type": "application/json","key":key,"clientSecret":SECRET}, json=payload)
+        identification = T.headers["clientid"]
+        T = requests.request("POST", f"http://{backupserver}/beat", timeout=5, headers={"Content-Type": "application/json","clientSecret":SECRET,"id":identification})
+
+        
+    except:
+        pass
+    if T.status_code == 200:
         # Create a folder C:\Program Files\Nexum
         try:
             os.mkdir("C:\\Program Files\\Nexum")
@@ -132,6 +150,13 @@ def installClientbackground(window:tk.Tk, backupserver:str, secret:str):
             app_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY)
             nexum_key = winreg.CreateKey(app_key, TITLE)
             winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, r"C:\Program Files\Nexum\nexum.exe")
+            # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run\nexum"
+            startup_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run")
+            nexum_key = winreg.CreateKey(startup_key, "nexum")
+            winreg.SetValueEx(nexum_key, "", 0, winreg.REG_BINARY, bytes.fromhex("02"))
+            winreg.CloseKey(nexum_key)
+            winreg.CloseKey(startup_key)
+            print("Startup key added")
             winreg.SetValueEx(nexum_key, "Path", 0, winreg.REG_SZ, r"'C:\Program Files\Nexum'")
             winreg.SetValueEx(nexum_key, "Enable", 0, winreg.REG_SZ, "1")  # Enable the startup app
             winreg.CloseKey(nexum_key)
