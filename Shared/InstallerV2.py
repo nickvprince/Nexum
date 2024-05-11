@@ -4,38 +4,47 @@ import os
 import winreg
 import shutil
 import subprocess
+import time
 
 AUTO_RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 APP_PATH_KEY = r"Software\Microsoft\Windows\CurrentVersion\App Paths"
 TITLE = "Nexum"
 
 def uninstall_program():
-    auto_run_key = AUTO_RUN_KEY + TITLE
-    app_path_key = APP_PATH_KEY + TITLE
+
     not_installed_indentifiers:int = 0
     identifiers_count:int =0
 
     identifiers_count += 1
     try:
-        winreg.OpenKey(winreg.HKEY_CURRENT_USER, auto_run_key)
+        winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
         print("Deleting auto run key")
-        #winreg.DeleteKey(winreg.HKEY_CURRENT_USER, auto_run_key)
-
+        winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
+        not_installed_indentifiers += 1
     except:
         not_installed_indentifiers += 1
 
     identifiers_count += 1
     try:
-        winreg.OpenKey(winreg.HKEY_CURRENT_USER, app_path_key)
-        print("Deleting app path key")
-        #winreg.DeleteKey(winreg.HKEY_CURRENT_USER, app_path_key)
-    except:
+        winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY + "\\Nexum")
+        not_installed_indentifiers += 1
+    except Exception as e:
+        print(e)
         not_installed_indentifiers += 1
 
     identifiers_count += 1
     if os.path.exists("C:\\Program Files\\Nexum"):
+
         print("Deleting Nexum folder")
         try:
+            subprocess.call(["taskkill", "/F", "/IM", "watchdog.exe"])
+            subprocess.call(["taskkill", "/F", "/IM", "nexum.exe"])
+            breakcount:int = 0
+            while os.path.exists("C:\\Program Files\\Nexum"):
+                time.sleep(1)
+                breakcount += 1
+                if breakcount > 5:
+                    break
             shutil.rmtree("C:\\Program Files\\Nexum")
             not_installed_indentifiers += 1
         except:
@@ -114,19 +123,24 @@ def installClientbackground(window:tk.Tk, backupserver:str, secret:str):
         # create keys in registry
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\nexum"
-            run_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY, 0, winreg.KEY_WRITE)
-            winreg.SetValueEx(run_key, TITLE, 0, winreg.REG_SZ, r"'C:\Program Files\Nexum\Nexum.exe'")
+            run_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
+            winreg.SetValueEx(run_key, TITLE, 0, winreg.REG_SZ, r"C:\Program Files\Nexum\Nexum.exe")
             winreg.CloseKey(run_key)
             print("Run key added")
 
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\nexum"
-            app_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY, 0, winreg.KEY_WRITE)
+            app_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY)
             nexum_key = winreg.CreateKey(app_key, TITLE)
-            winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, r"'C:\Program Files\Nexum\nexum.exe'")
+            winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, r"C:\Program Files\Nexum\nexum.exe")
             winreg.SetValueEx(nexum_key, "Path", 0, winreg.REG_SZ, r"'C:\Program Files\Nexum'")
+            winreg.SetValueEx(nexum_key, "Enable", 0, winreg.REG_SZ, "1")  # Enable the startup app
             winreg.CloseKey(nexum_key)
             winreg.CloseKey(app_key)
             print("App key added")
+            # q: How do I toggle the startup app to enabled?
+            # a: You can use the registry key to enable or disable the startup app
+            # q: I have added this but it is toggled as disabled?
+
         except Exception as e:
             pass
 
@@ -134,12 +148,12 @@ def installClientbackground(window:tk.Tk, backupserver:str, secret:str):
         # run c:\Program Files\Nexum\watchdog.exe
         # Run nexum.exe
         nexum_path = r'"C:\Program Files\Nexum\nexum.exe"'
-        subprocess.run(nexum_path, shell=True)
+        subprocess.Popen(nexum_path, shell=True)
         print("Nexum.exe ran")
 
         # Run watchdog.exe
         watchdog_path = r'"C:\Program Files\Nexum\watchdog.exe"'
-        subprocess.run(watchdog_path, shell=True)
+        subprocess.Popen(watchdog_path, shell=True)
         print("Watchdog.exe ran")
 
         # notify server that the installation is complete
