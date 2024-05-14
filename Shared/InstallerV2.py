@@ -139,6 +139,8 @@ def uninstall_program():
         try:
             subprocess.call(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME])
             subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME])
+            subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME])
+            subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME])
             breakcount:int = 0
             time.sleep(1) # time to stop the processes
             shutil.rmtree(OS_FILE_PATH)
@@ -300,7 +302,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
 
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Nexum"
             app_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY)
-            nexum_key = winreg.CreateKey(app_key, TITLE)
+            nexum_key = winreg.CreateKey(app_key, EXE_NEXUM_NAME)
             winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, OS_FILE_PATH + "\\" + EXE_NEXUM_NAME)
             winreg.CloseKey(nexum_key)
             winreg.CloseKey(app_key)
@@ -310,7 +312,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run\Nexum"
             startup_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE,
                                         STARTUP_APPROVED_KEY)
-            nexum_key = winreg.CreateKey(startup_key, TITLE)
+            nexum_key = winreg.CreateKey(startup_key, EXE_NEXUM_NAME)
             winreg.SetValueEx(nexum_key, "", 0, winreg.REG_BINARY, bytes.fromhex("02"))
             winreg.CloseKey(nexum_key)
             winreg.CloseKey(startup_key)
@@ -434,7 +436,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
 
         request = requests.request("POST", f"{HYPER_PROTOCOL}{backupserver}/{BEAT_PATH}", timeout=TIMEOUT,
             headers={"Content-Type": "application/json","clientSecret":SECRET,"id":identification})
-        write_log("INFO", "Install Client", "Identification: " + identification, 0, time.time())
+        write_log("INFO", "Install server", "Identification: " + identification, 0, time.time())
     except:
         write_log("ERROR", "Install Server", "Could not connect to server", 1100, time.time())
         return
@@ -451,21 +453,28 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
         # copy ./nexserv.exe to C:\Program Files\Nexum
         current_dir = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(current_dir,EXE_SERVER_NAME)
-        shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERVER_NAME)
+        try:
+            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
+        except Exception as e:
+            write_log("ERROR", "Install Server", "Error copying nexserv.exe: " + str(e), 0, time.time())
+        
         write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
-        shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
+        try:
+            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
+        except Exception as e:  
+            write_log("ERROR", "Install Server", "Error copying watchdogserv.exe: " + str(e), 0, time.time())
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
             run_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
-            winreg.SetValueEx(run_key, TITLE, 0, winreg.REG_SZ, OS_FILE_PATH +
-                               "\\" + EXE_SERVER_NAME)
+            winreg.SetValueEx(run_key, TITLE, 0, winreg.REG_SZ, '"'+OS_FILE_PATH +
+                               "\\" + EXE_SERVER_NAME+'"')
             winreg.CloseKey(run_key)
             write_log("INFO", "Install server", "Run key added", 0, time.time())
 
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Nexum"
             app_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY)
             nexum_key = winreg.CreateKey(app_key, TITLE)
-            winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, OS_FILE_PATH + "\\" + EXE_SERVER_NAME)
+            winreg.SetValueEx(nexum_key, "", 0, winreg.REG_SZ, (OS_FILE_PATH + "\\" + EXE_SERVER_NAME))
             winreg.CloseKey(nexum_key)
             winreg.CloseKey(app_key)
             write_log("INFO", "Install Server", "App key added", 0, time.time())
