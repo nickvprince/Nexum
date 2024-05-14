@@ -33,7 +33,8 @@ def init():
     """
     global LOCAL_JOB
     InitSql()
-    #LOCAL_JOB.load(0)
+    #LOCAL_JOB.load(0) -- need error handling
+    #start watchdog.exe
     Security.load_tenant_secret()
     load()
 

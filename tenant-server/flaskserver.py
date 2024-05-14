@@ -32,7 +32,7 @@ from HeartBeat import MY_CLIENTS
 RUN_JOB_OBJECT = None
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
-
+MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
 
 # pylint: disable= bare-except
 class FlaskServer():
@@ -721,6 +721,31 @@ class FlaskServer():
             print("Failed to open index.html")
             return make_response("500 Internal Server Error", 500)
 
+    @website.route('/uninstall', methods=['GET'], )
+    @staticmethod
+    def uninstall():
+        """ 
+        Client posts to this route to uninstall the client
+        the client is then removed from the database and the heartbeat database
+        the client is sent a 200 ok response and the msp is notified
+        """
+        secret = request.headers.get('clientSecret')
+        key = request.headers.get('key')
+        logger = Logger()
+        if FlaskServer.auth(secret, logger, 0) == 200:
+            if key == MASTER_UNINSTALL_KEY:
+                body = request.get_json()
+                identification = body.get('clientid', '')
+                if MySqlite.get_last_checkin(identification) == None:
+                    return make_response("403 Rejected - Client does not exist", 403)
+                MySqlite.delete_client(identification)
+                return make_response("200 ok", 200)
+            else:
+                logger.log("ERROR", "uninstall", "Key does not match",1201, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                return make_response("403 Rejected", 403)
+        else:
+            logger.log("ERROR", "uninstall", "Access Denied",405, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            return make_response("401 Access Denied", 401)
     # HELPERS
     def run(self):
         """
@@ -731,6 +756,7 @@ class FlaskServer():
         self.website.run()
     def __init__(self):
         # load all clients from DB
+        global MY_CLIENTS
         MY_CLIENTS = MySqlite.load_clients()
         Logger.debug_print("flask server started")
         self.run()

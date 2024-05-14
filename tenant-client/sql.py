@@ -105,6 +105,13 @@ class MySqlite():
     Class to interact with the sqlite database
     Type: File IO
     """
+
+
+
+
+
+
+
     @staticmethod
     def write_log(severity, subject, message, code, date):
         """ 

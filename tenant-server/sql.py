@@ -103,7 +103,24 @@ class MySqlite():
     Class to interact with the sqlite database
     Type: File IO
     """
+    @staticmethod
+    def delete_client(input_id:int):
+        """
+        Delete the client from the database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM clients WHERE id = ?", (input_id,))
+        conn.commit()
 
+        cursor.execute("DELETE FROM heartbeat WHERE id = ?", (input_id,))
+        conn.commit()
+
+        cursor.execute("DELETE FROM job WHERE ID = ?", (input_id,))
+        conn.commit()
+
+        conn.close()
+        
     @staticmethod
     def get_last_checkin(input_id):
         """

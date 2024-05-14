@@ -20,6 +20,10 @@
 # 1104 - Startup key could not be deleted
 # 1105 - App key could not be deleted
 # 1106 - Run key could not be deleted
+# 1107 - Nexum folder could not be deleted
+# 1108 - Nexum folder does not exist
+# 1115 - Could not uninstall from server
+
 
 
 # Functions:
@@ -48,6 +52,9 @@ import os
 import sqlite3
 from PIL import ImageTk, Image
 import requests
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import base64
 
 #pylint: disable= bare-except, broad-except
 REGISTRATION_PATH = "check-installer"
@@ -68,12 +75,59 @@ HYPER_PROTOCOL = "http://"
 IMAGE_PATH = '../Data/Nexum.png'
 TIMEOUT = 5
 BEAT_PATH = "beat"
-
+UNINSTALL_PATH = "uninstall"
+current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
+settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
+SETTINGS_PATH= os.path.join(current_dir, 
+    settingsDirectory+'\\settings.db') # path to the settings database
 # pah directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
 
+# decrypt a string using AES
+@staticmethod
+def decrypt_string(password, string):
+    """
+    Decrypt a string with AES-256 bit decryption
+    """
+    # Pad the password to be 16 bytes long
+    password_hashed = str(password).ljust(16).encode('utf-8')
+
+    # Create a new AES cipher with the password as the key
+    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+
+    # Decode the string from base64
+    decoded_string = base64.b64decode(string)
+
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    try:
+        return decrypted_string.decode('utf-8')
+    except UnicodeDecodeError:
+        return "Decryption failed"
+    except:
+        return "Decryption failed"
+    
+@staticmethod
+def read_setting(setting):
+    """
+    Read a setting from the database
+    """
+
+    conn = sqlite3.connect(SETTINGS_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+    value = cursor.fetchone()[0]
+    conn.close()
+    result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                capture_output=True, text=True,check=True) # enc with uuid
+    output = result.stdout.strip()
+    output = output.split('\n\n', 1)[-1]
+    output = output[:24]
+    value = decrypt_string(output,value)
+    return value.rstrip()
 
 def write_log(severity, subject, message, code, date):
     """ 
@@ -98,7 +152,28 @@ def write_log(severity, subject, message, code, date):
     conn.commit()
     conn.close()
 
-def uninstall_program():
+def uninstall_from_server(backserver:str, key:str):
+    """
+    Information
+    """
+    write_log("INFO", "Uninstall", "Uninstall from server started", 0, time.time())
+    try:
+        payload = {
+            "clientid":read_setting("CLIENT_ID")
+        }
+        request = requests.request("GET", f"{HYPER_PROTOCOL}{backserver}/{UNINSTALL_PATH}",
+                                    timeout=TIMEOUT, headers={"Content-Type": "application/json",
+                                    "key":key, "clientSecret":SECRET}, json=payload)
+        if request.status_code == 200:
+            write_log("INFO", "Uninstall", "Uninstall from server successful", 0, time.time())
+            return 200
+        else:
+            write_log("ERROR", "Uninstall", "Uninstall from server failed", 1115, time.time())
+            return 400
+    except Exception as e:
+        write_log("ERROR", "Uninstall", "Could not connect to server: ", 1115, time.time())
+        return 400
+def uninstall_program(key:str):
     """
     Information
     """
@@ -106,76 +181,84 @@ def uninstall_program():
     identifiers_count:int =0
 
     identifiers_count += 1
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY, 0, winreg.KEY_ALL_ACCESS)
-        winreg.DeleteValue(key, TITLE)
+    if uninstall_from_server(read_setting("server_address")+":"+read_setting("server_port"),key) == 200:
         not_installed_indentifiers += 1
-        write_log("INFO", "Uninstall", "Run key deleted", 0, time.time())
-    except FileNotFoundError:
-        not_installed_indentifiers += 1
-    except Exception as e:
-        write_log("ERROR", "Uninstall", "Run key could not be deleted : " + e, 1106, time.time())
 
-
-    identifiers_count += 1
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                            APP_PATH_KEY + TITLE_APPENDED, 0, winreg.KEY_ALL_ACCESS)
-        subkey_count = winreg.QueryInfoKey(key)[0]
-        for i in range(subkey_count):
-            subkey_name = winreg.EnumKey(key, 0)
-            winreg.DeleteKey(key, subkey_name)
-        winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY + TITLE_APPENDED)
-        not_installed_indentifiers += 1
-        write_log("INFO", "Uninstall", "App key deleted", 0, time.time())
-    except FileNotFoundError:
-        not_installed_indentifiers += 1
-    except Exception as e:
-        write_log("ERROR", "Uninstall", "App key could not be deleted : " + e, 1105, time.time())
-
-    identifiers_count += 1
-    if os.path.exists(OS_FILE_PATH):
-
+        identifiers_count += 1
         try:
-            subprocess.call(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME])
-            subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME])
-            subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME])
-            subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME])
-            breakcount:int = 0
-            time.sleep(1) # time to stop the processes
-            shutil.rmtree(OS_FILE_PATH)
-            while os.path.exists(OS_FILE_PATH):
-                time.sleep(1)
-                breakcount += 1
-                if breakcount > 5:
-                    break
-                shutil.rmtree(OS_FILE_PATH)
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY, 0, winreg.KEY_ALL_ACCESS)
+            winreg.DeleteValue(key, TITLE)
             not_installed_indentifiers += 1
-            write_log("INFO", "Uninstall", "Nexum folder deleted", 0, time.time())
+            write_log("INFO", "Uninstall", "Run key deleted", 0, time.time())
+        except FileNotFoundError:
+            not_installed_indentifiers += 1
         except Exception as e:
-            write_log("ERROR", "Uninstall", "Nexum folder could not be deleted : " + e,
-                    0, time.time())
+            write_log("ERROR", "Uninstall", "Run key could not be deleted : " + e, 1106, time.time())
+
+
+        identifiers_count += 1
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                APP_PATH_KEY + TITLE_APPENDED, 0, winreg.KEY_ALL_ACCESS)
+            subkey_count = winreg.QueryInfoKey(key)[0]
+            for i in range(subkey_count):
+                subkey_name = winreg.EnumKey(key, 0)
+                winreg.DeleteKey(key, subkey_name)
+            winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY + TITLE_APPENDED)
+            not_installed_indentifiers += 1
+            write_log("INFO", "Uninstall", "App key deleted", 0, time.time())
+        except FileNotFoundError:
+            not_installed_indentifiers += 1
+        except Exception as e:
+            write_log("ERROR", "Uninstall", "App key could not be deleted : " + e, 1105, time.time())
+
+        identifiers_count += 1
+        if os.path.exists(OS_FILE_PATH):
+
+            try:
+                subprocess.call(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME])
+                subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME])
+                subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME])
+                subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME])
+                breakcount:int = 0
+                time.sleep(1) # time to stop the processes
+                shutil.rmtree(OS_FILE_PATH)
+                while os.path.exists(OS_FILE_PATH):
+                    time.sleep(1)
+                    breakcount += 1
+                    if breakcount > 5:
+                        break
+                    shutil.rmtree(OS_FILE_PATH)
+                not_installed_indentifiers += 1
+                write_log("INFO", "Uninstall", "Nexum folder deleted", 0, time.time())
+            except Exception as e:
+                write_log("ERROR", "Uninstall", "Nexum folder could not be deleted : " + e,
+                        0, time.time())
+        else:
+            write_log("INFO", "Uninstall", "Nexum folder does not exist", 0, time.time())
+            not_installed_indentifiers += 1
+
+        identifiers_count += 1
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                        STARTUP_APPROVED_KEY,
+                        0, winreg.KEY_ALL_ACCESS)
+            winreg.DeleteValue(key,"Nexum")
+            not_installed_indentifiers += 1
+            write_log("INFO", "Uninstall", "Startup key deleted", 0, time.time())
+        except FileNotFoundError:
+            not_installed_indentifiers += 1
+        except Exception as e:
+            write_log("ERROR", "Uninstall", "Startup key could not be deleted : " + e, 1104, time.time())
+
+
+
+
+        uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
+        write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
+                0, time.time())
     else:
-        write_log("INFO", "Uninstall", "Nexum folder does not exist", 0, time.time())
-        not_installed_indentifiers += 1
-
-    identifiers_count += 1
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                    STARTUP_APPROVED_KEY,
-                    0, winreg.KEY_ALL_ACCESS)
-        winreg.DeleteValue(key,"Nexum")
-        not_installed_indentifiers += 1
-        write_log("INFO", "Uninstall", "Startup key deleted", 0, time.time())
-    except FileNotFoundError:
-        not_installed_indentifiers += 1
-    except Exception as e:
-        write_log("ERROR", "Uninstall", "Startup key could not be deleted : " + e, 1104, time.time())
-
-    uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
-
-    write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
-            0, time.time())
+        write_log("ERROR", "Uninstall", "Could not uninstall from server", 1115, time.time())
 
 def uninstall(window:tk.Tk):
     """
@@ -202,7 +285,7 @@ def uninstall(window:tk.Tk):
     lock_entry.place(relx=0.52, rely=0.6, anchor=tk.CENTER)
 
     uninstall_button = tk.Button(new_window, text="Uninstall", width=25,
-                            height=3, command=uninstall_program)
+                            height=3, command=lambda:uninstall_program(lock_entry.get()))
     uninstall_button.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID,
                             borderwidth=1, highlightthickness=0, highlightbackground="black",
                             highlightcolor="black", padx=10, pady=5, font=("Arial", 10),
@@ -240,15 +323,13 @@ def install_watchdog_file():
         # copy ./watchdog.exe to C:\Program Files\Nexum
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     path = os.path.join(current_dir,EXE_WATCHDOG_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"/"+EXE_WATCHDOG_NAME)
+    shutil.copy(path, OS_FILE_PATH+"\\"+EXE_WATCHDOG_NAME)
     write_log("INFO", "Install Watchdog", "Watchdog file installed", 0, time.time())
 
 def notify_server():
     """
     Information
     """
-    # call to server to notify that the installation is complete
-    write_log("INFO", "Notify Server", "Server notified", 0, time.time())
 
 def install_client_background(window:tk.Tk, backupserver:str, key:str):
     """
@@ -341,7 +422,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
         write_log("INFO", "Install Client", "Watchdog.exe ran", 0, time.time())
 
         # notify server that the installation is complete
-        notify_server()
+        notify_server(backupserver, key)
 
         #incorrect secret
     else:
