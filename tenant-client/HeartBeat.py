@@ -13,7 +13,7 @@
 
 """
 import time
-from sql import MySqlite
+from MySqlite import MySqlite
 import requests
 from logger import Logger
 from security import CLIENT_SECRET

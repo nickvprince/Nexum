@@ -16,7 +16,10 @@
 import conf
 import jobsettings
 import sqlite3
-from sql import settingsDirectory, jobFile, configFile, job_settingsFile
+from InitSql import settingsDirectory
+from InitSql import job_settingsFile
+from InitSql import configFile
+from InitSql import jobFile
 
 
 class Job():

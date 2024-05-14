@@ -54,7 +54,8 @@ Error Codes
 
 import time
 from logger import Logger
-from sql import InitSql, MySqlite
+from MySqlite import MySqlite
+from InitSql import InitSql
 from runjob import RunJob, LOCAL_JOB
 from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
@@ -118,5 +119,13 @@ def main():
 
 
 if __name__ == "__main__":
-
+    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("TENANT_ID","1")
+    MySqlite.write_setting("CLIENT_ID","1")
+    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
+    MySqlite.write_setting("POLLING_INTERVAL","10")
+    MySqlite.write_setting("server_address","127.0.0.1")
+    MySqlite.write_setting("server_port","5000")
+    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("heartbeat_interval","5")
     main()
