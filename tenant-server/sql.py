@@ -134,6 +134,18 @@ class MySqlite():
             return -1
 
     @staticmethod
+    def write_heartbeat(input_id, interval, last_checkin, missed_notify_count):
+        """
+        Write a heartbeat to the settings database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''INSERT INTO heartBeat (id, interval, lastCheckin, missedNotifyCount)
+                        VALUES (?, ?, ?, ?)''',
+                        (input_id, interval, last_checkin, missed_notify_count))
+        conn.commit()
+        conn.close()
+    @staticmethod
     def update_heartbeat_time(input_id):
         """
         Update the heartbeat time in the settings database
@@ -266,6 +278,7 @@ class MySqlite():
                     (identification, name, address, port, status, mac))
         conn.commit()
         conn.close()
+        MySqlite.write_heartbeat(identification, 5, datetime.datetime.now(), 3)
         return 200
 class InitSql():
     """

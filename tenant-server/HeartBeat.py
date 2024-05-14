@@ -46,7 +46,10 @@ class HeartBeat:
         --Thread Function--
         Checks all checkins from clients from the sqlite database
         """
+        global MY_CLIENTS
         while True:
+            print("Loading clients")
+            MY_CLIENTS=MySqlite.load_clients()
             print("Checking all checkins")
             for client in MY_CLIENTS:
                 accepted_time = self.interval * int(MySqlite.get_heartbeat_missed_tolerance(client[0]))

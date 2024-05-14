@@ -699,7 +699,6 @@ class FlaskServer():
                         if client[2] == ip:
                             return make_response("403 - PC Already connected", 403)
                     result = MySqlite.write_client(identification, name, ip, port, status, mac)
-                    
                     if result == 200:
                         return make_response("200 ok", 200, {"clientid": identification})
                     else:
@@ -707,9 +706,20 @@ class FlaskServer():
             return make_response("403 Rejected", 403)
         return make_response("401 Access Denied", 401)
 
-
-
-
+    @website.route('/index', methods=['GET'], )
+    @staticmethod
+    def index():
+        """
+        Returns ./index.html
+        """
+        try:
+            with open('./index.html', 'r') as file:
+                html_content = file.read()
+                file.close()
+                return html_content
+        except: 
+            print("Failed to open index.html")
+            return make_response("500 Internal Server Error", 500)
 
     # HELPERS
     def run(self):

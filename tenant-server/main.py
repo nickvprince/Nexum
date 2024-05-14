@@ -33,7 +33,7 @@ def init():
     """
     global LOCAL_JOB
     InitSql()
-    LOCAL_JOB.load(0)
+    #LOCAL_JOB.load(0)
     Security.load_tenant_secret()
     load()
 
@@ -41,6 +41,7 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
+    init()
     clients = MySqlite.load_clients()
     l = Logger()
     H = HeartBeat(Security.get_client_secret(), 10,clients)
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     MySqlite.write_setting("TENANT_ID","1")
     MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index.html")
+    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
     MySqlite.write_setting("POLLING_INTERVAL","10")
     MySqlite.write_setting("server_address","127.0.0.1")
     MySqlite.write_setting("server_port","5000")
