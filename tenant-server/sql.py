@@ -225,7 +225,7 @@ class MySqlite():
         Write a setting to the database
         """
         result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                capture_output=True, text=True,check=True)
+                capture_output=True, text=True,check=True,shell=True)
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:24]
@@ -256,7 +256,7 @@ class MySqlite():
         value = cursor.fetchone()[0]
         conn.close()
         result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                                capture_output=True, text=True,check=True) # enc with uuid
+                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:24]

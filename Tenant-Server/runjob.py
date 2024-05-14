@@ -52,7 +52,7 @@ class RunJob():
                 self.job_pending = False
                 command = "wbadmin stop job -quiet"
                 Logger.debug_print("Kill the Job here by running powershell script")
-                p = subprocess.Popen(['powershell.exe', command])
+                p = subprocess.Popen(['powershell.exe', command],shell=True)
                 time.sleep(10)
                 p.kill()
                 self.job_running_var = False
@@ -63,7 +63,7 @@ class RunJob():
                 self.job_pending = False # set job pending to false since it was just run
                 command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
 
-                p=subprocess.Popen(['powershell.exe', command])
+                p=subprocess.Popen(['powershell.exe', command],shell=True)
                 time.sleep(10)
                 p.kill()
 
@@ -79,7 +79,7 @@ class RunJob():
             if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
                 Logger.debug_print("Job Triggered by time")
                 command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
-                p = subprocess.Popen(['powershell.exe', command])
+                p = subprocess.Popen(['powershell.exe', command],shell=True)
 
                 time.sleep(10)
                 p.kill()

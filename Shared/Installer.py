@@ -54,6 +54,7 @@ from PIL import ImageTk, Image
 import requests
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import sys
 
 
 #pylint: disable= bare-except, broad-except
@@ -699,7 +700,7 @@ def main_window(window:tk.Tk):
                     highlightcolor="black", padx=10, pady=1, font=("Arial", 10),
                     overrelief=tk.RIDGE)
     button3.pack(pady=10)
-    button4 = tk.Button(window, text="Exit",width=25,height=3,command=exit)
+    button4 = tk.Button(window, text="Exit",width=25,height=3,command=lambda:sys.exit())
     button4.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID, borderwidth=1,
                     highlightthickness=2, highlightbackground="black", highlightcolor="black",
                     padx=10, pady=1, font=("Arial", 10), overrelief=tk.RIDGE)

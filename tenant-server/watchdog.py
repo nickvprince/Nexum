@@ -22,7 +22,8 @@ def client():
    """
    while True:
             # check if nexum.exe is running
-      if 'nexum.exe' not in (p.name().lower for p in psutil.process_iter()):
+      if 'nexum.exe' not in (str(p.name()).lower() for p in psutil.process_iter()):
+
         subprocess.Popen(["c:\\program files\\nexum\\nexum.exe"], creationflags=subprocess.CREATE_NO_WINDOW)
 
 def server():
@@ -32,15 +33,17 @@ def server():
   """
   while True:
             # check if nexum.exe is running
-    if 'nexserv.exe' not in (p.name().lower for p in psutil.process_iter()):
+    if 'nexserv.exe' not in (str(p.name()).lower()  for p in psutil.process_iter()):
       subprocess.Popen(["c:\\program files\\nexum\\nexum.exe"], creationflags=subprocess.CREATE_NO_WINDOW)
 
 if __name__ == '__main__':
     for p in psutil.process_iter():
         if 'nexum.exe' in p.name().lower():
             client()
+            break
         elif 'nexserv.exe' in p.name().lower():
             server()
+            break
     print("nexum.exe not found")
 
 
