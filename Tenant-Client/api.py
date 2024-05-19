@@ -12,8 +12,14 @@
 #               1. API - Connector
 
 """
-# pylint: disable= import-error, unused-argument
+# pylint: disable=import-error, unused-argument
 from logger import Logger
+
+
+
+
+
+
 class API():
     """
     Class to interact with the API. Used for local API calls and 

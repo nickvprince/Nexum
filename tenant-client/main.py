@@ -40,6 +40,9 @@ Error Codes
 1003 - File not found
 1004 - Decryption failed
 1005 - Permission error
+1006 - Heartbeat failed to send
+1007 - Encryption Error
+1008 - Job not configured or failed to run
 
 404 - Not found
 401 - Access denied
@@ -51,7 +54,8 @@ Error Codes
 
 import time
 from logger import Logger
-from sql import InitSql, MySqlite
+from MySqlite import MySqlite
+from InitSql import InitSql
 from runjob import RunJob, LOCAL_JOB
 from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
@@ -60,52 +64,46 @@ from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 from HeartBeat import HeartBeat
+
 # Global variables
 
 def init():
     """
     Initializes the program
     """
+    # pylint: disable= global-variable-not-assigned
+    # Disabled since it is used with LOCAL_JOB.load(0)
     global LOCAL_JOB
+    # pylint: enable= global-variable-not-assigned
     InitSql()
     LOCAL_JOB.load(0)
     Security.load_client_secret()
     load()
 
-    
+
 def main():
     """
     Main method of the program for testing and starting the program
     """
-<<<<<<<< HEAD:tenant-client/main.py
-    
     t = JobSettings()
     t.backup_path = "\\\\192.168.2.201\\Backups"
     t.user = "tenant\\Backup"
     t.password = "Test123"
     LOCAL_JOB.set_settings(t)
-========
-
-    job_settings = JobSettings()
-    job_settings.backup_path = "\\\\192.168.2.201\\Backups"
-    job_settings.user = "tenant\\Backup"
-    job_settings.password = "Test123"
-    LOCAL_JOB.set_settings(job_settings)
->>>>>>>> nex/main:Tenant-Client/main.py
     Security.set_client_secret("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     # create a Logger
-    logger = Logger()
+    l = Logger()
     # init databases
-    InitSql()
+    init()
     # get client info
     get_client_info()
     # create the IconManager
-    icon_manager = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
-    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",logger)
+    i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
+    IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
     # run the icon
-    icon_manager.run()
+    i.run()
     # log a message
-    logger.log("INFO", "Main", "Main has started", "000", time.asctime())
+    l.log("INFO", "Main", "Main has started", "000", time.asctime())
     # run the job
     temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
@@ -113,13 +111,21 @@ def main():
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
+    h = HeartBeat()
     FlaskServer()
-    while True:
-        pass
+
 
 
 
 
 if __name__ == "__main__":
-    init()
+    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("TENANT_ID","1")
+    MySqlite.write_setting("CLIENT_ID","1")
+    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
+    MySqlite.write_setting("POLLING_INTERVAL","10")
+    MySqlite.write_setting("server_address","127.0.0.1")
+    MySqlite.write_setting("server_port","5000")
+    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("heartbeat_interval","5")
     main()

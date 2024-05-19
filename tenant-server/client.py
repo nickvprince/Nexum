@@ -24,7 +24,7 @@ class Client():
     status = ""
     id = -1
 
-    def __init__(self, mac, ip, name, status, id):
+    def __init__(self, mac, ip, name, status, identification):
         """
         Constructor for the client class
         """
@@ -32,7 +32,7 @@ class Client():
         self.ip = ip
         self.name = name
         self.status = status
-        self.id = id
+        self.id = identification
     # getters
     def get_mac(self):
         """

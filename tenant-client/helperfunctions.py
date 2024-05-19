@@ -25,7 +25,8 @@ import pandas as pd
 from security import CLIENT_SECRET
 from api import API
 from logger import Logger
-from sql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH, MySqlite
+from InitSql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH
+from MySqlite import MySqlite
 POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id
@@ -46,7 +47,8 @@ def load():
     CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
     TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
     POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
-    
+    # add global variables from all other modules
+
 def check_install_key(key, secret, server, port):
     """
     Check the install key with the server to see 
@@ -202,4 +204,3 @@ def tenant_portal():
     """
     # add check here to ensure starts with https://
     os.system(f"start {TENANT_PORTAL_URL}")
-

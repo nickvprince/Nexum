@@ -21,6 +21,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from logger import Logger
 from sql import MySqlite
+
 CLIENT_SECRET = "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # secret for the client to communicate with A2
 # pylint: disable= bare-except
 
@@ -42,7 +43,6 @@ class Security():
         """
         Get the client secret
         """
-        global CLIENT_SECRET
         return CLIENT_SECRET
     @staticmethod
     def load_tenant_secret():

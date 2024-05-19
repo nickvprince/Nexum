@@ -27,10 +27,12 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
+
+
 RUN_JOB_OBJECT = None
 CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
-
+MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
 
 # pylint: disable= bare-except
 class FlaskServer():
@@ -522,15 +524,15 @@ class FlaskServer():
         data = request.get_json()
         # get client secret from header
         secret = request.headers.get('clientSecret')
-        id = request.headers.get('ID')
+        identification = request.headers.get('ID')
 
-        if FlaskServer.auth(secret, logger, id) == 200:
-            recieved_job = data.get(id, '')
+        if FlaskServer.auth(secret, logger, identification) == 200:
+            recieved_job = data.get(identification, '')
             # recieve settings as json
             recieved_settings = recieved_job.get('settings', '')
 
             job_to_save = Job()
-            job_to_save.set_id(id)
+            job_to_save.set_id(identification)
             job_to_save.set_title(recieved_job.get('title', ''))
             settings = JobSettings()
             settings.set_id(0)
@@ -638,7 +640,7 @@ class FlaskServer():
 
     @website.route('/get_hash_by_id', methods=['GET'], )
     @staticmethod
-    def get_hash_by_id():
+    def get_hash_by_id(identification):
         """
         gives salt, pepper, salt2 based on ID
         """
@@ -650,16 +652,20 @@ class FlaskServer():
         """
         A spot for clients to send heartbeats to
         """
-        # authenticate client
-        # if authenticated 
-        # update the client's checkin time
-        # return 200 ok
-        # else return 401 access denied
-        return "200 OK"
+        secret = request.headers.get('secret')
+        logger = Logger()
+        identification = request.headers.get('id')
+
+        if FlaskServer.auth(secret, logger, identification) == 200:
+            MySqlite.update_heartbeat_time(identification)
+            return "200 OK"
+        else:
+            return "401 Access Denied"
+        return "500 Internal Server Error"
 
 
     # PUT ROUTES
-    @website.route('/check-installer', methods=['POST'], )
+    @website.route('/check-installer', methods=['GET'], )
     @staticmethod
     def check_installer():
         """
@@ -682,24 +688,64 @@ class FlaskServer():
                     InitSql.clients()
                     # Call the method to get the body as JSON
                     body = request.get_json()
-                    id = MySqlite.get_next_client_id()
+                    identification = MySqlite.get_next_client_id()
                     name = body.get('name', '')
                     ip = body.get('ip', '')
                     port = body.get('port', '')
                     status = 'Installing'
                     mac = body.get('mac', '')
-                    result = MySqlite.write_client(id, name, ip, port, status, mac)
-                    if (result == 200):
-                        return make_response("200 ok", 200)
+                    clients = MySqlite.load_clients()
+                    for client in clients:
+                        if client[2] == ip:
+                            return make_response("403 - PC Already connected", 403)
+                    result = MySqlite.write_client(identification, name, ip, port, status, mac)
+                    if result == 200:
+                        return make_response("200 ok", 200, {"clientid": identification})
                     else:
                         return make_response("500 Internal Server Error - CODE: 1000", 403)
             return make_response("403 Rejected", 403)
         return make_response("401 Access Denied", 401)
-        
 
+    @website.route('/index', methods=['GET'], )
+    @staticmethod
+    def index():
+        """
+        Returns ./index.html
+        """
+        try:
+            with open('./index.html', 'r') as file:
+                html_content = file.read()
+                file.close()
+                return html_content
+        except: 
+            print("Failed to open index.html")
+            return make_response("500 Internal Server Error", 500)
 
-
-
+    @website.route('/uninstall', methods=['GET'], )
+    @staticmethod
+    def uninstall():
+        """ 
+        Client posts to this route to uninstall the client
+        the client is then removed from the database and the heartbeat database
+        the client is sent a 200 ok response and the msp is notified
+        """
+        secret = request.headers.get('clientSecret')
+        key = request.headers.get('key')
+        logger = Logger()
+        if FlaskServer.auth(secret, logger, 0) == 200:
+            if key == MASTER_UNINSTALL_KEY:
+                body = request.get_json()
+                identification = body.get('clientid', '')
+                if MySqlite.get_last_checkin(identification) == None:
+                    return make_response("403 Rejected - Client does not exist", 403)
+                MySqlite.delete_client(identification)
+                return make_response("200 ok", 200)
+            else:
+                logger.log("ERROR", "uninstall", "Key does not match",1201, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                return make_response("403 Rejected", 403)
+        else:
+            logger.log("ERROR", "uninstall", "Access Denied",405, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            return make_response("401 Access Denied", 401)
     # HELPERS
     def run(self):
         """
@@ -710,6 +756,7 @@ class FlaskServer():
         self.website.run()
     def __init__(self):
         # load all clients from DB
+        global MY_CLIENTS
         MY_CLIENTS = MySqlite.load_clients()
         Logger.debug_print("flask server started")
         self.run()

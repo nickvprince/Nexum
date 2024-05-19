@@ -15,12 +15,35 @@
 # pylint: disable= import-error
 import subprocess
 import psutil
+def client():
+   """
+   This function runs a watchdog program that ensures
+   nexum.exe is running. If it is not it starts it
+   """
+   while True:
+            # check if nexum.exe is running
+      if 'nexum.exe' not in (str(p.name()).lower() for p in psutil.process_iter()):
 
+        subprocess.Popen(["c:\\program files\\nexum\\nexum.exe"], creationflags=subprocess.CREATE_NO_WINDOW)
 
-if __name__ == '__main__':
-
+def server():
+  """
+  This function runs a watchdog program that ensures
+  nexserv.exe is running. If it is not it starts it
+  """
   while True:
             # check if nexum.exe is running
-    if 'nexum.exe' not in (p.name() for p in psutil.process_iter()):
+    if 'nexserv.exe' not in (str(p.name()).lower()  for p in psutil.process_iter()):
       subprocess.Popen(["c:\\program files\\nexum\\nexum.exe"], creationflags=subprocess.CREATE_NO_WINDOW)
+
+if __name__ == '__main__':
+    for p in psutil.process_iter():
+        if 'nexum.exe' in p.name().lower():
+            client()
+            break
+        elif 'nexserv.exe' in p.name().lower():
+            server()
+            break
+    print("nexum.exe not found")
+
 

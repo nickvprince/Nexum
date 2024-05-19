@@ -14,6 +14,7 @@
 """
 # pylint: disable= import-error, unused-argument
 from sql import MySqlite,InitSql
+
 class Logger():
 
     """
@@ -21,14 +22,12 @@ class Logger():
     Type: File IO
     Relationship: NONE
     """
-    conn = None
-    cursor = None
 
     # create the database file if it does not exist and connect to it then create the table
     def __init__(self):
 
         #ensure log files are ready
-        InitSql.log_files()      
+        InitSql.log_files()
 
 
 

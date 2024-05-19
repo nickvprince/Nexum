@@ -8,12 +8,3 @@ pause
 
 
 
-
-
-
-pystray
-pandas
-crpyptography
-sqlite3
-win32timezone
-Image

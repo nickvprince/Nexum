@@ -17,10 +17,12 @@
 import os
 import sqlite3
 import subprocess
+import base64
+import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-import base64
 
+#pylint: disable=bare-except,line-too-long
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
 SETTINGS_PATH= os.path.join(current_dir, 
@@ -95,12 +97,93 @@ def decrypt_string(password, string):
         return "Decryption failed"
     except:
         return "Decryption failed"
-     
+
 class MySqlite():
     """
     Class to interact with the sqlite database
     Type: File IO
     """
+    @staticmethod
+    def delete_client(input_id:int):
+        """
+        Delete the client from the database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM clients WHERE id = ?", (input_id,))
+        conn.commit()
+
+        cursor.execute("DELETE FROM heartbeat WHERE id = ?", (input_id,))
+        conn.commit()
+
+        cursor.execute("DELETE FROM job WHERE ID = ?", (input_id,))
+        conn.commit()
+
+        conn.close()
+        
+    @staticmethod
+    def get_last_checkin(input_id):
+        """
+        Get the last checkin time from the settings database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT lastCheckin FROM heartBeat WHERE id = ?''', (input_id,))
+        result = cursor.fetchone()
+        conn.close()
+        if result :
+            return result[0]
+        else:
+            return None
+    @staticmethod
+    def get_heartbeat_missed_tolerance(input_id):
+        """
+        Get the missed notify count from the settings database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT missedNotifyCount FROM heartBeat WHERE id = ?''', (input_id,))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            return result[0]
+        else:
+            return -1
+
+    @staticmethod
+    def write_heartbeat(input_id, interval, last_checkin, missed_notify_count):
+        """
+        Write a heartbeat to the settings database
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''INSERT INTO heartBeat (id, interval, lastCheckin, missedNotifyCount)
+                        VALUES (?, ?, ?, ?)''',
+                        (input_id, interval, last_checkin, missed_notify_count))
+        conn.commit()
+        conn.close()
+    @staticmethod
+    def update_heartbeat_time(input_id):
+        """
+        Update the heartbeat time in the settings database
+        """
+        current_time = datetime.datetime.now()
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT id FROM heartBeat WHERE id = ?''', (input_id,))
+        result = cursor.fetchone()
+        if result:
+            identification = result[0]
+            cursor.execute('''UPDATE heartBeat SET lastCheckin = ? WHERE id = ?''', (current_time, identification))
+            # Do something with the retrieved values
+        else:
+            # Handle the case when no record is found
+            cursor.execute('''INSERT INTO heartbeat (id, interval, lastCheckin, missedNotifyCount)
+                            VALUES (?, ?, ?, ?)''',
+            (input_id, 5, current_time, 3)) # default missednotify of 3 and default interval of 5
+        conn.commit()
+        conn.close()
+
     @staticmethod
     def load_clients():
         """
@@ -112,26 +195,28 @@ class MySqlite():
         clients = cursor.fetchall()
         conn.close()
         return clients
-    @staticmethod 
+
+    @staticmethod
     def write_log(severity, subject, message, code, date):
         """ 
         Write a log to the database
         """
         conn = sqlite3.connect(logdirectory+logpath)
-        id = 0
+        identification = 0
         cursor = conn.cursor()
 
 
         cursor.execute('''SELECT MAX(id) FROM logs''')
         result = cursor.fetchone()[0]
         if result is not None:
-            id = int(result) + 1
+            identification = int(result) + 1
         else:
-            id = 1
+            identification = 1
 
 
         cursor.execute('''INSERT INTO logs (id,severity, subject, message, code, date)
-                    VALUES (?,?, ?, ?, ?, ?)''', (id, severity, subject, message, code, date))
+                    VALUES (?,?, ?, ?, ?, ?)''',
+        (identification, severity, subject, message, code, date))
         conn.commit()
         conn.close()
     @staticmethod
@@ -139,7 +224,8 @@ class MySqlite():
         """
         Write a setting to the database
         """
-        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'], capture_output=True, text=True)
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                capture_output=True, text=True,check=True,shell=True)
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:24]
@@ -153,7 +239,8 @@ class MySqlite():
         if existing_value:
             cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
         else:
-            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''', (setting, value))
+            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''',
+                           (setting, value))
         conn.commit()
         conn.close()
 
@@ -168,13 +255,15 @@ class MySqlite():
         cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
         value = cursor.fetchone()[0]
         conn.close()
-        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'], capture_output=True, text=True) # enc with uuid
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:24]
         value = decrypt_string(output,value)
         return value.rstrip()
-    @staticmethod 
+
+    @staticmethod
     def get_next_client_id():
         """
         Get the next client id
@@ -184,13 +273,14 @@ class MySqlite():
         cursor.execute('''SELECT MAX(id) FROM clients''')
         result = cursor.fetchone()[0]
         if result is not None:
-            id = int(result) + 1
+            identification = int(result) + 1
         else:
-            id = 1
+            identification = 1
         conn.close()
-        return id
+        return identification
+
     @staticmethod
-    def write_client(id, name, address, port, status, mac):
+    def write_client(identification, name, address, port, status, mac):
         """
         Write a client to the database
         """
@@ -201,9 +291,11 @@ class MySqlite():
         if existing_address:
             return 500
         cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC)
-                    VALUES (?, ?, ?, ?, ?, ?)''', (id, name, address, port, status, mac))
+                    VALUES (?, ?, ?, ?, ?, ?)''',
+                    (identification, name, address, port, status, mac))
         conn.commit()
         conn.close()
+        MySqlite.write_heartbeat(identification, 5, datetime.datetime.now(), 3)
         return 200
 class InitSql():
     """

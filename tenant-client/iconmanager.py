@@ -13,17 +13,16 @@
 
 """
 # pylint: disable= import-error, unused-argument
-
+from PIL import Image
 import threading
 import time
 import os
 import pystray
-from PIL import Image
 from logger import Logger
 from api import API
 from helperfunctions import logs, tenant_portal,POLLING_INTERVAL
-from sql import current_dir
-image_path = os.path.join(current_dir, 'n.png') # path to the icon image
+from MySqlite import current_dir
+image_path = os.path.join(current_dir, '../data/n.png') # path to the icon image
 
 
 

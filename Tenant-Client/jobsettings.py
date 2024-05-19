@@ -42,8 +42,6 @@ class JobSettings():
         return self.user
     def get_password(self):
         return self.password
-    def set_backup_path(self, backup_path_in):
-        self.backup_path = backup_path_in
     def get_backup_path(self):
         return self.backup_path
     def get_id(self):
@@ -72,6 +70,8 @@ class JobSettings():
         self.user = user_in
     def set_password(self, password_in):
         self.password = password_in
+    def set_backup_path(self, backup_path_in):
+        self.backup_path = backup_path_in
     def set_id(self, incoming_id):
         self.id = incoming_id
     def set_schedule(self, schedule_in):
