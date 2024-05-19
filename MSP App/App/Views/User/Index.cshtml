@@ -1,0 +1,36 @@
+﻿@model UserViewModel
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h1>List of Users</h1>
+
+<a asp-action="Create">Create New</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>PasswordHash</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.PasswordHash</td>
+                <td>
+                    <a asp-action="Edit">Edit</a> |
+                    <a asp-action="Permissions">Permissions</a> |
+                    <a asp-action="Groups">Groups</a> |
+                    <a asp-action="Delete">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

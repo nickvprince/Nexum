@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container align-content-center col-md-6">
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <a asp-controller="Account" asp-action="Edit" class="btn btn-secondary btn-lg w-100">Account</a>
+        </div>
+        <div class="col-md-6">
+            <a asp-controller="User" asp-action="Index" class="btn btn-secondary btn-lg w-100">Users</a>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-md-6">
+            <a asp-controller="Group" asp-action="Index" class="btn btn-secondary btn-lg w-100">Groups</a>
+        </div>
+        <div class="col-md-6">
+            <a asp-controller="Tenant" asp-action="Index" class="btn btn-secondary btn-lg w-100">Tenants</a>
+        </div>
+    </div>
+</div>
+
+@* @(await Html.RenderComponentAsync<SharedComponents.Components.Account.Login>(RenderMode.Server)) *@
