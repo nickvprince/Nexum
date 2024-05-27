@@ -30,7 +30,7 @@ from HeartBeat import MY_CLIENTS
 
 
 RUN_JOB_OBJECT = None
-CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
+CLIENTS = ()
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
 
@@ -733,7 +733,7 @@ class FlaskServer():
         key = request.headers.get('key')
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
-            if key == MASTER_UNINSTALL_KEY:
+            if key == MySqlite.read_setting("Master-Uninstall"):
                 body = request.get_json()
                 identification = body.get('clientid', '')
                 if MySqlite.get_last_checkin(identification) == None:

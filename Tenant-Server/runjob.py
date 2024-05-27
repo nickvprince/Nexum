@@ -19,6 +19,9 @@ import time
 import threading
 import job
 from logger import Logger
+from flask import request
+import requests
+import json
 
 # pylint: disable=line-too-long
 
@@ -48,48 +51,60 @@ class RunJob():
         while self.leave is False: # As long as the job is not terminated
             if self.kill_job_var is True:
                 # stop the job
-                self.kill_job_var = False
-                self.job_pending = False
-                command = "wbadmin stop job -quiet"
-                Logger.debug_print("Kill the Job here by running powershell script")
-                p = subprocess.Popen(['powershell.exe', command],shell=True)
+
+                url = 'http://127.0.0.1:5004/stop_job_service'
+                headers = {
+                    "Content-Type": "application/json"
+                }
+                response = requests.post(url, headers=headers,timeout=15)
                 time.sleep(10)
-                p.kill()
+                # check response for what happened
                 self.job_running_var = False
                 # set job status to killed
 
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
-                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+               # command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
 
-                p=subprocess.Popen(['powershell.exe', command],shell=True)
-                time.sleep(10)
-                p.kill()
-
+                url = 'http://127.0.0.1:5004/start_job_service'
+                body = {
+                    "start_job_commands": str(command)
+                }
+                headers = {
+                    "Content-Type": "application/json"
+                }
+                response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
+                # check response for what happened
                 # set job status to running
                 self.job_running_var = True # set job running to true
 
             time.sleep(5)
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
-            if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
-                LOCAL_JOB.settings.start_time = ""
-                LOCAL_JOB.settings.stop_time = ""
-            if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
-                Logger.debug_print("Job Triggered by time")
-                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
-                p = subprocess.Popen(['powershell.exe', command],shell=True)
+            if LOCAL_JOB.settings != None:
+                if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
+                    LOCAL_JOB.settings.start_time = ""
+                    LOCAL_JOB.settings.stop_time = ""
+                if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
+                    Logger.debug_print("Job Triggered by time")
+                    command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
+                    # command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                    p = subprocess.Popen(['powershell.exe', command],shell=True)
 
-                time.sleep(10)
-                p.kill()
-                # Run the Job
+                    time.sleep(10)
+                    p.kill()
+                    # Run the Job
+            else:
+                pass
 
 
     def __init__(self):
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
+        self.kill_job_var=True
     def trigger_job(self):
         """
         Triggers the job to run

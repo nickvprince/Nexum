@@ -104,6 +104,38 @@ class MySqlite():
     Type: File IO
     """
     @staticmethod
+    def add_install_key(key):
+        """
+        Add an install key to the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''INSERT INTO keys (key, date) VALUES (?, ?)''', (key, datetime.datetime.now()))
+        MySqlite.write_log("INFO", "MySqlite", "Install key added to database", 200, datetime.datetime.now())
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def pull_install_key(key):
+        """
+        Pull the install key from the database
+        """
+        # if key in db remove it from the database and return 1
+        # else return 0
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT key FROM keys WHERE key = ?''', (key,))
+        result = cursor.fetchone()
+        if result:
+            cursor.execute('''DELETE FROM keys WHERE key = ?''', (key,))
+            MySqlite.write_log("INFO", "MySqlite", "Install key removed from database", 200, datetime.datetime.now())
+            conn.commit()
+            conn.close()
+            return True
+        else:
+            conn.close()
+            return False
+    @staticmethod
     def delete_client(input_id:int):
         """
         Delete the client from the database
@@ -194,6 +226,7 @@ class MySqlite():
         cursor.execute('''SELECT * FROM clients''')
         clients = cursor.fetchall()
         conn.close()
+
         return clients
 
     @staticmethod
@@ -280,6 +313,21 @@ class MySqlite():
         return identification
 
     @staticmethod
+    def get_client(identification:int):
+        """
+        Get a client from the database
+        """
+        try:
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('''SELECT * FROM clients WHERE id = ?''', (identification,))
+            result = cursor.fetchone()
+            conn.close()
+            return result
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Error getting client - "+str(e), 500, datetime.datetime.now())
+            return None
+    @staticmethod
     def write_client(identification, name, address, port, status, mac):
         """
         Write a client to the database
@@ -313,107 +361,156 @@ class InitSql():
     are created when at the beginning rather then runtime
 
     """
+
+
+    @staticmethod
+    def install_keys():
+        """
+        Install the keys for the program
+        """
+        # create db file
+        try:
+            create_db_file(settingsDirectory,job_settingsFile)
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            #create table for keys :
+            # id, key, datetime
+            cursor.execute('''CREATE TABLE IF NOT EXISTS keys
+                            (id TEXT, key TEXT, date TEXT)''')
+            conn.commit()
+            MySqlite.write_log("INFO", "MySqlite", "Keys table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Keys table not created - "+str(e), 500, datetime.datetime.now())
+
     @staticmethod
     def heartbeat():
         """
         Ensure heartbeat file exists and the table is created
         """
-        create_db_file(settingsDirectory,job_settingsFile)
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS heartbeat
-                        (id TEXT, interval TEXT, lastCheckin TEXT, missedNotifyCount TEXT)''')
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(settingsDirectory,job_settingsFile)
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS heartbeat
+                            (id TEXT, interval TEXT, lastCheckin TEXT, missedNotifyCount TEXT)''')
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "HeartBeat table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Heartbeat table not created - "+str(e), 500, datetime.datetime.now())
     @staticmethod
     def job_settings():
         """
         ensure job settings file exists and the table is created
         """
-        create_db_file(settingsDirectory,job_settingsFile)
-        # create settings table
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
-            (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
-                retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
-                    notifyEmail TEXT, heartbeatInterval TEXT)''')
-        # Close connection
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(settingsDirectory,job_settingsFile)
+            # create settings table
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
+                (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
+                    retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
+                        notifyEmail TEXT, heartbeatInterval TEXT)''')
+            # Close connection
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "Job Settings table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Job settings table not created - "+str(e), 500, datetime.datetime.now())
     @staticmethod
     def clients():
         """ 
         ensure clients db table is created
         """
-        create_db_file(settingsDirectory,job_settingsFile)
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS clients
-                        (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT)''')
-        # Close connection
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(settingsDirectory,job_settingsFile)
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS clients
+                            (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT)''')
+            # Close connection
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "clients table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "clients table not created - "+str(e), 500, datetime.datetime.now())
     @staticmethod
     def config_files():
         """ 
         Ensure config file exists and the table is created
         """
-        create_db_file(settingsDirectory,configFile)
-           # create log table
-        conn = sqlite3.connect(settingsDirectory+configFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS config
-                                    (ID TEXT, tenantSecret TEXT, Address TEXT)''')
-        # close connection
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(settingsDirectory,configFile)
+            # create log table
+            conn = sqlite3.connect(settingsDirectory+configFile)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS config
+                                        (ID TEXT, tenantSecret TEXT, Address TEXT)''')
+            # close connection
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "config table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "config table not created - "+str(e), 500, datetime.datetime.now())
 
     @staticmethod
     def job_files():
         """
         Ensure job file exists and the table is created
         """
-        create_db_file(settingsDirectory,jobFile)
-           # create log table
-        conn = sqlite3.connect(settingsDirectory+jobFile)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS job
-             (ID TEXT, Title TEXT, created TEXT, 
-                configID TEXT, settingsID TEXT)''')
-        # close connection
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(settingsDirectory,jobFile)
+            # create log table
+            conn = sqlite3.connect(settingsDirectory+jobFile)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS job
+                (ID TEXT, Title TEXT, created TEXT, 
+                    configID TEXT, settingsID TEXT)''')
+            # close connection
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "Job table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Job table not created - "+str(e), 500, datetime.datetime.now())
 
     @staticmethod
     def log_files():
         """
         Ensure log file exists and the table is created
         """
-        create_db_file(logdirectory,logpath)
-           # create log table
-        conn = sqlite3.connect(logdirectory+logpath)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS logs
-        (id TEXT, severity TEXT, subject TEXT, message TEXT, code TEXT, date TEXT)''')
-        # close connection
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(logdirectory,logpath)
+            # create log table
+            conn = sqlite3.connect(logdirectory+logpath)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS logs
+            (id TEXT, severity TEXT, subject TEXT, message TEXT, code TEXT, date TEXT)''')
+            # close connection
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "logs table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "logs table not created - "+str(e), 500, datetime.datetime.now())
 
     @staticmethod
     def settings():
         """
         Ensure settings file exists and the table is created
         """
-        create_db_file(settingsDirectory,"\\Settings.db")
-        # create settings table
-        conn = sqlite3.connect(SETTINGS_PATH)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS settings
-                            (setting TEXT, value TEXT)''')
-        # Close connection
-        conn.commit()
-        conn.close()
+        try:
+            create_db_file(settingsDirectory,"\\Settings.db")
+            # create settings table
+            conn = sqlite3.connect(SETTINGS_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS settings
+                                (setting TEXT, value TEXT)''')
+            # Close connection
+            conn.commit()
+            conn.close()
+            MySqlite.write_log("INFO", "MySqlite", "Job Settings table created", 200, datetime.datetime.now())
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Job settings table not created - "+str(e), 500, datetime.datetime.now())
 
 
     def __init__(self):
@@ -423,3 +520,7 @@ class InitSql():
         InitSql.job_files()
         InitSql.config_files()
         InitSql.job_settings()
+        InitSql.clients()
+        InitSql.heartbeat()
+        InitSql.install_keys()
+        MySqlite.write_log("INFO", "MySqlite", "All tables created finishing sql INIT", 200, datetime.datetime.now())

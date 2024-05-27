@@ -38,11 +38,12 @@ def server():
 
 if __name__ == '__main__':
     for p in psutil.process_iter():
-        if 'nexum.exe' in p.name().lower():
+        print(str(p.name()))
+        if 'nexum.exe' in str(p.name()).lower() :
             client()
             break
-        elif 'nexserv.exe' in p.name().lower():
-            server()
+        elif 'nexserv.exe' in str(p.name()).lower() :
+            #server()
             break
     print("nexum.exe not found")
 

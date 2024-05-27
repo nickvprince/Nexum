@@ -14,6 +14,10 @@
 """
 # pylint: disable= import-error, unused-argument
 from logger import Logger
+from client import Client
+import datetime
+from sql import MySqlite
+client:Client = MySqlite.get_client(1)
 class API():
     """
     Class to interact with the API. Used for local API calls and 
@@ -35,25 +39,32 @@ class API():
         """
         Call the API from tenant server to get the status of the client
         """
-        Logger.debug_print("Getting status")
-        # call the API from tenant server to get the status of the client
-        return "running"
+        MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
+        client:Client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+        if client == None:
+            MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
+            return "not running"
+        else:
+            return client[4]
     @staticmethod
     def get_percent():
         """
         call the API from tenant server to get the percent complete of the job
         """
-        Logger.debug_print("Getting percent")
-        # call the API from tenant server to get the percent complete of the job
+        MySqlite.write_log("INFO","API","Getting percent","0",datetime.datetime.now())
         return 70
     @staticmethod
     def get_version():
         """
         Call the API from tenant server to get the version of the program
         """
-        Logger.debug_print("Getting version")
-        # call the API from tenant server to get the version of the program
-        return "1.2.7"
+        MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
+        version = MySqlite.read_setting("version")
+        if version == None:
+            MySqlite.write_log("ERROR","API","Version not found","0",datetime.datetime.now())
+            return "n/a"
+        else:
+            return version
     @staticmethod
     def get_job():
         """

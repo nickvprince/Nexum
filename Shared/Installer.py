@@ -55,7 +55,8 @@ import requests
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import sys
-
+import win32com.shell.shell as shell
+ASADMIN = 'asadmin'
 
 #pylint: disable= bare-except, broad-except
 REGISTRATION_PATH = "check-installer"
@@ -713,9 +714,15 @@ def main():
     """
     Information
     """
-    t = tk.Tk()
-    main_window(t)
+    if sys.argv[-1] != ASADMIN:
+        script = os.path.abspath(sys.argv[0])
+        params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
+        shell.ShellExecuteEx(lpVerb='runas', lpFile=sys.executable, lpParameters=params)
+    else:
+        t = tk.Tk()
+        main_window(t)
     return 0
 
 if __name__ == "__main__":
     main()
+
