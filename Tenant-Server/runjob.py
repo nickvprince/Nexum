@@ -104,7 +104,6 @@ class RunJob():
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
-        self.kill_job_var=True
     def trigger_job(self):
         """
         Triggers the job to run

@@ -50,7 +50,10 @@ def get_status():
     try:
         result = subprocess.Popen(["powershell.exe", "wbadmin Get status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         output = result.stdout
-        response = {"result": "{"+str(output.readlines())+"}"}
+        resp = ""
+        value =output.read(160)
+
+        response = {"result": "{"+str(value)+"}"}
         return response
     except Exception as e:
         return make_response(str(e), 500)

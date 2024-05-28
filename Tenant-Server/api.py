@@ -16,7 +16,9 @@
 from logger import Logger
 from client import Client
 import datetime
+import requests
 from sql import MySqlite
+import re
 client:Client = MySqlite.get_client(1)
 class API():
     """
@@ -52,7 +54,29 @@ class API():
         call the API from tenant server to get the percent complete of the job
         """
         MySqlite.write_log("INFO","API","Getting percent","0",datetime.datetime.now())
-        return 70
+
+        url = 'http://127.0.0.1:5004/get_status'
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+        try:
+            response = requests.get(url, headers=headers,timeout=40)
+            data = response.json()
+            result = data["result"]
+            if "copied" in result:
+                    # Find the copied (xxx%) in the result string
+                    match = re.search(r'copied \((\d+)%\)', result)
+                    if match:
+                        percent = int(match.group(1))
+                        return percent
+                    else:
+                        return "0%"
+            else:
+                return "0%"
+        except Exception as e:
+            MySqlite.write_log("ERROR","API","Error getting percent","0",datetime.datetime.now())
+            return "0%"
     @staticmethod
     def get_version():
         """
