@@ -4,6 +4,13 @@ from flask import make_response,request
 import threading
 import winreg
 import time
+import servicemanager
+import socket
+import sys
+import win32event
+import win32service
+from pyuac import main_requires_admin
+import win32serviceutil
 
 
 app = Flask(__name__)
@@ -63,13 +70,13 @@ def nexclient_watchdog():
     while True:
         #check if nexum.exe is running
         try:
-            nexum = subprocess.Popen(["tasklist", "/fi", "imagename eq nexum.exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            nexum = subprocess.Popen(['tasklist /fi "imagename eq nexserv.exe"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             output = nexum.stdout.readline()
             if "specified" in str(output):
                 # start nexum.exe
                 try:
-                    subprocess.Popen(["start", "nexum"], shell=True)
+                    subprocess.Popen([r"c:\program files\nexum\nexum.exe -interactive"], shell=True)
                     print("nexum.exe starting")
                 except:
                     pass
@@ -87,13 +94,13 @@ def nexserv_watchdog():
     while True:
         #check if nexum.exe is running
         try:
-            nexum = subprocess.Popen(["tasklist", "/fi", "imagename eq nexserv.exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            nexum = subprocess.Popen(['tasklist /fi "imagename eq nexserv.exe"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             output = nexum.stdout.readline()
             if "specified" in str(output):
                 # start nexum.exe
                 try:
-                    subprocess.Popen(["start", "nexserv"], shell=True)
+                    subprocess.Popen([['start'],r'c:\program files\nexum\nexserv.exe -interactive'], shell=True)
                     print("nexumserv.exe starting")
                 except:
                     pass
@@ -134,14 +141,56 @@ def watchdog():
             nexserv_watchdog()
     except Exception as e:
         print(str(e))
-if __name__ == "__main__":
-    # Create a new thread for the Flask app
+@main_requires_admin
+def main():
     flask_thread = threading.Thread(target=app.run, kwargs={'port': 5004})
     watchdog_thread = threading.Thread(target=watchdog)
-    # Start the Flask app thread
+    flask_thread.setDaemon(True)
+    watchdog_thread.setDaemon(True)
     flask_thread.start()
     watchdog_thread.start()
 
-    # Wait for the Flask app thread to finish
-    flask_thread.join()
-    watchdog_thread.join()
+class NexumService(win32serviceutil.ServiceFramework):
+    _svc_name_ = "NexumService"
+    _svc_display_name_ = "Nexum Service"
+    _svc_description_ = "Service to run Nexum Flask application and watchdogs"
+    
+    def __init__(self, args):
+        win32serviceutil.ServiceFramework.__init__(self, args)
+        self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
+        self.is_running = True
+
+    def SvcStop(self):
+   
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        self.is_running = False
+        win32event.SetEvent(self.hWaitStop)
+        
+        sys.exit(0)
+
+   
+
+    def SvcDoRun(self):
+
+        servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
+                              servicemanager.PYS_SERVICE_STARTED,
+                              (self._svc_name_, ''))
+        self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+        self.main()
+     
+
+    def main(self):
+        while self.is_running:
+            win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+            main()
+
+if __name__ == '__main__':
+    main()
+    if len(sys.argv) > 1:
+       # Called by Windows shell. Handling arguments such as: Install, Remove, etc.
+       win32serviceutil.HandleCommandLine(NexumService)
+    else:
+       # Called by Windows Service. Initialize the service to communicate with the system operator
+       servicemanager.Initialize()
+       servicemanager.PrepareToHostSingle(NexumService)
+       servicemanager.StartServiceCtrlDispatcher()

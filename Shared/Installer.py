@@ -56,6 +56,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import sys
 import win32com.shell.shell as shell
+from task import client_persistance, server_persistance
 ASADMIN = 'asadmin'
 
 #pylint: disable= bare-except, broad-except
@@ -263,7 +264,15 @@ def uninstall_program(key:str):
                 0, time.time())
     else:
         write_log("ERROR", "Uninstall", "Could not uninstall from server", 1115, time.time())
-
+    # delete scheduled tasks nexum and nexserv
+    try:
+        os.system('schtasks /delete /tn nexum /f')
+    except:
+        pass
+    try:
+        os.system('schtasks /delete /tn nexserv /f')
+    except:
+        pass
 def uninstall(window:tk.Tk):
     """
     Information
@@ -318,17 +327,16 @@ def install_nexum_file():
     shutil.copy(path, OS_FILE_PATH+"/"+EXE_NEXUM_NAME)
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 
-def install_watchdog_file():
+def install_service(client_server:int):
     """
     Information
     """
-        # call to server to get install location and CURL to c:\Program Files\Nexum
-        # OR
-        # copy ./watchdog.exe to C:\Program Files\Nexum
-    current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-    path = os.path.join(current_dir,EXE_WATCHDOG_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"\\"+EXE_WATCHDOG_NAME)
-    write_log("INFO", "Install Watchdog", "Watchdog file installed", 0, time.time())
+    if client_server == 0:
+        client_persistance()
+        write_log("INFO", "Install Service", "Client service installed", 0, time.time())
+    else:
+        server_persistance()
+        write_log("INFO", "Install Service", "Server service installed", 0, time.time())
 
 def notify_server():
     """
@@ -375,7 +383,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
             print("Nexum folder already exists or could not be created")
 
         install_nexum_file()
-        install_watchdog_file()
+        install_service(0)
         # create keys in registry
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
@@ -413,17 +421,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
             write_log("ERROR", "Install Client", "Error adding registry keys: "
                      + str(e), 1102, time.time())
 
-        # run c:\Program Files\Nexum\Nexum.exe
-        # run c:\Program Files\Nexum\watchdog.exe
-        # Run Nexum.exe
-        nexum_path = OS_FILE_PATH + "\\" + EXE_NEXUM_NAME
-        subprocess.Popen(nexum_path, shell=True)
-        write_log("INFO", "Install Client", "Nexum.exe ran", 0, time.time())
 
-        # Run watchdog.exe
-        watchdog_path = OS_FILE_PATH + "\\" + EXE_WATCHDOG_NAME
-        subprocess.Popen(watchdog_path, shell=True)
-        write_log("INFO", "Install Client", "Watchdog.exe ran", 0, time.time())
 
         # notify server that the installation is complete
         notify_server()
@@ -539,15 +537,12 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(current_dir,EXE_SERVER_NAME)
         try:
-            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
+            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERVER_NAME)
         except Exception as e:
             write_log("ERROR", "Install Server", "Error copying nexserv.exe: " + str(e), 0, time.time())
         
         write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
-        try:
-            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
-        except Exception as e:  
-            write_log("ERROR", "Install Server", "Error copying watchdogserv.exe: " + str(e), 0, time.time())
+        install_service(1)
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
             run_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
@@ -583,18 +578,6 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
         except Exception as e:
             write_log("ERROR", "Install Server", "Error adding registry keys: "
                      + str(e), 1102, time.time())
-
-        # run c:\Program Files\Nexum\Nexum.exe
-        # run c:\Program Files\Nexum\watchdog.exe
-        # Run Nexum.exe
-        nexum_path = OS_FILE_PATH + "\\" + EXE_SERVER_NAME
-        subprocess.Popen(nexum_path, shell=True)
-        write_log("INFO", "Install SERVER", "nexserv.exe ran", 0, time.time())
-
-        # Run watchdog.exe
-        watchdog_path = OS_FILE_PATH + "\\" + EXE_SERV_WATCHDOG_NAME
-        subprocess.Popen(watchdog_path, shell=True)
-        write_log("INFO", "Install Client", "Watchdog_serv.exe ran", 0, time.time())
 
         # notify server that the installation is complete
         notify_msp()
