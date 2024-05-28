@@ -22,6 +22,7 @@ from logger import Logger
 from flask import request
 import requests
 import json
+from sql import MySqlite
 
 # pylint: disable=line-too-long
 
@@ -61,6 +62,11 @@ class RunJob():
                 # check response for what happened
                 self.job_running_var = False
                 # set job status to killed
+                new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+                new_client = list(new_client)
+                new_client.remove(new_client[4])
+                new_client.insert(4,"idle")
+                MySqlite.update_client(new_client)
 
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
@@ -75,9 +81,19 @@ class RunJob():
                 headers = {
                     "Content-Type": "application/json"
                 }
-                response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
+                try:
+                    response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
+                except Exception as e:
+                    Logger.debug_print("Error: "+str(e))
                 # check response for what happened
                 # set job status to running
+                new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+                new_client = list(new_client)
+                new_client.remove(new_client[4])
+                new_client.insert(4,"running")
+                MySqlite.update_client(new_client)
+
+
                 self.job_running_var = True # set job running to true
 
             time.sleep(5)
@@ -96,6 +112,12 @@ class RunJob():
                     time.sleep(10)
                     p.kill()
                     # Run the Job
+                    # set job status to running
+                    new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+                    new_client = list(new_client)
+                    new_client.remove(new_client[4])
+                    new_client.insert(4,"running")
+                    MySqlite.update_client(new_client)
             else:
                 pass
 

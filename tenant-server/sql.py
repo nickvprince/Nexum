@@ -328,6 +328,18 @@ class MySqlite():
             MySqlite.write_log("ERROR", "MySqlite", "Error getting client - "+str(e), 500, datetime.datetime.now())
             return None
     @staticmethod
+    def update_client(client):
+        """
+        Update a client in the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''UPDATE clients SET Name = ?, Address = ?, Port = ?, Status = ?, MAC = ? WHERE id = ?''',
+        (client[1], client[2], client[3], client[4], client[5], client[0]))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
     def write_client(identification, name, address, port, status, mac):
         """
         Write a client to the database

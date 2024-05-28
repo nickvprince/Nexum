@@ -73,9 +73,20 @@ class API():
                     else:
                         return "0%"
             else:
+                                # set job status to killed
+                new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+                new_client = list(new_client)
+                new_client.remove(new_client[4])
+                new_client.insert(4,"idle")
+                MySqlite.update_client(new_client)
                 return "0%"
-        except Exception as e:
+        except Exception:
             MySqlite.write_log("ERROR","API","Error getting percent","0",datetime.datetime.now())
+            new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+            new_client = list(new_client)
+            new_client.remove(new_client[4])
+            new_client.insert(4,"service --offline")
+            MySqlite.update_client(new_client)
             return "0%"
     @staticmethod
     def get_version():
