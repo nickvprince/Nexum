@@ -65,90 +65,11 @@ def get_status():
     except Exception as e:
         return make_response(str(e), 500)
 
-def nexclient_watchdog():
-    print("nexclient_watchdog")
-    while True:
-        #check if nexum.exe is running
-        try:
-            nexum = subprocess.Popen(['tasklist /fi "imagename eq nexserv.exe"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            output = nexum.stdout.readline()
-            if "specified" in str(output):
-                # start nexum.exe
-                try:
-                    subprocess.Popen([r"c:\program files\nexum\nexum.exe -interactive"], shell=True)
-                    print("nexum.exe starting")
-                except:
-                    pass
-                
-            else:
-                print("nexum.exe is running")   
-                
-        except Exception as e:
-            print(str(e))
-        time.sleep(5)
-
-
-def nexserv_watchdog():
-    print("nexserv_watchdog")
-    while True:
-        #check if nexum.exe is running
-        try:
-            nexum = subprocess.Popen(['tasklist /fi "imagename eq nexserv.exe"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            output = nexum.stdout.readline()
-            if "specified" in str(output):
-                # start nexum.exe
-                try:
-                    subprocess.Popen([['start'],r'c:\program files\nexum\nexserv.exe -interactive'], shell=True)
-                    print("nexumserv.exe starting")
-                except:
-                    pass
-                
-            else:
-                print("nexumserv.exe is running")   
-                
-        except Exception as e:
-            print(str(e))
-        time.sleep(5)
-
-
-def watchdog():
-    try:
-        key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
-        nexum_key = "nexum"
-        nexserv_key = "nexserv"
-        nexserv_key_reg = None
-        nexum_key_reg = None
-        # Check if the nexum key exists
-        run_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
-        try:
-            nexum_key_reg = winreg.QueryValueEx(run_key, nexum_key)
-        except:
-            pass
-        try:
-            nexserv_key_reg = winreg.QueryValueEx(run_key, nexserv_key)
-        except:
-            pass
-        winreg.CloseKey(run_key)
-        if nexum_key_reg is None:
-            print("nexum key not found")
-        else:
-            nexclient_watchdog()
-        if nexserv_key_reg is None:
-            print("nexserv key not found")
-        else:
-            nexserv_watchdog()
-    except Exception as e:
-        print(str(e))
 @main_requires_admin
 def main():
     flask_thread = threading.Thread(target=app.run, kwargs={'port': 5004})
-    watchdog_thread = threading.Thread(target=watchdog)
     flask_thread.setDaemon(True)
-    watchdog_thread.setDaemon(True)
     flask_thread.start()
-    watchdog_thread.start()
 
 class NexumService(win32serviceutil.ServiceFramework):
     _svc_name_ = "NexumService"
