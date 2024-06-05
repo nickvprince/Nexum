@@ -34,9 +34,12 @@ namespace API.Services
             throw new NotImplementedException();
         }
 
-        public async Task<List<Tenant>> GetAllAsync()
+        public async Task<ICollection<Tenant>> GetAllAsync()
         {
-            return await _appDbContext.Tenants.ToListAsync();
+            return await _appDbContext.Tenants
+                .Include(t => t.UserTenants)
+                .Include(t => t.Devices)
+                .ToListAsync();
         }
     }
 }

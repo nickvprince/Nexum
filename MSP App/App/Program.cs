@@ -30,9 +30,8 @@ builder.Services.AddAuthorization(options =>
 //builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<UserPermissionSetService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<TenantService>();
 
 var app = builder.Build();

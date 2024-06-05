@@ -7,14 +7,12 @@ namespace App.Controllers
 {
     public class UserController : Controller
     {
-        private readonly GroupService _groupService;
-        private readonly PermissionService _permissionService;
+        private readonly UserPermissionSetService _userPermissionSetService;
         private readonly UserService _userService;
 
-        public UserController(GroupService groupService, PermissionService permissionService, UserService userService)
+        public UserController(UserPermissionSetService userPermissionSetService, UserService userService)
         {
-            _groupService = groupService;
-            _permissionService = permissionService;
+            _userPermissionSetService = userPermissionSetService;
             _userService = userService;
         }
 
@@ -29,33 +27,19 @@ namespace App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PermissionsAsync()
+        public async Task<IActionResult> UserPermissionSetsAsync()
         {
-            User user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
+            User? user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
             if (user != null)
             {
-                List<Permission> permissions = await _permissionService.GetAllAsync(); // Change to By ID
-                if (permissions.Any())
+                ICollection<UserPermissionSet> permissionSets = await _userPermissionSetService.GetAllAsync();
+                if (permissionSets.Any())
                 {
-                    user.Permissions = permissions;
+                    user.UserPermissionSets = permissionSets;
                 }
             }
             return View(user);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GroupsAsync()
-        {
-            User user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
-            if (user != null)
-            {
-                List<Group> groups = await _groupService.GetAllAsync(); // Change to By ID
-                if (groups.Any())
-                {
-                    user.Groups = groups;
-                }
-            }
-            return View(user);
-        }
     }
 }

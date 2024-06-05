@@ -11,7 +11,7 @@ namespace SharedComponents.Entities
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public List<Permission>? Permissions { get; set; }
-        public List<Group>? Groups { get; set; }
+        public ICollection<UserTenant>? UserTenants { get; set; }
+        public ICollection<UserPermissionSet>? UserPermissionSets { get; set; }
     }
 }

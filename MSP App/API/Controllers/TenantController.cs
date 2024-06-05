@@ -49,16 +49,11 @@ namespace API.Controllers
         public async Task<IActionResult> GetTenantsAsync()
         {
             //Get the permissions
-            List<Tenant> tenants = await _dbTenantService.GetAllAsync();
+            ICollection<Tenant> tenants = await _dbTenantService.GetAllAsync();
 
             if (tenants.Any())
             {
-                var response = new
-                {
-                    data = tenants,
-                    message = $"Retrieved tenants successfully."
-                };
-                return Ok(response);
+                return Ok(tenants);
             }
             return NotFound(new { message = "No tenants found." });
         }

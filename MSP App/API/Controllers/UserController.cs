@@ -46,12 +46,7 @@ namespace API.Controllers
 
             if (user != null)
             {
-                var response = new
-                {
-                    data = user,
-                    message = $"Retrieved user successfully."
-                };
-                return Ok(response);
+                return Ok(user);
             }
             return NotFound(new { message = "User not found." });
         }
@@ -60,16 +55,11 @@ namespace API.Controllers
         public async Task<IActionResult> GetUsersAsync()
         {
             //Get the permissions
-            List<User> users = await _dbUserService.GetAllAsync();
+            ICollection<User> users = await _dbUserService.GetAllAsync();
 
             if (users.Any())
             {
-                var response = new
-                {
-                    data = users,
-                    message = $"Retrieved users successfully."
-                };
-                return Ok(response);
+                return Ok(users);
             }
             return NotFound(new { message = "No users found." });
         }

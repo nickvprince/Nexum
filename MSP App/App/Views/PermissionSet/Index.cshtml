@@ -1,0 +1,32 @@
+﻿@model UserPermissionSetViewModel
+
+@{
+    ViewData["Title"] = "Permission Sets";
+}
+
+<h1>List of Permission Sets</h1>
+
+<a asp-action="Create">Create New</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Permission Name</th>
+            <th>Permission Description</th>
+            <th>Tenant Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var userPermissionSet in Model.UserPermissionSets)
+        {
+            <tr>
+                <td>@userPermissionSet.User.NormalizedUserName</td>
+                <td>@userPermissionSet.PermissionSet.Permission.Name</td>
+                <td>@userPermissionSet.PermissionSet.Permission.Description</td>
+                <td>@userPermissionSet.PermissionSet.Tenant.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>

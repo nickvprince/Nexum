@@ -8,7 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.MaxDepth = 16;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,8 +21,7 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 var connStr = builder.Configuration.GetConnectionString("NexumAppDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connStr));
-builder.Services.AddScoped<DbGroupService>();
-builder.Services.AddScoped<DbPermissionService>();
+builder.Services.AddScoped<DbUserPermissionSetService>();
 builder.Services.AddScoped<DbUserService>();
 builder.Services.AddScoped<DbTenantService>();
 

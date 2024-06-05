@@ -155,7 +155,7 @@ namespace API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Group", b =>
+            modelBuilder.Entity("SharedComponents.Entities.ContactInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -163,46 +163,57 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("State")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Zip")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.ToTable("ContactInfos", (string)null);
+                });
 
-                    b.ToTable("Groups");
+            modelBuilder.Entity("SharedComponents.Entities.Device", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Group for managing banks",
-                            IsActive = true,
-                            Name = "Banks"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Group for managing tech businesses",
-                            IsActive = true,
-                            Name = "Tech"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Group for managing culinary businesses",
-                            IsActive = true,
-                            Name = "Culinary"
-                        });
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Devices", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
@@ -216,43 +227,38 @@ namespace API.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions", (string)null);
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.PermissionSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("PermissionId");
 
-                    b.ToTable("Permissions");
+                    b.HasIndex("TenantId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Create a new user",
-                            IsActive = true,
-                            Name = "Create User"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Edit an existing user",
-                            IsActive = true,
-                            Name = "Edit User"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Delete an existing user",
-                            IsActive = true,
-                            Name = "Delete User"
-                        });
+                    b.ToTable("PermissionSets", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
@@ -266,7 +272,7 @@ namespace API.Migrations
                     b.Property<string>("ApiKey")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("GroupId")
+                    b.Property<int>("ContactInfoId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -277,32 +283,9 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
+                    b.HasIndex("ContactInfoId");
 
-                    b.ToTable("Tenants");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ApiKey = "4732-1849-3021-0438",
-                            IsActive = true,
-                            Name = "BMO"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ApiKey = "2313-5435-5432-7654",
-                            IsActive = true,
-                            Name = "TD"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ApiKey = "7654-4522-6546-4231",
-                            IsActive = true,
-                            Name = "RBC"
-                        });
+                    b.ToTable("Tenants", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.User", b =>
@@ -376,6 +359,36 @@ namespace API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.UserPermissionSet", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("PermissionSetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "PermissionSetId");
+
+                    b.HasIndex("PermissionSetId");
+
+                    b.ToTable("UserPermissionSets", (string)null);
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.UserTenant", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "TenantId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("UserTenants", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -427,37 +440,97 @@ namespace API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Group", b =>
+            modelBuilder.Entity("SharedComponents.Entities.Device", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.User", null)
-                        .WithMany("Groups")
-                        .HasForeignKey("UserId");
+                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                        .WithMany("Devices")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
+            modelBuilder.Entity("SharedComponents.Entities.PermissionSet", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.User", null)
-                        .WithMany("Permissions")
-                        .HasForeignKey("UserId");
+                    b.HasOne("SharedComponents.Entities.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Group", null)
-                        .WithMany("tenants")
-                        .HasForeignKey("GroupId");
+                    b.HasOne("SharedComponents.Entities.ContactInfo", "ContactInfo")
+                        .WithMany()
+                        .HasForeignKey("ContactInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContactInfo");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Group", b =>
+            modelBuilder.Entity("SharedComponents.Entities.UserPermissionSet", b =>
                 {
-                    b.Navigation("tenants");
+                    b.HasOne("SharedComponents.Entities.PermissionSet", "PermissionSet")
+                        .WithMany()
+                        .HasForeignKey("PermissionSetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SharedComponents.Entities.User", "User")
+                        .WithMany("UserPermissionSets")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PermissionSet");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.UserTenant", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                        .WithMany("UserTenants")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SharedComponents.Entities.User", "User")
+                        .WithMany("UserTenants")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
+                {
+                    b.Navigation("Devices");
+
+                    b.Navigation("UserTenants");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.User", b =>
                 {
-                    b.Navigation("Groups");
+                    b.Navigation("UserPermissionSets");
 
-                    b.Navigation("Permissions");
+                    b.Navigation("UserTenants");
                 });
 #pragma warning restore 612, 618
         }
