@@ -74,6 +74,7 @@ EXE_SERVER_NAME = "nexserv.exe"
 EXE_WATCHDOG_NAME = "watchdog.exe"
 EXE_SERV_WATCHDOG_NAME = "watchdogserv.exe"
 WINDOW_GEOMETRY = "1000x600"
+backupserver_msp = "127.0.0.1:6969"
 PORT = 5000
 HYPER_PROTOCOL = "http://"
 IMAGE_PATH = '../Data/Nexum.png'
@@ -396,8 +397,9 @@ def install_nexum_file():
     # OR
     # copy ./Nexum.exe to C:\Program Files\Nexum
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
+    
     path = os.path.join(current_dir,EXE_NEXUM_NAME) # directory for logs
-    shutil.copy(path, "'"+OS_FILE_PATH+"/"+EXE_NEXUM_NAME+"'")
+    shutil.copy(path,OS_FILE_PATH+"/"+EXE_NEXUM_NAME)
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 
 def install_service():
@@ -424,10 +426,10 @@ def install_persistence(client_server:int):
     """
     if client_server == 0:
         client_persistance()
-        write_log("INFO", "Install Service", "Client service installed", 0, time.time())
+        write_log("INFO", "Install Service", "Client Scheduled task setup", 0, time.time())
     else:
         server_persistance()
-        write_log("INFO", "Install Service", "Server service installed", 0, time.time())
+        write_log("INFO", "Install Service", "Server scheduled task setup", 0, time.time())
 
 def notify_server():
     """
@@ -603,13 +605,13 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
                             for ele in range(0,8*6,8)][::-1])
         }
         write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
-        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{REGISTRATION_PATH}",
+        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver_msp}/{REGISTRATION_PATH}",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json","key":key,
                                             "clientSecret":SECRET}, json=payload)
 
         identification = request.headers["clientid"]
 
-        request = requests.request("POST", f"{HYPER_PROTOCOL}{backupserver}/{BEAT_PATH}", timeout=TIMEOUT,
+        request = requests.request("POST", f"{HYPER_PROTOCOL}{backupserver_msp}/{BEAT_PATH}", timeout=TIMEOUT,
             headers={"Content-Type": "application/json","clientSecret":SECRET,"id":identification})
         write_log("INFO", "Install server", "Identification: " + identification, 0, time.time())
     except:

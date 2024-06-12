@@ -22,13 +22,16 @@ from MySqlite import MySqlite
 from security import Security
 from helperfunctions import get_client_info
 from helperfunctions import *
-from integrationtests import TestAPINewFile
+from integrationtests import TestIntegrations
 from jobsettingtests import JobSettingsTests
 from apitests import TestAPI
 from configurationtests import ConfigurationTests
 from securitytests import SecurityTests
 from jobtests import JobTests
 from api import API
+from serviceintegrationtests import serviceTests
+
+
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 
@@ -43,17 +46,17 @@ class TestMain(unittest.TestCase):
         os.remove(dir + path)
     def test_get_client_info(self):
         # Set up the expected values
-        expected_client_id = -1
-        expected_tenant_id = -1
-        expected_tenant_portal_url = "https://nexum.com/tenant_portal"
+        expected_client_id = 1
+        expected_tenant_id = 1
+        expected_tenant_portal_url = "http://127.0.0.1:5000/index"
 
         # Call the function to get the client info
         get_client_info()
 
         # Check if the global variables are assigned correctly
-        self.assertEqual(CLIENT_ID, expected_client_id)
-        self.assertEqual(TENANT_ID, expected_tenant_id)
-        self.assertEqual(TENANT_PORTAL_URL, expected_tenant_portal_url)
+        self.assertEqual(int(MySqlite.read_setting("CLIENT_ID")), expected_client_id)
+        self.assertEqual(int(MySqlite.read_setting("TENANT_ID")), expected_tenant_id)
+        self.assertEqual(MySqlite.read_setting("TENANT_PORTAL_URL"), expected_tenant_portal_url)
         time.sleep(0.2)
 
 
@@ -68,5 +71,5 @@ class TestMain(unittest.TestCase):
 
 if __name__ == '__main__':
     InitSql()
+    TestIntegrations()
     unittest.main()
-

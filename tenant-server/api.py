@@ -19,6 +19,7 @@ import datetime
 import requests
 from sql import MySqlite
 import re
+import requests
 client:Client = MySqlite.get_client(1)
 class API():
     """
@@ -151,6 +152,23 @@ class API():
         """
         Call the API from tenant server to post the missing heartbeat
         """
+        MySqlite.write_log("INFO","API","Posting missing heartbeat","0",datetime.datetime.now())
+        url = 'http://127.0.0.1:6969/missing_heartbeat'
+        headers = {
+            "Content-Type": "application/json"
+        }
+        data = {
+            "client_id": client_id,
+            "tenant_id": tenant_id
+        }
+        try:
+            response = requests.post(url, headers=headers, json=data, timeout=40)
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception:
+            return False
         Logger.debug_print("Posting missing heartbeat")
         # call the API from tenant server to post the missing heartbeat
         return True

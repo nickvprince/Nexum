@@ -124,6 +124,10 @@ if __name__ == "__main__":
     MySqlite.write_setting("salt","salt")
     MySqlite.write_setting("pepper","pepricart")
     MySqlite.write_setting("salt2","salt2")
+    MySqlite.write_setting("Status","idle")
+    MySqlite.write_setting("version","1")
+
+
 
 
 
