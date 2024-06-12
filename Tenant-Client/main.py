@@ -119,6 +119,7 @@ def main():
 
 
 if __name__ == "__main__":
+    InitSql()
     MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     MySqlite.write_setting("TENANT_ID","1")
     MySqlite.write_setting("CLIENT_ID","1")
@@ -128,4 +129,7 @@ if __name__ == "__main__":
     MySqlite.write_setting("server_port","5000")
     MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     MySqlite.write_setting("heartbeat_interval","5")
+
+
+
     main()

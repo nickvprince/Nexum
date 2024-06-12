@@ -251,6 +251,11 @@ def uninstall_program(key:str,window:tk.Tk):
             not_installed_indentifiers += 1
         except Exception as e:
             write_log("ERROR", "Uninstall", "App key could not be deleted : " + e, 1105, time.time())
+        try:
+            subprocess.Popen(['sc', 'stop', 'nexumservice'])
+            subprocess.Popen(['sc', 'delete', 'nexumservice'])
+        except:
+            write_log("ERROR", "Uninstall", "Service could not be deleted", 0, time.time())
 
         identifiers_count += 1
         if os.path.exists(OS_FILE_PATH):
@@ -324,11 +329,6 @@ def uninstall_program(key:str,window:tk.Tk):
         except:
             write_log("ERROR", "Uninstall", "Scheduled task nexserv could not be deleted", 0, time.time())
         #delete service
-        try:
-            subprocess.Popen(['sc', 'stop', 'nexumservice'])
-            subprocess.Popen(['sc', 'delete', 'nexumservice'])
-        except:
-            write_log("ERROR", "Uninstall", "Service could not be deleted", 0, time.time())
 
             # delete service nexum_service
         completed(window,"","uninstall completed")
@@ -336,7 +336,7 @@ def uninstall_program(key:str,window:tk.Tk):
         write_log("ERROR", "Uninstall", "Could not uninstall from server", 1115, time.time())
     # delete scheduled tasks nexum and nexserv
 
-    
+
 
 def uninstall(window:tk.Tk):
     """
@@ -397,7 +397,7 @@ def install_nexum_file():
     # copy ./Nexum.exe to C:\Program Files\Nexum
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     path = os.path.join(current_dir,EXE_NEXUM_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"/"+EXE_NEXUM_NAME)
+    shutil.copy(path, "'"+OS_FILE_PATH+"/"+EXE_NEXUM_NAME+"'")
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 
 def install_service():
