@@ -20,6 +20,7 @@ from security import Security
 import re
 import datetime
 from job import Job
+import helperfunctions
 
 class API():
     """
@@ -50,10 +51,10 @@ class API():
         CLIENT_SECRET = MySqlite.read_setting("client_secret")
         CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
         temp = Security.sha256_string(CLIENT_SECRET)
-        temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+        temp = Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2"))
         temp = Security.encrypt_client_secret(temp)
 
-        url = 'http://127.0.0.1:5004/get_status'
+        url = MySqlite.read_setting("service_address")+'/get_status'
 
         headers = {
             "Content-Type": "application/json",
@@ -107,25 +108,31 @@ class API():
         """
         Call the API from tenant server to get the client id
         """
-        Logger.debug_print("Getting client id")
-        # call the API from tenant server to get the client id
-        return 1
-    @staticmethod
-    def get_tenant_id():
-        """
-        Call the API from tenant server to get the tenant id
-        """
-        Logger.debug_print("Getting tenant id")
-        # call the API from tenant server to get the tenant id
-        return 1
-    @staticmethod
-    def get_download_key():
-        """
-        call the API from tenant server to get the download key
-        """
-        Logger.debug_print("Getting download key")
-        # call the API from tenant server to get the download key
-        return "1234"
+        
+
+        url = MySqlite.read_setting("server_address")+'/get_id'
+        client_secret = MySqlite.read_setting("client_secret")
+        client_id = MySqlite.read_setting("CLIENT_ID")
+        temp = Security.sha256_string(client_secret)
+        temp = Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2"))
+        temp = Security.encrypt_client_secret(temp)
+        headers = {
+            "Content-Type": "application/json",
+            "secret": str(temp),
+            "id": str(client_id)
+        }
+        body = {
+            "uuid":helperfunctions.get_uuid()
+        }
+        try:
+            response = requests.get(url, headers=headers,timeout=40)
+            data = response.json()
+            result = data["id"]
+            return result
+        except Exception:
+            MySqlite.write_log("ERROR","API","Error getting client id","0",datetime.datetime.now())
+            return None
+
 
     @staticmethod
     def send_success_install(client_id,tenant_id,client_secret):

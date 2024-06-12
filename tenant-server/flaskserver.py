@@ -560,6 +560,15 @@ class FlaskServer():
             return "401 Access Denied"
         else:
             return "500 Internal Server Error"
+        
+    @website.route('/get_id', methods=['GET'], )
+    @staticmethod
+    def get_id():
+        """
+        Gives Current id based on uuid provided
+        """
+        return "200 OK"
+    
     @website.route('/get_job', methods=['GET'], )
     @staticmethod
     def get_job():
