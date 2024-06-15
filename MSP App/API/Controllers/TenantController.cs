@@ -20,9 +20,10 @@ namespace API.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] Tenant tenant)
         {
-            if (await _dbTenantService.CreateAsync(tenant))
+            Tenant newTenant = await _dbTenantService.CreateAsync(tenant);
+            if (newTenant != null)
             {
-                return Ok($"Tenant created successfully.");
+                return Ok(newTenant);
             }
             return BadRequest(new { message = "An error occurred while creating the tenant." });
         }
@@ -30,9 +31,10 @@ namespace API.Controllers
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant)
         {
-            if (await _dbTenantService.UpdateAsync(tenant))
+            Tenant updatedTenant = await _dbTenantService.UpdateAsync(tenant);
+            if (updatedTenant != null)
             {
-                return Ok($"Tenant updated successfully.");
+                return Ok(updatedTenant);
             }
             return BadRequest(new { message = "An error occurred while updating the tenant." });
         }

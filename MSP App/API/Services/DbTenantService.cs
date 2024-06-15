@@ -14,7 +14,7 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<bool> CreateAsync(Tenant tenant)
+        public async Task<Tenant?> CreateAsync(Tenant tenant)
         {
             if (tenant != null)
             {
@@ -26,17 +26,20 @@ namespace API.Services
                     // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
 
-                    return true;
+                    return await _appDbContext.Tenants
+                        .Where(t => t.Id == tenant.Id)
+                        .Include(t => t.TenantInfo)
+                        .FirstOrDefaultAsync();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"An error occurred while creating the tenant: {ex.Message}");
                 }
             }
-            return false;
+            return null;
         }
 
-        public async Task<bool> UpdateAsync(Tenant tenant)
+        public async Task<Tenant?> UpdateAsync(Tenant tenant)
         {
             if (tenant != null)
             {
@@ -49,7 +52,10 @@ namespace API.Services
 
                         var result = await _appDbContext.SaveChangesAsync();
 
-                        return true;
+                        return await _appDbContext.Tenants
+                            .Where(t => t.Id == tenant.Id)
+                            .Include(t => t.TenantInfo)
+                            .FirstOrDefaultAsync();
                     }
                 }
                 catch (Exception ex)
@@ -57,7 +63,7 @@ namespace API.Services
                     Console.WriteLine($"An error occurred while updating the tenant: {ex.Message}");
                 }
             }
-            return false;
+            return null;
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -89,10 +95,6 @@ namespace API.Services
                 .Include(t => t.Devices)
                     .ThenInclude(d => d.DeviceInfo)
                         .ThenInclude(di => di.MACAddresses)
-                .Include(t => t.RolePermissions)
-                    .ThenInclude(rp => rp.Permission)
-                .Include(t => t.RolePermissions)
-                    .ThenInclude(rp => rp.Role)
                 .FirstOrDefaultAsync();
         }
 
@@ -104,11 +106,6 @@ namespace API.Services
                 .Include(t => t.Devices)
                     .ThenInclude(d => d.DeviceInfo)
                         .ThenInclude(di => di.MACAddresses)
-                .Include(t => t.RolePermissions)
-                    .ThenInclude(rp => rp.Permission)
-                .Include(t => t.RolePermissions)
-                    .ThenInclude(rp => rp.Role)
-                        .ThenInclude(r => r.UserRoles)
                 .ToListAsync();
         }
     }

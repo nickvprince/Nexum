@@ -20,9 +20,10 @@ namespace API.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] Device device)
         {
-            if (await _dbDeviceService.CreateAsync(device))
+            Device newDevice = await _dbDeviceService.CreateAsync(device);
+            if (newDevice != null)
             {
-                return Ok($"Device created successfully.");
+                return Ok(newDevice);
             }
             return BadRequest(new { message = "An error occurred while creating the device." });
         }
@@ -30,9 +31,10 @@ namespace API.Controllers
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] Device device)
         {
-            if (await _dbDeviceService.UpdateAsync(device))
+            Device updatedDevice = await _dbDeviceService.UpdateAsync(device);
+            if (updatedDevice != null)
             {
-                return Ok($"Device updated successfully.");
+                return Ok(updatedDevice);
             }
             return BadRequest(new { message = "An error occurred while updating the device." });
         }

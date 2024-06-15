@@ -9,8 +9,8 @@ namespace SharedComponents.DbServices
 {
     public interface IDbTenantService
     {
-        public Task<bool> CreateAsync(Tenant tenant);
-        public Task<bool> UpdateAsync(Tenant tenant);
+        public Task<Tenant?> CreateAsync(Tenant tenant);
+        public Task<Tenant?> UpdateAsync(Tenant tenant);
         public Task<bool> DeleteAsync(int id);
         public Task<Tenant?> GetAsync(int id);
         public Task<ICollection<Tenant>> GetAllAsync();

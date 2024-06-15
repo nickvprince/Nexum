@@ -13,7 +13,7 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<bool> CreateAsync(Device device)
+        public async Task<Device?> CreateAsync(Device device)
         {
             if (device != null)
             {
@@ -25,18 +25,45 @@ namespace API.Services
                     // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
 
-                    return true;
+                    return await _appDbContext.Devices
+                        .Where(d => d.Id == device.Id)
+                        .Include(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                        .FirstOrDefaultAsync(); ;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"An error occurred while creating the device: {ex.Message}");
                 }
             }
-            return false;
+            return null;
         }
-        public Task<bool> UpdateAsync(Device device)
+        public async Task<Device?> UpdateAsync(Device device)
         {
-            throw new NotImplementedException();
+            if (device != null)
+            {
+                try
+                {
+                    var existingDevice = await _appDbContext.Devices.FindAsync(device.Id);
+                    if (existingDevice != null)
+                    {
+                        _appDbContext.Entry(existingDevice).CurrentValues.SetValues(device);
+
+                        var result = _appDbContext.SaveChangesAsync();
+
+                        return await _appDbContext.Devices
+                            .Where(d => d.Id == device.Id)
+                            .Include(d => d.DeviceInfo)
+                            .ThenInclude(di => di.MACAddresses)
+                            .FirstOrDefaultAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while updating the device: {ex.Message}");
+                }
+            }
+            return null;
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -64,14 +91,14 @@ namespace API.Services
             return await _appDbContext.Devices
                 .Where(d => d.Id == id)
                 .Include(d => d.DeviceInfo)
-                .Include(d => d.Tenant)
+                    .ThenInclude(di => di.MACAddresses)
                 .FirstOrDefaultAsync();
         }
         public async Task<ICollection<Device>> GetAllAsync()
         {
             return await _appDbContext.Devices
                 .Include(d => d.DeviceInfo)
-                .Include(d => d.Tenant)
+                    .ThenInclude(di => di.MACAddresses)
                 .ToListAsync();
         }
 

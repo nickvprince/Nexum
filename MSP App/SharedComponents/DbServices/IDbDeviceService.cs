@@ -9,8 +9,8 @@ namespace SharedComponents.DbServices
 {
     public interface IDbDeviceService
     {
-        public Task<bool> CreateAsync(Device device);
-        public Task<bool> UpdateAsync(Device device);
+        public Task<Device?> CreateAsync(Device device);
+        public Task<Device?> UpdateAsync(Device device);
         public Task<bool> DeleteAsync(int id);
         public Task<Device?> GetAsync(int id);
         public Task<ICollection<Device>> GetAllAsync();
