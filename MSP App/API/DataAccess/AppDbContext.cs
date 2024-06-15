@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SharedComponents.Entities;
+using System.Net.Mail;
 
 namespace API.DataAccess
 {
@@ -58,7 +59,6 @@ namespace API.DataAccess
             if (adminUser != null && normalUser != null)
             {
                 SeedData(serviceProvider, adminUser.Id, normalUser.Id);
-
             }
         }
 
@@ -68,6 +68,7 @@ namespace API.DataAccess
         public DbSet<TenantInfo> TenantInfos { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<DeviceInfo> DeviceInfos { get; set; }
+        public DbSet<MACAddress> MACAddresses { get; set; }
         public DbSet<InstallationKey> InstallationKeys { get; set; }
         public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
         public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
@@ -83,6 +84,7 @@ namespace API.DataAccess
             modelBuilder.Entity<TenantInfo>().ToTable("TenantInfos");
             modelBuilder.Entity<Device>().ToTable("Devices");
             modelBuilder.Entity<DeviceInfo>().ToTable("DeviceInfos");
+            modelBuilder.Entity<MACAddress>().ToTable("MACAddresses");
             modelBuilder.Entity<InstallationKey>().ToTable("InstallationKeys");
             modelBuilder.Entity<ApplicationRolePermission>().ToTable("RolePermissions");
             modelBuilder.Entity<ApplicationUserRole>().ToTable("UserRoles");
@@ -106,6 +108,13 @@ namespace API.DataAccess
                 .HasOne(d => d.DeviceInfo)
                 .WithOne(di => di.Device)
                 .HasForeignKey<DeviceInfo>(di => di.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // DeviceInfo and MacAddress one-to-many relationship
+            modelBuilder.Entity<DeviceInfo>()
+                .HasMany(di => di.MACAddresses)
+                .WithOne(ma => ma.DeviceInfo)
+                .HasForeignKey(ma => ma.DeviceInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tenant and InstallationKey one-to-many relationship
@@ -174,11 +183,11 @@ namespace API.DataAccess
                 context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
                 context.SaveChanges();
 
-                // Link TenantInfo to Tenant
+                /*// Link TenantInfo to Tenant
                 tenant1.TenantInfoId = tenantInfo1.Id;
                 tenant2.TenantInfoId = tenantInfo2.Id;
                 tenant3.TenantInfoId = tenantInfo3.Id;
-                context.SaveChanges();
+                context.SaveChanges();*/
 
                 // Add Devices and DeviceInfos
                 var device1 = new Device { TenantId = tenant1.Id };
@@ -188,18 +197,27 @@ namespace API.DataAccess
                 context.Devices.AddRange(device1, device2, device3);
                 context.SaveChanges();
 
-                var deviceInfo1 = new DeviceInfo { Name = "TD-001 ", DeviceId = device1.Id, ClientId = 1, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop", MacAddresses = new List<string> { "00:0a:95:9d:68:16", "00:0a:95:9d:68:17" } };
-                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 2, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" , MacAddresses = new List<string> { "00:0a:95:9d:68:18" } };
-                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 3, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" , MacAddresses = new List<string> { "00:0a:95:9d:68:19", "00:0a:95:9d:68:20" } };
+                var deviceInfo1 = new DeviceInfo { Name = "TD-001 ", DeviceId = device1.Id, ClientId = 1, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop" };
+                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 2, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" };
+                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 3, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" };
 
                 context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3);
                 context.SaveChanges();
 
-                // Link DeviceInfo to Device
+                var macAddress1 = new MACAddress { Address = "00:0a:95:9d:68:16", DeviceInfoId = deviceInfo1.Id };
+                var macAddress2 = new MACAddress { Address = "00:0a:95:9d:68:17", DeviceInfoId = deviceInfo1.Id };
+                var macAddress3 = new MACAddress { Address = "00:0a:95:9d:68:18", DeviceInfoId = deviceInfo2.Id };
+                var macAddress4 = new MACAddress { Address = "00:0a:95:9d:68:19", DeviceInfoId = deviceInfo3.Id };
+                var macAddress5 = new MACAddress { Address = "00:0a:95:9d:68:20", DeviceInfoId = deviceInfo3.Id };
+
+                context.MACAddresses.AddRange(macAddress1, macAddress2, macAddress3, macAddress4, macAddress5);
+                context.SaveChanges();
+
+                /*// Link DeviceInfo to Device
                 device1.DeviceInfoId = deviceInfo1.Id;
                 device2.DeviceInfoId = deviceInfo2.Id;
                 device3.DeviceInfoId = deviceInfo3.Id;
-                context.SaveChanges();
+                context.SaveChanges();*/
 
                 // Add InstallationKeys
                 var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id };

@@ -11,7 +11,6 @@ namespace SharedComponents.Entities
     public class Tenant
     {
         public int Id { get; set; }
-        public int TenantInfoId { get; set; }
         public string? Name { get; set; }
         [Required]
         public TenantInfo? TenantInfo { get; set; }

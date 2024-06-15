@@ -85,7 +85,6 @@ namespace API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantInfoId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApiKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
@@ -232,8 +231,7 @@ namespace API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    DeviceInfoId = table.Column<int>(type: "int", nullable: false)
+                    TenantId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -336,7 +334,6 @@ namespace API.Migrations
                     IpAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Port = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MacAddresses = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DeviceId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -346,6 +343,26 @@ namespace API.Migrations
                         name: "FK_DeviceInfos_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MACAddresses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DeviceInfoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MACAddresses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MACAddresses_DeviceInfos_DeviceInfoId",
+                        column: x => x.DeviceInfoId,
+                        principalTable: "DeviceInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -406,6 +423,11 @@ namespace API.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MACAddresses_DeviceInfoId",
+                table: "MACAddresses",
+                column: "DeviceInfoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
                 table: "RolePermissions",
                 column: "PermissionId");
@@ -446,10 +468,10 @@ namespace API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "DeviceInfos");
+                name: "InstallationKeys");
 
             migrationBuilder.DropTable(
-                name: "InstallationKeys");
+                name: "MACAddresses");
 
             migrationBuilder.DropTable(
                 name: "RolePermissions");
@@ -464,7 +486,7 @@ namespace API.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Devices");
+                name: "DeviceInfos");
 
             migrationBuilder.DropTable(
                 name: "Permissions");
@@ -474,6 +496,9 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Devices");
 
             migrationBuilder.DropTable(
                 name: "Tenants");

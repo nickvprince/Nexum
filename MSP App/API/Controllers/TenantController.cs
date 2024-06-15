@@ -18,7 +18,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> CreateTenant([FromBody] Tenant tenant)
+        public async Task<IActionResult> CreateAsync([FromBody] Tenant tenant)
         {
             if (await _dbTenantService.CreateAsync(tenant))
             {
@@ -28,7 +28,7 @@ namespace API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<IActionResult> UpdateTenant([FromBody] Tenant tenant)
+        public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant)
         {
             if (await _dbTenantService.UpdateAsync(tenant))
             {
@@ -38,32 +38,31 @@ namespace API.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeleteTenant(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             if(await _dbTenantService.DeleteAsync(id))
             {
                 return Ok($"Tenant deleted successfully.");
 
             }
-            return NotFound(new { message = "tenant not found." });
+            return NotFound(new { message = "Tenant not found." });
         }
 
         [HttpGet("Get/{id}")]
-        public async Task<IActionResult> GetTenant(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             Tenant? tenant = await _dbTenantService.GetAsync(id);
             if (tenant != null)
             {
                 return Ok(tenant);
             }
-            return NotFound(new { message = "tenant not found." });
+            return NotFound(new { message = "Tenant not found." });
         }
 
         [HttpGet("Get")]
-        public async Task<IActionResult> GetTenantsAsync()
+        public async Task<IActionResult> GetAllAsync()
         {
             ICollection<Tenant> tenants = await _dbTenantService.GetAllAsync();
-
             if (tenants.Any())
             {
                 return Ok(tenants);

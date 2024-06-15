@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
@@ -22,7 +23,7 @@ namespace SharedComponents.Entities
         public int? Port { get; set; }
         public string? Type { get; set; }
         [Required]
-        public ICollection<string>? MacAddresses { get; set; }
+        public ICollection<MACAddress>? MACAddresses { get; set; }
         public int DeviceId { get; set; }
         public Device? Device { get; set; }
     }

@@ -11,8 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        options.JsonSerializerOptions.MaxDepth = 16;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        /*options.JsonSerializerOptions.MaxDepth = 2;*/
     });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -23,6 +23,7 @@ var connStr = builder.Configuration.GetConnectionString("NexumAppDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connStr));
 builder.Services.AddScoped<DbUserService>();
 builder.Services.AddScoped<DbTenantService>();
+builder.Services.AddScoped<DbDeviceService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;

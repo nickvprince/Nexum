@@ -290,9 +290,6 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DeviceInfoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
@@ -318,10 +315,6 @@ namespace API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("IpAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MacAddresses")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -369,6 +362,28 @@ namespace API.Migrations
                     b.ToTable("InstallationKeys", (string)null);
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.MACAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DeviceInfoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceInfoId");
+
+                    b.ToTable("MACAddresses", (string)null);
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -404,9 +419,6 @@ namespace API.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TenantInfoId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -594,6 +606,17 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.MACAddress", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.DeviceInfo", "DeviceInfo")
+                        .WithMany("MACAddresses")
+                        .HasForeignKey("DeviceInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeviceInfo");
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
                 {
                     b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
@@ -621,6 +644,11 @@ namespace API.Migrations
                 {
                     b.Navigation("DeviceInfo")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
+                {
+                    b.Navigation("MACAddresses");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Permission", b =>

@@ -87,6 +87,12 @@ namespace API.Services
                 .Include(t => t.TenantInfo)
                 .Include(t => t.InstallationKeys)
                 .Include(t => t.Devices)
+                    .ThenInclude(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                .Include(t => t.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                .Include(t => t.RolePermissions)
+                    .ThenInclude(rp => rp.Role)
                 .FirstOrDefaultAsync();
         }
 
@@ -96,6 +102,13 @@ namespace API.Services
                 .Include(t => t.TenantInfo)
                 .Include(t => t.InstallationKeys)
                 .Include(t => t.Devices)
+                    .ThenInclude(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                .Include(t => t.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                .Include(t => t.RolePermissions)
+                    .ThenInclude(rp => rp.Role)
+                        .ThenInclude(r => r.UserRoles)
                 .ToListAsync();
         }
     }
