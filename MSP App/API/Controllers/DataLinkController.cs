@@ -7,19 +7,25 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TenantServerController : ControllerBase
+    public class DataLinkController : ControllerBase
     {
         private readonly DbTenantService _dbTenantService;
         private readonly DbDeviceService _dbDeviceService;
         private readonly DbSecurityService _dbSecurityService;
-        public readonly IConfiguration _config;
+        private readonly IConfiguration _config;
+        private readonly string _apiBaseUrl;
+        private readonly string _webAppBaseUrl;
 
-        public TenantServerController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, DbSecurityService dbSecurityService, IConfiguration config)
+        public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, DbSecurityService dbSecurityService, IConfiguration config)
         {
             _dbTenantService = dbTenantService;
             _dbDeviceService = dbDeviceService;
             _dbSecurityService = dbSecurityService;
             _config = config;
+            _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
+                          _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort");
+            _webAppBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("BaseUri") + ":" +
+                             _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
         }
 
         [HttpGet("Portal")]
@@ -27,13 +33,11 @@ namespace API.Controllers
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
             {
-                string? portalUrl = _config.GetSection("ApiSettings")?.GetValue<string>("APIBaseUri") + ":" +
-                _config.GetSection("ApiSettings")?.GetValue<string>("APIBasePort");
+                string? portalUrl = _webAppBaseUrl + "/Account/login";
 
                 UrlResponse response = new UrlResponse
                 {
-                    Url = _config.GetSection("ApiSettings")?.GetValue<string>("APIBaseUri") + ":" +
-                          _config.GetSection("ApiSettings")?.GetValue<string>("APIBasePort")
+                    Url = portalUrl
                 };
                 return Ok(response);
             }
