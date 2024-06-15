@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -11,6 +12,8 @@ namespace SharedComponents.Entities
     {
         public int Id { get; set; }
         public int TenantInfoId { get; set; }
+        public string? Name { get; set; }
+        [Required]
         public TenantInfo? TenantInfo { get; set; }
         public string? ApiKey { get; set; }
         public bool IsActive { get; set; }

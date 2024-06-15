@@ -212,17 +212,17 @@ namespace API.DataAccess
                     return; // DB has been seeded
                 }
                 // Add Tenants first to get the generated IDs
-                var tenant1 = new Tenant { IsActive = true, ApiKey = "ApiKey1" };
-                var tenant2 = new Tenant { IsActive = true, ApiKey = "ApiKey2" };
-                var tenant3 = new Tenant { IsActive = true, ApiKey = "ApiKey3" };
+                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString() };
+                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString() };
+                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString() };
 
                 context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();
 
                 // Add TenantInfos with the correct TenantId
-                var tenantInfo1 = new TenantInfo { Name = "TenantInfo1", Email = "tenant1@example.com", Phone = "1234567890", TenantId = tenant1.Id };
-                var tenantInfo2 = new TenantInfo { Name = "TenantInfo2", Email = "tenant2@example.com", Phone = "0987654321", TenantId = tenant2.Id };
-                var tenantInfo3 = new TenantInfo { Name = "TenantInfo3", Email = "tenant3@example.com", Phone = "1112223333", TenantId = tenant3.Id };
+                var tenantInfo1 = new TenantInfo { Name = "Dave Seagel", Email = "dseagel@td.com", Phone = "123-456-7890", TenantId = tenant1.Id, Address = "123 Laurelwood dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "A1B 2C3" };
+                var tenantInfo2 = new TenantInfo { Name = "John Doe", Email = "jdoe@rbc.com", Phone = "098-765-4321", TenantId = tenant2.Id, Address = "213 destiny dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "2C3 A1B" };
+                var tenantInfo3 = new TenantInfo { Name = "Mel Sauve", Email = "msauve@scotia.com", Phone = "111-222-3333", TenantId = tenant3.Id, Address = "325 Conestoga dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "3C2 B1A" };
 
                 context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
                 context.SaveChanges();
@@ -241,9 +241,9 @@ namespace API.DataAccess
                 context.Devices.AddRange(device1, device2, device3);
                 context.SaveChanges();
 
-                var deviceInfo1 = new DeviceInfo { Name = "Device1", DeviceId = device1.Id, ClientId = 1, Uuid = "uuid1", IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop", MacAddresses = new List<string> { "00:0a:95:9d:68:16", "00:0a:95:9d:68:17" } };
-                var deviceInfo2 = new DeviceInfo { Name = "Device2", DeviceId = device2.Id, ClientId = 2, Uuid = "uuid2", IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" , MacAddresses = new List<string> { "00:0a:95:9d:68:18" } };
-                var deviceInfo3 = new DeviceInfo { Name = "Device3", DeviceId = device3.Id, ClientId = 3, Uuid = "uuid3", IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" , MacAddresses = new List<string> { "00:0a:95:9d:68:19", "00:0a:95:9d:68:20" } };
+                var deviceInfo1 = new DeviceInfo { Name = "TD-001 ", DeviceId = device1.Id, ClientId = 1, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop", MacAddresses = new List<string> { "00:0a:95:9d:68:16", "00:0a:95:9d:68:17" } };
+                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 2, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" , MacAddresses = new List<string> { "00:0a:95:9d:68:18" } };
+                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 3, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" , MacAddresses = new List<string> { "00:0a:95:9d:68:19", "00:0a:95:9d:68:20" } };
 
                 context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3);
                 context.SaveChanges();
@@ -255,17 +255,17 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add InstallationKeys
-                var installationKey1 = new InstallationKey { Key = "Key1", TenantId = tenant1.Id };
-                var installationKey2 = new InstallationKey { Key = "Key2", TenantId = tenant2.Id };
-                var installationKey3 = new InstallationKey { Key = "Key3", TenantId = tenant3.Id };
+                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id };
+                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id };
+                var installationKey3 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant3.Id };
 
                 context.InstallationKeys.AddRange(installationKey1, installationKey2, installationKey3);
                 context.SaveChanges();
 
                 // Add Permissions
-                var permission1 = new Permission { Name = "View", Description = "Description1" };
-                var permission2 = new Permission { Name = "Edit", Description = "Description2" };
-                var permission3 = new Permission { Name = "Delete", Description = "Description3" };
+                var permission1 = new Permission { Name = "View Tenant", Description = "Can view tenant" };
+                var permission2 = new Permission { Name = "Edit Tenant", Description = "Can edit tenant" };
+                var permission3 = new Permission { Name = "Delete Tenant", Description = "Can delete tenant" };
 
                 context.Permissions.AddRange(permission1, permission2, permission3);
                 context.SaveChanges();
