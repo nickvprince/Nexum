@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
 {
-    public class UserTenant
+    public class InstallationKey
     {
-        public string UserId { get; set; }
-        public User? User { get; set; }
+        public int Id { get; set; }
+        public string? Key { get; set; }
         public int TenantId { get; set; }
         public Tenant? Tenant { get; set; }
     }

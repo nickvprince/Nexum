@@ -9,10 +9,10 @@ namespace SharedComponents.Services
 {
     public interface IUserService
     {
-        public Task<bool> CreateAsync(User user);
-        public Task<bool> EditAsync(User user);
+        public Task<bool> CreateAsync(ApplicationUser user);
+        public Task<bool> EditAsync(ApplicationUser user);
         public Task<bool> DeleteAsync(string username);
-        public Task<User?> GetAsync(string username);
-        public Task<ICollection<User>?> GetAllAsync();
+        public Task<ApplicationUser?> GetAsync(string username);
+        public Task<ICollection<ApplicationUser>?> GetAllAsync();
     }
 }

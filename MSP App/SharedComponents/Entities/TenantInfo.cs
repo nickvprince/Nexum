@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
 {
-    public class ContactInfo
+    public class TenantInfo
     {
         public int Id { get; set; }
         public string? Name { get; set; }
@@ -17,5 +17,6 @@ namespace SharedComponents.Entities
         public string? State { get; set; }
         public string? Zip { get; set; }
         public string? Country { get; set; }
+        public Tenant? Tenant { get; set; }
     }
 }

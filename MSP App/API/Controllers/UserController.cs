@@ -42,7 +42,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetUserAsync(string username)
         {
             //Get the user
-            User? user = await _dbUserService.GetAsync(username);
+            ApplicationUser? user = await _dbUserService.GetAsync(username);
 
             if (user != null)
             {
@@ -55,11 +55,11 @@ namespace API.Controllers
         public async Task<IActionResult> GetUsersAsync()
         {
             //Get the permissions
-            ICollection<User> users = await _dbUserService.GetAllAsync();
+            ICollection<ApplicationUser> users = await _dbUserService.GetAllAsync();
 
             if (users.Any())
             {
-                return Ok(users);
+                return Ok(new { User = users, Message = "" });
             }
             return NotFound(new { message = "No users found." });
         }

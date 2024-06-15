@@ -37,7 +37,9 @@ namespace API.Services
         public async Task<ICollection<Tenant>> GetAllAsync()
         {
             return await _appDbContext.Tenants
-                .Include(t => t.UserTenants)
+                .Include(t => t.TenantInfo)
+                .Include(t => t.ApiKey)
+                .Include(t => t.InstallationKeys)
                 .Include(t => t.Devices)
                 .ToListAsync();
         }

@@ -1,4 +1,4 @@
-﻿@model User
+﻿@model ApplicationUser
 
 @{
     ViewData["Title"] = "PermissionSets";
@@ -19,7 +19,7 @@
         </tr>
     </thead>
     <tbody>
-        @if (Model.UserPermissionSets != null)
+        @* @if (Model.UserPermissionSets != null)
         {
             foreach (var userPermissionSet in Model.UserPermissionSets)
             {
@@ -33,6 +33,6 @@
                     </td>
                 </tr>
             }
-        }
+        } *@
     </tbody>
 </table>

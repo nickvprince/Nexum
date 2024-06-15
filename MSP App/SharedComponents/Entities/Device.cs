@@ -10,8 +10,9 @@ namespace SharedComponents.Entities
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public string? Type { get; set; }
         public int TenantId { get; set; }
         public Tenant? Tenant { get; set; }
+        public int DeviceInfoId { get; set; }
+        public DeviceInfo? DeviceInfo { get; set; }
     }
 }

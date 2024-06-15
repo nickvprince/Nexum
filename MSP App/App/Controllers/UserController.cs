@@ -7,12 +7,10 @@ namespace App.Controllers
 {
     public class UserController : Controller
     {
-        private readonly UserPermissionSetService _userPermissionSetService;
         private readonly UserService _userService;
 
-        public UserController(UserPermissionSetService userPermissionSetService, UserService userService)
+        public UserController(UserService userService)
         {
-            _userPermissionSetService = userPermissionSetService;
             _userService = userService;
         }
 
@@ -24,21 +22,6 @@ namespace App.Controllers
                 Users = await _userService.GetAllAsync()
             };
             return View(userViewModel);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> UserPermissionSetsAsync()
-        {
-            User? user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
-            if (user != null)
-            {
-                ICollection<UserPermissionSet> permissionSets = await _userPermissionSetService.GetAllAsync();
-                if (permissionSets.Any())
-                {
-                    user.UserPermissionSets = permissionSets;
-                }
-            }
-            return View(user);
         }
 
     }

@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
 {
-    public class PermissionSet
+    public class ApplicationRolePermission
     {
-        public int Id { get; set; }
+        public string? RoleId { get; set; }
+        public ApplicationRole? Role { get; set; }
         public int PermissionId { get; set; }
         public Permission? Permission { get; set; }
-        public int TenantId { get; set; }
-        public Tenant? Tenant { get; set; }
-        public bool IsActive { get; set; }
     }
 }

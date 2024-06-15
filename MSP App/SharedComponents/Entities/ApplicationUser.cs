@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
 {
-    public class User : IdentityUser
+    public class ApplicationUser : IdentityUser
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public ICollection<UserTenant>? UserTenants { get; set; }
-        public ICollection<UserPermissionSet>? UserPermissionSets { get; set; }
+        public ICollection<ApplicationUserRole>? UserRoles { get; set; }
     }
 }

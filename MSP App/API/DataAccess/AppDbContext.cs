@@ -5,7 +5,7 @@ using SharedComponents.Entities;
 
 namespace API.DataAccess
 {
-    public class AppDbContext : IdentityDbContext<User>
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions options)
             : base(options)
@@ -14,7 +14,7 @@ namespace API.DataAccess
 
         public static async Task IntitalizeUserIdentities(IServiceProvider serviceProvider)
         {
-            UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+            UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             string username = "admin";
@@ -23,21 +23,21 @@ namespace API.DataAccess
             string username2 = "user";
             string password2 = "User123!";
 
-            // Seed custom roles
-            var customRoles = new[] { "Admin", "User" };
+            /*// Seed custom roles
+            var customRoles = new[] { "AdminRole", "UserRole" };
             foreach (var role in customRoles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                    await roleManager.CreateAsync(new IdentityRole { Name = role});
                 }
             }
 
-            User? adminUser = null;
+            ApplicationUser? adminUser = null;
             // if username doesn't exist, create it and add it to role
             if (await userManager.FindByNameAsync(username) == null)
             {
-                adminUser = new User { UserName = username, FirstName = username };
+                adminUser = new ApplicationUser { UserName = username, FirstName = username };
                 var result = await userManager.CreateAsync(adminUser, password);
                 if (result.Succeeded)
                 {
@@ -49,10 +49,10 @@ namespace API.DataAccess
                 adminUser = await userManager.FindByNameAsync(username);
             }
 
-            User? normalUser = null;
+            ApplicationUser? normalUser = null;
             if (await userManager.FindByNameAsync(username2) == null)
             {
-                normalUser = new User { UserName = username2, FirstName = username2 };
+                normalUser = new ApplicationUser { UserName = username2, FirstName = username2 };
                 var result = await userManager.CreateAsync(normalUser, password2);
                 if (result.Succeeded)
                 {
@@ -67,78 +67,134 @@ namespace API.DataAccess
             // Seed data only if both users are created successfully
             if (adminUser != null && normalUser != null)
             {
-                // You can now use adminUser.Id and normalUser.Id for seeding data
+                // Seed role claims
+                var adminRole = await roleManager.FindByNameAsync("AdminRole");
+                var userRole = await roleManager.FindByNameAsync("UserRole");
+
+                SeedData(serviceProvider, adminUser.Id, normalUser.Id, adminRole.Id, userRole.Id);
+
+            }
+             */
+
+            ApplicationUser? adminUser = null;
+            // if username doesn't exist, create it and add it to role
+            if (await userManager.FindByNameAsync(username) == null)
+            {
+                adminUser = new ApplicationUser { UserName = username, FirstName = username };
+                var result = await userManager.CreateAsync(adminUser, password);
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Failed to create admin user");
+                }
+            }
+            else
+            {
+                adminUser = await userManager.FindByNameAsync(username);
+            }
+
+            ApplicationUser? normalUser = null;
+            if (await userManager.FindByNameAsync(username2) == null)
+            {
+                normalUser = new ApplicationUser { UserName = username2, FirstName = username2 };
+                var result = await userManager.CreateAsync(normalUser, password2);
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Failed to create normal user");
+                }
+            }
+            else
+            {
+                normalUser = await userManager.FindByNameAsync(username2);
+            }
+
+            // Seed data only if both users are created successfully
+            if (adminUser != null && normalUser != null)
+            {
                 SeedData(serviceProvider, adminUser.Id, normalUser.Id);
+
             }
         }
 
+        public DbSet<ApplicationRole> ApplicationRoles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<PermissionSet> PermissionSets { get; set; }
-        public DbSet<UserTenant> UserTenants { get; set; }
-        public DbSet<UserPermissionSet> UserPermissionSets { get; set; }
-        public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<TenantInfo> TenantInfos { get; set; }
         public DbSet<Device> Devices { get; set; }
+        public DbSet<DeviceInfo> DeviceInfos { get; set; }
+        public DbSet<InstallationKey> InstallationKeys { get; set; }
+        public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
+        public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Configure table names
+            modelBuilder.Entity<ApplicationRole>().ToTable("Roles");
             modelBuilder.Entity<Permission>().ToTable("Permissions");
             modelBuilder.Entity<Tenant>().ToTable("Tenants");
-            modelBuilder.Entity<PermissionSet>().ToTable("PermissionSets");
-            modelBuilder.Entity<UserTenant>().ToTable("UserTenants");
-            modelBuilder.Entity<UserPermissionSet>().ToTable("UserPermissionSets");
-            modelBuilder.Entity<ContactInfo>().ToTable("ContactInfos");
+            modelBuilder.Entity<TenantInfo>().ToTable("TenantInfos");
             modelBuilder.Entity<Device>().ToTable("Devices");
+            modelBuilder.Entity<DeviceInfo>().ToTable("DeviceInfos");
+            modelBuilder.Entity<InstallationKey>().ToTable("InstallationKeys");
+            modelBuilder.Entity<ApplicationRolePermission>().ToTable("RolePermissions");
+            modelBuilder.Entity<ApplicationUserRole>().ToTable("UserRoles");
 
-            // Configuring UserTenant entity as a many-to-many relationship
-            modelBuilder.Entity<UserTenant>()
-                .HasKey(ut => new { ut.UserId, ut.TenantId });
-
-            modelBuilder.Entity<UserTenant>()
-                .HasOne(ut => ut.User)                         // Configuring the User relationship
-                .WithMany(u => u.UserTenants)                  // A user can be associated with many UserTenant entries
-                .HasForeignKey(ut => ut.UserId);               // Foreign key in UserTenant table
-
-            modelBuilder.Entity<UserTenant>()
-                .HasOne(ut => ut.Tenant)                       // Configuring the Tenant relationship
-                .WithMany(t => t.UserTenants)                  // A tenant can be associated with many UserTenant entries
-                .HasForeignKey(ut => ut.TenantId);             // Foreign key in UserTenant table
-
-            // Configuring UserPermissionSet entity as a many-to-many relationship
-            modelBuilder.Entity<UserPermissionSet>()
-                .HasKey(up => new { up.UserId, up.PermissionSetId });  // Composite key for the many-to-many relationship
-
-            modelBuilder.Entity<UserPermissionSet>()
-                .HasOne(up => up.User)                          // Configuring the User relationship
-                .WithMany(u => u.UserPermissionSets)            // A user can be associated with many UserPermissionSet entries
-                .HasForeignKey(up => up.UserId);                // Foreign key in UserPermissionSet table
-
-            modelBuilder.Entity<UserPermissionSet>()
-                .HasOne(up => up.PermissionSet)                 // Configuring the PermissionSet relationship
-                .WithMany()                                     // No navigation property needed on PermissionSet side
-                .HasForeignKey(up => up.PermissionSetId);       // Foreign key in UserPermissionSet table
-
-            // Configuring PermissionSet entity relationships
-            modelBuilder.Entity<PermissionSet>()
-                .HasOne(ps => ps.Permission)                    // Configuring the Permission relationship
-                .WithMany()                                     // No navigation property needed on Permission side
-                .HasForeignKey(ps => ps.PermissionId);          // Foreign key in PermissionSet table
-
-            // Configure Tenant and ContactInfo relationship
+            // Tenant and TenantInfo one-to-one relationship
             modelBuilder.Entity<Tenant>()
-                .HasOne(t => t.ContactInfo)
-                .WithMany()
-                .HasForeignKey(t => t.ContactInfoId);
+                .HasOne(t => t.TenantInfo)
+                .WithOne(ti => ti.Tenant)
+                .HasForeignKey<Tenant>(t => t.TenantInfoId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Tenant and Device relationship
+            // Tenant and Device one-to-many relationship
+            modelBuilder.Entity<Tenant>()
+                .HasMany(t => t.Devices)
+                .WithOne(d => d.Tenant)
+                .HasForeignKey(d => d.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Device and DeviceInfo one-to-one relationship
             modelBuilder.Entity<Device>()
-                .HasOne(d => d.Tenant)
-                .WithMany(t => t.Devices)
-                .HasForeignKey(d => d.TenantId);
+                .HasOne(d => d.DeviceInfo)
+                .WithOne(di => di.Device)
+                .HasForeignKey<Device>(d => d.DeviceInfoId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // Tenant and InstallationKey one-to-many relationship
+            modelBuilder.Entity<Tenant>()
+                .HasMany(t => t.InstallationKeys)
+                .WithOne(ik => ik.Tenant)
+                .HasForeignKey(ik => ik.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure many-to-many relationship between ApplicationRole and Permission
+            modelBuilder.Entity<ApplicationRolePermission>()
+                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+            modelBuilder.Entity<ApplicationRolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId);
+
+            modelBuilder.Entity<ApplicationRolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId);
+
+            // Configure many-to-many relationship between ApplicationUser and ApplicationRole
+            modelBuilder.Entity<ApplicationUserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            modelBuilder.Entity<ApplicationUserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
+
+            modelBuilder.Entity<ApplicationUserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId);
         }
         private static void SeedData(IServiceProvider serviceProvider, string adminUserId, string normalUserId)
         {
@@ -149,78 +205,77 @@ namespace API.DataAccess
                     return; // DB has been seeded
                 }
 
-                // Add ContactInfos first
-                context.ContactInfos.AddRange(
-                    new ContactInfo { Name = "Tenant A", Email = "contact@tenantA.com", Phone = "123-456-7890", Address = "123 Main St", City = "Anytown", State = "Anystate", Zip = "12345", Country = "USA" },
-                    new ContactInfo { Name = "Tenant B", Email = "contact@tenantB.com", Phone = "123-456-7891", Address = "456 Elm St", City = "Othertown", State = "Otherstate", Zip = "12346", Country = "USA" },
-                    new ContactInfo { Name = "Tenant C", Email = "contact@tenantC.com", Phone = "123-456-7892", Address = "789 Oak St", City = "Sometown", State = "Somestate", Zip = "12347", Country = "USA" }
-                );
+                // Add TenantInfos first to get the generated IDs
+                var tenantInfo1 = new TenantInfo { Name = "TenantInfo1", Email = "tenant1@example.com", Phone = "1234567890" };
+                var tenantInfo2 = new TenantInfo { Name = "TenantInfo2", Email = "tenant2@example.com", Phone = "0987654321" };
+                var tenantInfo3 = new TenantInfo { Name = "TenantInfo3", Email = "tenant3@example.com", Phone = "1112223333" };
+
+                context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
                 context.SaveChanges();
 
-                // Retrieve inserted ContactInfos
-                var contactInfo1 = context.ContactInfos.First(c => c.Email == "contact@tenantA.com");
-                var contactInfo2 = context.ContactInfos.First(c => c.Email == "contact@tenantB.com");
-                var contactInfo3 = context.ContactInfos.First(c => c.Email == "contact@tenantC.com");
+                // Add Tenants next to get the generated IDs
+                var tenant1 = new Tenant { Name = "Tenant1", IsActive = true, TenantInfoId = tenantInfo1.Id, ApiKey = "ApiKey1" };
+                var tenant2 = new Tenant { Name = "Tenant2", IsActive = true, TenantInfoId = tenantInfo2.Id, ApiKey = "ApiKey2" };
+                var tenant3 = new Tenant { Name = "Tenant3", IsActive = true, TenantInfoId = tenantInfo3.Id, ApiKey = "ApiKey3" };
 
-                // Add Tenants
-                context.Tenants.AddRange(
-                    new Tenant { Name = "Tenant A", ContactInfoId = contactInfo1.Id, ApiKey = "7654-4522-6546-4231" },
-                    new Tenant { Name = "Tenant B", ContactInfoId = contactInfo2.Id, ApiKey = "2313-5435-5432-7654" },
-                    new Tenant { Name = "Tenant C", ContactInfoId = contactInfo3.Id, ApiKey = "4732-1849-3021-0438" }
-                );
+                context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();
 
-                // Retrieve inserted Tenants
-                var tenant1 = context.Tenants.First(t => t.Name == "Tenant A");
-                var tenant2 = context.Tenants.First(t => t.Name == "Tenant B");
-                var tenant3 = context.Tenants.First(t => t.Name == "Tenant C");
+                // Add Devices and DeviceInfos
+
+                var deviceInfo1 = new DeviceInfo { ClientId = 1, Uuid = "uuid1", IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop", MacAddresses = new List<string> { "00:0a:95:9d:68:16", "00:0a:95:9d:68:17" } };
+                var deviceInfo2 = new DeviceInfo { ClientId = 2, Uuid = "uuid2", IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" , MacAddresses = new List<string> { "00:0a:95:9d:68:18" } };
+                var deviceInfo3 = new DeviceInfo { ClientId = 3, Uuid = "uuid3", IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" , MacAddresses = new List<string> { "00:0a:95:9d:68:19", "00:0a:95:9d:68:20" } };
+
+                context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3);
+                context.SaveChanges();
+
+                var device1 = new Device { Name = "Device1", TenantId = tenant1.Id, DeviceInfoId = deviceInfo1.Id };
+                var device2 = new Device { Name = "Device2", TenantId = tenant2.Id, DeviceInfoId = deviceInfo2.Id };
+                var device3 = new Device { Name = "Device3", TenantId = tenant3.Id, DeviceInfoId = deviceInfo3.Id };
+
+                context.Devices.AddRange(device1, device2, device3);
+                context.SaveChanges();
+
+                // Add InstallationKeys
+                var installationKey1 = new InstallationKey { Key = "Key1", TenantId = tenant1.Id };
+                var installationKey2 = new InstallationKey { Key = "Key2", TenantId = tenant2.Id };
+                var installationKey3 = new InstallationKey { Key = "Key3", TenantId = tenant3.Id };
+
+                context.InstallationKeys.AddRange(installationKey1, installationKey2, installationKey3);
+                context.SaveChanges();
 
                 // Add Permissions
-                context.Permissions.AddRange(
-                    new Permission { Name = "View", Description = "Can view tenant data" },
-                    new Permission { Name = "Backup", Description = "Can manage backups for the tenant" },
-                    new Permission { Name = "Device", Description = "Can manage devices for the tenant" }
-                );
+                var permission1 = new Permission { Name = "View", Description = "Description1", TenantId = tenant1.Id };
+                var permission2 = new Permission { Name = "Edit", Description = "Description2", TenantId = tenant2.Id };
+                var permission3 = new Permission { Name = "Delete", Description = "Description3", TenantId = tenant3.Id };
+
+                context.Permissions.AddRange(permission1, permission2, permission3);
                 context.SaveChanges();
 
-                // Retrieve inserted Permissions
-                var permission1 = context.Permissions.First(p => p.Name == "View");
-                var permission2 = context.Permissions.First(p => p.Name == "Backup");
-                var permission3 = context.Permissions.First(p => p.Name == "Device");
+                // Add ApplicationRole
+                var role1 = new ApplicationRole { Name = "AdminRole", Description = "Role for admins" };
+                var role2 = new ApplicationRole { Name = "UserRole", Description = "Role for users" };
 
-                // Add PermissionSets
-                context.PermissionSets.AddRange(
-                    new PermissionSet { PermissionId = permission1.Id, TenantId = tenant1.Id },
-                    new PermissionSet { PermissionId = permission2.Id, TenantId = tenant2.Id },
-                    new PermissionSet { PermissionId = permission3.Id, TenantId = tenant3.Id }
-                );
+                context.ApplicationRoles.AddRange(role1, role2);
                 context.SaveChanges();
 
-                // Retrieve inserted PermissionSets
-                var permissionSet1 = context.PermissionSets.First(ps => ps.PermissionId == permission1.Id && ps.TenantId == tenant1.Id);
-                var permissionSet2 = context.PermissionSets.First(ps => ps.PermissionId == permission2.Id && ps.TenantId == tenant2.Id);
-                var permissionSet3 = context.PermissionSets.First(ps => ps.PermissionId == permission3.Id && ps.TenantId == tenant3.Id);
+                // Add UserRoles
+                var userRole1 = new ApplicationUserRole { RoleId = role1.Id, UserId = adminUserId, IsActive = true };
+                var userRole2 = new ApplicationUserRole { RoleId = role2.Id, UserId = adminUserId, IsActive = true };
+                var userRole3 = new ApplicationUserRole { RoleId = role2.Id, UserId = normalUserId, IsActive = true };
 
-                // Add UserTenants
-                context.UserTenants.AddRange(
-                    new UserTenant { UserId = adminUserId, TenantId = tenant1.Id },
-                    new UserTenant { UserId = normalUserId, TenantId = tenant2.Id }
-                );
-
-                // Add UserPermissionSets
-                context.UserPermissionSets.AddRange(
-                    new UserPermissionSet { UserId = adminUserId, PermissionSetId = permissionSet1.Id },
-                    new UserPermissionSet { UserId = normalUserId, PermissionSetId = permissionSet2.Id }
-                );
-
-                // Add Devices
-                context.Devices.AddRange(
-                    new Device { Name = "Device 1", Type = "Type A", TenantId = tenant1.Id },
-                    new Device { Name = "Device 2", Type = "Type B", TenantId = tenant1.Id },
-                    new Device { Name = "Device 3", Type = "Type C", TenantId = tenant2.Id }
-                );
-
+                context.ApplicationUserRoles.AddRange(userRole1, userRole2, userRole3);
                 context.SaveChanges();
+
+                // Add RolePermissions
+                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission1.Id };
+                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission2.Id };
+                var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permission3.Id };
+
+                context.RolePermissions.AddRange(rolePermission1, rolePermission2, rolePermission3);
+                context.SaveChanges();
+
             }
         }
     }

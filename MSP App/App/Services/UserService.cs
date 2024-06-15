@@ -17,28 +17,28 @@ namespace App.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> EditAsync(User user)
+        public Task<bool> EditAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> CreateAsync(User user)
+        public Task<bool> CreateAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User?> GetAsync(string username)
+        public async Task<ApplicationUser?> GetAsync(string username)
         {
             var response = await _httpClient.GetAsync($"api/User/Get/{username}");
             var responseData = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<User>(responseData);
+            return JsonConvert.DeserializeObject<ApplicationUser>(responseData);
         }
 
-        public async Task<ICollection<User>?> GetAllAsync()
+        public async Task<ICollection<ApplicationUser>?> GetAllAsync()
         {
             var response = await _httpClient.GetAsync("api/User/Get");
             var responseData = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ICollection<User>>(responseData);
+            return JsonConvert.DeserializeObject<ICollection<ApplicationUser>>(responseData);
         }
     }
 }

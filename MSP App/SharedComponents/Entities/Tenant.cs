@@ -11,11 +11,11 @@ namespace SharedComponents.Entities
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public int ContactInfoId { get; set; }
-        public ContactInfo? ContactInfo { get; set; }
+        public int TenantInfoId { get; set; }
+        public TenantInfo? TenantInfo { get; set; }
         public string? ApiKey { get; set; }
         public bool IsActive { get; set; }
-        public ICollection<UserTenant>? UserTenants { get; set; }
+        public ICollection<InstallationKey>? InstallationKeys { get; set; }
         public ICollection<Device>? Devices { get; set; }
     }
 }
