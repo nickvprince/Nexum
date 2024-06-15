@@ -23,59 +23,6 @@ namespace API.DataAccess
             string username2 = "user";
             string password2 = "User123!";
 
-            /*// Seed custom roles
-            var customRoles = new[] { "AdminRole", "UserRole" };
-            foreach (var role in customRoles)
-            {
-                if (!await roleManager.RoleExistsAsync(role))
-                {
-                    await roleManager.CreateAsync(new IdentityRole { Name = role});
-                }
-            }
-
-            ApplicationUser? adminUser = null;
-            // if username doesn't exist, create it and add it to role
-            if (await userManager.FindByNameAsync(username) == null)
-            {
-                adminUser = new ApplicationUser { UserName = username, FirstName = username };
-                var result = await userManager.CreateAsync(adminUser, password);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(adminUser, customRoles.ElementAt(0));
-                }
-            }
-            else
-            {
-                adminUser = await userManager.FindByNameAsync(username);
-            }
-
-            ApplicationUser? normalUser = null;
-            if (await userManager.FindByNameAsync(username2) == null)
-            {
-                normalUser = new ApplicationUser { UserName = username2, FirstName = username2 };
-                var result = await userManager.CreateAsync(normalUser, password2);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(normalUser, customRoles.ElementAt(1));
-                }
-            }
-            else
-            {
-                normalUser = await userManager.FindByNameAsync(username2);
-            }
-
-            // Seed data only if both users are created successfully
-            if (adminUser != null && normalUser != null)
-            {
-                // Seed role claims
-                var adminRole = await roleManager.FindByNameAsync("AdminRole");
-                var userRole = await roleManager.FindByNameAsync("UserRole");
-
-                SeedData(serviceProvider, adminUser.Id, normalUser.Id, adminRole.Id, userRole.Id);
-
-            }
-             */
-
             ApplicationUser? adminUser = null;
             // if username doesn't exist, create it and add it to role
             if (await userManager.FindByNameAsync(username) == null)
