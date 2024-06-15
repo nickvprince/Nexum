@@ -25,7 +25,7 @@ namespace API.Controllers
             {
                 return Ok(newDevice);
             }
-            return BadRequest(new { message = "An error occurred while creating the device." });
+            return BadRequest("An error occurred while creating the device.");
         }
 
         [HttpPut("Update")]
@@ -36,7 +36,7 @@ namespace API.Controllers
             {
                 return Ok(updatedDevice);
             }
-            return BadRequest(new { message = "An error occurred while updating the device." });
+            return BadRequest("An error occurred while updating the device.");
         }
 
         [HttpDelete("Delete/{id}")]
@@ -45,9 +45,8 @@ namespace API.Controllers
             if (await _dbDeviceService.DeleteAsync(id))
             {
                 return Ok($"Device deleted successfully.");
-
             }
-            return NotFound(new { message = "Device not found." });
+            return NotFound("Device not found.");
         }
 
         [HttpGet("Get/{id}")]
@@ -58,7 +57,7 @@ namespace API.Controllers
             {
                 return Ok(device);
             }
-            return NotFound(new { message = "Device not found." });
+            return NotFound("Device not found.");
         }
 
         [HttpGet("Get")]
@@ -69,7 +68,7 @@ namespace API.Controllers
             {
                 return Ok(devices);
             }
-            return NotFound(new { message = "No devices found." });
+            return NotFound("No devices found.");
         }
     }
 }

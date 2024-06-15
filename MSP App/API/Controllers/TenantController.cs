@@ -25,7 +25,7 @@ namespace API.Controllers
             {
                 return Ok(newTenant);
             }
-            return BadRequest(new { message = "An error occurred while creating the tenant." });
+            return BadRequest("An error occurred while creating the tenant.");
         }
 
         [HttpPut("Update")]
@@ -36,7 +36,7 @@ namespace API.Controllers
             {
                 return Ok(updatedTenant);
             }
-            return BadRequest(new { message = "An error occurred while updating the tenant." });
+            return BadRequest("An error occurred while updating the tenant.");
         }
 
         [HttpDelete("Delete/{id}")]
@@ -47,7 +47,7 @@ namespace API.Controllers
                 return Ok($"Tenant deleted successfully.");
 
             }
-            return NotFound(new { message = "Tenant not found." });
+            return NotFound("Tenant not found.");
         }
 
         [HttpGet("Get/{id}")]
@@ -58,7 +58,7 @@ namespace API.Controllers
             {
                 return Ok(tenant);
             }
-            return NotFound(new { message = "Tenant not found." });
+            return NotFound("Tenant not found.");
         }
 
         [HttpGet("Get")]
@@ -69,7 +69,7 @@ namespace API.Controllers
             {
                 return Ok(tenants);
             }
-            return NotFound(new { message = "No tenants found." });
+            return NotFound("No tenants found.");
         }
     }
 }

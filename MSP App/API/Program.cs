@@ -24,6 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
 builder.Services.AddScoped<DbUserService>();
 builder.Services.AddScoped<DbTenantService>();
 builder.Services.AddScoped<DbDeviceService>();
+builder.Services.AddScoped<DbSecurityService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
