@@ -17,6 +17,7 @@ namespace SharedComponents.Entities
         public string? State { get; set; }
         public string? Zip { get; set; }
         public string? Country { get; set; }
+        public int TenantId { get; set; }
         public Tenant? Tenant { get; set; }
     }
 }

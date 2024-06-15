@@ -14,31 +14,86 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public Task<bool> CreateAsync(Tenant tenant)
+        public async Task<bool> CreateAsync(Tenant tenant)
         {
-            throw new NotImplementedException();
+            if (tenant != null)
+            {
+                try
+                {
+                    // Add the tenant to the context
+                    await _appDbContext.Tenants.AddAsync(tenant);
+
+                    // Save changes to the database
+                    var result = await _appDbContext.SaveChangesAsync();
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while creating the tenant: {ex.Message}");
+                }
+            }
+            return false;
         }
 
-        public Task<bool> EditAsync(Tenant tenant)
+        public async Task<bool> UpdateAsync(Tenant tenant)
         {
-            throw new NotImplementedException();
+            if (tenant != null)
+            {
+                try
+                {
+                    var existingTenant = await _appDbContext.Tenants.FindAsync(tenant.Id);
+                    if (existingTenant != null)
+                    {
+                        _appDbContext.Entry(existingTenant).CurrentValues.SetValues(tenant);
+
+                        var result = await _appDbContext.SaveChangesAsync();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while updating the tenant: {ex.Message}");
+                }
+            }
+            return false;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tenant = await _appDbContext.Tenants.FindAsync(id);
+                if (tenant != null)
+                {
+                    _appDbContext.Tenants.Remove(tenant);
+                    var result = await _appDbContext.SaveChangesAsync();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting the tenant: {ex.Message}");
+            }
+            return false;
         }
 
-        public Task<Tenant> GetAsync(int id)
+        public async Task<Tenant?> GetAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _appDbContext.Tenants
+                .Where(t => t.Id == id)
+                .Include(t => t.TenantInfo)
+                .Include(t => t.InstallationKeys)
+                .Include(t => t.Devices)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<ICollection<Tenant>> GetAllAsync()
         {
             return await _appDbContext.Tenants
                 .Include(t => t.TenantInfo)
-                .Include(t => t.ApiKey)
                 .Include(t => t.InstallationKeys)
                 .Include(t => t.Devices)
                 .ToListAsync();

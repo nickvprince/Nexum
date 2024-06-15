@@ -18,37 +18,50 @@ namespace API.Controllers
         }
 
         [HttpPost("Create")]
-        public IActionResult CreateTenant([FromBody] object tenant)
+        public async Task<IActionResult> CreateTenant([FromBody] Tenant tenant)
         {
-            //Create the permission
-            return Ok($"Tenant created successfully.");
+            if (await _dbTenantService.CreateAsync(tenant))
+            {
+                return Ok($"Tenant created successfully.");
+            }
+            return BadRequest(new { message = "An error occurred while creating the tenant." });
         }
 
         [HttpPut("Update")]
-        public IActionResult UpdateTenant([FromBody] object tenant)
+        public async Task<IActionResult> UpdateTenant([FromBody] Tenant tenant)
         {
-            //Update the permission
-            return Ok($"Tenant updated successfully.");
+            if (await _dbTenantService.UpdateAsync(tenant))
+            {
+                return Ok($"Tenant updated successfully.");
+            }
+            return BadRequest(new { message = "An error occurred while updating the tenant." });
         }
 
         [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteTenant(string id)
+        public async Task<IActionResult> DeleteTenant(int id)
         {
-            //Delete the permission
-            return Ok($"Tenant deleted successfully.");
+            if(await _dbTenantService.DeleteAsync(id))
+            {
+                return Ok($"Tenant deleted successfully.");
+
+            }
+            return NotFound(new { message = "tenant not found." });
         }
 
         [HttpGet("Get/{id}")]
-        public IActionResult GetTenant(string id)
+        public async Task<IActionResult> GetTenant(int id)
         {
-            //Get the permission
-            return Ok($"Retrieved tenant successfully.");
+            Tenant? tenant = await _dbTenantService.GetAsync(id);
+            if (tenant != null)
+            {
+                return Ok(tenant);
+            }
+            return NotFound(new { message = "tenant not found." });
         }
 
         [HttpGet("Get")]
         public async Task<IActionResult> GetTenantsAsync()
         {
-            //Get the permissions
             ICollection<Tenant> tenants = await _dbTenantService.GetAllAsync();
 
             if (tenants.Any())

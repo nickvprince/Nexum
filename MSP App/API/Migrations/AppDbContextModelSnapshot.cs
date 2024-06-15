@@ -179,9 +179,14 @@ namespace API.Migrations
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("RoleId", "PermissionId");
 
                     b.HasIndex("PermissionId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("RolePermissions", (string)null);
                 });
@@ -286,16 +291,10 @@ namespace API.Migrations
                     b.Property<int>("DeviceInfoId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeviceInfoId")
-                        .IsUnique();
 
                     b.HasIndex("TenantId");
 
@@ -313,10 +312,16 @@ namespace API.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
                     b.Property<string>("IpAddress")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MacAddresses")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Port")
@@ -329,6 +334,9 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviceId")
+                        .IsUnique();
 
                     b.ToTable("DeviceInfos", (string)null);
                 });
@@ -368,12 +376,7 @@ namespace API.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Permissions", (string)null);
                 });
@@ -392,16 +395,10 @@ namespace API.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("TenantInfoId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TenantInfoId")
-                        .IsUnique();
 
                     b.ToTable("Tenants", (string)null);
                 });
@@ -435,10 +432,16 @@ namespace API.Migrations
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Zip")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique();
 
                     b.ToTable("TenantInfos", (string)null);
                 });
@@ -508,9 +511,17 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationUserRole", b =>
@@ -534,21 +545,24 @@ namespace API.Migrations
 
             modelBuilder.Entity("SharedComponents.Entities.Device", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.DeviceInfo", "DeviceInfo")
-                        .WithOne("Device")
-                        .HasForeignKey("SharedComponents.Entities.Device", "DeviceInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
                         .WithMany("Devices")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DeviceInfo");
-
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                        .WithOne("DeviceInfo")
+                        .HasForeignKey("SharedComponents.Entities.DeviceInfo", "DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.InstallationKey", b =>
@@ -562,26 +576,15 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
+            modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
                 {
                     b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
+                        .WithOne("TenantInfo")
+                        .HasForeignKey("SharedComponents.Entities.TenantInfo", "TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
-                {
-                    b.HasOne("SharedComponents.Entities.TenantInfo", "TenantInfo")
-                        .WithOne("Tenant")
-                        .HasForeignKey("SharedComponents.Entities.Tenant", "TenantInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TenantInfo");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationRole", b =>
@@ -596,9 +599,9 @@ namespace API.Migrations
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.Device", b =>
                 {
-                    b.Navigation("Device");
+                    b.Navigation("DeviceInfo");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
@@ -611,11 +614,10 @@ namespace API.Migrations
                     b.Navigation("Devices");
 
                     b.Navigation("InstallationKeys");
-                });
 
-            modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
-                {
-                    b.Navigation("Tenant");
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("TenantInfo");
                 });
 #pragma warning restore 612, 618
         }

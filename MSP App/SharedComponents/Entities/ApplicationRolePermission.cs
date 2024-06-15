@@ -12,5 +12,7 @@ namespace SharedComponents.Entities
         public ApplicationRole? Role { get; set; }
         public int PermissionId { get; set; }
         public Permission? Permission { get; set; }
+        public int TenantId { get; set; }
+        public Tenant? Tenant { get; set; }
     }
 }

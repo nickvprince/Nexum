@@ -144,7 +144,7 @@ namespace API.DataAccess
             modelBuilder.Entity<Tenant>()
                 .HasOne(t => t.TenantInfo)
                 .WithOne(ti => ti.Tenant)
-                .HasForeignKey<Tenant>(t => t.TenantInfoId)
+                .HasForeignKey<TenantInfo>(ti => ti.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tenant and Device one-to-many relationship
@@ -158,7 +158,7 @@ namespace API.DataAccess
             modelBuilder.Entity<Device>()
                 .HasOne(d => d.DeviceInfo)
                 .WithOne(di => di.Device)
-                .HasForeignKey<Device>(d => d.DeviceInfoId)
+                .HasForeignKey<DeviceInfo>(di => di.DeviceId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tenant and InstallationKey one-to-many relationship
@@ -166,6 +166,13 @@ namespace API.DataAccess
                 .HasMany(t => t.InstallationKeys)
                 .WithOne(ik => ik.Tenant)
                 .HasForeignKey(ik => ik.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Tenant and ApplicationRolePermission one-to-many relationship
+            modelBuilder.Entity<Tenant>()
+                .HasMany(t => t.RolePermissions)
+                .WithOne(rp => rp.Tenant)
+                .HasForeignKey(rp => rp.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure many-to-many relationship between ApplicationRole and Permission
@@ -204,37 +211,47 @@ namespace API.DataAccess
                 {
                     return; // DB has been seeded
                 }
-
-                // Add TenantInfos first to get the generated IDs
-                var tenantInfo1 = new TenantInfo { Name = "TenantInfo1", Email = "tenant1@example.com", Phone = "1234567890" };
-                var tenantInfo2 = new TenantInfo { Name = "TenantInfo2", Email = "tenant2@example.com", Phone = "0987654321" };
-                var tenantInfo3 = new TenantInfo { Name = "TenantInfo3", Email = "tenant3@example.com", Phone = "1112223333" };
-
-                context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
-                context.SaveChanges();
-
-                // Add Tenants next to get the generated IDs
-                var tenant1 = new Tenant { Name = "Tenant1", IsActive = true, TenantInfoId = tenantInfo1.Id, ApiKey = "ApiKey1" };
-                var tenant2 = new Tenant { Name = "Tenant2", IsActive = true, TenantInfoId = tenantInfo2.Id, ApiKey = "ApiKey2" };
-                var tenant3 = new Tenant { Name = "Tenant3", IsActive = true, TenantInfoId = tenantInfo3.Id, ApiKey = "ApiKey3" };
+                // Add Tenants first to get the generated IDs
+                var tenant1 = new Tenant { IsActive = true, ApiKey = "ApiKey1" };
+                var tenant2 = new Tenant { IsActive = true, ApiKey = "ApiKey2" };
+                var tenant3 = new Tenant { IsActive = true, ApiKey = "ApiKey3" };
 
                 context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();
 
-                // Add Devices and DeviceInfos
+                // Add TenantInfos with the correct TenantId
+                var tenantInfo1 = new TenantInfo { Name = "TenantInfo1", Email = "tenant1@example.com", Phone = "1234567890", TenantId = tenant1.Id };
+                var tenantInfo2 = new TenantInfo { Name = "TenantInfo2", Email = "tenant2@example.com", Phone = "0987654321", TenantId = tenant2.Id };
+                var tenantInfo3 = new TenantInfo { Name = "TenantInfo3", Email = "tenant3@example.com", Phone = "1112223333", TenantId = tenant3.Id };
 
-                var deviceInfo1 = new DeviceInfo { ClientId = 1, Uuid = "uuid1", IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop", MacAddresses = new List<string> { "00:0a:95:9d:68:16", "00:0a:95:9d:68:17" } };
-                var deviceInfo2 = new DeviceInfo { ClientId = 2, Uuid = "uuid2", IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" , MacAddresses = new List<string> { "00:0a:95:9d:68:18" } };
-                var deviceInfo3 = new DeviceInfo { ClientId = 3, Uuid = "uuid3", IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" , MacAddresses = new List<string> { "00:0a:95:9d:68:19", "00:0a:95:9d:68:20" } };
+                context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
+                context.SaveChanges();
+
+                // Link TenantInfo to Tenant
+                tenant1.TenantInfoId = tenantInfo1.Id;
+                tenant2.TenantInfoId = tenantInfo2.Id;
+                tenant3.TenantInfoId = tenantInfo3.Id;
+                context.SaveChanges();
+
+                // Add Devices and DeviceInfos
+                var device1 = new Device { TenantId = tenant1.Id };
+                var device2 = new Device { TenantId = tenant2.Id };
+                var device3 = new Device { TenantId = tenant3.Id };
+
+                context.Devices.AddRange(device1, device2, device3);
+                context.SaveChanges();
+
+                var deviceInfo1 = new DeviceInfo { Name = "Device1", DeviceId = device1.Id, ClientId = 1, Uuid = "uuid1", IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop", MacAddresses = new List<string> { "00:0a:95:9d:68:16", "00:0a:95:9d:68:17" } };
+                var deviceInfo2 = new DeviceInfo { Name = "Device2", DeviceId = device2.Id, ClientId = 2, Uuid = "uuid2", IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" , MacAddresses = new List<string> { "00:0a:95:9d:68:18" } };
+                var deviceInfo3 = new DeviceInfo { Name = "Device3", DeviceId = device3.Id, ClientId = 3, Uuid = "uuid3", IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" , MacAddresses = new List<string> { "00:0a:95:9d:68:19", "00:0a:95:9d:68:20" } };
 
                 context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3);
                 context.SaveChanges();
 
-                var device1 = new Device { Name = "Device1", TenantId = tenant1.Id, DeviceInfoId = deviceInfo1.Id };
-                var device2 = new Device { Name = "Device2", TenantId = tenant2.Id, DeviceInfoId = deviceInfo2.Id };
-                var device3 = new Device { Name = "Device3", TenantId = tenant3.Id, DeviceInfoId = deviceInfo3.Id };
-
-                context.Devices.AddRange(device1, device2, device3);
+                // Link DeviceInfo to Device
+                device1.DeviceInfoId = deviceInfo1.Id;
+                device2.DeviceInfoId = deviceInfo2.Id;
+                device3.DeviceInfoId = deviceInfo3.Id;
                 context.SaveChanges();
 
                 // Add InstallationKeys
@@ -246,9 +263,9 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Permissions
-                var permission1 = new Permission { Name = "View", Description = "Description1", TenantId = tenant1.Id };
-                var permission2 = new Permission { Name = "Edit", Description = "Description2", TenantId = tenant2.Id };
-                var permission3 = new Permission { Name = "Delete", Description = "Description3", TenantId = tenant3.Id };
+                var permission1 = new Permission { Name = "View", Description = "Description1" };
+                var permission2 = new Permission { Name = "Edit", Description = "Description2" };
+                var permission3 = new Permission { Name = "Delete", Description = "Description3" };
 
                 context.Permissions.AddRange(permission1, permission2, permission3);
                 context.SaveChanges();
@@ -269,9 +286,9 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add RolePermissions
-                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission1.Id };
-                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission2.Id };
-                var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permission3.Id };
+                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission1.Id, TenantId = tenant1.Id};
+                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission2.Id, TenantId = tenant2.Id };
+                var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permission3.Id, TenantId = tenant3.Id };
 
                 context.RolePermissions.AddRange(rolePermission1, rolePermission2, rolePermission3);
                 context.SaveChanges();
