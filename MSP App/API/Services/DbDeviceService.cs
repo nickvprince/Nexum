@@ -13,7 +13,7 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<Device?> CreateAsync(Device device)
+        public async Task<Device?> CreateAsync(Device? device)
         {
             if (device != null)
             {
@@ -28,7 +28,7 @@ namespace API.Services
                     return await _appDbContext.Devices
                         .Where(d => d.Id == device.Id)
                         .Include(d => d.DeviceInfo)
-                        .ThenInclude(di => di.MACAddresses)
+                            .ThenInclude(di => di.MACAddresses)
                         .FirstOrDefaultAsync(); ;
                 }
                 catch (Exception ex)
@@ -38,7 +38,7 @@ namespace API.Services
             }
             return null;
         }
-        public async Task<Device?> UpdateAsync(Device device)
+        public async Task<Device?> UpdateAsync(Device? device)
         {
             if (device != null)
             {

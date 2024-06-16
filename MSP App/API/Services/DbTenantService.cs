@@ -14,10 +14,11 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<Tenant?> CreateAsync(Tenant tenant)
+        public async Task<Tenant?> CreateAsync(Tenant? tenant)
         {
             if (tenant != null)
             {
+                tenant.ApiKey = Guid.NewGuid().ToString();
                 try
                 {
                     // Add the tenant to the context
@@ -39,7 +40,7 @@ namespace API.Services
             return null;
         }
 
-        public async Task<Tenant?> UpdateAsync(Tenant tenant)
+        public async Task<Tenant?> UpdateAsync(Tenant? tenant)
         {
             if (tenant != null)
             {
@@ -97,6 +98,17 @@ namespace API.Services
                         .ThenInclude(di => di.MACAddresses)
                 .FirstOrDefaultAsync();
         }
+        public async Task<Tenant?> GetByApiKeyAsync(string? apikey)
+        {
+            return await _appDbContext.Tenants
+                .Where(t => t.ApiKey == apikey)
+                .Include(t => t.TenantInfo)
+                .Include(t => t.InstallationKeys)
+                .Include(t => t.Devices)
+                    .ThenInclude(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<ICollection<Tenant>> GetAllAsync()
         {
@@ -107,6 +119,12 @@ namespace API.Services
                     .ThenInclude(d => d.DeviceInfo)
                         .ThenInclude(di => di.MACAddresses)
                 .ToListAsync();
+        }
+        public async Task<InstallationKey?> GetInstallationKeyAsync(string? installationkey)
+        {
+            return await _appDbContext.InstallationKeys
+                .Where(i => i.Key == installationkey)
+                .FirstOrDefaultAsync();
         }
     }
 }

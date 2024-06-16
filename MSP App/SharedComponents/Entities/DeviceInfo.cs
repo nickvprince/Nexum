@@ -13,7 +13,6 @@ namespace SharedComponents.Entities
         public int Id { get; set; }
         [Required]
         public string? Name { get; set; }
-        [Required]
         public int ClientId { get; set; }
         [Required]
         public string? Uuid { get; set; }
@@ -21,10 +20,17 @@ namespace SharedComponents.Entities
         public string? IpAddress { get; set; }
         [Required]
         public int? Port { get; set; }
-        public string? Type { get; set; }
+        [Required]
+        public DeviceType? Type { get; set; }
         [Required]
         public ICollection<MACAddress>? MACAddresses { get; set; }
         public int DeviceId { get; set; }
         public Device? Device { get; set; }
+    }
+    public enum DeviceType
+    {
+        Server,
+        Laptop,
+        Desktop
     }
 }

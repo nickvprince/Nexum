@@ -16,7 +16,7 @@ namespace API.DataAccess
         public static async Task IntitalizeUserIdentities(IServiceProvider serviceProvider)
         {
             UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            //RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             string username = "admin";
             string password = "Admin123!";
@@ -117,6 +117,11 @@ namespace API.DataAccess
                 .HasForeignKey(ma => ma.DeviceInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure the DeviceType enum to be stored as a string
+            modelBuilder.Entity<DeviceInfo>()
+                .Property(di => di.Type)
+                .HasConversion<string>();
+
             // Tenant and InstallationKey one-to-many relationship
             modelBuilder.Entity<Tenant>()
                 .HasMany(t => t.InstallationKeys)
@@ -197,9 +202,9 @@ namespace API.DataAccess
                 context.Devices.AddRange(device1, device2, device3);
                 context.SaveChanges();
 
-                var deviceInfo1 = new DeviceInfo { Name = "TD-001 ", DeviceId = device1.Id, ClientId = 1, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.1", Port = 8080, Type = "Desktop" };
-                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 2, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.2", Port = 8081, Type = "Laptop" };
-                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 3, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.3", Port = 8082, Type = "Desktop" };
+                var deviceInfo1 = new DeviceInfo { Name = "TD-001 ", DeviceId = device1.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.1", Port = 8080, Type = DeviceType.Server };
+                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.2", Port = 8081, Type = DeviceType.Server };
+                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.3", Port = 8082, Type = DeviceType.Server };
 
                 context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3);
                 context.SaveChanges();
@@ -220,9 +225,9 @@ namespace API.DataAccess
                 context.SaveChanges();*/
 
                 // Add InstallationKeys
-                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id };
-                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id };
-                var installationKey3 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant3.Id };
+                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id, IsActive = true };
+                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id, IsActive = true };
+                var installationKey3 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant3.Id, IsActive = false };
 
                 context.InstallationKeys.AddRange(installationKey1, installationKey2, installationKey3);
                 context.SaveChanges();

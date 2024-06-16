@@ -20,7 +20,7 @@ namespace API.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] Tenant tenant)
         {
-            Tenant newTenant = await _dbTenantService.CreateAsync(tenant);
+            Tenant? newTenant = await _dbTenantService.CreateAsync(tenant);
             if (newTenant != null)
             {
                 return Ok(newTenant);
@@ -31,7 +31,7 @@ namespace API.Controllers
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant)
         {
-            Tenant updatedTenant = await _dbTenantService.UpdateAsync(tenant);
+            Tenant? updatedTenant = await _dbTenantService.UpdateAsync(tenant);
             if (updatedTenant != null)
             {
                 return Ok(updatedTenant);

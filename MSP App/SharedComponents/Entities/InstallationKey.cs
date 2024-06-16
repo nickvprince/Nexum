@@ -13,5 +13,6 @@ namespace SharedComponents.Entities
         public string? Key { get; set; }
         public int TenantId { get; set; }
         public Tenant? Tenant { get; set; }
+        public bool IsActive { get; set; }
     }
 }
