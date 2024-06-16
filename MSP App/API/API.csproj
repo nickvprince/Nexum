@@ -20,4 +20,8 @@
     <ProjectReference Include="..\SharedComponents\SharedComponents.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Download\" />
+  </ItemGroup>
+
 </Project>

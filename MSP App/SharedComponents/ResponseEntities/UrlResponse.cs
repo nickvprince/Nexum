@@ -8,6 +8,9 @@ namespace SharedComponents.ResponseEntities
 {
     public class UrlResponse
     {
-        public string? Url { get; set; }
+        public string? PortalUrl { get; set; }
+        public string? NexumUrl { get; set; }
+        public string? NexumServerUrl { get; set; }
+        public string? NexumServiceUrl { get; set; }
     }
 }

@@ -15,6 +15,7 @@ namespace API.Controllers
         private readonly IConfiguration _config;
         private readonly string _apiBaseUrl;
         private readonly string _webAppBaseUrl;
+        private readonly string _filePath;
 
         public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, DbSecurityService dbSecurityService, IConfiguration config)
         {
@@ -26,42 +27,98 @@ namespace API.Controllers
                           _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort");
             _webAppBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("BaseUri") + ":" +
                              _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
+            _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Download");
         }
 
-        [HttpGet("Portal")]
-        public async Task<IActionResult> Portal([FromHeader] string apikey)
+        [HttpGet("GetPortal")]
+        public async Task<IActionResult> UrlsAsync([FromHeader] string apikey)
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
             {
-                string? portalUrl = _webAppBaseUrl + "/Account/login";
-
                 UrlResponse response = new UrlResponse
                 {
-                    Url = portalUrl
+                    PortalUrl = _webAppBaseUrl + "/Account/login",
+                    NexumUrl = _apiBaseUrl + "/api/DataLink/Nexum",
+                    NexumServerUrl = _apiBaseUrl + "/api/DataLink/NexumServer",
+                    NexumServiceUrl = _apiBaseUrl + "/api/DataLink/NexumService"
                 };
                 return Ok(response);
             }
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpGet("Nexum.exe")]
-        public IActionResult Nexum()
+        [HttpGet("Nexum")]
+        public async Task<IActionResult> NexumAsync([FromHeader] string apikey)
         {
-            //Get the Nexum.exe file
-            return Ok($"Retrieved Nexum.exe successfully.");
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                string nexumFilePath = Path.Combine(_filePath, "Nexum.exe");
+                if (!System.IO.File.Exists(nexumFilePath))
+                {
+                    return NotFound("File not found.");
+                }
+
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(nexumFilePath, FileMode.Open))
+                {
+                    stream.CopyTo(memory);
+                }
+                memory.Position = 0;
+
+                return File(memory, "application/octet-stream", Path.GetFileName(nexumFilePath));
+            }
+            return Unauthorized("Invalid API Key.");
         }
 
-        [HttpGet("Watchdog.exe")]
-        public IActionResult WatchDog()
+        [HttpGet("NexumServer")]
+        public async Task<IActionResult> NexumServerAsync([FromHeader] string apikey)
         {
-            //Get the Watchdog.exe file
-            return Ok($"Retrieved Watchdog.exe successfully.");
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                string nexumServerFilePath = Path.Combine(_filePath, "NexumServer.exe");
+                if (!System.IO.File.Exists(nexumServerFilePath))
+                {
+                    return NotFound("File not found.");
+                }
+
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(nexumServerFilePath, FileMode.Open))
+                {
+                    stream.CopyTo(memory);
+                }
+                memory.Position = 0;
+
+                return File(memory, "application/octet-stream", Path.GetFileName(nexumServerFilePath));
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpGet("NexumService")]
+        public async Task<IActionResult> NexumServiceAsync([FromHeader] string apikey)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                string nexumServiceFilePath = Path.Combine(_filePath, "NexumService.exe");
+                if (!System.IO.File.Exists(nexumServiceFilePath))
+                {
+                    return NotFound("File not found.");
+                }
+
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(nexumServiceFilePath, FileMode.Open))
+                {
+                    stream.CopyTo(memory);
+                }
+                memory.Position = 0;
+
+                return File(memory, "application/octet-stream", Path.GetFileName(nexumServiceFilePath));
+            }
+            return Unauthorized("Invalid API Key.");
         }
 
         [HttpGet("Verify")]
         public IActionResult VerifyInstallation(string apiKey, string installationKey)
         {
-            //Verify the installation
             return Ok($"Installation Verified.");
         }
     }
