@@ -30,7 +30,7 @@ namespace API.Controllers
             _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Download");
         }
 
-        [HttpGet("GetPortal")]
+        [HttpGet("Urls")]
         public async Task<IActionResult> UrlsAsync([FromHeader] string apikey)
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
