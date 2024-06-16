@@ -13,6 +13,7 @@ namespace SharedComponents.RequestEntities
         public string? Uuid { get; set; }
         public string? IpAddress { get; set; }
         public int Port { get; set; }
+        public string? InstallationKey { get; set; }
         public ICollection<MACAddress>? MACAddresses { get; set; }
     }
 }

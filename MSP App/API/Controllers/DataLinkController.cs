@@ -130,6 +130,17 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
+                InstallationKey? installationKey = await _dbTenantService.GetInstallationKeyAsync(request.InstallationKey);
+                if (installationKey == null)
+                {
+                    return Unauthorized("Invalid Installation Key.");
+                }
+
+                if (installationKey.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Installation Key.");
+                }
+
                 Device? serverDevice = new Device
                 {
                     TenantId = tenant.Id,
