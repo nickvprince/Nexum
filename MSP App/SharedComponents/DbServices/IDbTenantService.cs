@@ -15,6 +15,9 @@ namespace SharedComponents.DbServices
         public Task<Tenant?> GetAsync(int id);
         public Task<Tenant?> GetByApiKeyAsync(string? apikey);
         public Task<ICollection<Tenant>> GetAllAsync();
+        public Task<InstallationKey?> CreateInstallationKeyAsync(int tenantId);
+        public Task<InstallationKey?> UpdateInstallationKeyAsync(InstallationKey? installationkey);
+        public Task<bool> DeleteInstallationKeyAsync(string? installationkey);
         public Task<InstallationKey?> GetInstallationKeyAsync(string? installationkey);
     }
 }

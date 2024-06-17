@@ -188,16 +188,10 @@ namespace API.DataAccess
                 context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
                 context.SaveChanges();
 
-                /*// Link TenantInfo to Tenant
-                tenant1.TenantInfoId = tenantInfo1.Id;
-                tenant2.TenantInfoId = tenantInfo2.Id;
-                tenant3.TenantInfoId = tenantInfo3.Id;
-                context.SaveChanges();*/
-
                 // Add Devices and DeviceInfos
-                var device1 = new Device { TenantId = tenant1.Id };
-                var device2 = new Device { TenantId = tenant2.Id };
-                var device3 = new Device { TenantId = tenant3.Id };
+                var device1 = new Device { TenantId = tenant1.Id, IsVerified = true };
+                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true };
+                var device3 = new Device { TenantId = tenant3.Id, IsVerified = false };
 
                 context.Devices.AddRange(device1, device2, device3);
                 context.SaveChanges();
@@ -217,12 +211,6 @@ namespace API.DataAccess
 
                 context.MACAddresses.AddRange(macAddress1, macAddress2, macAddress3, macAddress4, macAddress5);
                 context.SaveChanges();
-
-                /*// Link DeviceInfo to Device
-                device1.DeviceInfoId = deviceInfo1.Id;
-                device2.DeviceInfoId = deviceInfo2.Id;
-                device3.DeviceInfoId = deviceInfo3.Id;
-                context.SaveChanges();*/
 
                 // Add InstallationKeys
                 var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id, IsActive = true };

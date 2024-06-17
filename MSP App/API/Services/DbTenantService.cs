@@ -120,6 +120,86 @@ namespace API.Services
                         .ThenInclude(di => di.MACAddresses)
                 .ToListAsync();
         }
+
+        public async Task<InstallationKey?> CreateInstallationKeyAsync(int tenantId)
+        {
+            var installationKey = new InstallationKey
+            {
+                Key = Guid.NewGuid().ToString(),
+                TenantId = tenantId,
+                IsActive = true
+            };
+            try
+            {
+                await _appDbContext.InstallationKeys.AddAsync(installationKey);
+                var result = await _appDbContext.SaveChangesAsync();
+
+                return await _appDbContext.InstallationKeys
+                    .Where(i => i.Id == installationKey.Id)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while creating the installation key: {ex.Message}");
+            }
+            return null;
+        }
+
+        public async Task<InstallationKey?> UpdateInstallationKeyAsync(InstallationKey? installationkey)
+        {
+            if (installationkey != null)
+            {
+                try
+                {
+                    var existingInstallationKey = await _appDbContext.InstallationKeys
+                        .Where(i => i.Key == installationkey.Key)
+                        .FirstOrDefaultAsync();
+                       
+                    if (existingInstallationKey != null)
+                    {
+                        _appDbContext.Entry(existingInstallationKey).CurrentValues.SetValues(installationkey);
+
+                        var result = await _appDbContext.SaveChangesAsync();
+
+                        return await _appDbContext.InstallationKeys
+                            .Where(i => i.Key == installationkey.Key)
+                            .FirstOrDefaultAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while updating the installation key: {ex.Message}");
+                }
+            }
+            return null;
+        }
+
+        public async Task<bool> DeleteInstallationKeyAsync(string? installationkey)
+        {
+            if (installationkey != null)
+            {
+                try
+                {
+                    var existingInstallationKey = await _appDbContext.InstallationKeys
+                        .Where(i => i.Key == installationkey)
+                        .FirstOrDefaultAsync();
+                    if (existingInstallationKey != null)
+                    {
+                        existingInstallationKey.IsActive = false;
+                        _appDbContext.Entry(existingInstallationKey).State = EntityState.Modified;
+                        var result = await _appDbContext.SaveChangesAsync();
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while deleting the installation key: {ex.Message}");
+                }
+            }
+            return false;
+        }
+
         public async Task<InstallationKey?> GetInstallationKeyAsync(string? installationkey)
         {
             return await _appDbContext.InstallationKeys

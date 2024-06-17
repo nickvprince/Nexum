@@ -17,5 +17,6 @@ namespace SharedComponents.ResponseEntities
         public int? Port { get; set; }
         public DeviceType? Type { get; set; }
         public ICollection<MACAddressResponse>? MACAddresses { get; set; }
+        public bool IsVerified { get; set; }
     }
 }

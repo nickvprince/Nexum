@@ -141,6 +141,11 @@ namespace API.Controllers
                     return Unauthorized("Invalid Installation Key.");
                 }
 
+                if (!installationKey.IsActive)
+                {
+                    return Unauthorized("Inactive Installation Key.");
+                }
+
                 Device? serverDevice = new Device
                 {
                     TenantId = tenant.Id,
@@ -161,21 +166,28 @@ namespace API.Controllers
                     {
                         if (serverDevice.DeviceInfo.MACAddresses != null)
                         {
-                            ServerRegistrationResponse response = new ServerRegistrationResponse
+                            installationKey.IsActive = false;
+                            installationKey = await _dbTenantService.UpdateInstallationKeyAsync(installationKey);
+
+                            if (installationKey != null)
                             {
-                                Id = serverDevice.Id,
-                                Name = serverDevice.DeviceInfo.Name,
-                                Uuid = serverDevice.DeviceInfo.Uuid,
-                                IpAddress = serverDevice.DeviceInfo.IpAddress,
-                                Port = serverDevice.DeviceInfo.Port,
-                                Type = serverDevice.DeviceInfo.Type,
-                                MACAddresses = new List<MACAddressResponse>(serverDevice.DeviceInfo.MACAddresses.Select(m => new MACAddressResponse
+                                ServerRegistrationResponse response = new ServerRegistrationResponse
                                 {
-                                    Id = m.Id,
-                                    Address = m.Address
-                                }))
-                            };
-                            return Ok(response);
+                                    Id = serverDevice.Id,
+                                    Name = serverDevice.DeviceInfo.Name,
+                                    Uuid = serverDevice.DeviceInfo.Uuid,
+                                    IpAddress = serverDevice.DeviceInfo.IpAddress,
+                                    Port = serverDevice.DeviceInfo.Port,
+                                    Type = serverDevice.DeviceInfo.Type,
+                                    MACAddresses = new List<MACAddressResponse>(serverDevice.DeviceInfo.MACAddresses.Select(m => new MACAddressResponse
+                                    {
+                                        Id = m.Id,
+                                        Address = m.Address
+                                    })),
+                                    IsVerified = serverDevice.IsVerified
+                                };
+                                return Ok(response);
+                            }
                         }
                     }
                 }
@@ -195,6 +207,15 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
+                if (tenant.Devices != null)
+                {
+                    Device? server = tenant.Devices.FirstOrDefault(d => d.DeviceInfo.Type == DeviceType.Server);
+                    if (!server.IsVerified)
+                    {
+                        return BadRequest("Server not verified.");
+                    }
+                }
+
                 InstallationKey? installationKey = await _dbTenantService.GetInstallationKeyAsync(request.InstallationKey);
                 if (installationKey == null)
                 {
@@ -204,6 +225,11 @@ namespace API.Controllers
                 if (installationKey.TenantId != tenant.Id)
                 {
                     return Unauthorized("Invalid Installation Key.");
+                }
+
+                if (!installationKey.IsActive)
+                {
+                    return Unauthorized("Inactive Installation Key.");
                 }
 
                 Device? clientDevice = new Device
@@ -227,22 +253,29 @@ namespace API.Controllers
                     {
                         if (clientDevice.DeviceInfo.MACAddresses != null)
                         {
-                            DeviceRegistrationResponse response = new DeviceRegistrationResponse
+                            installationKey.IsActive = false;
+                            installationKey = await _dbTenantService.UpdateInstallationKeyAsync(installationKey);
+
+                            if (installationKey != null)
                             {
-                                Id = clientDevice.Id,
-                                Name = clientDevice.DeviceInfo.Name,
-                                Client_Id = clientDevice.DeviceInfo.ClientId,
-                                Uuid = clientDevice.DeviceInfo.Uuid,
-                                IpAddress = clientDevice.DeviceInfo.IpAddress,
-                                Port = clientDevice.DeviceInfo.Port,
-                                Type = clientDevice.DeviceInfo.Type,
-                                MACAddresses = new List<MACAddressResponse>(clientDevice.DeviceInfo.MACAddresses.Select(m => new MACAddressResponse
+                                DeviceRegistrationResponse response = new DeviceRegistrationResponse
                                 {
-                                    Id = m.Id,
-                                    Address = m.Address
-                                }))
-                            };
-                            return Ok(response);
+                                    Id = clientDevice.Id,
+                                    Name = clientDevice.DeviceInfo.Name,
+                                    Client_Id = clientDevice.DeviceInfo.ClientId,
+                                    Uuid = clientDevice.DeviceInfo.Uuid,
+                                    IpAddress = clientDevice.DeviceInfo.IpAddress,
+                                    Port = clientDevice.DeviceInfo.Port,
+                                    Type = clientDevice.DeviceInfo.Type,
+                                    MACAddresses = new List<MACAddressResponse>(clientDevice.DeviceInfo.MACAddresses.Select(m => new MACAddressResponse
+                                    {
+                                        Id = m.Id,
+                                        Address = m.Address
+                                    })),
+                                    IsVerified = clientDevice.IsVerified
+                                };
+                                return Ok(response);
+                            }
                         }
                     }
                 }
@@ -251,10 +284,55 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpGet("Verify")]
-        public IActionResult VerifyInstallation(string apiKey, string installationKey)
+        [HttpPost("Verify")]
+        public async Task<IActionResult> VerifyInstallation([FromHeader] string apikey, [FromBody] VerifyInstallationRequest request)
         {
-            return Ok($"Installation Verified.");
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByUuidAsync(request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                if (device.IsVerified)
+                {
+                    return BadRequest("Device has already been verified.");
+                }
+
+                InstallationKey? installationKey = await _dbTenantService.GetInstallationKeyAsync(request.InstallationKey);
+                if (installationKey == null)
+                {
+                    return Unauthorized("Invalid Installation Key.");
+                }
+
+                device.IsVerified = true;
+                device = await _dbDeviceService.UpdateAsync(device);
+
+                if (device != null) 
+                {
+                    VerifyInstallationResponse response = new VerifyInstallationResponse
+                    {
+                        Name = device.DeviceInfo?.Name,
+                        IsVerified = device.IsVerified
+                    };
+                    return Ok(response);
+                }
+                return BadRequest("An error occurred while verifying the device."); 
+            }
+            return Unauthorized("Invalid API Key.");
         }
     }
 }
+

@@ -13,6 +13,7 @@ namespace SharedComponents.DbServices
         public Task<Device?> UpdateAsync(Device? device);
         public Task<bool> DeleteAsync(int id);
         public Task<Device?> GetAsync(int id);
+        public Task<Device?> GetByUuidAsync(string? uuid);
         public Task<ICollection<Device>> GetAllAsync();
     }
 }

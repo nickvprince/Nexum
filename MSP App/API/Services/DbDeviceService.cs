@@ -54,7 +54,7 @@ namespace API.Services
                         return await _appDbContext.Devices
                             .Where(d => d.Id == device.Id)
                             .Include(d => d.DeviceInfo)
-                            .ThenInclude(di => di.MACAddresses)
+                                .ThenInclude(di => di.MACAddresses)
                             .FirstOrDefaultAsync();
                     }
                 }
@@ -92,6 +92,14 @@ namespace API.Services
                 .Where(d => d.Id == id)
                 .Include(d => d.DeviceInfo)
                     .ThenInclude(di => di.MACAddresses)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<Device?> GetByUuidAsync(string? uuid)
+        {
+            return await _appDbContext.Devices
+                .Include(d => d.DeviceInfo)
+                    .ThenInclude(di => di.MACAddresses)
+                .Where(d => d.DeviceInfo.Uuid == uuid)
                 .FirstOrDefaultAsync();
         }
         public async Task<ICollection<Device>> GetAllAsync()

@@ -15,5 +15,7 @@ namespace SharedComponents.Entities
         public Tenant? Tenant { get; set; }
         [Required]
         public DeviceInfo? DeviceInfo { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsActive { get; set; }
     }
 }
