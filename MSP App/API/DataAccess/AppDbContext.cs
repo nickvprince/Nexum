@@ -191,9 +191,9 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Devices and DeviceInfos
-                var device1 = new Device { TenantId = tenant1.Id, IsVerified = true };
-                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true };
-                var device3 = new Device { TenantId = tenant3.Id, IsVerified = false };
+                var device1 = new Device { TenantId = tenant1.Id, IsVerified = true, Status = DeviceStatus.Online, StatusMessage = "This device is online." };
+                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true, Status = DeviceStatus.BackupInProgress, StatusMessage = "Backup almost complete." };
+                var device3 = new Device { TenantId = tenant3.Id, IsVerified = false, Status = DeviceStatus.Offline, StatusMessage = "This device is offline." };
 
                 context.Devices.AddRange(device1, device2, device3);
                 context.SaveChanges();

@@ -336,6 +336,49 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        [HttpPost("Update-Device-Status")]
+        public async Task<IActionResult> UpdateDeviceStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByUuidAsync(request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                if (request.Status != null)
+                {
+                    device.Status = request.Status;
+                    device.StatusMessage = request.Status_Message;
+                    device = await _dbDeviceService.UpdateAsync(device);
+                    if(device != null)
+                    {
+                        UpdateDeviceStatusResponse response = new UpdateDeviceStatusResponse
+                        { 
+                            Name = device.DeviceInfo?.Name,
+                            Status = device.Status, 
+                            StatusMessage = device.StatusMessage 
+                        };
+                        return Ok(response);
+                    }
+                    return BadRequest("An error occurred while updating the device status.");
+                }
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
         [HttpGet("Check-For-Updates")]
         public async Task<IActionResult> CheckForUpdatesAsync([FromHeader] string apikey, [FromBody] CheckForUpdatesRequest request)
         {
