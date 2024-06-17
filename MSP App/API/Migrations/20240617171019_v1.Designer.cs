@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240617071330_v1")]
+    [Migration("20240617171019_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -414,6 +414,28 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Permissions", (string)null);
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.SoftwareFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FileType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SoftwareFiles", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>

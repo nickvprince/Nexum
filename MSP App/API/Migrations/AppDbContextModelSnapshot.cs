@@ -413,6 +413,28 @@ namespace API.Migrations
                     b.ToTable("Permissions", (string)null);
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.SoftwareFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FileType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SoftwareFiles", (string)null);
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
                 {
                     b.Property<int>("Id")

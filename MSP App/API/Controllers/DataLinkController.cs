@@ -15,16 +15,18 @@ namespace API.Controllers
         private readonly DbTenantService _dbTenantService;
         private readonly DbDeviceService _dbDeviceService;
         private readonly DbSecurityService _dbSecurityService;
+        private readonly DbSoftwareService _dbSoftwareService;
         private readonly IConfiguration _config;
         private readonly string _apiBaseUrl;
         private readonly string _webAppBaseUrl;
         private readonly string _filePath;
 
-        public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, DbSecurityService dbSecurityService, IConfiguration config)
+        public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService,  IConfiguration config)
         {
             _dbTenantService = dbTenantService;
             _dbDeviceService = dbDeviceService;
             _dbSecurityService = dbSecurityService;
+            _dbSoftwareService = dbSoftwareService;
             _config = config;
             _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
                           _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort");
@@ -285,7 +287,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Verify")]
-        public async Task<IActionResult> VerifyInstallation([FromHeader] string apikey, [FromBody] VerifyInstallationRequest request)
+        public async Task<IActionResult> VerifyInstallationAsync([FromHeader] string apikey, [FromBody] VerifyInstallationRequest request)
         {
             if (await _dbSecurityService.ValidateAPIKey(apikey))
             {
@@ -330,6 +332,53 @@ namespace API.Controllers
                     return Ok(response);
                 }
                 return BadRequest("An error occurred while verifying the device."); 
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpGet("Check-For-Updates")]
+        public async Task<IActionResult> CheckForUpdatesAsync([FromHeader] string apikey, [FromBody] CheckForUpdatesRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                if (request.NexumVersion == null)
+                {
+                    return BadRequest("Invalid Nexum Version.");
+                }
+
+                if (request.NexumServerVersion == null)
+                {
+                    return BadRequest("Invalid Nexum Server Version.");
+                }
+
+                if (request.NexumServiceVersion == null)
+                {
+                    return BadRequest("Invalid Nexum Service Version.");
+                }
+
+                SoftwareFile? nexumFile = await _dbSoftwareService.GetLatestNexumAsync();
+                SoftwareFile? nexumServerFile = await _dbSoftwareService.GetLatestNexumServerAsync();
+                SoftwareFile? nexumServiceFile = await _dbSoftwareService.GetLatestNexumServiceAsync();
+
+                if (nexumFile == null || nexumServerFile == null || nexumServiceFile == null)
+                {
+                    return NotFound("Failed to retrieve file versions.");
+                }
+
+                CheckForUpdatesResponse response = new CheckForUpdatesResponse
+                {
+                    NexumUpdateAvailable = nexumFile.Version != request.NexumVersion,
+                    NexumServerUpdateAvailable = nexumServerFile.Version != request.NexumServerVersion,
+                    NexumServiceUpdateAvailable = nexumServiceFile.Version != request.NexumServiceVersion
+                };
+
+                return Ok(response);
             }
             return Unauthorized("Invalid API Key.");
         }

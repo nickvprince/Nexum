@@ -25,6 +25,7 @@ builder.Services.AddScoped<DbUserService>();
 builder.Services.AddScoped<DbTenantService>();
 builder.Services.AddScoped<DbDeviceService>();
 builder.Services.AddScoped<DbSecurityService>();
+builder.Services.AddScoped<DbSoftwareService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;

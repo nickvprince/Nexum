@@ -72,6 +72,7 @@ namespace API.DataAccess
         public DbSet<InstallationKey> InstallationKeys { get; set; }
         public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
         public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
+        public DbSet<SoftwareFile> SoftwareFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -88,6 +89,7 @@ namespace API.DataAccess
             modelBuilder.Entity<InstallationKey>().ToTable("InstallationKeys");
             modelBuilder.Entity<ApplicationRolePermission>().ToTable("RolePermissions");
             modelBuilder.Entity<ApplicationUserRole>().ToTable("UserRoles");
+            modelBuilder.Entity<SoftwareFile>().ToTable("SoftwareFiles");
 
             // Tenant and TenantInfo one-to-one relationship
             modelBuilder.Entity<Tenant>()
@@ -249,6 +251,15 @@ namespace API.DataAccess
                 var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permission3.Id, TenantId = tenant3.Id };
 
                 context.RolePermissions.AddRange(rolePermission1, rolePermission2, rolePermission3);
+                context.SaveChanges();
+
+                // Add SoftwareFiles
+
+                var softwareFile1 = new SoftwareFile { UploadedFileName = "Nexum.exe", Version = "1.0.0-alpha", FileType = SoftwareFileType.Nexum };
+                var softwareFile2 = new SoftwareFile { UploadedFileName = "NexumServer.exe", Version = "1.0.0-alpha", FileType = SoftwareFileType.NexumServer };
+                var softwareFile3 = new SoftwareFile { UploadedFileName = "NexumService.exe", Version = "1.0.0-alpha", FileType = SoftwareFileType.NexumService };
+
+                context.SoftwareFiles.AddRange(softwareFile1, softwareFile2, softwareFile3);
                 context.SaveChanges();
 
             }
