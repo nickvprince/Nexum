@@ -20,7 +20,7 @@ namespace API.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync([FromBody] Device device)
         {
-            Device newDevice = await _dbDeviceService.CreateAsync(device);
+            Device? newDevice = await _dbDeviceService.CreateAsync(device);
             if (newDevice != null)
             {
                 return Ok(newDevice);
@@ -31,7 +31,7 @@ namespace API.Controllers
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] Device device)
         {
-            Device updatedDevice = await _dbDeviceService.UpdateAsync(device);
+            Device? updatedDevice = await _dbDeviceService.UpdateAsync(device);
             if (updatedDevice != null)
             {
                 return Ok(updatedDevice);
@@ -49,7 +49,7 @@ namespace API.Controllers
             return NotFound("Device not found.");
         }
 
-        [HttpGet("Get/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
             Device? device = await _dbDeviceService.GetAsync(id);
@@ -60,7 +60,7 @@ namespace API.Controllers
             return NotFound("Device not found.");
         }
 
-        [HttpGet("Get")]
+        [HttpGet("")]
         public async Task<IActionResult> GetAllAsync()
         {
             ICollection<Device> devices = await _dbDeviceService.GetAllAsync();

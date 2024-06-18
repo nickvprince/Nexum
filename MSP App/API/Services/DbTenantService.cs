@@ -98,6 +98,7 @@ namespace API.Services
                         .ThenInclude(di => di.MACAddresses)
                 .FirstOrDefaultAsync();
         }
+
         public async Task<Tenant?> GetByApiKeyAsync(string? apikey)
         {
             return await _appDbContext.Tenants

@@ -50,7 +50,7 @@ namespace API.Controllers
             return NotFound("Tenant not found.");
         }
 
-        [HttpGet("Get/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
             Tenant? tenant = await _dbTenantService.GetAsync(id);
@@ -61,7 +61,7 @@ namespace API.Controllers
             return NotFound("Tenant not found.");
         }
 
-        [HttpGet("Get")]
+        [HttpGet("")]
         public async Task<IActionResult> GetAllAsync()
         {
             ICollection<Tenant> tenants = await _dbTenantService.GetAllAsync();

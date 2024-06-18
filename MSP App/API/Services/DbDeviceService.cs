@@ -94,6 +94,7 @@ namespace API.Services
                     .ThenInclude(di => di.MACAddresses)
                 .FirstOrDefaultAsync();
         }
+
         public async Task<Device?> GetByUuidAsync(string? uuid)
         {
             return await _appDbContext.Devices
@@ -102,6 +103,7 @@ namespace API.Services
                 .Where(d => d.DeviceInfo.Uuid == uuid)
                 .FirstOrDefaultAsync();
         }
+
         public async Task<ICollection<Device>> GetAllAsync()
         {
             return await _appDbContext.Devices
