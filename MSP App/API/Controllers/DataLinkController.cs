@@ -90,6 +90,7 @@ namespace API.Controllers
                         Type = DeviceType.Server,
                     }
                 };
+
                 serverDevice = await _dbDeviceService.CreateAsync(serverDevice);
                 if (serverDevice != null)
                 {
@@ -105,6 +106,7 @@ namespace API.Controllers
                                 ServerRegistrationResponse response = new ServerRegistrationResponse
                                 {
                                     Id = serverDevice.Id,
+                                    Client_Id = serverDevice.DeviceInfo.ClientId,
                                     Name = serverDevice.DeviceInfo.Name,
                                     Uuid = serverDevice.DeviceInfo.Uuid,
                                     IpAddress = serverDevice.DeviceInfo.IpAddress,
@@ -177,6 +179,7 @@ namespace API.Controllers
                         Type = DeviceType.Desktop,
                     }
                 };
+
                 clientDevice = await _dbDeviceService.CreateAsync(clientDevice);
                 if (clientDevice != null)
                 {
@@ -226,7 +229,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByUuidAsync(request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");
@@ -276,7 +279,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByUuidAsync(request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");
@@ -324,14 +327,29 @@ namespace API.Controllers
                     return BadRequest("Invalid Nexum Version.");
                 }
 
+                if (request.NexumTag == null)
+                {
+                    return BadRequest("Invalid Nexum Tag.");
+                }
+
                 if (request.NexumServerVersion == null)
                 {
                     return BadRequest("Invalid Nexum Server Version.");
                 }
 
+                if (request.NexumServerTag == null)
+                {
+                    return BadRequest("Invalid Nexum Server Tag.");
+                }
+
                 if (request.NexumServiceVersion == null)
                 {
                     return BadRequest("Invalid Nexum Service Version.");
+                }
+
+                if (request.NexumServiceTag == null)
+                {
+                    return BadRequest("Invalid Nexum Service Tag.");
                 }
 
                 SoftwareFile? nexumFile = await _dbSoftwareService.GetLatestNexumAsync();
@@ -345,9 +363,9 @@ namespace API.Controllers
 
                 CheckForUpdatesResponse response = new CheckForUpdatesResponse
                 {
-                    NexumUpdateAvailable = nexumFile.Version != request.NexumVersion,
-                    NexumServerUpdateAvailable = nexumServerFile.Version != request.NexumServerVersion,
-                    NexumServiceUpdateAvailable = nexumServiceFile.Version != request.NexumServiceVersion
+                    NexumUpdateAvailable = (nexumFile.Version != request.NexumVersion) || (nexumFile.Tag != request.NexumTag),
+                    NexumServerUpdateAvailable = (nexumServerFile.Version != request.NexumServerVersion) || (nexumServerFile.Tag != request.NexumServerTag),
+                    NexumServiceUpdateAvailable = (nexumServiceFile.Version != request.NexumServiceVersion) || (nexumServiceFile.Tag != request.NexumServiceTag)
                 };
 
                 return Ok(response);

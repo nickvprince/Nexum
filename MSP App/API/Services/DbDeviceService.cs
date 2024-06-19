@@ -95,12 +95,17 @@ namespace API.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Device?> GetByUuidAsync(string? uuid)
+        public async Task<Device?> GetByClientIdAndUuidAsync(int clientId, string? uuid)
         {
+            if (uuid == null)
+            {
+                return null;
+            }
+
             return await _appDbContext.Devices
                 .Include(d => d.DeviceInfo)
                     .ThenInclude(di => di.MACAddresses)
-                .Where(d => d.DeviceInfo.Uuid == uuid)
+                .Where( d => d.DeviceInfo.ClientId == clientId && d.DeviceInfo.Uuid == uuid)
                 .FirstOrDefaultAsync();
         }
 
