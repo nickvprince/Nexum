@@ -49,7 +49,7 @@ namespace API.Services
                     {
                         _appDbContext.Entry(existingDevice).CurrentValues.SetValues(device);
 
-                        var result = _appDbContext.SaveChangesAsync();
+                        var result = await _appDbContext.SaveChangesAsync();
 
                         return await _appDbContext.Devices
                             .Where(d => d.Id == device.Id)

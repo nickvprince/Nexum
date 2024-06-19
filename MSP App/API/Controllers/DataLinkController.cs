@@ -249,14 +249,14 @@ namespace API.Controllers
                 }
 
                 device.IsVerified = true;
-                device = await _dbDeviceService.UpdateAsync(device);
+                Device? updatedDevice = await _dbDeviceService.UpdateAsync(device);
 
-                if (device != null) 
+                if (updatedDevice != null) 
                 {
                     VerifyInstallationResponse response = new VerifyInstallationResponse
                     {
-                        Name = device.DeviceInfo?.Name,
-                        IsVerified = device.IsVerified
+                        Name = updatedDevice.DeviceInfo?.Name,
+                        IsVerified = updatedDevice.IsVerified
                     };
                     return Ok(response);
                 }
