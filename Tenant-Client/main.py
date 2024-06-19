@@ -96,7 +96,7 @@ def main():
     IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
     # run the icon
     i.run()
-    # log a message
+    # log a messageo
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
 
     FlaskServer.set_run_job_object(RunJob())

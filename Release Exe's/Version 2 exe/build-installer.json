@@ -132,6 +132,22 @@
   {
    "optionDest": "collect_submodules",
    "value": "Installer.py"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Shared/security.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Shared/task.py;."
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "win32com.shell.shell as shell"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "sys"
   }
  ],
  "nonPyinstallerOptions": {

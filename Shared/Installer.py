@@ -57,6 +57,7 @@ from cryptography.hazmat.backends import default_backend
 import sys
 import win32com.shell.shell as shell
 from task import client_persistance, server_persistance
+import requests
 ASADMIN = 'asadmin'
 
 #pylint: disable= bare-except, broad-except
@@ -74,7 +75,7 @@ EXE_SERVER_NAME = "nexserv.exe"
 EXE_WATCHDOG_NAME = "watchdog.exe"
 EXE_SERV_WATCHDOG_NAME = "watchdogserv.exe"
 WINDOW_GEOMETRY = "1000x600"
-backupserver_msp = "127.0.0.1:6969"
+backupserver_msp = "127.0.0.1:5000"
 PORT = 5000
 HYPER_PROTOCOL = "http://"
 IMAGE_PATH = '../Data/Nexum.png'
@@ -129,7 +130,7 @@ def read_setting(setting):
     value = cursor.fetchone()[0]
     conn.close()
     result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                                capture_output=True, text=True,check=True) # enc with uuid
+                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
     output = result.stdout.strip()
     output = output.split('\n\n', 1)[-1]
     output = output[:24]
@@ -253,8 +254,8 @@ def uninstall_program(key:str,window:tk.Tk):
         except Exception as e:
             write_log("ERROR", "Uninstall", "App key could not be deleted : " + e, 1105, time.time())
         try:
-            subprocess.Popen(['sc', 'stop', 'nexumservice'])
-            subprocess.Popen(['sc', 'delete', 'nexumservice'])
+            subprocess.Popen(['sc', 'stop', 'nexumservice'],shell=True)
+            subprocess.Popen(['sc', 'delete', 'nexumservice'],shell=True)
         except:
             write_log("ERROR", "Uninstall", "Service could not be deleted", 0, time.time())
 
@@ -262,10 +263,10 @@ def uninstall_program(key:str,window:tk.Tk):
         if os.path.exists(OS_FILE_PATH):
 
             try:
-                subprocess.call(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME])
-                subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME])
-                subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME])
-                subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME])
+                subprocess.Popen(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME],shell=True)
+                subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
+                subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME],shell=True)
+                subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
                 breakcount:int = 0
                 time.sleep(1) # time to stop the processes
                 shutil.rmtree(OS_FILE_PATH)
@@ -322,11 +323,11 @@ def uninstall_program(key:str,window:tk.Tk):
 
     
         try:
-            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexum', '/f'])
+            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexum', '/f'],shell=True)
         except:
             write_log("ERROR", "Uninstall", "Scheduled task nexum could not be deleted", 0, time.time())
         try:
-            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexserv', '/f'])
+            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexserv', '/f'],shell=True)
         except:
             write_log("ERROR", "Uninstall", "Scheduled task nexserv could not be deleted", 0, time.time())
         #delete service
@@ -385,8 +386,13 @@ def install_nexserv_file():
     Information
     """
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-    path = os.path.join(current_dir,EXE_SERVER_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERVER_NAME)
+    path = os.path.join(r"C:\Users\teche\Conestoga College\Nicholas Prince - Capstone Collaboration\Py-To-Exe\auto-py-to-exe-master\output",EXE_SERVER_NAME) # directory for logs
+    outpath = OS_FILE_PATH+"\\"+EXE_SERVER_NAME
+    try:
+        write_log("INFO", "Install Server", "nexserv.exe copied " + path + " - " + outpath, 0, time.time())
+        shutil.copy(path,outpath)
+    except:
+        write_log("ERROR", "Install Server", "nexserv.exe could not be copied", 0, time.time())
     write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
 
 def install_nexum_file():
@@ -399,7 +405,36 @@ def install_nexum_file():
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     
     path = os.path.join(current_dir,EXE_NEXUM_NAME) # directory for logs
-    shutil.copy(path,OS_FILE_PATH+"/"+EXE_NEXUM_NAME)
+    try:
+        url = "http://127.0.0.1:6969/info"
+        data = {
+            "from":path,
+            "to":OS_FILE_PATH+"\\"+EXE_NEXUM_NAME
+        }
+
+        response = requests.post(url, json=data)
+        if response.status_code == 200:
+            print("Post request successful")
+        else:
+            print("Post request failed")
+        shutil.copy(path, OS_FILE_PATH+"\\"+EXE_NEXUM_NAME)
+    except Exception as e:
+        try:
+            url = "http://127.0.0.1:6969/info"
+            data = {
+                "from":path,
+                "to":OS_FILE_PATH+"\\"+EXE_NEXUM_NAME,
+                "error":str(e)
+            }
+
+            response = requests.post(url, json=data)
+            if response.status_code == 200:
+                print("Post request successful")
+            else:
+                print("Post request failed")
+        except:
+            pass
+        write_log("ERROR", "Install Nexum", "Nexum file could not be copied", 0, time.time())
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 
 def install_service():
@@ -411,13 +446,16 @@ def install_service():
     # copy ./nexserv.exe to C:\Program Files\Nexum
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     path = os.path.join(current_dir,EXE_SERVICE_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERVICE_NAME)
+    try:
+        shutil.copy(path, OS_FILE_PATH+"\\"+EXE_SERVICE_NAME)
+    except:
+        write_log("ERROR", "Install Service", "nexumservice.exe could not be copied", 0, time.time())
     # install exe as service
-    subprocess.Popen(['sc', 'create', 'nexumservice', 'binPath=' + str(OS_FILE_PATH+"/"+EXE_SERVICE_NAME), 'start=', 'auto'])
+    subprocess.Popen(['sc', 'create', 'nexumservice', 'binPath=' + str(OS_FILE_PATH+"/"+EXE_SERVICE_NAME), 'start=', 'auto'],shell=True)
     # set 3 recovery options to restart at 60 seconds
-    subprocess.Popen(['sc', 'failure', 'nexumservice', 'reset=', '60', 'actions=', 'restart/60000/restart/60000/restart/60000'])
+    subprocess.Popen(['sc', 'failure', 'nexumservice', 'reset=', '60', 'actions=', 'restart/60000/restart/60000/restart/60000'],shell=True)
     #start the service
-    subprocess.Popen(['sc', 'start', 'nexumservice'])
+    subprocess.Popen(['sc', 'start', 'nexumservice'],shell=True)
     write_log("INFO", "Install Service", "nexumservice.exe installed", 0, time.time())
 
 def install_persistence(client_server:int):
@@ -435,6 +473,7 @@ def notify_server():
     """
     Information
     """
+    # verify route
 
 def install_client_background(window:tk.Tk, backupserver:str, key:str):
     """
@@ -587,6 +626,7 @@ def notify_msp():
     """
     Information 
     """
+    # call verify route
 
 def install_server_background(window:tk.Tk, backupserver:str, key:str):
     """
@@ -605,13 +645,13 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
                             for ele in range(0,8*6,8)][::-1])
         }
         write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
-        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver_msp}/{REGISTRATION_PATH}",
+        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{REGISTRATION_PATH}",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json","key":key,
                                             "clientSecret":SECRET}, json=payload)
 
         identification = request.headers["clientid"]
 
-        request = requests.request("POST", f"{HYPER_PROTOCOL}{backupserver_msp}/{BEAT_PATH}", timeout=TIMEOUT,
+        request = requests.request("POST", f"{HYPER_PROTOCOL}{backupserver}/{BEAT_PATH}", timeout=TIMEOUT,
             headers={"Content-Type": "application/json","clientSecret":SECRET,"id":identification})
         write_log("INFO", "Install server", "Identification: " + identification, 0, time.time())
     except:
@@ -625,16 +665,6 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
         except:
             write_log("INFO", "Install Server", "Nexum folder already exists or could not be created", 0, time.time())
 
-        # call to server to get install location and CURL to c:\Program Files\Nexum
-        # OR
-        # copy ./nexserv.exe to C:\Program Files\Nexum
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(current_dir,EXE_SERVER_NAME)
-        try:
-            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERVER_NAME)
-        except Exception as e:
-            write_log("ERROR", "Install Server", "Error copying nexserv.exe: " + str(e), 0, time.time())
-        
         write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
         install_nexserv_file()
         install_persistence(1)
@@ -681,7 +711,8 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
         #incorrect secret
     else:
         write_log("ERROR", "Install Client", "Incorrect Secret", 1101, time.time())
-    completed(window,"","server install completed")
+    window.destroy()
+    completed(tk.Tk(),"","Server install completed")
 
 def install_server(window:tk.Tk):
     """

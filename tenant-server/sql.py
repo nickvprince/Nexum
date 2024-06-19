@@ -282,19 +282,21 @@ class MySqlite():
         """
         Read a setting from the database
         """
-
-        conn = sqlite3.connect(SETTINGS_PATH)
-        cursor = conn.cursor()
-        cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
-        value = cursor.fetchone()[0]
-        conn.close()
-        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
-        output = result.stdout.strip()
-        output = output.split('\n\n', 1)[-1]
-        output = output[:24]
-        value = decrypt_string(output,value)
-        return value.rstrip()
+        try:
+            conn = sqlite3.connect(SETTINGS_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+            value = cursor.fetchone()[0]
+            conn.close()
+            result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
+            output = result.stdout.strip()
+            output = output.split('\n\n', 1)[-1]
+            output = output[:24]
+            value = decrypt_string(output,value)
+            return value.rstrip()
+        except:
+            return None
 
     @staticmethod
     def get_next_client_id():
