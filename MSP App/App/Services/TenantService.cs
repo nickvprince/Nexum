@@ -33,7 +33,7 @@ namespace App.Services
 
         public async Task<ICollection<Tenant>?> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync("api/Tenant/Get");
+            var response = await _httpClient.GetAsync("api/Tenant");
             var responseData = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ICollection<Tenant>>(responseData);
         }

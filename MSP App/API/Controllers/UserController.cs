@@ -38,7 +38,7 @@ namespace API.Controllers
             return Ok($"User deleted successfully.");
         }
 
-        [HttpGet("Get/{username}")]
+        [HttpGet("{username}")]
         public async Task<IActionResult> GetUserAsync(string username)
         {
             //Get the user
@@ -48,10 +48,10 @@ namespace API.Controllers
             {
                 return Ok(user);
             }
-            return NotFound(new { message = "User not found." });
+            return NotFound("User not found.");
         }
 
-        [HttpGet("Get")]
+        [HttpGet("")]
         public async Task<IActionResult> GetUsersAsync()
         {
             //Get the permissions
@@ -59,9 +59,9 @@ namespace API.Controllers
 
             if (users.Any())
             {
-                return Ok(new { User = users, Message = "" });
+                return Ok(users);
             }
-            return NotFound(new { message = "No users found." });
+            return NotFound("No users found.");
         }
     }
 }
