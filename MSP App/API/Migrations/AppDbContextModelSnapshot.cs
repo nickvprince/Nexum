@@ -430,6 +430,9 @@ namespace API.Migrations
                     b.Property<int?>("FileType")
                         .HasColumnType("int");
 
+                    b.Property<string>("Tag")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UploadedFileName")
                         .HasColumnType("nvarchar(max)");
 

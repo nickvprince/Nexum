@@ -246,7 +246,7 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add RolePermissions
-                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission1.Id, TenantId = tenant1.Id};
+                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission1.Id, TenantId = tenant1.Id };
                 var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission2.Id, TenantId = tenant2.Id };
                 var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permission3.Id, TenantId = tenant3.Id };
 
@@ -255,9 +255,9 @@ namespace API.DataAccess
 
                 // Add SoftwareFiles
 
-                var softwareFile1 = new SoftwareFile { UploadedFileName = "Nexum.exe", Version = "1.0.0-alpha", FileType = SoftwareFileType.Nexum };
-                var softwareFile2 = new SoftwareFile { UploadedFileName = "NexumServer.exe", Version = "1.0.0-alpha", FileType = SoftwareFileType.NexumServer };
-                var softwareFile3 = new SoftwareFile { UploadedFileName = "NexumService.exe", Version = "1.0.0-alpha", FileType = SoftwareFileType.NexumService };
+                var softwareFile1 = new SoftwareFile { UploadedFileName = "Nexum.exe", Version = "1.0.0", Tag = "alpha", FileType = SoftwareFileType.Nexum };
+                var softwareFile2 = new SoftwareFile { UploadedFileName = "NexumServer.exe", Version = "1.0.0", Tag = "alpha", FileType = SoftwareFileType.NexumServer };
+                var softwareFile3 = new SoftwareFile { UploadedFileName = "NexumService.exe", Version = "1.0.0", Tag = "alpha", FileType = SoftwareFileType.NexumService };
 
                 context.SoftwareFiles.AddRange(softwareFile1, softwareFile2, softwareFile3);
                 context.SaveChanges();

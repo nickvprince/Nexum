@@ -87,6 +87,7 @@ namespace API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UploadedFileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Tag = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileType = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

@@ -11,6 +11,7 @@ namespace SharedComponents.Entities
         public int Id { get; set; }
         public string? UploadedFileName { get; set; }
         public string? Version { get; set; }
+        public string? Tag { get; set; }
         public SoftwareFileType? FileType { get; set; }
     }
 
