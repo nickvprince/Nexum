@@ -23,7 +23,7 @@
             <tr>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
-                <td>@user.PasswordHash</td>
+                <td>@user.PasswordHash.Substring(0,15)</td>
                 <td>
                     <a asp-action="Edit">Edit</a> |
                     <a asp-action="Permissions">Permissions</a> |

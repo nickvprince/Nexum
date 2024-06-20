@@ -13,6 +13,6 @@ namespace SharedComponents.Services
         public Task<bool> EditAsync(Tenant tenant);
         public Task<bool> DeleteAsync(string id);
         public Task<Tenant?> GetAsync(string id);
-        public Task<List<Tenant>> GetAllAsync();
+        public Task<ICollection<Tenant>?> GetAllAsync();
     }
 }

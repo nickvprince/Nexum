@@ -1,0 +1,38 @@
+﻿@model ApplicationUser
+
+@{
+    ViewData["Title"] = "PermissionSets";
+}
+
+<h1>List of Permission Sets</h1>
+
+<a asp-action="Add">Add Permission Set</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Name</td>
+            <td>Description</td>
+            <td>IsActive</td>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @* @if (Model.UserPermissionSets != null)
+        {
+            foreach (var userPermissionSet in Model.UserPermissionSets)
+            {
+                <tr>
+                    <td>@userPermissionSet?.PermissionSet?.Permission?.Id</td>
+                    <td>@userPermissionSet?.PermissionSet?.Permission?.Name</td>
+                    <td>@userPermissionSet?.PermissionSet?.Permission?.Description</td>
+                    <td>@userPermissionSet?.PermissionSet?.IsActive</td>
+                    <td>
+                        <a asp-action="Delete">Delete</a>
+                    </td>
+                </tr>
+            }
+        } *@
+    </tbody>
+</table>

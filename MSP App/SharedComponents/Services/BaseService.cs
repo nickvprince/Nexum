@@ -44,7 +44,20 @@ namespace SharedComponents.Services
             }
             else
             {
-                // Handle error cases (you might want to throw an exception here)
+                return null;
+            }
+        }
+
+
+        public async Task<dynamic?> ProcessResponsev2(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<dynamic>();
+                return data?.data?.ToObject<List<dynamic>>();
+            }
+            else
+            {
                 return null;
             }
         }

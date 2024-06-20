@@ -14,7 +14,7 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public Task<bool> AddAsync(User user)
+        public Task<bool> AddAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
@@ -24,16 +24,16 @@ namespace API.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> EditAsync(User user)
+        public Task<bool> EditAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User?> GetAsync(string username)
+        public async Task<ApplicationUser?> GetAsync(string username)
         {
             return await _appDbContext.Users.FirstOrDefaultAsync(u => u.UserName == username);
         }
-        public async Task<List<User>> GetAllAsync()
+        public async Task<ICollection<ApplicationUser>> GetAllAsync()
         {
             return await _appDbContext.Users.ToListAsync();
         }
