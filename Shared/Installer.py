@@ -37,6 +37,17 @@
 #               8. install_server(window:tk.Tk)
 #               9. main_window(window:tk.Tk)
 #               10. main()
+#               11. install_server_background(window:tk.Tk, backupserver:str, key:str)
+#               12. install_persistence(client_server:int)
+#               13. notify_msp()
+#               14. install_client_background(window:tk.Tk, backupserver:str, key:str)
+#               15. install_client(window:tk.Tk)
+#               16. install_server(window:tk.Tk)
+#               17. main_window(window:tk.Tk)
+
+# Note. This file will fail. current_directory pulls from a temp directory 
+# in programdata and not the actual directory, this will be rectified when 
+# pulling the files from the msp
 
 """
 
@@ -75,7 +86,7 @@ EXE_SERVER_NAME = "nexserv.exe"
 EXE_WATCHDOG_NAME = "watchdog.exe"
 EXE_SERV_WATCHDOG_NAME = "watchdogserv.exe"
 WINDOW_GEOMETRY = "1000x600"
-backupserver_msp = "127.0.0.1:5000"
+BACKUPSERVER_MSP = "127.0.0.1:5000"
 PORT = 5000
 HYPER_PROTOCOL = "http://"
 IMAGE_PATH = '../Data/Nexum.png'
@@ -386,7 +397,7 @@ def install_nexserv_file():
     Information
     """
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-    path = os.path.join(r"C:\Users\teche\Conestoga College\Nicholas Prince - Capstone Collaboration\Py-To-Exe\auto-py-to-exe-master\output",EXE_SERVER_NAME) # directory for logs
+    path = os.path.join(current_dir,EXE_SERVER_NAME) # directory for logs
     outpath = OS_FILE_PATH+"\\"+EXE_SERVER_NAME
     try:
         write_log("INFO", "Install Server", "nexserv.exe copied " + path + " - " + outpath, 0, time.time())
@@ -406,34 +417,9 @@ def install_nexum_file():
     
     path = os.path.join(current_dir,EXE_NEXUM_NAME) # directory for logs
     try:
-        url = "http://127.0.0.1:6969/info"
-        data = {
-            "from":path,
-            "to":OS_FILE_PATH+"\\"+EXE_NEXUM_NAME
-        }
 
-        response = requests.post(url, json=data)
-        if response.status_code == 200:
-            print("Post request successful")
-        else:
-            print("Post request failed")
         shutil.copy(path, OS_FILE_PATH+"\\"+EXE_NEXUM_NAME)
-    except Exception as e:
-        try:
-            url = "http://127.0.0.1:6969/info"
-            data = {
-                "from":path,
-                "to":OS_FILE_PATH+"\\"+EXE_NEXUM_NAME,
-                "error":str(e)
-            }
-
-            response = requests.post(url, json=data)
-            if response.status_code == 200:
-                print("Post request successful")
-            else:
-                print("Post request failed")
-        except:
-            pass
+    except:
         write_log("ERROR", "Install Nexum", "Nexum file could not be copied", 0, time.time())
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 

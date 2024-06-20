@@ -682,11 +682,6 @@ class FlaskServer():
         """
         secret = request.headers.get('clientSecret')
         key = request.headers.get('key')
-        Logger.debug_print("--------")
-        Logger.debug_print(secret)
-        Logger.debug_print(key)
-        Logger.debug_print(KEYS[0])
-        Logger.debug_print("--------")
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
             Logger.debug_print("secret matches")
