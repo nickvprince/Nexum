@@ -16,8 +16,6 @@ import time
 from MySqlite import MySqlite
 import requests
 from logger import Logger
-from security import CLIENT_SECRET
-from helperfunctions import CLIENT_ID
 import threading
 from security import Security
 #pylint: disable=bare-except,global-statement
@@ -37,32 +35,30 @@ class HeartBeat:
         """
         Sends a checkin to the server
         """
-        global CLIENT_SECRET
-        global CLIENT_ID
 
-        CLIENT_SECRET = MySqlite.read_setting("client_secret")
-        CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
-        temp = Security.sha256_string(CLIENT_SECRET)
-        temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+        client_secret = MySqlite.read_setting("client_secret")
+        client_id = MySqlite.read_setting("CLIENT_ID")
+        temp = Security.sha256_string(client_secret)
+        temp = Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2"))
         temp = Security.encrypt_client_secret(temp)
         headers = {
             "secret": str(temp),
-            "id": str(CLIENT_ID)
+            "id": str(client_id)
         }
         url = "http://"+self.server_address+":"+self.server_port+"/beat"
-        print("Sending heartbeat to: ",url)
-        print("Headers: ",headers)
+        Logger.debug_print("Sending heartbeat to: "+url)
+        Logger.debug_print("Headers: "+headers.keys().__str__()+" "+headers.values().__str__() )
         try:
             response = requests.post(url, headers=headers,timeout=15)
             if response.status_code == 200:
                 # Handle success
-                print("Success: Heartbeat sent")
+                Logger.debug_print("Success: Heartbeat sent")
             else:
                 # Handle error
-                print("Error: Failed to send heartbeat")
+                Logger.debug_print("Error: Failed to send heartbeat")
         except:
             logger = Logger()
-            logger.log("High","HeartBear","Failed to send heartbeat to server","1006",time.time())
+            logger.log("High","HeartBeat","Failed to send heartbeat to server","1006",time.time())
 
 
 

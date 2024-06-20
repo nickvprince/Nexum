@@ -37,6 +37,17 @@
 #               8. install_server(window:tk.Tk)
 #               9. main_window(window:tk.Tk)
 #               10. main()
+#               11. install_server_background(window:tk.Tk, backupserver:str, key:str)
+#               12. install_persistence(client_server:int)
+#               13. notify_msp()
+#               14. install_client_background(window:tk.Tk, backupserver:str, key:str)
+#               15. install_client(window:tk.Tk)
+#               16. install_server(window:tk.Tk)
+#               17. main_window(window:tk.Tk)
+
+# Note. This file will fail. current_directory pulls from a temp directory 
+# in programdata and not the actual directory, this will be rectified when 
+# pulling the files from the msp
 
 """
 
@@ -55,9 +66,13 @@ import requests
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import sys
-
+import win32com.shell.shell as shell
+from task import client_persistance, server_persistance
+import requests
+ASADMIN = 'asadmin'
 
 #pylint: disable= bare-except, broad-except
+EXE_SERVICE_NAME = "nexum_service.exe"
 REGISTRATION_PATH = "check-installer"
 AUTO_RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 APP_PATH_KEY = r"Software\Microsoft\Windows\CurrentVersion\App Paths"
@@ -71,6 +86,7 @@ EXE_SERVER_NAME = "nexserv.exe"
 EXE_WATCHDOG_NAME = "watchdog.exe"
 EXE_SERV_WATCHDOG_NAME = "watchdogserv.exe"
 WINDOW_GEOMETRY = "1000x600"
+BACKUPSERVER_MSP = "127.0.0.1:5000"
 PORT = 5000
 HYPER_PROTOCOL = "http://"
 IMAGE_PATH = '../Data/Nexum.png'
@@ -125,7 +141,7 @@ def read_setting(setting):
     value = cursor.fetchone()[0]
     conn.close()
     result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                                capture_output=True, text=True,check=True) # enc with uuid
+                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
     output = result.stdout.strip()
     output = output.split('\n\n', 1)[-1]
     output = output[:24]
@@ -176,7 +192,41 @@ def uninstall_from_server(backserver:str, key:str):
     except:
         write_log("ERROR", "Uninstall", "Could not connect to server: ", 1115, time.time())
         return 400
-def uninstall_program(key:str):
+    
+    
+def completed(window:tk.Tk,message:str,state:str):
+    """
+    Information 
+    """
+    write_log("INFO", "Completed", "completed window opened - "+str(message) + " - " + str(state), 0, time.time())
+    window.destroy()
+    new_window = tk.Tk()
+    new_window.title("Nexum - Completed")
+    new_window.geometry(WINDOW_GEOMETRY)
+    new_window.resizable(False, False)  # Set resizable to False
+    current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
+    working_dir = os.path.join(current_dir,IMAGE_PATH) # directory for logs
+    image = Image.open(working_dir)
+    image = image.resize((800, 200))  # Adjust the size of the image as needed
+
+    photo = ImageTk.PhotoImage(image)
+    image_label = tk.Label(new_window, image=photo)
+    image_label.pack(pady=50)
+
+    message_label = tk.Label(new_window, text=message)
+    message_label.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
+
+    state_label = tk.Label(new_window, text=state)
+    state_label.place(relx=0.5, rely=0.8, anchor=tk.CENTER)
+
+    back_button = tk.Button(new_window, text="Home", width=25,height=5, command=lambda: main_window(new_window))
+    back_button.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID, borderwidth=1,
+                            highlightthickness=0, highlightbackground="black",
+                            highlightcolor="black", padx=10, pady=5, font=("Arial", 10),
+                            overrelief=tk.RIDGE)
+    back_button.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
+    new_window.mainloop()
+def uninstall_program(key:str,window:tk.Tk):
     """
     Information
     """
@@ -214,15 +264,20 @@ def uninstall_program(key:str):
             not_installed_indentifiers += 1
         except Exception as e:
             write_log("ERROR", "Uninstall", "App key could not be deleted : " + e, 1105, time.time())
+        try:
+            subprocess.Popen(['sc', 'stop', 'nexumservice'],shell=True)
+            subprocess.Popen(['sc', 'delete', 'nexumservice'],shell=True)
+        except:
+            write_log("ERROR", "Uninstall", "Service could not be deleted", 0, time.time())
 
         identifiers_count += 1
         if os.path.exists(OS_FILE_PATH):
 
             try:
-                subprocess.call(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME])
-                subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME])
-                subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME])
-                subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME])
+                subprocess.Popen(["taskkill", "/F", "/IM", EXE_WATCHDOG_NAME],shell=True)
+                subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
+                subprocess.call(["taskkill", "/F", "/IM", EXE_SERV_WATCHDOG_NAME],shell=True)
+                subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
                 breakcount:int = 0
                 time.sleep(1) # time to stop the processes
                 shutil.rmtree(OS_FILE_PATH)
@@ -240,6 +295,22 @@ def uninstall_program(key:str):
         else:
             write_log("INFO", "Uninstall", "Nexum folder does not exist", 0, time.time())
             not_installed_indentifiers += 1
+        # delete scheduled tasks nexum and nexserv
+        del_count:int=0
+        try:
+            os.system('schtasks /delete /tn nexum /f')
+        except:
+            del_count += 1
+        try:
+            os.system('schtasks /delete /tn nexserv /f')
+        except:
+            del_count += 1
+        if del_count == 2:
+            write_log("Error", "Uninstall", "Scheduled tasks both deleted, should only be one", 0, time.time())
+        elif del_count == 1:
+            write_log("INFO", "Uninstall", "Scheduled task deleted", 0, time.time())
+        else:
+            write_log("Error", "Uninstall", "No tasks deleted", 0, time.time())
 
         identifiers_count += 1
         try:
@@ -260,8 +331,25 @@ def uninstall_program(key:str):
         uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
         write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
                 0, time.time())
+
+    
+        try:
+            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexum', '/f'],shell=True)
+        except:
+            write_log("ERROR", "Uninstall", "Scheduled task nexum could not be deleted", 0, time.time())
+        try:
+            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexserv', '/f'],shell=True)
+        except:
+            write_log("ERROR", "Uninstall", "Scheduled task nexserv could not be deleted", 0, time.time())
+        #delete service
+
+            # delete service nexum_service
+        completed(window,"","uninstall completed")
     else:
         write_log("ERROR", "Uninstall", "Could not uninstall from server", 1115, time.time())
+    # delete scheduled tasks nexum and nexserv
+
+
 
 def uninstall(window:tk.Tk):
     """
@@ -288,7 +376,7 @@ def uninstall(window:tk.Tk):
     lock_entry.place(relx=0.52, rely=0.6, anchor=tk.CENTER)
 
     uninstall_button = tk.Button(new_window, text="Uninstall", width=25,
-                            height=3, command=lambda:uninstall_program(lock_entry.get()))
+                            height=3, command=lambda:uninstall_program(lock_entry.get(),new_window))
     uninstall_button.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID,
                             borderwidth=1, highlightthickness=0, highlightbackground="black",
                             highlightcolor="black", padx=10, pady=5, font=("Arial", 10),
@@ -304,6 +392,19 @@ def uninstall(window:tk.Tk):
     back_button.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
 
     new_window.mainloop()
+def install_nexserv_file():
+    """
+    Information
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
+    path = os.path.join(current_dir,EXE_SERVER_NAME) # directory for logs
+    outpath = OS_FILE_PATH+"\\"+EXE_SERVER_NAME
+    try:
+        write_log("INFO", "Install Server", "nexserv.exe copied " + path + " - " + outpath, 0, time.time())
+        shutil.copy(path,outpath)
+    except:
+        write_log("ERROR", "Install Server", "nexserv.exe could not be copied", 0, time.time())
+    write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
 
 def install_nexum_file():
     """
@@ -313,26 +414,52 @@ def install_nexum_file():
     # OR
     # copy ./Nexum.exe to C:\Program Files\Nexum
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
+    
     path = os.path.join(current_dir,EXE_NEXUM_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"/"+EXE_NEXUM_NAME)
+    try:
+
+        shutil.copy(path, OS_FILE_PATH+"\\"+EXE_NEXUM_NAME)
+    except:
+        write_log("ERROR", "Install Nexum", "Nexum file could not be copied", 0, time.time())
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 
-def install_watchdog_file():
+def install_service():
     """
     Information
     """
-        # call to server to get install location and CURL to c:\Program Files\Nexum
-        # OR
-        # copy ./watchdog.exe to C:\Program Files\Nexum
+    # call to server to get install location and CURL to c:\Program Files\Nexum
+    # OR
+    # copy ./nexserv.exe to C:\Program Files\Nexum
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-    path = os.path.join(current_dir,EXE_WATCHDOG_NAME) # directory for logs
-    shutil.copy(path, OS_FILE_PATH+"\\"+EXE_WATCHDOG_NAME)
-    write_log("INFO", "Install Watchdog", "Watchdog file installed", 0, time.time())
+    path = os.path.join(current_dir,EXE_SERVICE_NAME) # directory for logs
+    try:
+        shutil.copy(path, OS_FILE_PATH+"\\"+EXE_SERVICE_NAME)
+    except:
+        write_log("ERROR", "Install Service", "nexumservice.exe could not be copied", 0, time.time())
+    # install exe as service
+    subprocess.Popen(['sc', 'create', 'nexumservice', 'binPath=' + str(OS_FILE_PATH+"/"+EXE_SERVICE_NAME), 'start=', 'auto'],shell=True)
+    # set 3 recovery options to restart at 60 seconds
+    subprocess.Popen(['sc', 'failure', 'nexumservice', 'reset=', '60', 'actions=', 'restart/60000/restart/60000/restart/60000'],shell=True)
+    #start the service
+    subprocess.Popen(['sc', 'start', 'nexumservice'],shell=True)
+    write_log("INFO", "Install Service", "nexumservice.exe installed", 0, time.time())
+
+def install_persistence(client_server:int):
+    """
+    Information
+    """
+    if client_server == 0:
+        client_persistance()
+        write_log("INFO", "Install Service", "Client Scheduled task setup", 0, time.time())
+    else:
+        server_persistance()
+        write_log("INFO", "Install Service", "Server scheduled task setup", 0, time.time())
 
 def notify_server():
     """
     Information
     """
+    # verify route
 
 def install_client_background(window:tk.Tk, backupserver:str, key:str):
     """
@@ -374,7 +501,8 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
             print("Nexum folder already exists or could not be created")
 
         install_nexum_file()
-        install_watchdog_file()
+        install_persistence(0)
+        install_service()
         # create keys in registry
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
@@ -412,17 +540,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
             write_log("ERROR", "Install Client", "Error adding registry keys: "
                      + str(e), 1102, time.time())
 
-        # run c:\Program Files\Nexum\Nexum.exe
-        # run c:\Program Files\Nexum\watchdog.exe
-        # Run Nexum.exe
-        nexum_path = OS_FILE_PATH + "\\" + EXE_NEXUM_NAME
-        subprocess.Popen(nexum_path, shell=True)
-        write_log("INFO", "Install Client", "Nexum.exe ran", 0, time.time())
 
-        # Run watchdog.exe
-        watchdog_path = OS_FILE_PATH + "\\" + EXE_WATCHDOG_NAME
-        subprocess.Popen(watchdog_path, shell=True)
-        write_log("INFO", "Install Client", "Watchdog.exe ran", 0, time.time())
 
         # notify server that the installation is complete
         notify_server()
@@ -431,7 +549,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
     else:
         write_log("ERROR", "Install Client", "Incorrect Secret", 1101, time.time())
     window.destroy()
-    main_window(tk.Tk())
+    completed(tk.Tk(),"","client install completed")
 
 
 
@@ -494,6 +612,7 @@ def notify_msp():
     """
     Information 
     """
+    # call verify route
 
 def install_server_background(window:tk.Tk, backupserver:str, key:str):
     """
@@ -532,21 +651,10 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
         except:
             write_log("INFO", "Install Server", "Nexum folder already exists or could not be created", 0, time.time())
 
-        # call to server to get install location and CURL to c:\Program Files\Nexum
-        # OR
-        # copy ./nexserv.exe to C:\Program Files\Nexum
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(current_dir,EXE_SERVER_NAME)
-        try:
-            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
-        except Exception as e:
-            write_log("ERROR", "Install Server", "Error copying nexserv.exe: " + str(e), 0, time.time())
-        
         write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
-        try:
-            shutil.copy(path, OS_FILE_PATH+"/"+EXE_SERV_WATCHDOG_NAME)
-        except Exception as e:  
-            write_log("ERROR", "Install Server", "Error copying watchdogserv.exe: " + str(e), 0, time.time())
+        install_nexserv_file()
+        install_persistence(1)
+        install_service()
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
             run_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
@@ -583,18 +691,6 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
             write_log("ERROR", "Install Server", "Error adding registry keys: "
                      + str(e), 1102, time.time())
 
-        # run c:\Program Files\Nexum\Nexum.exe
-        # run c:\Program Files\Nexum\watchdog.exe
-        # Run Nexum.exe
-        nexum_path = OS_FILE_PATH + "\\" + EXE_SERVER_NAME
-        subprocess.Popen(nexum_path, shell=True)
-        write_log("INFO", "Install SERVER", "nexserv.exe ran", 0, time.time())
-
-        # Run watchdog.exe
-        watchdog_path = OS_FILE_PATH + "\\" + EXE_SERV_WATCHDOG_NAME
-        subprocess.Popen(watchdog_path, shell=True)
-        write_log("INFO", "Install Client", "Watchdog_serv.exe ran", 0, time.time())
-
         # notify server that the installation is complete
         notify_msp()
 
@@ -602,7 +698,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
     else:
         write_log("ERROR", "Install Client", "Incorrect Secret", 1101, time.time())
     window.destroy()
-    main_window(tk.Tk())
+    completed(tk.Tk(),"","Server install completed")
 
 def install_server(window:tk.Tk):
     """
@@ -712,10 +808,16 @@ def main_window(window:tk.Tk):
 def main():
     """
     Information
-    """
-    t = tk.Tk()
-    main_window(t)
+    """  
+    if sys.argv[-1] != ASADMIN:
+        script = os.path.abspath(sys.argv[0])
+        params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
+        shell.ShellExecuteEx(lpVerb='runas', lpFile=sys.executable, lpParameters=params)
+    else:
+        t = tk.Tk()
+        main_window(t)
     return 0
 
 if __name__ == "__main__":
     main()
+

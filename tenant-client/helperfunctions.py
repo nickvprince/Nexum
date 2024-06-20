@@ -35,6 +35,14 @@ TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
 # pylint: disable= bare-except
 # pylint: disable= global-statement
 
+def get_uuid():
+
+    """
+    Get the UUID of the computer
+    """
+    # get the UUID of the computer
+    return "1234-567"
+
 def load():
     """
     Load the client secret
@@ -138,8 +146,6 @@ def get_client_info():
     # call API from A3 to get the rest of the information that wasnt set
     if client_id_set:
         CLIENT_ID = API.get_client_id()
-    if tenant_id_set:
-        TENANT_ID = API.get_tenant_id()
     if tenant_portal_url_set:
         TENANT_PORTAL_URL = API.get_tenant_portal_url()
 

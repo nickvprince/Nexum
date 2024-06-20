@@ -15,7 +15,8 @@
 # pylint: disable= import-error, unused-argument,line-too-long
 import conf
 import jobsettings
-from sql import settingsDirectory, jobFile, configFile, job_settingsFile, sqlite3
+from sql import settingsDirectory, jobFile, configFile, job_settingsFile, sqlite3,MySqlite
+import datetime
 
 
 class Job():
@@ -85,29 +86,37 @@ class Job():
         """
         Loads the job from the database
         """
+        try:
+            conn = sqlite3.connect(settingsDirectory+jobFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
+            info = cursor.fetchone()
+            self.set_id(info[0])
+            self.set_title(info[1])
+            self.set_created(info[2])
+            conn.close()
+        except Exception as e:
+            MySqlite.write_log("ERROR","JOB","Error Loading Job - "+str(e),500,datetime.datetime.now())
 
-        conn = sqlite3.connect(settingsDirectory+jobFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
-        info = cursor.fetchone()
-        self.set_id(info[0])
-        self.set_title(info[1])
-        self.set_created(info[2])
-        conn.close()
+        try:
+            conn = sqlite3.connect(settingsDirectory+configFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM config WHERE ID = ?', (self.get_id(),))
+            my_config = cursor.fetchone()
+            conn.close()
+        except Exception as e:
+            MySqlite.write_log("ERROR","JOB","Error Loading Config - "+str(e),500,datetime.datetime.now())
 
-        conn = sqlite3.connect(settingsDirectory+configFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM config WHERE ID = ?', (self.get_id(),))
-        my_config = cursor.fetchone()
-        conn.close()
-
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (self.get_id(),))
-        my_settings = cursor.fetchone()
-        conn.close()
-        self.set_config(my_config)
-        self.set_settings(my_settings)
+        try:
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (self.get_id(),))
+            my_settings = cursor.fetchone()
+            conn.close()
+            self.set_config(my_config)
+            self.set_settings(my_settings)
+        except Exception as e:
+            MySqlite.write_log("ERROR","JOB","Error Loading Job Settings - "+str(e),500,datetime.datetime.now())
 
     def delete(self):
         """ 

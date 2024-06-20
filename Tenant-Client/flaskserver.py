@@ -22,6 +22,7 @@ from logger import Logger
 from job import Job
 from jobsettings import JobSettings
 from conf import Configuration
+from MySqlite import MySqlite
 RUN_JOB_OBJECT = None
 
 
@@ -79,7 +80,7 @@ class FlaskServer():
 
         temp = Security.sha256_string(CLIENT_SECRET)
 
-        temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
+        temp = Security.add_salt_pepper(temp, Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2")))
 
 
 
