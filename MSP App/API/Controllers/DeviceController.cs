@@ -8,6 +8,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class DeviceController : ControllerBase
     {
         private readonly DbDeviceService _dbDeviceService;
