@@ -73,6 +73,8 @@ namespace API.DataAccess
         public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
         public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
         public DbSet<SoftwareFile> SoftwareFiles { get; set; }
+        public DbSet<DeviceAlert> Alerts { get; set; }
+        public DbSet<DeviceLog> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -112,6 +114,30 @@ namespace API.DataAccess
                 .HasForeignKey<DeviceInfo>(di => di.DeviceId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure the Device and Alert relationship
+            modelBuilder.Entity<Device>()
+                .HasMany(d => d.Alerts)
+                .WithOne(a => a.Device)
+                .HasForeignKey(a => a.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure the AlertSeverity enum to be stored as a string
+            modelBuilder.Entity<DeviceAlert>()
+                .Property(a => a.Severity)
+                .HasConversion<string>();
+
+            // Configure the Device and Log relationship
+            modelBuilder.Entity<Device>()
+                .HasMany(d => d.Logs)
+                .WithOne(a => a.Device)
+                .HasForeignKey(a => a.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure the AlertSeverity enum to be stored as a string
+            modelBuilder.Entity<DeviceLog>()
+                .Property(l => l.Type)
+                .HasConversion<string>();
+
             // DeviceInfo and MacAddress one-to-many relationship
             modelBuilder.Entity<DeviceInfo>()
                 .HasMany(di => di.MACAddresses)
@@ -122,6 +148,11 @@ namespace API.DataAccess
             // Configure the DeviceType enum to be stored as a string
             modelBuilder.Entity<DeviceInfo>()
                 .Property(di => di.Type)
+                .HasConversion<string>();
+
+            // Configure the DeviceStatus enum to be stored as a string
+            modelBuilder.Entity<Device>()
+                .Property(d => d.Status)
                 .HasConversion<string>();
 
             // Tenant and InstallationKey one-to-many relationship
@@ -165,6 +196,11 @@ namespace API.DataAccess
                 .HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId);
+
+            // Configure the SoftwareFileType enum to be stored as a string
+            modelBuilder.Entity<SoftwareFile>()
+                .Property(s => s.FileType)
+                .HasConversion<string>();
         }
         private static void SeedData(IServiceProvider serviceProvider, string adminUserId, string normalUserId)
         {
@@ -191,9 +227,9 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Devices and DeviceInfos
-                var device1 = new Device { TenantId = tenant1.Id, IsVerified = true, Status = DeviceStatus.Online, StatusMessage = "This device is online." };
-                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true, Status = DeviceStatus.BackupInProgress, StatusMessage = "Backup almost complete." };
-                var device3 = new Device { TenantId = tenant3.Id, IsVerified = false, Status = DeviceStatus.Offline, StatusMessage = "This device is offline." };
+                var device1 = new Device { TenantId = tenant1.Id, IsVerified = true, Status = DeviceStatus.Online };
+                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true, Status = DeviceStatus.BackupInProgress };
+                var device3 = new Device { TenantId = tenant3.Id, IsVerified = false, Status = DeviceStatus.Offline };
 
                 context.Devices.AddRange(device1, device2, device3);
                 context.SaveChanges();
@@ -260,6 +296,20 @@ namespace API.DataAccess
                 var softwareFile3 = new SoftwareFile { UploadedFileName = "NexumService.exe", Version = "1.0.0", Tag = "alpha", FileType = SoftwareFileType.NexumService };
 
                 context.SoftwareFiles.AddRange(softwareFile1, softwareFile2, softwareFile3);
+                context.SaveChanges();
+
+                var alert1 = new DeviceAlert { DeviceId = device1.Id, Severity = AlertSeverity.Critical, Message = "Device is offline" };
+                var alert2 = new DeviceAlert { DeviceId = device2.Id, Severity = AlertSeverity.Information, Message = "Device is Online" };
+                var alert3 = new DeviceAlert { DeviceId = device3.Id, Severity = AlertSeverity.Low, Message = "Heart beat missed" };
+
+                context.Alerts.AddRange(alert1, alert2, alert3);
+                context.SaveChanges();
+
+                var log1 = new DeviceLog { DeviceId = device1.Id, Type = LogType.Information, Subject = "Device", Message = "Device is online", Code = 0, Time = DateTime.Now };
+                var log2 = new DeviceLog { DeviceId = device2.Id, Type = LogType.Warning, Subject = "Device", Message = "Device is offline", Code = 1, Time = DateTime.Now.AddMinutes(1) };
+                var log3 = new DeviceLog { DeviceId = device3.Id, Type = LogType.Error, Subject = "Device", Message = "Heart beat missed", Code = 3, Time = DateTime.Now.AddMinutes(2) };
+
+                context.Logs.AddRange(log1, log2, log3);
                 context.SaveChanges();
 
             }

@@ -7,11 +7,15 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.RequestEntities
 {
-    public class UpdateDeviceStatusRequest
+    public class CreateLogRequest
     {
         public int Client_Id { get; set; }
         public string? Uuid { get; set; }
-        public DeviceStatus? Status { get; set; }
-        public string? Status_Message { get; set; }
+        public string? Subject { get; set; }
+        public string? Message { get; set; }
+        public int Code { get; set; }
+        public string? Stack_Trace { get; set; }
+        public DateTime Time { get; set; }
+        public LogType Type { get; set; }
     }
 }

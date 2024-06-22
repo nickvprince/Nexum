@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "a17885cd-14f2-4fee-82e0-47d7ab234dda",
+		"name": "Nexum Web API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26488212"
+	},
+	"item": [
+		{
+			"name": "Tenant-Server Requests",
+			"item": [
+				{
+					"name": "DataLink/Check-For-Updates",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nexumVersion\": \"1.0.0\",\r\n    \"nexumTag\": \"alpha\",\r\n    \"nexumServerVersion\": \"1.0.0\",\r\n    \"nexumServerTag\": \"alpha\",\r\n    \"nexumServiceVersion\": \"1.0.1\",\r\n    \"nexumServiceTag\": \"alpha\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Check-For-Updates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Check-For-Updates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software/Nexum",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Software/Nexum",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Software",
+								"Nexum"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software/NexumServer",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Software/NexumServer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Software",
+								"NexumServer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software/NexumService",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Software/NexumService",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Software",
+								"NexumService"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Urls",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Urls",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Urls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Register-Device (Server)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"08ee5fa6-2b4c-427c-90be-d90f0108327c\",\r\n    \"type\": 0,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Register-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Register-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Register-Device (Client)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": 1,\r\n    \"uuid\": \"11111111-1032-4210-8051-F1G54F435A34\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"installationkey\": \"53470c43-b075-455d-863d-3b804d24d4ec\",\r\n    \"type\": 1,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Register-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Register-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Verify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"installationkey\": \"f6e0b1e2-02d5-4419-a2ac-c9d2840c3a8b\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Alert",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"severity\": 4,\r\n    \"message\": \"Heartbeat missed\",\r\n    \"time\": \"2024-06-20T08:33:09.203Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Alert",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Alert"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Log",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"subject\": \"Device\",\r\n    \"message\": \"Device X has gone offline\",\r\n    \"code\": 10,\r\n    \"time\": \"2024-06-20T08:33:09.203Z\",\r\n    \"type\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Log",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Log"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Web Requests",
+			"item": [
+				{
+					"name": "/Tenant/Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"TestingBank\",\r\n    \"tenantInfo\": {\r\n        \"name\": \"Bank Contact\",\r\n        \"email\": \"contact@testingbank.com\",\r\n        \"phone\": \"111-111-111\",\r\n        \"address\": \"234 testing road\",\r\n        \"city\": \"Waterloo\",\r\n        \"state\": \"Ontario\",\r\n        \"zip\": \"A1B 2C3\",\r\n        \"country\": \"Canada\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7101/api/Tenant/Create",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7101",
+							"path": [
+								"api",
+								"Tenant",
+								"Create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/Tenant/Create-Installation-Key",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Tenant/Create-Installation-Key/4",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Tenant",
+								"Create-Installation-Key",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "apiKey",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

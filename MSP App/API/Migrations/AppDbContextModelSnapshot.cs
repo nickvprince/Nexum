@@ -296,10 +296,7 @@ namespace API.Migrations
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StatusMessage")
+                    b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TenantId")
@@ -310,6 +307,37 @@ namespace API.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Devices", (string)null);
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceAlert", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Acknowledged")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("Alerts");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
@@ -334,8 +362,7 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Port")
-                        .IsRequired()
+                    b.Property<int>("Port")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
@@ -352,6 +379,43 @@ namespace API.Migrations
                         .IsUnique();
 
                     b.ToTable("DeviceInfos", (string)null);
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Code")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Stack_Trace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.InstallationKey", b =>
@@ -427,8 +491,8 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("FileType")
-                        .HasColumnType("int");
+                    b.Property<string>("FileType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Tag")
                         .HasColumnType("nvarchar(max)");
@@ -617,11 +681,33 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.DeviceAlert", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                        .WithMany("Alerts")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
                 {
                     b.HasOne("SharedComponents.Entities.Device", "Device")
                         .WithOne("DeviceInfo")
                         .HasForeignKey("SharedComponents.Entities.DeviceInfo", "DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceLog", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                        .WithMany("Logs")
+                        .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -675,8 +761,12 @@ namespace API.Migrations
 
             modelBuilder.Entity("SharedComponents.Entities.Device", b =>
                 {
+                    b.Navigation("Alerts");
+
                     b.Navigation("DeviceInfo")
                         .IsRequired();
+
+                    b.Navigation("Logs");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>

@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.RequestEntities
 {
-    public class ServerRegistrationRequest
+    public class CreateAlertRequest
     {
-        public string? Name { get; set; }
         public int Client_Id { get; set; }
         public string? Uuid { get; set; }
-        public string? IpAddress { get; set; }
-        public int Port { get; set; }
-        public string? InstallationKey { get; set; }
-        public ICollection<MACAddress>? MACAddresses { get; set; }
+        public AlertSeverity Severity { get; set; }
+        public string? Message { get; set; }
+        public DateTime Time { get; set; }
     }
 }

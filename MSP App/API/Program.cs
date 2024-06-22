@@ -18,6 +18,8 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient("ServerClient");
+
 // Add services to the container.
 var connStr = builder.Configuration.GetConnectionString("NexumAppDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connStr));
@@ -26,6 +28,8 @@ builder.Services.AddScoped<DbTenantService>();
 builder.Services.AddScoped<DbDeviceService>();
 builder.Services.AddScoped<DbSecurityService>();
 builder.Services.AddScoped<DbSoftwareService>();
+builder.Services.AddScoped<DbAlertService>();
+builder.Services.AddScoped<DbLogService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;

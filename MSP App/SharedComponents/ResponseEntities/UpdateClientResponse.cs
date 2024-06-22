@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.ResponseEntities
 {
-    public class UpdateDeviceStatusResponse
+    public class UpdateClientResponse
     {
         public string? Name { get; set; }
-        public DeviceStatus? Status { get; set; }
-        public string? StatusMessage { get; set; }
+        public string? IpAddress { get; set; }
+        public int Port { get; set; }
+        public ICollection<MACAddressResponse>? MACAddresses { get; set; }
+        public string? Type { get; set; }
     }
 }

@@ -9,7 +9,6 @@ namespace SharedComponents.ResponseEntities
 {
     public class MACAddressResponse
     {
-        public int Id { get; set; }
         public string? Address { get; set; }
     }
 }
