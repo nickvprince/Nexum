@@ -55,8 +55,8 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpPost("Register-Device")]
-        public async Task<IActionResult> RegisterDeviceAsync([FromHeader] string apikey, [FromBody] DeviceRegistrationRequest request)
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync([FromHeader] string apikey, [FromBody] DeviceRegistrationRequest request)
         {
             if (await _dbSecurityService.ValidateAPIKey(apikey))
             {
@@ -278,8 +278,8 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpPut("Update-Device")]
-        public async Task<IActionResult> UpdateDeviceAsync([FromHeader] string apikey, [FromBody] UpdateClientRequest request)
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateAsync([FromHeader] string apikey, [FromBody] UpdateClientRequest request)
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
             {

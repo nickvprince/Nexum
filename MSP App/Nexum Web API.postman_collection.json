@@ -147,7 +147,7 @@
 					"response": []
 				},
 				{
-					"name": "DataLink/Register-Device (Server)",
+					"name": "DataLink/Register (Server)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -159,7 +159,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"08ee5fa6-2b4c-427c-90be-d90f0108327c\",\r\n    \"type\": 0,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"960f15e5-e7fc-42bb-adb0-1ce51d342e0b\",\r\n    \"type\": 0,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -167,21 +167,21 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Register-Device",
+							"raw": "{{baseUrl}}/api/DataLink/Register",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"DataLink",
-								"Register-Device"
+								"Register"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "DataLink/Register-Device (Client)",
+					"name": "DataLink/Register (Client)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -193,7 +193,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": 1,\r\n    \"uuid\": \"11111111-1032-4210-8051-F1G54F435A34\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"installationkey\": \"53470c43-b075-455d-863d-3b804d24d4ec\",\r\n    \"type\": 1,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": 1,\r\n    \"uuid\": \"11111111-1032-4210-8051-F1G54F435A34\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"installationkey\": \"9964fe94-965f-4d25-a5ce-4e67fde5c2fa\",\r\n    \"type\": 1,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -201,14 +201,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Register-Device",
+							"raw": "{{baseUrl}}/api/DataLink/Register",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"DataLink",
-								"Register-Device"
+								"Register"
 							]
 						}
 					},
@@ -227,7 +227,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"installationkey\": \"f6e0b1e2-02d5-4419-a2ac-c9d2840c3a8b\"\r\n}",
+							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"installationkey\": \"960f15e5-e7fc-42bb-adb0-1ce51d342e0b\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -249,7 +249,7 @@
 					"response": []
 				},
 				{
-					"name": "DataLink/Update-Device",
+					"name": "DataLink/Update",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -261,7 +261,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -269,14 +269,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Update-Device",
+							"raw": "{{baseUrl}}/api/DataLink/Update",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"DataLink",
-								"Update-Device"
+								"Update"
 							]
 						}
 					},
