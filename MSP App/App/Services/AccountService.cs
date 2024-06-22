@@ -21,7 +21,7 @@ namespace App.Services
                 Password = password
             };
 
-            var responseObject = await ProcessResponse(await _httpClient.PostAsJsonAsync("api/Auth/Login", loginRequest));
+            var responseObject = await ProcessResponse(await _httpClient.PostAsJsonAsync("Auth/Login", loginRequest));
             var objectProperty = responseObject.GetType().GetProperty("Object");
             var objectValue = objectProperty.GetValue(responseObject);
             JObject data = JObject.Parse(objectValue.ToString());

@@ -8,6 +8,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class TenantController : ControllerBase
     {
         private readonly DbTenantService _dbTenantService;

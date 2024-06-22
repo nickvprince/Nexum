@@ -11,6 +11,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Server")]
     public class DataLinkController : ControllerBase
     {
         private readonly DbTenantService _dbTenantService;

@@ -29,10 +29,10 @@ builder.Services.AddAuthorization(options =>
 });*/
 //builder.Services.AddRazorPages();
 
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TenantService>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
