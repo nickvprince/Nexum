@@ -8,7 +8,6 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class SoftwareController : ControllerBase
     {
         private readonly DbSoftwareService _dbSoftwareService;
