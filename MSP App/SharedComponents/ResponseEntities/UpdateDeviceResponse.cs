@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.ResponseEntities
 {
-    public class UpdateClientResponse
+    public class UpdateDeviceResponse
     {
         public string? Name { get; set; }
         public string? IpAddress { get; set; }

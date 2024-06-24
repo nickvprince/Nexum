@@ -305,9 +305,9 @@ namespace API.DataAccess
                 context.Alerts.AddRange(alert1, alert2, alert3);
                 context.SaveChanges();
 
-                var log1 = new DeviceLog { DeviceId = device1.Id, Type = LogType.Information, Subject = "Device", Message = "Device is online", Code = 0, Time = DateTime.Now };
-                var log2 = new DeviceLog { DeviceId = device2.Id, Type = LogType.Warning, Subject = "Device", Message = "Device is offline", Code = 1, Time = DateTime.Now.AddMinutes(1) };
-                var log3 = new DeviceLog { DeviceId = device3.Id, Type = LogType.Error, Subject = "Device", Message = "Heart beat missed", Code = 3, Time = DateTime.Now.AddMinutes(2) };
+                var log1 = new DeviceLog { DeviceId = device1.Id, Type = LogType.Information, Filename = "something.py", Function = "online()", Message = "Device is online", Code = 0, Time = DateTime.Now };
+                var log2 = new DeviceLog { DeviceId = device2.Id, Type = LogType.Warning, Filename = "something.py", Function = "offline()", Message = "Device is offline", Code = 1, Time = DateTime.Now.AddMinutes(1) };
+                var log3 = new DeviceLog { DeviceId = device3.Id, Type = LogType.Error, Filename = "something.py", Function = "heartbeat()", Message = "Heart beat missed", Code = 3, Time = DateTime.Now.AddMinutes(2) };
 
                 context.Logs.AddRange(log1, log2, log3);
                 context.SaveChanges();

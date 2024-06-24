@@ -37,6 +37,29 @@ namespace API.Services
             return null;
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            try
+            {
+                var log = await _appDbContext.Logs.FindAsync(id);
+                if (log != null)
+                {
+                    log.IsDeleted = true;
+                    _appDbContext.Logs.Update(log);
+                    var result = await _appDbContext.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting the log: {ex.Message}");
+            }
+            return false;
+        }
+
         public async Task<DeviceLog?> GetAsync(int id)
         {
             return await _appDbContext.Logs

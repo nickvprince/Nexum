@@ -280,7 +280,7 @@ namespace API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<IActionResult> UpdateAsync([FromHeader] string apikey, [FromBody] UpdateClientRequest request)
+        public async Task<IActionResult> UpdateAsync([FromHeader] string apikey, [FromBody] UpdateDeviceRequest request)
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
             {
@@ -316,7 +316,7 @@ namespace API.Controllers
                     {
                         if (device.DeviceInfo.MACAddresses != null && device.DeviceInfo.Type != null)
                         {
-                            UpdateClientResponse response = new UpdateClientResponse
+                            UpdateDeviceResponse response = new UpdateDeviceResponse
                             {
                                 Name = device.DeviceInfo.Name,
                                 IpAddress = device.DeviceInfo.IpAddress,
@@ -332,6 +332,51 @@ namespace API.Controllers
                     }
                 }
                 return BadRequest("An error occurred while updating the client.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpPut("Update-Status")]
+        public async Task<IActionResult> UpdateStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                if (!Enum.IsDefined(typeof(DeviceStatus), request.Status))
+                {
+                    return BadRequest("Invalid Device Status.");
+                }
+
+                device.Status = request.Status;
+
+                device = await _dbDeviceService.UpdateAsync(device);
+
+                if (device != null)
+                {
+                    UpdateDeviceStatusResponse response = new UpdateDeviceStatusResponse
+                    {
+                        Name = device.DeviceInfo?.Name,
+                        Status = EnumUtilities.EnumToString(device.Status.Value)
+                    };
+                    return Ok(response);
+                }
+                return BadRequest("An error occurred while updating the device status.");
             }
             return Unauthorized("Invalid API Key.");
         }
@@ -417,7 +462,8 @@ namespace API.Controllers
 
                 DeviceLog? log = new DeviceLog
                 {
-                    Subject = request.Subject,
+                    Filename = request.Filename,
+                    Function = request.Function,
                     Message = request.Message,
                     Code = request.Code,
                     Stack_Trace = request.Stack_Trace,
@@ -432,7 +478,8 @@ namespace API.Controllers
                     CreateLogResponse response = new CreateLogResponse
                     {
                         Name = device?.DeviceInfo?.Name,
-                        Subject = log.Subject,
+                        Filename = request.Filename,
+                        Function = request.Function,
                         Message = log.Message,
                         Code = log.Code,
                         Stack_Trace = log.Stack_Trace,

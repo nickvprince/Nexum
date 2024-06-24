@@ -9,10 +9,10 @@ namespace SharedComponents.Services
 {
     public interface IAlertService
     {
-        public Task<bool> CreateAsync(DeviceAlert alert);
-        public Task<bool> EditAsync(DeviceAlert alert);
-        public Task<bool> DeleteAsync(string id);
-        public Task<DeviceAlert?> GetAsync(string id);
+        public Task<DeviceAlert?> CreateAsync(DeviceAlert alert);
+        public Task<DeviceAlert?> EditAsync(DeviceAlert alert);
+        public Task<bool> DeleteAsync(int id);
+        public Task<DeviceAlert?> GetAsync(int id);
         public Task<ICollection<DeviceAlert>?> GetAllAsync();
     }
 }

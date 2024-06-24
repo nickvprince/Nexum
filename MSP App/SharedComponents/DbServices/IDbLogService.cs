@@ -10,6 +10,7 @@ namespace SharedComponents.DbServices
     public interface IDbLogService
     {
         public Task<DeviceLog?> CreateAsync(DeviceLog log);
+        public Task<bool> DeleteAsync(int id);
         public Task<DeviceLog?> GetAsync(int id);
         public Task<ICollection<DeviceLog>> GetAllAsync();
     }
