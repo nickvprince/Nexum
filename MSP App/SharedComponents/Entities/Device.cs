@@ -16,15 +16,18 @@ namespace SharedComponents.Entities
         [Required]
         public DeviceInfo? DeviceInfo { get; set; }
         public DeviceStatus? Status { get; set; }
-        public string? StatusMessage { get; set; }
         public bool IsVerified { get; set; }
         public bool IsActive { get; set; }
+        public ICollection<DeviceAlert>? Alerts { get; set; }
+        public ICollection<DeviceLog>? Logs { get; set; }
     }
 
     public enum DeviceStatus
     {
-        Online,
         Offline,
+        Online,
+        ServiceOffline,
         BackupInProgress,
+        RestoreInProgress
     }
 }

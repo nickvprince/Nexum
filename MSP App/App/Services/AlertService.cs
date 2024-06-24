@@ -1,18 +1,17 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using SharedComponents.Entities;
 using SharedComponents.Services;
 using System.Text;
 
 namespace App.Services
 {
-    public class TenantService : BaseService, ITenantService
+    public class AlertService : BaseService, IAlertService
     {
-        public TenantService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public AlertService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
         {
             if (_httpClient.BaseAddress != null)
             {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Tenant/");
+                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Alert/");
             }
             else
             {
@@ -20,14 +19,14 @@ namespace App.Services
             }
         }
 
-        public async Task<Tenant?> CreateAsync(Tenant tenant)
+        public async Task<DeviceAlert?> CreateAsync(DeviceAlert alert)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(tenant), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(alert), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("", content);
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Tenant>(responseData);
+                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
             }
             catch (Exception)
             {
@@ -35,14 +34,14 @@ namespace App.Services
             }
         }
 
-        public async Task<Tenant?> EditAsync(Tenant tenant)
+        public async Task<DeviceAlert?> EditAsync(DeviceAlert alert)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(tenant), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(alert), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PutAsync("", content);
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Tenant>(responseData);
+                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
             }
             catch (Exception)
             {
@@ -65,13 +64,13 @@ namespace App.Services
             }
         }
 
-        public async Task<Tenant?> GetAsync(int id)
+        public async Task<DeviceAlert?> GetAsync(int id)
         {
             try
             {
                 var response = await _httpClient.GetAsync($"{id}");
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Tenant>(responseData);
+                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
             }
             catch (Exception)
             {
@@ -79,11 +78,18 @@ namespace App.Services
             }
         }
 
-        public async Task<ICollection<Tenant>?> GetAllAsync()
+        public async Task<ICollection<DeviceAlert>?> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync("");
-            var responseData = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ICollection<Tenant>>(responseData);
+            try
+            {
+                var response = await _httpClient.GetAsync("");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<DeviceAlert>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

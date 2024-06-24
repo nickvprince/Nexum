@@ -29,14 +29,14 @@ namespace App.Services
 
         public async Task<ApplicationUser?> GetAsync(string username)
         {
-            var response = await _httpClient.GetAsync($"api/User/{username}");
+            var response = await _httpClient.GetAsync($"User/{username}");
             var responseData = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ApplicationUser>(responseData);
         }
 
         public async Task<ICollection<ApplicationUser>?> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync("api/User");
+            var response = await _httpClient.GetAsync("User");
             var responseData = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ICollection<ApplicationUser>>(responseData);
         }

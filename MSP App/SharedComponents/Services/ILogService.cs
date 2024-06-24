@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Services
 {
-    public interface ITenantService
+    public interface ILogService
     {
-        public Task<Tenant?> CreateAsync(Tenant tenant);
-        public Task<Tenant?> EditAsync(Tenant tenant);
+        public Task<DeviceLog?> CreateAsync(DeviceLog log);
         public Task<bool> DeleteAsync(int id);
-        public Task<Tenant?> GetAsync(int id);
-        public Task<ICollection<Tenant>?> GetAllAsync();
+        public Task<DeviceLog?> GetAsync(int id);
+        public Task<ICollection<DeviceLog>?> GetAllAsync();
     }
 }

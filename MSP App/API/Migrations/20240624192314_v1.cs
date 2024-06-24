@@ -88,7 +88,7 @@ namespace API.Migrations
                     UploadedFileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Tag = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileType = table.Column<int>(type: "int", nullable: true)
+                    FileType = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -248,8 +248,7 @@ namespace API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TenantId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: true),
-                    StatusMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsVerified = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -344,6 +343,30 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Alerts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Severity = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Acknowledged = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeviceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Alerts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Alerts_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DeviceInfos",
                 columns: table => new
                 {
@@ -369,6 +392,33 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Logs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Filename = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Function = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Code = table.Column<int>(type: "int", nullable: false),
+                    Stack_Trace = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeviceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Logs_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MACAddresses",
                 columns: table => new
                 {
@@ -387,6 +437,11 @@ namespace API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Alerts_DeviceId",
+                table: "Alerts",
+                column: "DeviceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -444,6 +499,11 @@ namespace API.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Logs_DeviceId",
+                table: "Logs",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MACAddresses_DeviceInfoId",
                 table: "MACAddresses",
                 column: "DeviceInfoId");
@@ -474,6 +534,9 @@ namespace API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Alerts");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -490,6 +553,9 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "InstallationKeys");
+
+            migrationBuilder.DropTable(
+                name: "Logs");
 
             migrationBuilder.DropTable(
                 name: "MACAddresses");

@@ -11,7 +11,6 @@ namespace SharedComponents.RequestEntities
     {
         public int Client_Id { get; set; }
         public string? Uuid { get; set; }
-        public DeviceStatus? Status { get; set; }
-        public string? Status_Message { get; set; }
+        public DeviceStatus Status { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace SharedComponents.Entities
         [Required]
         public string? IpAddress { get; set; }
         [Required]
-        public int? Port { get; set; }
+        public int Port { get; set; }
         [Required]
         public DeviceType? Type { get; set; }
         [Required]
@@ -30,7 +30,7 @@ namespace SharedComponents.Entities
     public enum DeviceType
     {
         Server,
-        Laptop,
-        Desktop
+        Desktop,
+        Laptop
     }
 }

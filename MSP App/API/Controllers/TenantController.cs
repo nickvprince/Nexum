@@ -8,6 +8,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class TenantController : ControllerBase
     {
         private readonly DbTenantService _dbTenantService;
@@ -17,7 +18,7 @@ namespace API.Controllers
             _dbTenantService = dbTenantService;
         }
 
-        [HttpPost("Create")]
+        [HttpPost("")]
         public async Task<IActionResult> CreateAsync([FromBody] Tenant tenant)
         {
             Tenant? newTenant = await _dbTenantService.CreateAsync(tenant);
@@ -28,7 +29,7 @@ namespace API.Controllers
             return BadRequest("An error occurred while creating the tenant.");
         }
 
-        [HttpPut("Update")]
+        [HttpPut("")]
         public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant)
         {
             Tenant? updatedTenant = await _dbTenantService.UpdateAsync(tenant);
@@ -39,7 +40,7 @@ namespace API.Controllers
             return BadRequest("An error occurred while updating the tenant.");
         }
 
-        [HttpDelete("Delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if(await _dbTenantService.DeleteAsync(id))

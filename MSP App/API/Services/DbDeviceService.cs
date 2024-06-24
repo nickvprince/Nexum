@@ -38,6 +38,7 @@ namespace API.Services
             }
             return null;
         }
+
         public async Task<Device?> UpdateAsync(Device? device)
         {
             if (device != null)
