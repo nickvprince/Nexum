@@ -69,11 +69,14 @@ import sys
 import win32com.shell.shell as shell
 from task import client_persistance, server_persistance
 import requests
-ASADMIN = 'asadmin'
 
+
+ASADMIN = 'asadmin'
+job_settingsFile=os.path.join('/settings.db')
+VERIFY_PATH="api/DataLink/verify"
 #pylint: disable= bare-except, broad-except
 EXE_SERVICE_NAME = "nexum_service.exe"
-REGISTRATION_PATH = "check-installer"
+REGISTRATION_PATH = "api/DataLink/Register-"
 AUTO_RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 APP_PATH_KEY = r"Software\Microsoft\Windows\CurrentVersion\App Paths"
 STARTUP_APPROVED_KEY = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
@@ -86,7 +89,6 @@ EXE_SERVER_NAME = "nexserv.exe"
 EXE_WATCHDOG_NAME = "watchdog.exe"
 EXE_SERV_WATCHDOG_NAME = "watchdogserv.exe"
 WINDOW_GEOMETRY = "1000x600"
-BACKUPSERVER_MSP = "127.0.0.1:5000"
 PORT = 5000
 HYPER_PROTOCOL = "http://"
 IMAGE_PATH = '../Data/Nexum.png'
@@ -101,7 +103,7 @@ SETTINGS_PATH= os.path.join(current_dir,
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
-
+URLS_ROUTE="api/DataLink/Urls"
 
 
 # decrypt a string using AES
@@ -392,10 +394,31 @@ def uninstall(window:tk.Tk):
     back_button.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
 
     new_window.mainloop()
-def install_nexserv_file():
+def install_nexserv_file(curl_route:str,apikey:str):
     """
     Information
     """
+    payload = {
+        }
+    write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+    request = requests.request("GET", f"{HYPER_PROTOCOL}{curl_route}",
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
+
+    # where request body is the file, write to c:\program files\nexum\nexserv.exe
+
+    # open file and write to c:\program files\nexum\nexserv.exe
+
+    f = open(OS_FILE_PATH+"\\"+EXE_SERVER_NAME, "wb")
+    f.write(request.content)
+    f.close()
+    write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
+
+
+
+
+
+    # obsolete if request writes directly to program files
+    # download nexserv file
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     path = os.path.join(current_dir,EXE_SERVER_NAME) # directory for logs
     outpath = OS_FILE_PATH+"\\"+EXE_SERVER_NAME
@@ -406,13 +429,20 @@ def install_nexserv_file():
         write_log("ERROR", "Install Server", "nexserv.exe could not be copied", 0, time.time())
     write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
 
-def install_nexum_file():
+def install_nexum_file(curl_route:str,apikey:str):
     """
     Information
     """
-    # call to server to get install location and CURL to c:\Program Files\Nexum
-    # OR
-    # copy ./Nexum.exe to C:\Program Files\Nexum
+    payload = {
+        }
+    write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+    request = requests.request("GET", f"{HYPER_PROTOCOL}{curl_route}",
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
+    
+    # write request response to file
+    # write response to outpath
+
+    # OBSOLETE if the above writes to c:\program files
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     
     path = os.path.join(current_dir,EXE_NEXUM_NAME) # directory for logs
@@ -423,21 +453,33 @@ def install_nexum_file():
         write_log("ERROR", "Install Nexum", "Nexum file could not be copied", 0, time.time())
     write_log("INFO", "Install Nexum", "Nexum file installed", 0, time.time())
 
-def install_service():
+def install_service(curl_route:str,apikey:str):
     """
     Information
     """
-    # call to server to get install location and CURL to c:\Program Files\Nexum
-    # OR
-    # copy ./nexserv.exe to C:\Program Files\Nexum
+    payload = {
+        }
+    write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+    request = requests.request("GET", f"{HYPER_PROTOCOL}{curl_route}",
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
+    
+    # write request response to file
+    # write response to outpath
+
+    # obsolete if above writes to c:\program files
     current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
     path = os.path.join(current_dir,EXE_SERVICE_NAME) # directory for logs
+    outpath = OS_FILE_PATH+"\\"+EXE_SERVICE_NAME
+
     try:
-        shutil.copy(path, OS_FILE_PATH+"\\"+EXE_SERVICE_NAME)
+        shutil.copy(path,outpath)
     except:
         write_log("ERROR", "Install Service", "nexumservice.exe could not be copied", 0, time.time())
+
+
+
     # install exe as service
-    subprocess.Popen(['sc', 'create', 'nexumservice', 'binPath=' + str(OS_FILE_PATH+"/"+EXE_SERVICE_NAME), 'start=', 'auto'],shell=True)
+    subprocess.Popen(['sc', 'create', 'nexumservice', 'binPath=' + str(outpath), 'start=', 'auto'],shell=True)
     # set 3 recovery options to restart at 60 seconds
     subprocess.Popen(['sc', 'failure', 'nexumservice', 'reset=', '60', 'actions=', 'restart/60000/restart/60000/restart/60000'],shell=True)
     #start the service
@@ -455,35 +497,65 @@ def install_persistence(client_server:int):
         server_persistance()
         write_log("INFO", "Install Service", "Server scheduled task setup", 0, time.time())
 
-def notify_server():
+def notify_server(backupserver:str,id:int,apikey:str):
     """
     Information
     """
+    try:
+        
+        payload = {
+        "client_Id":id,
+        "uuid":"test",
+        "installationKey":"test"
+        }
+        write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{VERIFY_PATH}",
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
+    except:
+        pass
     # verify route
 
-def install_client_background(window:tk.Tk, backupserver:str, key:str):
+def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey):
     """
     Information
     """
+    conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT MAX(id) FROM clients''')
+    result = cursor.fetchone()[0]
+    if result is not None:
+        identification = int(result) + 1
+    else:
+         identification = 1
+    conn.close()
     write_log("INFO", "Install Client", "Install Client process starting", 0, time.time())
     write_log("INFO", "Install Client", "Backup Server: " + backupserver, 0, time.time())
     write_log("INFO", "Install Client", "Key: " + key, 0, time.time())
     request = requests.Response()
     try:
-
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:24]
         payload = {
             "name":socket.gethostname(),
-            "ip":socket.gethostbyname(socket.gethostname()),
+            "uuid":output,
+            "client_Id":identification,
+            "ipAddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
-            "mac":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+            "MacAddresses":[
+                {
+                "id":0,
+                "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
                             for ele in range(0,8*6,8)][::-1])
+                }
+            ],
+            "installationKey":key
         }
-        write_log("INFO", "Install Client", "Payload: " + str(payload), 0, time.time())
-        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{REGISTRATION_PATH}",
-                        timeout=TIMEOUT, headers={"Content-Type": "application/json","key":key,
-                                            "clientSecret":SECRET}, json=payload)
-
-        identification = request.headers["clientid"]
+        write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{REGISTRATION_PATH}Server",
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
 
         request = requests.request("POST", f"{HYPER_PROTOCOL}{backupserver}/{BEAT_PATH}", timeout=TIMEOUT,
             headers={"Content-Type": "application/json","clientSecret":SECRET,"id":identification})
@@ -499,10 +571,24 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
             print("Nexum folder created")
         except:
             print("Nexum folder already exists or could not be created")
-
-        install_nexum_file()
+                # get urls
+        try:
+            payload = {
+                
+            }
+            write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+            request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{URLS_ROUTE}",
+                            timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
+            request = request.json()
+            service_url=request["nexumServiceUrl"]
+            server_url=request["nexumServerUrl"]
+            write_log("INFO","Install Server", "service:{service_url} server:{serv_url}",0,time.time())
+        except: 
+            write_log("ERROR","Install Server", "Failed to get URLS","1009",time.time())
+        # pass each url into each respective function
+        install_nexum_file(server_url,apikey)
         install_persistence(0)
-        install_service()
+        install_service(service_url,apikey)
         # create keys in registry
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
@@ -543,7 +629,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str):
 
 
         # notify server that the installation is complete
-        notify_server()
+        notify_server(backupserver,identification,apikey)
 
         #incorrect secret
     else:
@@ -588,12 +674,13 @@ def install_client(window:tk.Tk):
     new_window.update()
     backup_label.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
     backup_entry.place(relx=0.5, rely=0.45, anchor=tk.CENTER)
+    
     secret_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
     secret_entry.place(relx=0.5, rely=0.55, anchor=tk.CENTER)
     enter_button = tk.Button(new_window, text="Enter", width=25, height=3,
                               command=lambda:
                               install_client_background(new_window, backup_entry.get(),
-                                                                    secret_entry.get()))
+                                                                    secret_entry.get(),key_entry.get()))
     enter_button.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID, borderwidth=1,
                             highlightthickness=0, highlightbackground="black",
                             highlightcolor="black",padx=10, pady=5, font=("Arial", 10),
@@ -614,7 +701,7 @@ def notify_msp():
     """
     # call verify route
 
-def install_server_background(window:tk.Tk, backupserver:str, key:str):
+def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str):
     """
     Information
     """
@@ -623,17 +710,28 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
     write_log("INFO", "Install Server", "Key: " + key, 0, time.time())
     request = requests.Response()
     try:
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                capture_output=True, text=True,check=True,shell=True) # enc with uuid
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:24]
         payload = {
             "name":socket.gethostname(),
-            "ip":socket.gethostbyname(socket.gethostname()),
+            "uuid":output,
+            "ipAddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
-            "mac":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+            "MacAddresses":[
+                {
+                "id":0,
+                "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
                             for ele in range(0,8*6,8)][::-1])
+                }
+            ],
+            "installationKey":key
         }
         write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
-        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{REGISTRATION_PATH}",
-                        timeout=TIMEOUT, headers={"Content-Type": "application/json","key":key,
-                                            "clientSecret":SECRET}, json=payload)
+        request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{REGISTRATION_PATH}Server",
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
 
         identification = request.headers["clientid"]
 
@@ -652,9 +750,24 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str):
             write_log("INFO", "Install Server", "Nexum folder already exists or could not be created", 0, time.time())
 
         write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
-        install_nexserv_file()
+        # get urls
+        try:
+            payload = {
+                
+            }
+            write_log("INFO", "Install server", "Payload: " + str(payload), 0, time.time())
+            request = requests.request("GET", f"{HYPER_PROTOCOL}{backupserver}/{URLS_ROUTE}",
+                            timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey}, json=payload)
+            request = request.json()
+            service_url=request["nexumServiceUrl"]
+            server_url=request["nexumServerUrl"]
+            write_log("INFO","Install Server", "service:{service_url} server:{serv_url}",0,time.time())
+        except: 
+            write_log("ERROR","Install Server", "Failed to get URLS","1009",time.time())
+        # pass each url into each respective function
+        install_nexserv_file(server_url,apikey)
         install_persistence(1)
-        install_service()
+        install_service(service_url,apikey)
         try:
             # Add key "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\Nexum"
             run_key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY)
@@ -726,7 +839,12 @@ def install_server(window:tk.Tk):
     backup_entry = tk.Entry(new_window)
     backup_entry.pack(pady=(0, 10))
 
-    secret_label = tk.Label(new_window, text="Tenant Secret:")
+    key_label = tk.Label(new_window, text="Install Key:")
+    key_label.pack(pady=(0, 10))
+    key_entry = tk.Entry(new_window)
+    key_entry.pack(pady=(0, 10))
+
+    secret_label = tk.Label(new_window, text="ApiKey:")
     secret_label.pack(pady=(0, 10))
     secret_entry = tk.Entry(new_window)
     secret_entry.pack(pady=(0, 10))
@@ -734,25 +852,30 @@ def install_server(window:tk.Tk):
     enter_button = tk.Button(new_window, text="Enter", width=25, height=3,
                               command=lambda:
                               install_server_background(new_window, backup_entry.get(),
-                                                                    secret_entry.get()))
+                                                                    key_entry.get(),secret_entry.get()))
     enter_button.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID, borderwidth=1,
                             highlightthickness=0, highlightbackground="black",
                             highlightcolor="black",padx=10, pady=5, font=("Arial", 10),
                             overrelief=tk.RIDGE,)
-    enter_button.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
+    enter_button.place(relx=0.5, rely=0.8, anchor=tk.CENTER)
     # Center the text fields and labels
     new_window.update()
     backup_label.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
     backup_entry.place(relx=0.5, rely=0.45, anchor=tk.CENTER)
-    secret_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-    secret_entry.place(relx=0.5, rely=0.55, anchor=tk.CENTER)
+    
+    key_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+    key_entry.place(relx=0.5, rely=0.55, anchor=tk.CENTER)
+
+    secret_label.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
+    secret_entry.place(relx=0.5, rely=0.65, anchor=tk.CENTER)
+
     back_button = tk.Button(new_window, text="Back", width=25, height=3,
                             command=lambda: main_window(new_window))
     back_button.configure(bg="purple", fg="black", bd=1, relief=tk.SOLID, borderwidth=1,
                            highlightthickness=0, highlightbackground="black",
                            highlightcolor="black",padx=10, pady=5, font=("Arial", 10),
                            overrelief=tk.RIDGE)
-    back_button.place(relx=0.5, rely=0.85, anchor=tk.CENTER)
+    back_button.place(relx=0.5, rely=0.95, anchor=tk.CENTER)
     new_window.mainloop()
 
 def main_window(window:tk.Tk):

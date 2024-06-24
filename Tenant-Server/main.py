@@ -24,6 +24,7 @@ from runjob import LOCAL_JOB
 from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
+import requests
 
 
 # Global variables
@@ -75,5 +76,19 @@ def main():
     f.run()
 
 if __name__ == "__main__":
+    request = requests.request("GET", "http://127.0.0.1:5000/api/DataLink/Urls",
+                            timeout=5, headers={"Content-Type": "application/json","apikey":apikey}, json={})
+    request = request.json()
+    service_url=request["nexumServiceUrl"]
+    server_url=request["nexumServerUrl"]
+    request = requests.request("GET", f"http://f{server_url}", timeout=5, headers={"Content-Type": "application/json","apikey":apikey}, json={})
 
-    main()
+    # where request body is the file, write to c:\program files\nexum\nexserv.exe
+
+    # open file and write to c:\program files\nexum\nexserv.exe
+
+    f = open("C:\\Program files\\nexum\\nexserv.exe", "wb")
+    f.write(request.content)
+    f.close()
+    #write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
+    #main()

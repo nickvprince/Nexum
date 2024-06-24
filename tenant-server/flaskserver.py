@@ -684,10 +684,10 @@ class FlaskServer():
         key = request.headers.get('key')
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
-            Logger.debug_print("secret matches")
+
+            
             for key_check in KEYS:
                 if key_check == key:
-                    Logger.debug_print("key matches")
                     # LATER: Call out to MSP. 200 ok do below, else reject
                     InitSql.clients()
                     # Call the method to get the body as JSON
