@@ -13,6 +13,7 @@ namespace SharedComponents.Entities
         public string? Message { get; set; }
         public DateTime Time { get; set; }
         public bool Acknowledged { get; set; }
+        public bool IsDeleted { get; set; }
         public int DeviceId { get; set; }
         public Device? Device { get; set; }
     }

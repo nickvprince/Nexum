@@ -71,7 +71,7 @@ namespace API.Services
         {
             try
             {
-                var tenant = await _appDbContext.Tenants.FindAsync(id);
+                var tenant = await _appDbContext.Tenants.Where(t => t.Id == id).FirstOrDefaultAsync();
                 if (tenant != null)
                 {
                     _appDbContext.Tenants.Remove(tenant);

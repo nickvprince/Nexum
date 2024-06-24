@@ -5,13 +5,13 @@ using System.Text;
 
 namespace App.Services
 {
-    public class AlertService : BaseService, IAlertService
+    public class LogService : BaseService, ILogService
     {
-        public AlertService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public LogService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
         {
             if (_httpClient.BaseAddress != null)
             {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Alert/");
+                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Log/");
             }
             else
             {
@@ -19,29 +19,14 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceAlert?> CreateAsync(DeviceAlert alert)
+        public async Task<DeviceLog?> CreateAsync(DeviceLog log)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(alert), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(log), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("", content);
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public async Task<DeviceAlert?> EditAsync(DeviceAlert alert)
-        {
-            try
-            {
-                var content = new StringContent(JsonConvert.SerializeObject(alert), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PutAsync("", content);
-                var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
+                return JsonConvert.DeserializeObject<DeviceLog>(responseData);
             }
             catch (Exception)
             {
@@ -64,13 +49,13 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceAlert?> GetAsync(int id)
+        public async Task<DeviceLog?> GetAsync(int id)
         {
             try
             {
                 var response = await _httpClient.GetAsync($"{id}");
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
+                return JsonConvert.DeserializeObject<DeviceLog>(responseData);
             }
             catch (Exception)
             {
@@ -78,13 +63,13 @@ namespace App.Services
             }
         }
 
-        public async Task<ICollection<DeviceAlert>?> GetAllAsync()
+        public async Task<ICollection<DeviceLog>?> GetAllAsync()
         {
             try
             {
                 var response = await _httpClient.GetAsync("");
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<ICollection<DeviceAlert>>(responseData);
+                return JsonConvert.DeserializeObject<ICollection<DeviceLog>>(responseData);
             }
             catch (Exception)
             {

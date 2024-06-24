@@ -26,6 +26,7 @@ namespace SharedComponents.Entities
     {
         Offline,
         Online,
+        ServiceOffline,
         BackupInProgress,
         RestoreInProgress
     }
