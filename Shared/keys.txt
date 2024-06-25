@@ -1,3 +1,0 @@
-    MySqlite.write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
-    MySqlite.add_install_key("JBQDPYQ7310712631DHLSAU8AWY]")
-    MySqlite.add_install_key("LJA;HFLASBFOIASH[jfnW.FJPIH")
