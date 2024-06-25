@@ -1,12 +1,11 @@
-from flask import Flask
-import subprocess
-from flask import make_response,request
-import threading
-import winreg
-import time
-import servicemanager
-import socket
+"""
+info
+"""
 import sys
+import threading
+import subprocess
+from flask import Flask,make_response,request
+import servicemanager
 import win32event
 import win32service
 from pyuac import main_requires_admin

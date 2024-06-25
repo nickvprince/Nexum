@@ -1,5 +1,9 @@
-import win32com.client
+"""
+INFO
+"""
 import os
+import win32com.client
+
 client_xml = '''<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
@@ -103,6 +107,9 @@ server_xml='''<?xml version="1.0" encoding="UTF-16"?>
 </Task>
 '''
 def client_persistance():
+    """
+    Info
+    """
     #create the task in the scheduler
     scheduler = win32com.client.Dispatch('Schedule.Service')
     scheduler.Connect()
@@ -116,6 +123,9 @@ def client_persistance():
     os.system('schtasks /run /tn nexum')
 
 def server_persistance():
+    """
+    Info
+    """
     #create the task in the scheduler
     scheduler = win32com.client.Dispatch('Schedule.Service')
     scheduler.Connect()

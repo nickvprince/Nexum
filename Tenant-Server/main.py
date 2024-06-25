@@ -33,8 +33,6 @@ def init():
     Initializes the program
     """
     InitSql()
-    """
-    """
     MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     MySqlite.write_setting("TENANT_ID","1")
     MySqlite.write_setting("CLIENT_ID","1")

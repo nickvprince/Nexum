@@ -35,6 +35,15 @@ CLIENTS = ()
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
 URLS_ROUTE="api/DataLink/Urls"
+PORT=5002
+HOST = '0.0.0.0'
+
+@staticmethod
+def get_time():
+    """
+    Returns the current time
+    """
+    return time.strftime("%Y-%m-%dt%H:%M:%S:%m", time.localtime())
 
 # pylint: disable= bare-except
 class FlaskServer():
@@ -90,7 +99,7 @@ class FlaskServer():
 
         if str(recieved_client_secret) != temp:
             logger.log("ERROR", "get_files", "Access denied",
-            "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "405", get_time())
             return 405
         return 200
 
@@ -130,25 +139,25 @@ class FlaskServer():
         # check if the path exists
         elif not os.path.exists(path):
             logger.log("ERROR", "get_files", "Path not found",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", get_time())
             code=404
             msg="Incorrect path"
         # check if the path is a directory
         elif not os.path.isdir(path):
             logger.log("ERROR", "get_files", "Path is not a directory",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", get_time())
             code=404
             msg="Path is not a directory"
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
             logger.log("ERROR", "get_files", "Path is not accessible",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", get_time())
             code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
             logger.log("ERROR", "get_files", "Path is empty",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", get_time())
             code=404
             msg="Path is empty"
         # get the files and directories in the path
@@ -158,12 +167,12 @@ class FlaskServer():
                 files = os.listdir(path)
             except PermissionError:
                 logger.log("ERROR", "get_files", "Permission error",
-                "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                "1005", get_time())
                 code = 401
                 msg = "Access Denied"
             except:
                 logger.log("ERROR", "get_files", "General Error getting files",
-                "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                "1002", get_time())
                 code= 500
                 msg = "Internal server error"
         else:
@@ -205,12 +214,12 @@ class FlaskServer():
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
                         logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -279,12 +288,12 @@ class FlaskServer():
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
                         logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -345,12 +354,12 @@ class FlaskServer():
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
                         logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -412,12 +421,12 @@ class FlaskServer():
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
                         logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -497,12 +506,12 @@ class FlaskServer():
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
                         logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                        "500", get_time())
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -556,7 +565,7 @@ class FlaskServer():
             job_to_save.set_settings(settings)
             job_to_save.set_config(config)
             job_to_save.save()
-
+            RUN_JOB_OBJECT = job_to_save
             return "200 OK"
         elif FlaskServer.auth(secret, logger, id) == 405:
             return "401 Access Denied"
@@ -664,14 +673,12 @@ class FlaskServer():
         A spot for clients to send heartbeats to
         """
         secret = request.headers.get('secret')
-        logger = Logger()
         identification = request.headers.get('id')
         if(MySqlite.read_setting("apikey") == secret):
             MySqlite.update_heartbeat_time(identification)
             return "200 OK"
         else:
             return "401 Access Denied"
-        return "500 Internal Server Error"
 
     @website.route('/urls', methods=['GET'], )
     @staticmethod
@@ -683,8 +690,8 @@ class FlaskServer():
         if(MySqlite.read_setting("apikey") == secret):
             req = requests.request("GET", f"{"https://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{URLS_ROUTE}",
                         timeout=30, headers={"Content-Type": "application/json","apikey":secret}, verify=False)
-            Logger.log("INFO",0,"flask",f"Request to MSP: {req.status_code}",200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            Logger.log("INFO",0,"flask",f"Request to MSP: {req.content}",200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            Logger.log("INFO",0,"flask",f"Request to MSP: {req.status_code}",200, get_time())
+            Logger.log("INFO",0,"flask",f"Request to MSP: {req.content}",200, get_time())
 
             return make_response(req.content, str(req.status_code))
 
@@ -736,11 +743,11 @@ class FlaskServer():
             ],
             "installationKey":key
         }
-            logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
-            logger.log("INFO", "check-installer", f"path :{"https://"} {MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}", 200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, get_time())
+            logger.log("INFO", "check-installer", f"path :{"https://"} {MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}", 200, get_time())
             req = requests.request("POST", f"{"https://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}",
                         timeout=30, headers={"Content-Type": "application/json","apikey":secret}, json=payload, verify=False)
-            logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, get_time())
             # if msp returns 200 ok, then return 200 ok
             if req.status_code == 200:
                 result = MySqlite.write_client(identification, name, ip, port, status, mac)
@@ -790,10 +797,10 @@ class FlaskServer():
                 MySqlite.delete_client(identification)
                 return make_response("200 ok", 200)
             else:
-                logger.log("ERROR", "uninstall", "Key does not match",1201, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                logger.log("ERROR", "uninstall", "Key does not match",1201, get_time())
                 return make_response("403 Rejected", 403)
         else:
-            logger.log("ERROR", "uninstall", "Access Denied",405, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("ERROR", "uninstall", "Access Denied",405, get_time())
             return make_response("401 Access Denied", 401)
     # HELPERS
     def run(self):
