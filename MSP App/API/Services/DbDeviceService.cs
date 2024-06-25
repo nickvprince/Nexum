@@ -96,7 +96,7 @@ namespace API.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Device?> GetByClientIdAndUuidAsync(int clientId, string? uuid)
+        public async Task<Device?> GetByClientIdAndUuidAsync(int tenantId, int clientId, string? uuid)
         {
             if (uuid == null)
             {
@@ -106,7 +106,7 @@ namespace API.Services
             return await _appDbContext.Devices
                 .Include(d => d.DeviceInfo)
                     .ThenInclude(di => di.MACAddresses)
-                .Where( d => d.DeviceInfo.ClientId == clientId && d.DeviceInfo.Uuid == uuid)
+                .Where( d => d.DeviceInfo.ClientId == clientId && d.DeviceInfo.Uuid == uuid && d.TenantId == tenantId)
                 .FirstOrDefaultAsync();
         }
 
