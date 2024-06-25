@@ -178,7 +178,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");
@@ -290,7 +290,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");
@@ -347,7 +347,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");
@@ -392,7 +392,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");
@@ -444,7 +444,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(request.Client_Id, request.Uuid);
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
                 if (device == null)
                 {
                     return NotFound("Device not found.");

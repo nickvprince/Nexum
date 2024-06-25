@@ -27,6 +27,7 @@ namespace SharedComponents.Entities
         Debug,
         Information,
         Warning,
-        Error
+        Error,
+        Critical
     }
 }
