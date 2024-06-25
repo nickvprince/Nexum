@@ -13,7 +13,7 @@
 
 # pylint: disable= no-member,no-name-in-module, import-error,global-variable-not-assigned
 
-
+import socket
 import time
 from iconmanager import IconManager, image_path
 from helperfunctions import logs, tenant_portal,load
@@ -39,14 +39,15 @@ def init():
     MySqlite.write_setting("TENANT_ID","1")
     MySqlite.write_setting("CLIENT_ID","1")
     MySqlite.write_setting("POLLING_INTERVAL","10")
+    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
     MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5000")
+    MySqlite.write_setting("server_port","5002")
+    MySqlite.write_setting("msp-port","7101")
     MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
     MySqlite.write_setting("heartbeat_interval","5")
     MySqlite.write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
     MySqlite.add_install_key("JBQDPYQ7310712631DHLSAU8AWY]")
     MySqlite.add_install_key("LJA;HFLASBFOIASH[jfnW.FJPIH")
-
     MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
     MySqlite.write_setting("version","1")
     global LOCAL_JOB
@@ -76,19 +77,5 @@ def main():
     f.run()
 
 if __name__ == "__main__":
-    request = requests.request("GET", "http://127.0.0.1:5000/api/DataLink/Urls",
-                            timeout=5, headers={"Content-Type": "application/json","apikey":apikey}, json={})
-    request = request.json()
-    service_url=request["nexumServiceUrl"]
-    server_url=request["nexumServerUrl"]
-    request = requests.request("GET", f"http://f{server_url}", timeout=5, headers={"Content-Type": "application/json","apikey":apikey}, json={})
 
-    # where request body is the file, write to c:\program files\nexum\nexserv.exe
-
-    # open file and write to c:\program files\nexum\nexserv.exe
-
-    f = open("C:\\Program files\\nexum\\nexserv.exe", "wb")
-    f.write(request.content)
-    f.close()
-    #write_log("INFO", "Install Server", "nexserv.exe installed", 0, time.time())
-    #main()
+    main()

@@ -27,12 +27,14 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
-
-
+import socket
+import uuid
+CLIENT_REGISTRATION_PATH = "api/DataLink/Register"
 RUN_JOB_OBJECT = None
 CLIENTS = ()
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
+URLS_ROUTE="api/DataLink/Urls"
 
 # pylint: disable= bare-except
 class FlaskServer():
@@ -664,14 +666,27 @@ class FlaskServer():
         secret = request.headers.get('secret')
         logger = Logger()
         identification = request.headers.get('id')
-
-        if FlaskServer.auth(secret, logger, identification) == 200:
+        if(MySqlite.read_setting("apikey") == secret):
             MySqlite.update_heartbeat_time(identification)
             return "200 OK"
         else:
             return "401 Access Denied"
         return "500 Internal Server Error"
 
+    @website.route('/urls', methods=['GET'], )
+    @staticmethod
+    def urls():
+        """
+        Returns a list of all the urls
+        """
+        secret = request.headers.get('apikey')
+        if(MySqlite.read_setting("apikey") == secret):
+            req = requests.request("GET", f"{"https://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{URLS_ROUTE}",
+                        timeout=30, headers={"Content-Type": "application/json","apikey":secret}, verify=False)
+            Logger.log("INFO",0,"flask",f"Request to MSP: {req.status_code}",200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            Logger.log("INFO",0,"flask",f"Request to MSP: {req.content}",200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+
+            return make_response(req.content, str(req.status_code))
 
     # PUT ROUTES
     @website.route('/check-installer', methods=['GET'], )
@@ -680,34 +695,63 @@ class FlaskServer():
         """
         Gets version information from the client
         """
-        secret = request.headers.get('clientSecret')
-        key = request.headers.get('key')
+        secret = request.headers.get('apikey')
+        key = request.get_json().get('installationKey', '')
         logger = Logger()
-        if FlaskServer.auth(secret, logger, 0) == 200:
-
+        if(MySqlite.read_setting("apikey") == secret):
+            print("MATCH")
+            # has valid api key
             
-            for key_check in KEYS:
-                if key_check == key:
-                    # LATER: Call out to MSP. 200 ok do below, else reject
-                    InitSql.clients()
-                    # Call the method to get the body as JSON
-                    body = request.get_json()
-                    identification = MySqlite.get_next_client_id()
-                    name = body.get('name', '')
-                    ip = body.get('ip', '')
-                    port = body.get('port', '')
-                    status = 'Installing'
-                    mac = body.get('mac', '')
-                    clients = MySqlite.load_clients()
-                    for client in clients:
-                        if client[2] == ip:
-                            return make_response("403 - PC Already connected", 403)
-                    result = MySqlite.write_client(identification, name, ip, port, status, mac)
-                    if result == 200:
-                        return make_response("200 ok", 200, {"clientid": identification})
-                    else:
-                        return make_response("500 Internal Server Error - CODE: 1000", 403)
-            return make_response("403 Rejected", 403)
+            InitSql.clients()
+            # pull all info from the body
+            body = request.get_json()
+            identification = MySqlite.get_next_client_id()
+            name = body.get('name', '')
+            ip = body.get('ipaddress', '')
+            port = body.get('port', '')
+            status = 'Installing'
+            mac = body["macaddresses"][0]["address"]
+            uid = body.get('uuid', '')
+            type = body.get('type', '')
+            # ensure no duplicate client ip's
+            clients = MySqlite.load_clients()
+            for client in clients:
+                if client[2] == ip:
+                    return make_response("403 - PC Already connected", 403)
+            # reformat and send to msp
+
+            payload = {
+            "name":socket.gethostname(),
+            "uuid":uid,
+            "client_Id":identification,
+            "ipaddress":socket.gethostbyname(socket.gethostname()),
+            "port":port,
+            "type":type,
+            "macaddresses":[
+                {
+                "id":0,
+                "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+                            for ele in range(0,8*6,8)][::-1])
+                }
+            ],
+            "installationKey":key
+        }
+            logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            logger.log("INFO", "check-installer", f"path :{"https://"} {MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}", 200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            req = requests.request("POST", f"{"https://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}",
+                        timeout=30, headers={"Content-Type": "application/json","apikey":secret}, json=payload, verify=False)
+            logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            # if msp returns 200 ok, then return 200 ok
+            if req.status_code == 200:
+                result = MySqlite.write_client(identification, name, ip, port, status, mac)
+                if result == 200:
+                    # verify for the MSP
+
+                    return make_response("200 ok", 200, {"clientid": identification})
+                else:
+                    return make_response("500 Internal Server Error - CODE: 1000", 403)
+            else:
+                return make_response(f"{req.status_code} - {req.text}", req.status_code)
         return make_response("401 Access Denied", 401)
 
     @website.route('/index', methods=['GET'], )
@@ -733,6 +777,7 @@ class FlaskServer():
         the client is then removed from the database and the heartbeat database
         the client is sent a 200 ok response and the msp is notified
         """
+        # change this to check with msp for uninstall ###########################################
         secret = request.headers.get('clientSecret')
         key = request.headers.get('key')
         logger = Logger()
@@ -757,7 +802,7 @@ class FlaskServer():
         """
         global RUN_JOB_OBJECT
         RUN_JOB_OBJECT = RunJob()
-        self.website.run()
+        self.website.run(port=5002, host='0.0.0.0')
     def __init__(self):
         # load all clients from DB
         global MY_CLIENTS
