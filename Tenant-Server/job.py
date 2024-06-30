@@ -29,8 +29,8 @@ class Job():
     id =  None
     title = None
     created = None
-    config = conf.Configuration(0,"","")
-    settings = jobsettings.JobSettings()
+    config:conf = conf.Configuration(0,"","")
+    settings:jobsettings = jobsettings.JobSettings()
 
     # pylint: disable=missing-function-docstring
     # Getters and setters

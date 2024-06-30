@@ -151,7 +151,28 @@ def decrypt_string(password, string):
     except:
         write_log("ERROR", "Decryption", "Decryption failed", 1110, get_time())
         return "Decryption failed"
+@staticmethod
+def encrypt_string(password, string):
+    """
+    Encrypt a string with AES-256 bit encryption
+    """
+    # Pad the password to be 16 bytes long
+    password_hashed = str(password).ljust(16).encode('utf-8')
 
+    # Create a new AES cipher with the password as the key
+    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
+    encryptor = cipher.encryptor()
+
+    # Pad the string to be a multiple of 16 bytes long
+    string = string.ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+
+    # Encrypt the string using AES
+    encrypted_string = encryptor.update(string) + encryptor.finalize()
+
+    # Encode the encrypted string in base64
+    encoded_string = base64.b64encode(encrypted_string)
+
+    return encoded_string.decode('utf-8')
 
 @staticmethod
 def get_uuid():
@@ -164,6 +185,26 @@ def get_uuid():
     output = output.split('\n\n', 1)[-1]
     output = output[:24]
     return output
+@staticmethod
+def write_setting(setting, value):
+    """
+    Write a setting to the database
+    """
+    result =  get_uuid()
+
+    value = encrypt_string(result,value)
+
+    conn = sqlite3.connect(SETTINGS_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+    existing_value = cursor.fetchone()
+    if existing_value:
+        cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
+    else:
+        cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''',
+                           (setting, value))
+    conn.commit()
+    conn.close()
 
 @staticmethod
 def read_setting(setting):
@@ -616,6 +657,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
 
         # send a beat to the server --                                                                                                              Do I need?
         identification = request.headers.get('clientid')
+        write_setting("CLIENT_ID",identification)
         request = requests.request("POST", f"{CLIENT_PROTOCOL}{backupserver}/{BEAT_PATH}",
             timeout=TIMEOUT,
             headers={"Content-Type": "application/json","secret":apikey,"id":str(identification)},

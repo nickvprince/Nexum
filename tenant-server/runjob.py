@@ -19,6 +19,7 @@ import time
 import threading
 import job
 from logger import Logger
+from jobsettings import JobSettings
 from flask import request
 import requests
 import json
@@ -28,7 +29,7 @@ from sql import MySqlite
 
 
 
-LOCAL_JOB = job.Job() # job assigned to this computer
+LOCAL_JOB:job = job.Job() # job assigned to this computer
 class RunJob():
     """
     Class to run the job assigned to this computer and manage the job
@@ -87,6 +88,7 @@ class RunJob():
                     Logger.debug_print("Error: "+str(e))
                 # check response for what happened
                 # set job status to running
+                
                 new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
                 new_client = list(new_client)
                 new_client.remove(new_client[4])
@@ -99,11 +101,11 @@ class RunJob():
             time.sleep(5)
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
-            if LOCAL_JOB.settings != None:
-                if LOCAL_JOB.settings.start_time is None or LOCAL_JOB.settings.stop_time is None:
-                    LOCAL_JOB.settings.start_time = ""
-                    LOCAL_JOB.settings.stop_time = ""
-                if (LOCAL_JOB.settings.start_time < time.asctime()) and (LOCAL_JOB.settings.stop_time > time.asctime()):
+            if LOCAL_JOB.get_settings()is not None:
+                if LOCAL_JOB.get_settings()[2] is None or LOCAL_JOB.get_settings()[3] is None:
+                    LOCAL_JOB.get_settings().start_time = ""
+                    LOCAL_JOB.get_settings().stop_time = ""
+                if (LOCAL_JOB.get_settings()[2] < time.asctime()) and (LOCAL_JOB.get_settings()[3] > time.asctime()):
                     Logger.debug_print("Job Triggered by time")
                     command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
                     # command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
@@ -113,11 +115,14 @@ class RunJob():
                     p.kill()
                     # Run the Job
                     # set job status to running
-                    new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-                    new_client = list(new_client)
-                    new_client.remove(new_client[4])
-                    new_client.insert(4,"running")
-                    MySqlite.update_client(new_client)
+                    if MySqlite.read_setting("CLIENT_ID") == "0":
+                        pass
+                    else:
+                        new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+                        new_client = list(new_client)
+                        new_client.remove(new_client[4])
+                        new_client.insert(4,"running")
+                        MySqlite.update_client(new_client)
             else:
                 pass
 

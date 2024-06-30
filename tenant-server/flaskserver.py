@@ -61,7 +61,7 @@ class FlaskServer():
         global RUN_JOB_OBJECT
         RUN_JOB_OBJECT = run_job_object
     @staticmethod
-    def auth(recieved_client_secret, logger,identification):
+    def auth(apikey, logger,identification):
         """     This is substituted with local clientSecret
         try:
             # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
@@ -92,6 +92,15 @@ class FlaskServer():
         # create a variable with the salt, pepper, and salt2 added to the client secret then hashed
         # compare the hash to the decrypted data
         # if they match the KEY is valid
+        internal_apikey = MySqlite.read_setting("apikey")
+        if apikey == internal_apikey:
+            return 200
+        else:
+            logger.log("ERROR", "get_files", "Access denied",
+            "405", get_time())
+            return 405
+
+        """
         recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
         temp = Security.sha256_string(CLIENT_SECRET)
         temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
@@ -103,9 +112,9 @@ class FlaskServer():
             return 405
         return 200
 
-
+        """
     @staticmethod
-    def get_local_files():
+    def get_local_files(path:str):
         """
         Server requests a path such as C: and returns a list of files and directories in that path
         requirement: json Body that includes 'path', clientSecret hashed with sha256, and a salt, 
@@ -122,22 +131,12 @@ class FlaskServer():
         @param request: the request from the client
         """
         logger=Logger()
-        # get the json body
-        data = request.get_json()
-        # get the path from the json body
-        path = data.get('path', '')
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
-        # get the ID from the json body
-        identification = data.get('ID', '')
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
-            code = 401
-            msg = "Access Denied"
         # pylint: enable=unused-variable, enable=invalid-name
         # check if the path exists
-        elif not os.path.exists(path):
+        if not os.path.exists(path):
             logger.log("ERROR", "get_files", "Path not found",
             "404", get_time())
             code=404
@@ -162,9 +161,15 @@ class FlaskServer():
             msg="Path is empty"
         # get the files and directories in the path
         # if error is returned, do not get file directories
+        elif str(path).lower() == str("c:"):
+            logger.log("ERROR", "get_files", "Path is not accessible",
+            "401", get_time())
+            code=401
+            msg="Path is not accessible Access Denied"
         if code==0:
             try:
                 files = os.listdir(path)
+                msg = files
             except PermissionError:
                 logger.log("ERROR", "get_files", "Permission error",
                 "1005", get_time())
@@ -192,16 +197,17 @@ class FlaskServer():
         # get the json body
         data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
+        recieved_client_secret = request.headers.get('apikey')
         # get the ID from the json body
-        identification = data.get('ID', '')
         client_id = data.get('clientid', '')
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+        if FlaskServer.auth(recieved_client_secret, logger, client_id) == 405:
             code = 401
             msg = "Access Denied"
         else:
+            if client_id == 0:
+                return FlaskServer.get_local_files(data.get('path', ''))
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
@@ -209,7 +215,7 @@ class FlaskServer():
                     url = f"http://{i[0]}:5000/start_job"
                     try:
                         if i[0]== "127.0.0.1":
-                            return FlaskServer.get_local_files()
+                            return FlaskServer.get_local_files(data.get('path', ''))
                         else:
                             return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
@@ -244,21 +250,24 @@ class FlaskServer():
         logger=Logger()
         # get the json body
         data = request.get_json()
-        # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
+
         # get the ID from the json body
-        identification = data.get('ID', '')
-        client_id = data.get('clientid', '')
+        identification = data.get('client_id', '')
+        apikey = request.headers.get('apikey', '')
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+        if FlaskServer.auth(apikey, logger, identification) == 405:
             code = 401
             msg = "Access Denied"
         else:
+            if identification == 0:
+                RUN_JOB_OBJECT.trigger_job()
+                return "200 OK"
+            
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
+                if i[1] == identification: # find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[0]}:5000/start_job"
                     try:
 
@@ -316,20 +325,22 @@ class FlaskServer():
         # get the json body
         data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
+        apikey = request.headers.get('apikey', '')
         # get the ID from the json body
-        identification = data.get('ID', '')
-        client_id = data.get('clientid', '')
+        identification = data.get('client_id', '')
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+        if FlaskServer.auth(apikey, logger, identification) == 405:
             code = 401
             msg = "Access Denied"
         else:
+            if identification == 0:
+                RUN_JOB_OBJECT.stop_job()
+                return "200 OK"
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
+                if i[1] == identification: # find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[0]}:5000/stop_job"
                     try:
                         if i[0]== "127.0.0.1":
@@ -534,10 +545,10 @@ class FlaskServer():
         logger=Logger()
         data = request.get_json()
         # get client secret from header
-        secret = request.headers.get('clientSecret')
-        identification = request.headers.get('ID')
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
 
-        if FlaskServer.auth(secret, logger, identification) == 200:
+        if FlaskServer.auth(apikey, logger, identification) == 200:
             recieved_job = data.get(identification, '')
             # recieve settings as json
             recieved_settings = recieved_job.get('settings', '')
@@ -557,7 +568,7 @@ class FlaskServer():
             settings.set_retry_count(recieved_settings.get('retryCount', ''))
             settings.set_retention(recieved_settings.get('retention', ''))
             settings.backup_path=recieved_settings.get('path', '')
-            config = Configuration(0, 0, secret)
+            config = Configuration(0, 0, apikey)
             config.address = recieved_settings.get('path', '')
             settings.set_user(recieved_settings.get('user', ''))
             settings.set_password(recieved_settings.get('password', ''))
@@ -567,7 +578,7 @@ class FlaskServer():
             job_to_save.save()
             RUN_JOB_OBJECT = job_to_save
             return "200 OK"
-        elif FlaskServer.auth(secret, logger, id) == 405:
+        elif FlaskServer.auth(apikey, logger, id) == 405:
             return "401 Access Denied"
         else:
             return "500 Internal Server Error"
@@ -587,7 +598,7 @@ class FlaskServer():
         Gives Current Job Information
         """
         return "200 OK"
-    @website.route('/force_checkin', methods=['GET'], )
+    @website.route('/force_checkin', methods=['POST'], )
     @staticmethod
     def force_checkin():
         """
@@ -602,7 +613,7 @@ class FlaskServer():
         """
         return "200 OK"
 
-    @website.route('/get_Status', methods=['GET'], )
+    @website.route('/get_status', methods=['GET'], )
     @staticmethod
     def get_status():
         """
@@ -610,7 +621,7 @@ class FlaskServer():
         """
         return "200 OK"
 
-    @website.route('/force_update', methods=['PUT'], )
+    @website.route('/force_update', methods=['POST'], )
     @staticmethod
     def force_update():
         """
