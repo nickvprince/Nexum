@@ -30,7 +30,7 @@ from HeartBeat import MY_CLIENTS
 
 
 RUN_JOB_OBJECT = None
-CLIENTS = (["127.0.0.1",0],["10.0.0.2",1])
+CLIENTS = ()
 KEYS = "LJA;HFLASBFOIASH[jfnW.FJPIH","JBQDPYQ7310712631DHLSAU8AWY]"
 MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
 
@@ -560,6 +560,15 @@ class FlaskServer():
             return "401 Access Denied"
         else:
             return "500 Internal Server Error"
+        
+    @website.route('/get_id', methods=['GET'], )
+    @staticmethod
+    def get_id():
+        """
+        Gives Current id based on uuid provided
+        """
+        return "200 OK"
+    
     @website.route('/get_job', methods=['GET'], )
     @staticmethod
     def get_job():
@@ -673,11 +682,6 @@ class FlaskServer():
         """
         secret = request.headers.get('clientSecret')
         key = request.headers.get('key')
-        Logger.debug_print("--------")
-        Logger.debug_print(secret)
-        Logger.debug_print(key)
-        Logger.debug_print(KEYS[0])
-        Logger.debug_print("--------")
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
             Logger.debug_print("secret matches")
@@ -733,7 +737,7 @@ class FlaskServer():
         key = request.headers.get('key')
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
-            if key == MASTER_UNINSTALL_KEY:
+            if key == MySqlite.read_setting("Master-Uninstall"):
                 body = request.get_json()
                 identification = body.get('clientid', '')
                 if MySqlite.get_last_checkin(identification) == None:

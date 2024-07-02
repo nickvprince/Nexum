@@ -21,7 +21,7 @@ import subprocess
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-
+ENCODING = 'utf-8'
 # pah directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
@@ -44,7 +44,7 @@ def encrypt_string(password, string):
     Encrypt a string with AES-256 bit encryption
     """
     # Pad the password to be 16 bytes long
-    password_hashed = str(password).ljust(16).encode('utf-8')
+    password_hashed = str(password).ljust(16).encode(ENCODING)
 
     # Create a new AES cipher with the password as the key
     cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
@@ -52,7 +52,7 @@ def encrypt_string(password, string):
 
     # Pad the string to be a multiple of 16 bytes long
     try:
-        string = str(string).ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+        string = str(string).ljust((len(string) // 16 + 1) * 16).encode(ENCODING)
 
 
     # Encrypt the string using AES
@@ -60,7 +60,7 @@ def encrypt_string(password, string):
 
     # Encode the encrypted string in base64
         encoded_string = base64.b64encode(encrypted_string)
-        return encoded_string.decode('utf-8')
+        return encoded_string.decode(ENCODING)
     except UnicodeDecodeError:
         MySqlite.write_log("ERROR", "SQL", "Failed to encrypt string - Unicode decode error",
                             "1007", "Failed to encrypt string")
@@ -77,7 +77,7 @@ def decrypt_string(password, string):
     Decrypt a string with AES-256 bit decryption
     """
     # Pad the password to be 16 bytes long
-    password_hashed = str(password).ljust(16).encode('utf-8')
+    password_hashed = str(password).ljust(16).encode(ENCODING)
 
     # Create a new AES cipher with the password as the key
     cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
@@ -89,7 +89,7 @@ def decrypt_string(password, string):
     # Decrypt the string using AES
     decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
     try:
-        return decrypted_string.decode('utf-8')
+        return decrypted_string.decode(ENCODING)
     except UnicodeDecodeError:
         MySqlite.write_log("ERROR", "SQL", "Failed to decrypt string - Unicode decode error",
                             "1004", "Failed to decrypt string")
@@ -104,6 +104,7 @@ class MySqlite():
     Class to interact with the sqlite database
     Type: File IO
     """
+
     @staticmethod
     def write_log(severity, subject, message, code, date):
         """ 

@@ -43,4 +43,5 @@ class Logger():
         Used to print information in debugging to be easily switched during implementation
         @param message: the message to be printed
         """
+        MySqlite.write_log("DEBUG", "DEBUG", message, "0", "0")
         print(message)
