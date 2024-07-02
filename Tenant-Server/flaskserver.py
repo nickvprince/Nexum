@@ -684,12 +684,19 @@ class FlaskServer():
         A spot for clients to send heartbeats to
         """
         secret = request.headers.get('secret')
+        print(secret)
         identification = request.headers.get('id')
-        if(MySqlite.read_setting("apikey") == secret):
-            MySqlite.update_heartbeat_time(identification)
-            return "200 OK"
-        else:
-            return "401 Access Denied"
+        for client in MY_CLIENTS:
+            if client[0] == identification:
+                if(MySqlite.read_setting("apikey") == secret):
+                    print("-----------------")
+                    print(secret)
+                    print(MySqlite.read_setting("apikey"))
+                    MySqlite.update_heartbeat_time(identification)
+                    return "200 OK"
+                else:
+                    return make_response("401 Access Denied",401)
+        return make_response("403 Client not found",403)
 
     @website.route('/urls', methods=['GET'], )
     @staticmethod

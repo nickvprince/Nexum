@@ -1,6 +1,5 @@
 """
-# Program: tenant-server
-# File: main.py
+# Program: tenant-server# File: main.py
 # Authors: 1. Danny Smith
 #
 # Date: 3/192024
@@ -32,8 +31,10 @@ def init():
     """
     Initializes the program
     """
+    MySqlite.write_client(0,"Danny-Server","127.0.0.1","5002","Online","AD-0F-4C-AF-DC")
+    MySqlite.write_client(1,"Danny-PC","192.168.1.50","5002","Online","AD-0F-4C-AF-DC")
     InitSql()
-    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("client_secret", "01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
     MySqlite.write_setting("TENANT_ID","1")
     MySqlite.write_setting("CLIENT_ID","1")
     MySqlite.write_setting("POLLING_INTERVAL","10")

@@ -111,14 +111,14 @@ def main():
 
 if __name__ == "__main__":
     InitSql()
-    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("client_secret", "01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
     MySqlite.write_setting("TENANT_ID","1")
     MySqlite.write_setting("CLIENT_ID","1")
     MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
     MySqlite.write_setting("POLLING_INTERVAL","10")
     MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5000")
-    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    MySqlite.write_setting("server_port","5002")
+    MySqlite.write_setting("tenant_secret","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
     MySqlite.write_setting("heartbeat_interval","5")
     MySqlite.write_setting("service_address","127.0.0.1:5004")
     MySqlite.write_setting("salt","salt")

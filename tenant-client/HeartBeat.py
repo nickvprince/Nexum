@@ -38,11 +38,8 @@ class HeartBeat:
 
         client_secret = MySqlite.read_setting("client_secret")
         client_id = MySqlite.read_setting("CLIENT_ID")
-        temp = Security.sha256_string(client_secret)
-        temp = Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2"))
-        temp = Security.encrypt_client_secret(temp)
         headers = {
-            "secret": str(temp),
+            "secret": str(client_secret),
             "id": str(client_id)
         }
         url = "http://"+self.server_address+":"+self.server_port+"/beat"
