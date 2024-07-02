@@ -71,8 +71,9 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import win32com.shell.shell as shell
 from task import client_persistance, server_persistance
+import tempfile
 
-
+CURRENT_VERSION = "alpha 1.0.0"
 ASADMIN = 'asadmin'
 job_settingsFile=os.path.join('/settings.db')
 VERIFY_PATH="api/DataLink/verify"
@@ -93,8 +94,8 @@ IMAGE_PATH = '../Data/Nexum.png'
 BEAT_PATH = "beat"
 UNINSTALL_PATH = "uninstall"
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working director
-SETTINGS_PATH= os.path.join(current_dir,
-        os.path.join(current_dir, '..\\settings') +'\\settings.db') # path to the settings database
+# setting should be in %temp%/settings/settings.db such as C:\Users\teche\AppData\Local\Temp\settings
+SETTINGS_PATH = os.path.join(tempfile.gettempdir(),"/settings","/settings.db") # path to the settings database
 logpath = os.path.join(current_dir,'../logs','/log.db') # path to the log database
 
 # Keys
@@ -193,7 +194,6 @@ def write_setting(setting, value):
     result =  get_uuid()
 
     value = encrypt_string(result,value)
-
     conn = sqlite3.connect(SETTINGS_PATH)
     cursor = conn.cursor()
     cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
@@ -627,6 +627,17 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     including the registry keys and the service, and the persistence
     """
     write_log("INFO", "Install Client", "Install Client Background Started", 0, get_time())
+    server_address = backupserver.split(":")[0]
+    server_port = backupserver.split(":")[1]
+
+    write_setting("server_address",server_address)
+    write_setting("server_port",server_port)
+    write_setting("service_address","127.0.0.1:5004")
+    write_setting("Status","Installing")
+    write_setting("apikey",apikey)
+    write_setting("version","1.0.0")
+    write_setting("msp-port","7101")
+    write_setting("POLLING_INTERVAL","10")
     try:
         # get uuid
         output = get_uuid()
@@ -691,6 +702,8 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             request = request.json()
             service_url=request["nexumServiceUrl"]
             server_url=request["nexumUrl"]
+            portal_url=request["portalUrl"]
+            write_setting("TENANT_PORTAL_URL",portal_url)
             write_log("INFO","Install Server", f"service:{service_url} server:{server_url}",
                     0,get_time())
 
@@ -830,7 +843,18 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     Main loop for installing the server in the backend
     """
     write_log("INFO", "Install Server", "Install Server process starting", 0, get_time())
-
+    # split backupserver as 127.0.0.1:5000 as [127.0.0.1,5000]
+    server_address = backupserver.split(":")[0]
+    server_port = backupserver.split(":")[1]
+    write_setting("CLIENT_ID",str(0))
+    write_setting("server_address",server_address)
+    write_setting("server_port",server_port)
+    write_setting("service_address","127.0.0.1:5004")
+    write_setting("Status","Installing")
+    write_setting("apikey",apikey)
+    write_setting("version","1.0.0")
+    write_setting("msp-port","7101")
+    write_setting("POLLING_INTERVAL","10")
     try:
 
         output = get_uuid()
@@ -879,7 +903,8 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             request = request.json()
             service_url=request["nexumServiceUrl"]
             server_url=request["nexumServerUrl"]
-
+            portal_url=request["portalUrl"]
+            write_setting("TENANT_PORTAL_URL",portal_url)
             write_log("INFO","Install Server", f"service:{service_url} server:{server_url}",
                     0,get_time())
         except:
@@ -932,6 +957,18 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
 
         # notify server that the installation is complete
         notify_server(backupserver,0,apikey,output,key)
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT Address FROM clients WHERE Address = ?''', (socket.gethostbyname(socket.gethostname())))
+        existing_address = cursor.fetchone()
+        if existing_address:
+            return 500
+        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC)
+                    VALUES (?, ?, ?, ?, ?, ?)''',
+                    (0, socket.gethostname(), (socket.gethostbyname(socket.gethostname()), PORT, "Installed", ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+                            for ele in range(0,8*6,8)][::-1]))))
+        conn.commit()
+        conn.close()
 
         #incorrect secret
     else:
@@ -1063,6 +1100,10 @@ def main():
     """
     Main Loop
     """
+    global SETTINGS_PATH
+    SETTINGS_PATH = str(tempfile.gettempdir())+str("\\settings\\settings.db")
+
+    write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
         params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
