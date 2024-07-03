@@ -19,7 +19,7 @@ namespace API.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public Task<bool> DeleteAsync(string? id)
         {
             throw new NotImplementedException();
         }
@@ -29,9 +29,9 @@ namespace API.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ApplicationUser?> GetAsync(string username)
+        public async Task<ApplicationUser?> GetAsync(string? id)
         {
-            return await _appDbContext.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            return await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
         public async Task<ICollection<ApplicationUser>> GetAllAsync()
         {

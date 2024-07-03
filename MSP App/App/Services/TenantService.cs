@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SharedComponents.Entities;
 using SharedComponents.Services;
+using SharedComponents.WebRequestEntities.TenantRequests;
 using System.Text;
 
 namespace App.Services
@@ -20,11 +21,11 @@ namespace App.Services
             }
         }
 
-        public async Task<Tenant?> CreateAsync(Tenant tenant)
+        public async Task<Tenant?> CreateAsync(TenantCreateRequest request)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(tenant), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("", content);
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<Tenant>(responseData);
@@ -35,11 +36,11 @@ namespace App.Services
             }
         }
 
-        public async Task<Tenant?> EditAsync(Tenant tenant)
+        public async Task<Tenant?> UpdateAsync(TenantUpdateRequest request)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(tenant), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PutAsync("", content);
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<Tenant>(responseData);
@@ -79,11 +80,32 @@ namespace App.Services
             }
         }
 
+        public async Task<Tenant?> GetRichAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{id}/Rich");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Tenant>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public async Task<ICollection<Tenant>?> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync("");
-            var responseData = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ICollection<Tenant>>(responseData);
+            try
+            {
+                var response = await _httpClient.GetAsync("");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<Tenant>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

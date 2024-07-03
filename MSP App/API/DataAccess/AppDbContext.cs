@@ -81,7 +81,7 @@ namespace API.DataAccess
             base.OnModelCreating(modelBuilder);
 
             // Configure table names
-            modelBuilder.Entity<ApplicationRole>().ToTable("Roles");
+            modelBuilder.Entity<ApplicationRole>().ToTable("ApplicationRoles");
             modelBuilder.Entity<Permission>().ToTable("Permissions");
             modelBuilder.Entity<Tenant>().ToTable("Tenants");
             modelBuilder.Entity<TenantInfo>().ToTable("TenantInfos");
@@ -89,8 +89,8 @@ namespace API.DataAccess
             modelBuilder.Entity<DeviceInfo>().ToTable("DeviceInfos");
             modelBuilder.Entity<MACAddress>().ToTable("MACAddresses");
             modelBuilder.Entity<InstallationKey>().ToTable("InstallationKeys");
-            modelBuilder.Entity<ApplicationRolePermission>().ToTable("RolePermissions");
-            modelBuilder.Entity<ApplicationUserRole>().ToTable("UserRoles");
+            modelBuilder.Entity<ApplicationRolePermission>().ToTable("ApplicationRolePermissions");
+            modelBuilder.Entity<ApplicationUserRole>().ToTable("ApplicationUserRoles");
             modelBuilder.Entity<SoftwareFile>().ToTable("SoftwareFiles");
 
             // Tenant and TenantInfo one-to-one relationship
@@ -211,9 +211,9 @@ namespace API.DataAccess
                     return; // DB has been seeded
                 }
                 // Add Tenants first to get the generated IDs
-                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString() };
-                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString() };
-                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString() };
+                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111 };
+                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111 };
+                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111 };
 
                 context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();
@@ -267,8 +267,8 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add ApplicationRole
-                var role1 = new ApplicationRole { Name = "AdminRole", Description = "Role for admins" };
-                var role2 = new ApplicationRole { Name = "UserRole", Description = "Role for users" };
+                var role1 = new ApplicationRole { Name = "AdminRole", Description = "Role for admins", IsActive = true };
+                var role2 = new ApplicationRole { Name = "UserRole", Description = "Role for users", IsActive = true };
 
                 context.ApplicationRoles.AddRange(role1, role2);
                 context.SaveChanges();
@@ -298,12 +298,16 @@ namespace API.DataAccess
                 context.SoftwareFiles.AddRange(softwareFile1, softwareFile2, softwareFile3);
                 context.SaveChanges();
 
+                // Add DeviceAlerts
+
                 var alert1 = new DeviceAlert { DeviceId = device1.Id, Severity = AlertSeverity.Critical, Message = "Device is offline" };
                 var alert2 = new DeviceAlert { DeviceId = device2.Id, Severity = AlertSeverity.Information, Message = "Device is Online" };
                 var alert3 = new DeviceAlert { DeviceId = device3.Id, Severity = AlertSeverity.Low, Message = "Heart beat missed" };
 
                 context.Alerts.AddRange(alert1, alert2, alert3);
                 context.SaveChanges();
+
+                // Add DeviceLogs
 
                 var log1 = new DeviceLog { DeviceId = device1.Id, Type = LogType.Information, Filename = "something.py", Function = "online()", Message = "Device is online", Code = 0, Time = DateTime.Now };
                 var log2 = new DeviceLog { DeviceId = device2.Id, Type = LogType.Warning, Filename = "something.py", Function = "offline()", Message = "Device is offline", Code = 1, Time = DateTime.Now.AddMinutes(1) };

@@ -19,17 +19,16 @@ namespace API.Services
             {
                 try
                 {
-                    // Add the device to the context
                     await _appDbContext.Devices.AddAsync(device);
-
-                    // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
-
-                    return await _appDbContext.Devices
-                        .Where(d => d.Id == device.Id)
-                        .Include(d => d.DeviceInfo)
-                            .ThenInclude(di => di.MACAddresses)
-                        .FirstOrDefaultAsync(); ;
+                    if (result > 0)
+                    {
+                        return await _appDbContext.Devices
+                            .Where(d => d.Id == device.Id)
+                            .Include(d => d.DeviceInfo!)
+                                .ThenInclude(di => di.MACAddresses)
+                            .FirstAsync();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -45,18 +44,22 @@ namespace API.Services
             {
                 try
                 {
-                    var existingDevice = await _appDbContext.Devices.FindAsync(device.Id);
+                    var existingDevice = await _appDbContext.Devices
+                        .Where(d => d.Id == device.Id)
+                        .FirstAsync();
                     if (existingDevice != null)
                     {
                         _appDbContext.Entry(existingDevice).CurrentValues.SetValues(device);
 
                         var result = await _appDbContext.SaveChangesAsync();
-
-                        return await _appDbContext.Devices
-                            .Where(d => d.Id == device.Id)
-                            .Include(d => d.DeviceInfo)
-                                .ThenInclude(di => di.MACAddresses)
-                            .FirstOrDefaultAsync();
+                        if (result >= 0)
+                        {
+                            return await _appDbContext.Devices
+                                .Where(d => d.Id == device.Id)
+                                .Include(d => d.DeviceInfo!)
+                                    .ThenInclude(di => di.MACAddresses)
+                                .FirstAsync();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -71,13 +74,17 @@ namespace API.Services
         {
             try
             {
-                var device = await _appDbContext.Devices.FindAsync(id);
+                var device = await _appDbContext.Devices
+                    .Where(d => d.Id == id)
+                    .FirstAsync();
                 if (device != null)
                 {
                     _appDbContext.Devices.Remove(device);
                     var result = await _appDbContext.SaveChangesAsync();
-
-                    return true;
+                    if(result > 0)
+                    {
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -87,35 +94,93 @@ namespace API.Services
             return false;
         }
 
-        public async Task<Device?> GetAsync(int id)
-        {
-            return await _appDbContext.Devices
-                .Where(d => d.Id == id)
-                .Include(d => d.DeviceInfo)
-                    .ThenInclude(di => di.MACAddresses)
-                .FirstOrDefaultAsync();
-        }
-
         public async Task<Device?> GetByClientIdAndUuidAsync(int tenantId, int clientId, string? uuid)
         {
-            if (uuid == null)
+            try
             {
-                return null;
+                var device = await _appDbContext.Devices
+                    .Where(d => d.DeviceInfo!.ClientId == clientId && d.DeviceInfo.Uuid == uuid && d.TenantId == tenantId)
+                    .Include(d => d.DeviceInfo!)
+                        .ThenInclude(di => di.MACAddresses)
+                    .FirstAsync();
+                if (device != null)
+                {
+                    return device;
+                }
             }
-
-            return await _appDbContext.Devices
-                .Include(d => d.DeviceInfo)
-                    .ThenInclude(di => di.MACAddresses)
-                .Where( d => d.DeviceInfo.ClientId == clientId && d.DeviceInfo.Uuid == uuid && d.TenantId == tenantId)
-                .FirstOrDefaultAsync();
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the device: {ex.Message}");
+            }
+            return null;
         }
 
-        public async Task<ICollection<Device>> GetAllAsync()
+        public async Task<Device?> GetAsync(int id)
         {
-            return await _appDbContext.Devices
-                .Include(d => d.DeviceInfo)
-                    .ThenInclude(di => di.MACAddresses)
-                .ToListAsync();
+            try
+            {
+                var device = await _appDbContext.Devices
+                    .Where(d => d.Id == id)
+                    .Include(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                    .FirstAsync();
+                if (device != null)
+                {
+                    return device;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the device: {ex.Message}");
+            }
+            return null;
+        }
+
+        public async Task<ICollection<Device>?> GetAllAsync()
+        {
+            try
+            {
+                var devices = await _appDbContext.Devices
+                    .Include(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                    .ToListAsync();
+                if (devices != null)
+                {
+                    if (devices.Any())
+                    {
+                        return devices;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all devices: {ex.Message}");
+            }
+            return null;
+        }
+
+        public async Task<ICollection<Device>?> GetAllByTenantIdAsync(int tenantId)
+        {
+            try
+            {
+                var devices = await _appDbContext.Devices
+                    .Where(d => d.TenantId == tenantId)
+                    .Include(d => d.DeviceInfo)
+                        .ThenInclude(di => di.MACAddresses)
+                    .ToListAsync();
+                if (devices != null)
+                {
+                    if (devices.Any())
+                    {
+                        return devices;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all devices by tenant id: {ex.Message}");
+            }
+            return null;
         }
 
     }

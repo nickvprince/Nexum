@@ -11,8 +11,8 @@ namespace SharedComponents.DbServices
     {
         public Task<bool> AddAsync(ApplicationUser user);
         public Task<bool> EditAsync(ApplicationUser user);
-        public Task<bool> DeleteAsync(int id);
-        public Task<ApplicationUser?> GetAsync(string username);
+        public Task<bool> DeleteAsync(string? id);
+        public Task<ApplicationUser?> GetAsync(string? id);
         public Task<ICollection<ApplicationUser>> GetAllAsync();
     }
 }

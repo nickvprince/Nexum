@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedComponents.RequestEntities
+namespace SharedComponents.WebRequestEntities
 {
     public class LoginRequest
     {
