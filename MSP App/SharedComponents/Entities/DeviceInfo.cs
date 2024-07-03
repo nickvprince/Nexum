@@ -11,6 +11,7 @@ namespace SharedComponents.Entities
     public class DeviceInfo
     {
         public int Id { get; set; }
+        public string? Nickname { get; set; }
         [Required]
         public string? Name { get; set; }
         public int ClientId { get; set; }
@@ -25,6 +26,7 @@ namespace SharedComponents.Entities
         [Required]
         public ICollection<MACAddress>? MACAddresses { get; set; }
         public int DeviceId { get; set; }
+        [JsonIgnore]
         public Device? Device { get; set; }
     }
     public enum DeviceType

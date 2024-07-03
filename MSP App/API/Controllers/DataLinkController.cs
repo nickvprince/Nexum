@@ -20,11 +20,15 @@ namespace API.Controllers
         private readonly DbSoftwareService _dbSoftwareService;
         private readonly DbAlertService _dbAlertService;
         private readonly DbLogService _dbLogService;
+        private readonly DbInstallationKeyService _dbInstallationKeyService;
         private readonly IConfiguration _config;
         private readonly string _apiBaseUrl;
         private readonly string _webAppBaseUrl;
 
-        public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, DbAlertService dbAlertService, DbLogService dbLogService,  IConfiguration config)
+        public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, 
+            DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, 
+            DbAlertService dbAlertService, DbLogService dbLogService,
+            DbInstallationKeyService dbInstallationKeyService, IConfiguration config)
         {
             _dbTenantService = dbTenantService;
             _dbDeviceService = dbDeviceService;
@@ -32,6 +36,7 @@ namespace API.Controllers
             _dbSoftwareService = dbSoftwareService;
             _dbAlertService = dbAlertService;
             _dbLogService = dbLogService;
+            _dbInstallationKeyService = dbInstallationKeyService;
             _config = config;
             _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
                           _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
@@ -67,7 +72,7 @@ namespace API.Controllers
                     return NotFound("Tenant not found.");
                 }
 
-                InstallationKey? installationKey = await _dbTenantService.GetInstallationKeyAsync(request.InstallationKey);
+                InstallationKey? installationKey = await _dbInstallationKeyService.GetByInstallationKeyAsync(request.InstallationKey);
                 if (installationKey == null)
                 {
                     return Unauthorized("Invalid Installation Key.");
@@ -78,7 +83,7 @@ namespace API.Controllers
                     return Unauthorized("Invalid Installation Key.");
                 }
 
-                if (!installationKey.IsActive)
+                if (!installationKey.IsActive || installationKey.IsDeleted)
                 {
                     return Unauthorized("Inactive Installation Key.");
                 }
@@ -88,34 +93,51 @@ namespace API.Controllers
                     return BadRequest("Invalid Device Type.");
                 }
 
+                ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(tenant.Id);
+                if (devices != null)
+                {
+                    Device? existingDevice = devices.FirstOrDefault(d => d.DeviceInfo!.ClientId == request.Client_Id && d.DeviceInfo!.Uuid == request.Uuid);
+                    if (existingDevice != null)
+                    {
+                        return BadRequest("Device already registered.");
+                    }
+                }
                 if (request.Type == DeviceType.Server)
                 {
-                    if (tenant.Devices != null)
+                    if (devices != null)
                     {
-                        Device? server = tenant.Devices.FirstOrDefault(d => d.DeviceInfo.Type == DeviceType.Server);
+                        Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
                         if (server != null)
                         {
-                            return BadRequest("Server already registered.");
+                            return BadRequest("Server already exists.");
                         }
+                    }
+                    if (request.ApiBaseUrl == null || request.ApiBasePort == null)
+                    {
+                        return BadRequest("Invalid API Base URL or Port.");
+                    }
+                    tenant.ApiBaseUrl = request.ApiBaseUrl;
+                    tenant.ApiBasePort = request.ApiBasePort;
+                    tenant = await _dbTenantService.UpdateAsync(tenant);
+                    if (tenant == null)
+                    {
+                        return BadRequest("An error occurred while updating the tenant.");
                     }
                 }
                 else
                 {
-                    if (tenant.Devices != null)
+                    if (devices != null)
                     {
-                        Device? server = tenant.Devices.FirstOrDefault(d => d.DeviceInfo.Type == DeviceType.Server);
-                        if (!server.IsVerified)
+                        Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
+                        if (server != null)
                         {
-                            return BadRequest("Server not verified.");
-                        }
-                        Device? existingDevice = tenant.Devices.FirstOrDefault(d => d.DeviceInfo.ClientId == request.Client_Id && d.DeviceInfo.Uuid == request.Uuid);
-                        if (existingDevice != null)
-                        {
-                            return BadRequest("Device already registered.");
+                            if (!server.IsVerified)
+                            {
+                                return BadRequest("Server not verified.");
+                            }
                         }
                     }
                 }
-
                 Device? device = new Device
                 {
                     TenantId = tenant.Id,
@@ -130,16 +152,16 @@ namespace API.Controllers
                         Type = request.Type,
                     }
                 };
-
+                
                 device = await _dbDeviceService.CreateAsync(device);
-                if (device != null)
+                if (device != null && tenant != null)
                 {
                     if (device.DeviceInfo != null)
                     {
                         if (device.DeviceInfo.MACAddresses != null && device.DeviceInfo.Type != null)
                         {
                             installationKey.IsActive = false;
-                            installationKey = await _dbTenantService.UpdateInstallationKeyAsync(installationKey);
+                            installationKey = await _dbInstallationKeyService.UpdateAsync(installationKey);
 
                             if (installationKey != null)
                             {
@@ -151,6 +173,8 @@ namespace API.Controllers
                                     IpAddress = device.DeviceInfo.IpAddress,
                                     Port = device.DeviceInfo.Port,
                                     Type = EnumUtilities.EnumToString(device.DeviceInfo.Type.Value),
+                                    ApiBaseUrl = tenant.ApiBaseUrl,
+                                    ApiBasePort = tenant.ApiBasePort,
                                     MACAddresses = new List<MACAddressResponse>(device.DeviceInfo.MACAddresses.Select(m => new MACAddressResponse
                                     {
                                         Address = m.Address
@@ -194,7 +218,7 @@ namespace API.Controllers
                     return BadRequest("Device has already been verified.");
                 }
 
-                InstallationKey? installationKey = await _dbTenantService.GetInstallationKeyAsync(request.InstallationKey);
+                InstallationKey? installationKey = await _dbInstallationKeyService.GetByInstallationKeyAsync(request.InstallationKey);
                 if (installationKey == null)
                 {
                     return Unauthorized("Invalid Installation Key.");

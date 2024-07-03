@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
@@ -12,6 +13,7 @@ namespace SharedComponents.Entities
         public int Id { get; set; }
         [Required]
         public int TenantId { get; set; }
+        [JsonIgnore]
         public Tenant? Tenant { get; set; }
         [Required]
         public DeviceInfo? DeviceInfo { get; set; }

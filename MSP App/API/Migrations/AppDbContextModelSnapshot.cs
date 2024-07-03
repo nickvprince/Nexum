@@ -164,13 +164,16 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("ApplicationRoles", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationRolePermission", b =>
@@ -190,7 +193,7 @@ namespace API.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("RolePermissions", (string)null);
+                    b.ToTable("ApplicationRolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationUser", b =>
@@ -279,7 +282,7 @@ namespace API.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("ApplicationUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Device", b =>
@@ -365,6 +368,9 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Nickname")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Port")
                         .HasColumnType("int");
 
@@ -391,6 +397,9 @@ namespace API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Acknowledged")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Code")
                         .HasColumnType("int");
@@ -436,6 +445,9 @@ namespace API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Key")
@@ -524,6 +536,12 @@ namespace API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ApiBasePort")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ApiBaseUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ApiKey")
                         .HasColumnType("nvarchar(max)");
