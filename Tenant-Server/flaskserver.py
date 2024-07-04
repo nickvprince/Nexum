@@ -27,6 +27,7 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
+from requests import get
 import socket
 import uuid
 CLIENT_REGISTRATION_PATH = "api/DataLink/Register"
@@ -597,6 +598,13 @@ class FlaskServer():
         """
         Gives Current Job Information
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
     @website.route('/force_checkin', methods=['POST'], )
     @staticmethod
@@ -604,6 +612,13 @@ class FlaskServer():
         """
         Forces a heartbeat
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
     @website.route('/restore', methods=['POST'], )
     @staticmethod
@@ -611,6 +626,14 @@ class FlaskServer():
         """
         Restores files or directories
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        path = data.get('path', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
 
     @website.route('/get_status', methods=['GET'], )
@@ -619,6 +642,13 @@ class FlaskServer():
         """
         Gets the current status of running jobs or error state, version information etc
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
 
     @website.route('/force_update', methods=['POST'], )
@@ -627,6 +657,13 @@ class FlaskServer():
         """
         Forces the client to pull an update from the server
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
 
     @website.route('/get_version', methods=['GET'], )
@@ -635,22 +672,28 @@ class FlaskServer():
         """
         Gets version information from the client
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
-
-    @website.route('/get_heartbeats', methods=['GET'], )
-    @staticmethod
-    def get_heartbeats():
-        """
-        Gets heartbeat information from the client
-        """
-        return "200 OK"
-
+    
     @website.route('/get_backup', methods=['GET'], )
     @staticmethod
     def get_backup():
         """
         Gets backup information from the client
         """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
 
     @website.route('/get_jobs', methods=['GET'], )
@@ -659,22 +702,13 @@ class FlaskServer():
         """
         Gets jobs information from the client
         """
-        return "200 OK"
-
-    @website.route('/verify_backup', methods=['PUT'], )
-    @staticmethod
-    def verify_backup():
-        """
-        Verifies a backup
-        """
-        return "200 OK"
-
-    @website.route('/get_hash_by_id', methods=['GET'], )
-    @staticmethod
-    def get_hash_by_id(identification):
-        """
-        gives salt, pepper, salt2 based on ID
-        """
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
+        identification = data.get('client_id', '')
+        logger=Logger()
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            pass
         return "200 OK"
 
     @website.route('/beat', methods=['POST'], )
@@ -686,7 +720,8 @@ class FlaskServer():
         secret = request.headers.get('secret')
         print(secret)
         identification = request.headers.get('id')
-        for client in MY_CLIENTS:
+        client_list = MySqlite.load_clients()
+        for client in client_list:
             if client[0] == identification:
                 if(MySqlite.read_setting("apikey") == secret):
                     print("-----------------")
@@ -718,11 +753,14 @@ class FlaskServer():
     @staticmethod
     def check_installer():
         """
-        Gets version information from the client
+        Gets version information from the client and requests an install with the MSP
         """
         secret = request.headers.get('apikey')
         key = request.get_json().get('installationKey', '')
         logger = Logger()
+            
+
+
         if(MySqlite.read_setting("apikey") == secret):
             print("MATCH")
             # has valid api key
@@ -779,20 +817,6 @@ class FlaskServer():
                 return make_response(f"{req.status_code} - {req.text}", req.status_code)
         return make_response("401 Access Denied", 401)
 
-    @website.route('/index', methods=['GET'], )
-    @staticmethod
-    def index():
-        """
-        Returns ./index.html
-        """
-        try:
-            with open('./index.html', 'r') as file:
-                html_content = file.read()
-                file.close()
-                return html_content
-        except: 
-            print("Failed to open index.html")
-            return make_response("500 Internal Server Error", 500)
 
     @website.route('/uninstall', methods=['GET'], )
     @staticmethod

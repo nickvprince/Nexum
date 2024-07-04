@@ -21,6 +21,8 @@ import threading
 import job
 from logger import Logger
 import jobsettings
+from MySqlite import MySqlite
+
 
 # pylint: disable=line-too-long,broad-except,global-variable-not-assigned
 
@@ -57,6 +59,7 @@ class RunJob():
                 p = subprocess.Popen(['powershell.exe', command])
                 time.sleep(10)
                 p.kill()
+                MySqlite.write_setting("status","Idle")
                 self.job_running_var = False
                 # set job status to killed
 
@@ -68,7 +71,7 @@ class RunJob():
                 p=subprocess.Popen(['powershell.exe', command])
                 time.sleep(10)
                 p.kill()
-
+                MySqlite.write_setting("status","Running")
                 # set job status to running
                 self.job_running_var = True # set job running to true
 
@@ -82,11 +85,12 @@ class RunJob():
                 current_time = time.strftime("%H:%M")
                 if (LOCAL_JOB.settings[2] <= current_time) and (LOCAL_JOB.settings[3] > current_time):
                     Logger.debug_print("Job Triggered by time")
+                    # Check that it is allowed to run today
                     try:
                         command='wbadmin start backup -backupTarget:'+LOCAL_JOB.settings[12]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.settings[10]+' -password:'+LOCAL_JOB.settings[11]
                         p = subprocess.Popen(['powershell.exe', command])
                         time.sleep(10)
-                        Logger.log("INFO", "RunJob", p.stdout.read(), "0000", time.asctime())
+                        Logger.log("INFO", "RunJob", p.stdout.read(), "0000",time.asctime())
                         p.kill()
                     except Exception as e:
                         Logger.log("ERROR", "RunJob", e, "1007", time.asctime())

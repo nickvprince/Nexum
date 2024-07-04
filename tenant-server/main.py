@@ -55,6 +55,7 @@ def main():
     # log a message
 
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    MySqlite.write_setting("Status","running")
     f = FlaskServer()
     f.run()
 

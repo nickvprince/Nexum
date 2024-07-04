@@ -67,6 +67,7 @@ import os
 import sqlite3
 from PIL import ImageTk, Image
 import requests
+from requests import get
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import win32com.shell.shell as shell
@@ -111,7 +112,7 @@ IMAGE_GEOMETRY = (800,200)
 ENCODING = "utf-8"
 
 # Network
-PORT = 5000
+PORT = 5002
 SERVER_PROTOCOL = "https://"
 CLIENT_PROTOCOL = "http://"
 TIMEOUT = 30 # timeout in seconds for flask requests
@@ -669,10 +670,6 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # send a beat to the server --                                                                                                              Do I need?
         identification = request.headers.get('clientid')
         write_setting("CLIENT_ID",identification)
-        request = requests.request("POST", f"{CLIENT_PROTOCOL}{backupserver}/{BEAT_PATH}",
-            timeout=TIMEOUT,
-            headers={"Content-Type": "application/json","secret":apikey,"id":str(identification)},
-            verify=SSL_CHECK)
 
 
     except Exception as e:
@@ -855,6 +852,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_setting("version","1.0.0")
     write_setting("msp-port","7101")
     write_setting("POLLING_INTERVAL","10")
+    ip = get('https://api.ipify.org',timeout=10).content.decode('utf8')
     try:
 
         output = get_uuid()
@@ -862,6 +860,8 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             "name":socket.gethostname(),
             "client_id":0,
             "uuid":output,
+            "apibaseurl":f"{CLIENT_PROTOCOL}{ip}",
+            "apibaseport":PORT,
             "ipaddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":0,
@@ -1101,8 +1101,9 @@ def main():
     Main Loop
     """
     global SETTINGS_PATH
+    if not os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+        os.mkdir(str(tempfile.gettempdir())+str("\\settings"))
     SETTINGS_PATH = str(tempfile.gettempdir())+str("\\settings\\settings.db")
-
     write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
