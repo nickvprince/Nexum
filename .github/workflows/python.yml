@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - NEX-115-pipeline
+      - NEX-115-Pipeline
   pull_request:
     branches:
       - main
-      - NEX-115-pipeline
+      - NEX-115-Pipeline
 
 jobs:
   build:
