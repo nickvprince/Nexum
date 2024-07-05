@@ -64,6 +64,7 @@ import time
 import socket
 import uuid
 import os
+import uuid
 import sqlite3
 from PIL import ImageTk, Image
 import requests
@@ -117,8 +118,43 @@ SERVER_PROTOCOL = "https://"
 CLIENT_PROTOCOL = "http://"
 TIMEOUT = 30 # timeout in seconds for flask requests
 SSL_CHECK=False
-
-
+@staticmethod
+def get_next_server_id():
+    """
+    Get the next server id
+    """
+    conn = sqlite3.connect(str(tempfile.gettempdir())+str("\\settings\\settings.db"))
+    cursor = conn.cursor()
+    cursor.execute('''SELECT MAX(id) FROM backup_servers''')
+    result = cursor.fetchone()[0]
+    if result is not None:
+        identification = int(result) + 1
+    else:
+        identification = 1
+    conn.close()
+    return identification
+@staticmethod
+def write_backup_server(name, path, username, password):
+    """
+    Write a backup server to the database
+    """
+    try:
+        id = get_next_server_id()
+        conn = sqlite3.connect(str(tempfile.gettempdir())+str("\\settings\\settings.db"))
+        cursor = conn.cursor()
+        cursor.execute('''SELECT path FROM backup_servers WHERE path = ?''', (path,))
+        existing_path = cursor.fetchone()
+        if existing_path:
+            return "-403"
+        cursor.execute('''INSERT INTO backup_servers (id, path, username, password, name)
+                        VALUES (?, ?, ?, ?, ?)''',
+                        (id, path, username, password, name))
+        conn.commit()
+        conn.close()
+        return id
+    except Exception as e:
+            write_log("ERROR", "MySqlite", "Error writing backup server - "+str(e), 500, time.localtime())
+            return None
 @staticmethod
 def get_time():
     """ 
@@ -630,7 +666,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_log("INFO", "Install Client", "Install Client Background Started", 0, get_time())
     server_address = backupserver.split(":")[0]
     server_port = backupserver.split(":")[1]
-
+    print("starting install")
     write_setting("server_address",server_address)
     write_setting("server_port",server_port)
     write_setting("service_address","127.0.0.1:5004")
@@ -660,7 +696,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             "installationKey":key
         }
 
-
+        print(f"{CLIENT_PROTOCOL}{backupserver}/{CLIENT_REGISTRATION_PATH}",)
         # initial registration request
         request = requests.request("GET",
                 f"{CLIENT_PROTOCOL}{backupserver}/{CLIENT_REGISTRATION_PATH}",
@@ -669,7 +705,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
 
         # send a beat to the server --                                                                                                              Do I need?
         identification = request.headers.get('clientid')
+        msp_api = request.headers.get('msp_api')
         write_setting("CLIENT_ID",identification)
+        write_setting("msp_api",msp_api)
 
 
     except Exception as e:
@@ -852,7 +890,10 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_setting("version","1.0.0")
     write_setting("msp-port","7101")
     write_setting("POLLING_INTERVAL","10")
+    # create GUID
+    msp_api = uuid.uuid4()
     ip = get('https://api.ipify.org',timeout=10).content.decode('utf8')
+    write_setting("msp_api",msp_api)
     try:
 
         output = get_uuid()
@@ -865,6 +906,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             "ipaddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":0,
+            "apikey":msp_api,
             "macaddresses":[
                 {
                 "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
@@ -1100,11 +1142,59 @@ def main():
     """
     Main Loop
     """
+    # INITIALIZATION
     global SETTINGS_PATH
+    global logpath
+    logpath = str(tempfile.gettempdir())+str("\\logs\\logs.db")
     if not os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
         os.mkdir(str(tempfile.gettempdir())+str("\\settings"))
+
+    if not os.path.exists(str(tempfile.gettempdir())+str("\\logs")):
+        os.mkdir(str(tempfile.gettempdir())+str("\\logs"))
+
+
     SETTINGS_PATH = str(tempfile.gettempdir())+str("\\settings\\settings.db")
+
+    # create settings table
+    conn = sqlite3.connect(SETTINGS_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS settings
+                            (setting TEXT, value TEXT)''')
+        # Close connection
+    conn.commit()
+    conn.close()
+
+    # create logs table
+
+    conn = sqlite3.connect(str(tempfile.gettempdir())+str("\\logs\\logs.db"))
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS logs
+            (id TEXT, severity TEXT, subject TEXT, message TEXT, code TEXT, date TEXT)''')
+        # Close connection
+    conn.commit()
+    conn.close()
+
+    # create backupserver tables
+    try:
+            # create db file settingsDirectory\\settings
+        conn = sqlite3.connect(str(tempfile.gettempdir())+str("\\settings\\settings.db"))
+        cursor = conn.cursor()
+        # creat table for backup servers : id,smb path,user,pass,name
+        cursor.execute('''CREATE TABLE IF NOT EXISTS backup_servers
+                            (id TEXT, path TEXT, username TEXT, password TEXT, name TEXT)''')
+        write_log("INFO", "MySqlite", "backup server table created", 200, time.localtime())
+    except:
+        write_log("ERROR", "MySqlite", "Backup servers table not created", 500, time.localtime())
     write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
+    # INITIALIZATION END
+
+
+    #TESTING Area
+    t = tk.Tk()
+    main_window(t)
+
+
+
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
         params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
