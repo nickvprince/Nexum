@@ -30,27 +30,11 @@ jobs:
       with:
         dotnet-version: '6.x'
 
-    - name: Install SQL Server
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mssql-server
-        sudo /opt/mssql/bin/mssql-conf setup accept-eula
-        sudo systemctl start mssql-server
-
-    - name: Setup EF Tools
-      run: dotnet tool install --global dotnet-ef
-
     - name: Restore dependencies
       run: dotnet restore ${{ matrix.project }}
 
     - name: Build
       run: dotnet build --no-restore --configuration Release ${{ matrix.project }}
 
-    - name: Update Database
-      run: dotnet ef database update --project 'MSP App/App/App.csproj'
-
     - name: Lint and Format
       run: dotnet format --check ${{ matrix.project }}
-
-    - name: Code Analysis
-      run: dotnet build --no-restore --configuration Release --no-incremental --verbosity minimal ${{ matrix.project }}
