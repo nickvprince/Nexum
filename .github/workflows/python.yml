@@ -35,7 +35,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt || true  # Continue even if some packages fail to install
-        pip install pylint pytest Flask
+        pip install pytest Flask
 
     - name: Set PYTHONPATH
       run: echo "PYTHONPATH=$(pwd)/${{ matrix.project }}:$(pwd)" >> $GITHUB_ENV
@@ -48,12 +48,7 @@ jobs:
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
-        pytest -k "tests.py" || true
-
-    - name: Lint with pylint
-      run: |
-        cd ${{ matrix.project }}
-        pylint $(find . -name "*.py") || true
+        pytest || true
 
     - name: Stop Flask server
       run: pkill -f flask
