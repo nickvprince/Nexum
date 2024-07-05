@@ -48,7 +48,7 @@ jobs:
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
-        pytest *tests.py
+        pytest -k "tests.py"
 
     - name: Lint with pylint
       run: |
