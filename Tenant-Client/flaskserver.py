@@ -158,8 +158,11 @@ class FlaskServer():
 
         if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
             return make_response("401 Access Denied", 401)
-        
-        return "200 OK"
+        elif FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 200:
+            # get job info and send back
+            return make_response("200 OK", 200)
+        else:
+            return make_response("500 Internal Server Error", 500)
 
     @website.route('/force_checkin', methods=['GET'], )
     @staticmethod
@@ -172,12 +175,14 @@ class FlaskServer():
         data = request.get_json()
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
-
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
             return make_response("401 Access Denied", 401)
-        
-        
-        return "200 OK"
+        elif authcode == 200:
+            # force a heartbeat
+            return make_response ("200 OK", 200)
+        else:
+            return make_response("500 Internal Server Error", 500)
 
 
     @website.route('/get_Status', methods=['GET'], )
@@ -192,11 +197,16 @@ class FlaskServer():
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
 
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
             return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            status = API.get_status()
+            # return status
+            return make_response ("200 OK", 200,{"status":status})
+        else:
+            return make_response("500 Internal Server Error", 500)
         
-        status = API.get_status()
-        return "200 OK"
 
     @website.route('/get_version', methods=['GET'], )
     @staticmethod
@@ -210,11 +220,16 @@ class FlaskServer():
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
 
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
             return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            version = API.get_version()
+            # return status
+            return make_response ("200 OK", 200,{"version":version})
+        else:
+            return make_response("500 Internal Server Error", 500)
         
-        version = MySqlite.read_setting("Version")
-        return "200 ok"
 # -------------------------------------- GET ROUTES ------------------------------------------------
 
 # -------------------------------------- PUT ROUTES ------------------------------------------------
@@ -228,12 +243,11 @@ class FlaskServer():
         # get the json body
         data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
-        # get the ID from the json body
-        identification = data.get('ID', '')
+        recieved_client_secret = request.headers.get('apikey', '')
+
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
             code = 401
             msg = "Access Denied"
         RUN_JOB_OBJECT.trigger_job()
@@ -252,12 +266,11 @@ class FlaskServer():
         # get the json body
         data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
+        recieved_client_secret = request.headers.get('apikey', '')
         # get the ID from the json body
-        identification = data.get('ID', '')
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
             code = 401
             msg = "Access Denied"
         RUN_JOB_OBJECT.stop_job()
@@ -274,13 +287,18 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
+
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
 
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
             return make_response("401 Access Denied", 401)
-        return "200 OK"
+        elif authcode == 200:
+            #update client
+            return make_response ("200 OK", 200)
+        else:
+            return make_response("500 Internal Server Error", 500)
 
     @website.route('/enable_job', methods=['PUT'], )
     @staticmethod
@@ -290,21 +308,18 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
+
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
-        # get the ID from the json body
-        identification = data.get('ID', '')
-        code = 0
-        msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
-            code = 401
-            msg = "Access Denied"
-        RUN_JOB_OBJECT.enable_job()
-        if code==0:
-            return "200 OK"
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
+            return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            RUN_JOB_OBJECT.enable_job()
+            return make_response ("200 OK", 200)
         else:
-            return make_response(msg, code)
+            return make_response("500 Internal Server Error", 500)
 
     @website.route('/kill_job', methods=['PUT'], )
     @staticmethod
@@ -314,22 +329,18 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
 
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
-        # get the ID from the json body
-        identification = data.get('ID', '')
-        code = 0
-        msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
-            code = 401
-            msg = "Access Denied"
-        RUN_JOB_OBJECT.kill_job()
-        if code==0:
-            return "200 OK"
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
+            return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            RUN_JOB_OBJECT.kill_job()
+            return make_response ("200 OK", 200)
         else:
-            return make_response(msg, code)
+            return make_response("500 Internal Server Error", 500)
 # -------------------------------------- PUT ROUTES ------------------------------------------------
 # -------------------------------------- POST ROUTES -----------------------------------------------
     @website.route('/restore', methods=['POST'], )
@@ -338,8 +349,20 @@ class FlaskServer():
         """
         Restores files or directories
         """
+          logger=Logger()
+        # get the json body
 
-        return "200 OK"
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
+            return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            pass # restore files
+            return make_response ("200 OK", 200)
+        else:
+            return make_response("500 Internal Server Error", 500)
 
     @website.route('/modify_job', methods=['POST'], )
     @staticmethod
@@ -354,16 +377,16 @@ class FlaskServer():
         logger=Logger()
         data = request.get_json()
         # get client secret from header
-        secret = request.headers.get('clientSecret')
-        identification = request.headers.get('ID')
+        secret = request.headers.get('apikey')
 
-        if FlaskServer.auth(secret, logger, identification) == 200:
-            recieved_job = data.get(identification, '')
+
+        if FlaskServer.auth(secret, logger, MySqlite.read_setting("CLIENT_ID")) == 200:
+            recieved_job = data.get(MySqlite.read_setting("CLIENT_ID"), '')
             # recieve settings as json
             recieved_settings = recieved_job.get('settings', '')
 
             job_to_save = Job()
-            job_to_save.set_id(identification)
+            job_to_save.set_id(MySqlite.read_setting("CLIENT_ID"))
             job_to_save.set_title(recieved_job.get('title', ''))
 
             # create a settings object
