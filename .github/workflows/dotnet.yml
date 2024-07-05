@@ -20,6 +20,9 @@ jobs:
         project:
           - 'MSP App/App/App.csproj'
           - 'MSP App/API/API.csproj'
+        project-dir:
+          - 'MSP App/App'
+          - 'MSP App/API'
 
     steps:
     - name: Checkout code
@@ -37,4 +40,6 @@ jobs:
       run: dotnet build --no-restore --configuration Release "${{ matrix.project }}"
 
     - name: Lint and Format
-      run: dotnet format --check "${{ matrix.project }}"
+      run: |
+        cd "${{ matrix.project-dir }}"
+        dotnet format --check
