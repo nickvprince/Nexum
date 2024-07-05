@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240705195425_v1")]
+    [Migration("20240705203522_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -347,6 +347,33 @@ namespace API.Migrations
                     b.HasIndex("DeviceId");
 
                     b.ToTable("DeviceAlerts");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceBackup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("DeviceBackups");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
@@ -870,6 +897,17 @@ namespace API.Migrations
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.DeviceBackup", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                        .WithMany("Backups")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
                 {
                     b.HasOne("SharedComponents.Entities.Device", "Device")
@@ -992,6 +1030,8 @@ namespace API.Migrations
             modelBuilder.Entity("SharedComponents.Entities.Device", b =>
                 {
                     b.Navigation("Alerts");
+
+                    b.Navigation("Backups");
 
                     b.Navigation("DeviceInfo")
                         .IsRequired();

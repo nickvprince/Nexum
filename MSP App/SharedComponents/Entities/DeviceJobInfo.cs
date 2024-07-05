@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace SharedComponents.Entities
         public int UpdateInterval { get; set; }
         public bool Sampling { get; set; }
         public int Retention { get; set; }
+        [Required]
         public int DeviceJobId { get; set; }
         [JsonIgnore]
         public DeviceJob? DeviceJob { get; set; }

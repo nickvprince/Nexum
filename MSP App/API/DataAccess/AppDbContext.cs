@@ -74,6 +74,7 @@ namespace API.DataAccess
         public DbSet<DeviceJob> DeviceJobs { get; set; }
         public DbSet<DeviceJobInfo> DeviceJobInfos { get; set; }
         public DbSet<DeviceJobSchedule> DeviceJobSchedules { get; set; }
+        public DbSet<DeviceBackup> DeviceBackups { get; set; }
         public DbSet<InstallationKey> InstallationKeys { get; set; }
         public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
         public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
@@ -152,6 +153,13 @@ namespace API.DataAccess
             modelBuilder.Entity<Device>()
                 .Property(d => d.Status)
                 .HasConversion<string>();
+
+            // Configure the Device and Backup relationship
+            modelBuilder.Entity<Device>()
+                .HasMany(d => d.Backups)
+                .WithOne(j => j.Device)
+                .HasForeignKey(j => j.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure the Device and Job relationship
             modelBuilder.Entity<Device>()
@@ -386,7 +394,12 @@ namespace API.DataAccess
                 context.DeviceJobSchedules.AddRange(schedule1, schedule2, schedule3);
                 context.SaveChanges();
 
-                
+                var backup1 = new DeviceBackup { DeviceId = device1.Id, Name = "Backup 1", Date = DateTime.Now, Path = "/path/to/something" };
+                var backup2 = new DeviceBackup { DeviceId = device2.Id, Name = "Backup 2", Date = DateTime.Now, Path = "/path/to/something" };
+                var backup3 = new DeviceBackup { DeviceId = device3.Id, Name = "Backup 3", Date = DateTime.Now, Path = "/path/to/something" };
+
+                context.DeviceBackups.AddRange(backup1, backup2, backup3);
+                context.SaveChanges();
             }
         }
     }

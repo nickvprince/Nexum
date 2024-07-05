@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -14,6 +15,7 @@ namespace SharedComponents.Entities
         public DeviceJobInfo? Settings { get; set; }
         public DeviceJobStatus Status { get; set; }
         public int? Progress { get; set; }
+        [Required]
         public int DeviceId { get; set; }
         [JsonIgnore]
         public Device? Device { get; set; }

@@ -250,10 +250,10 @@ namespace API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsVerified = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -387,6 +387,28 @@ namespace API.Migrations
                     table.PrimaryKey("PK_DeviceAlerts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_DeviceAlerts_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceBackups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeviceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceBackups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceBackups_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
                         principalColumn: "Id",
@@ -598,6 +620,11 @@ namespace API.Migrations
                 column: "DeviceId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DeviceBackups_DeviceId",
+                table: "DeviceBackups",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DeviceInfos_DeviceId",
                 table: "DeviceInfos",
                 column: "DeviceId",
@@ -691,6 +718,9 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "DeviceAlerts");
+
+            migrationBuilder.DropTable(
+                name: "DeviceBackups");
 
             migrationBuilder.DropTable(
                 name: "DeviceJobSchedules");

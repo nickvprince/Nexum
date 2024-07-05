@@ -12,10 +12,6 @@ namespace SharedComponents.Entities
     {
         public int Id { get; set; }
         [Required]
-        public int TenantId { get; set; }
-        [JsonIgnore]
-        public Tenant? Tenant { get; set; }
-        [Required]
         public DeviceInfo? DeviceInfo { get; set; }
         public DeviceStatus? Status { get; set; }
         public bool IsVerified { get; set; }
@@ -23,6 +19,11 @@ namespace SharedComponents.Entities
         public ICollection<DeviceAlert>? Alerts { get; set; }
         public ICollection<DeviceLog>? Logs { get; set; }
         public ICollection<DeviceJob>? Jobs { get; set; }
+        public ICollection<DeviceBackup>? Backups { get; set; }
+        [Required]
+        public int TenantId { get; set; }
+        [JsonIgnore]
+        public Tenant? Tenant { get; set; }
     }
 
     public enum DeviceStatus
