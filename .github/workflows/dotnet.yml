@@ -31,10 +31,10 @@ jobs:
         dotnet-version: '6.x'
 
     - name: Restore dependencies
-      run: dotnet restore ${{ matrix.project }}
+      run: dotnet restore "${{ matrix.project }}"
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release ${{ matrix.project }}
+      run: dotnet build --no-restore --configuration Release "${{ matrix.project }}"
 
     - name: Lint and Format
-      run: dotnet format --check ${{ matrix.project }}
+      run: dotnet format --check "${{ matrix.project }}"
