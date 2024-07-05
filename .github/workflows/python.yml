@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - NEX-115-Pipeline
+      - NEX-115-pipeline
   pull_request:
     branches:
       - main
-      - NEX-115-Pipeline
+      - NEX-115-pipeline
 
 jobs:
   build:
@@ -19,8 +19,8 @@ jobs:
       matrix:
         python-version: [3.12]
         project:
-          - 'Tenant-Client'
-          - 'Tenant-Server'
+          - 'tenant-client'
+          - 'tenant-server'
 
     steps:
     - name: Checkout code
@@ -37,9 +37,6 @@ jobs:
         pip install -r requirements.txt || true  # Continue even if some packages fail to install
         pip install pylint pytest Flask
 
-    - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
-
     - name: Start Flask server
       run: |
         cd ${{ matrix.project }}
@@ -48,7 +45,7 @@ jobs:
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
-        pytest test_main.py
+        pytest *tests.py
 
     - name: Lint with pylint
       run: |
