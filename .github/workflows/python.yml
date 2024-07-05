@@ -35,7 +35,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt || true  # Continue even if some packages fail to install
-        pip install pytest Flask
+
+    - name: List installed packages
+      run: |
+        python -m pip list
 
     - name: Set PYTHONPATH
       run: echo "PYTHONPATH=$(pwd)/${{ matrix.project }}:$(pwd)" >> $GITHUB_ENV
