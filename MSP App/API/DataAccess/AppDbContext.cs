@@ -69,35 +69,33 @@ namespace API.DataAccess
         public DbSet<Device> Devices { get; set; }
         public DbSet<DeviceInfo> DeviceInfos { get; set; }
         public DbSet<MACAddress> MACAddresses { get; set; }
+        public DbSet<DeviceAlert> DeviceAlerts { get; set; }
+        public DbSet<DeviceLog> DeviceLogs { get; set; }
+        public DbSet<DeviceJob> DeviceJobs { get; set; }
+        public DbSet<DeviceJobInfo> DeviceJobInfos { get; set; }
+        public DbSet<DeviceJobSchedule> DeviceJobSchedules { get; set; }
         public DbSet<InstallationKey> InstallationKeys { get; set; }
         public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
         public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
         public DbSet<SoftwareFile> SoftwareFiles { get; set; }
-        public DbSet<DeviceAlert> Alerts { get; set; }
-        public DbSet<DeviceLog> Logs { get; set; }
+        public DbSet<NASServer> NASServers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Configure table names
-            modelBuilder.Entity<ApplicationRole>().ToTable("ApplicationRoles");
-            modelBuilder.Entity<Permission>().ToTable("Permissions");
-            modelBuilder.Entity<Tenant>().ToTable("Tenants");
-            modelBuilder.Entity<TenantInfo>().ToTable("TenantInfos");
-            modelBuilder.Entity<Device>().ToTable("Devices");
-            modelBuilder.Entity<DeviceInfo>().ToTable("DeviceInfos");
-            modelBuilder.Entity<MACAddress>().ToTable("MACAddresses");
-            modelBuilder.Entity<InstallationKey>().ToTable("InstallationKeys");
-            modelBuilder.Entity<ApplicationRolePermission>().ToTable("ApplicationRolePermissions");
-            modelBuilder.Entity<ApplicationUserRole>().ToTable("ApplicationUserRoles");
-            modelBuilder.Entity<SoftwareFile>().ToTable("SoftwareFiles");
 
             // Tenant and TenantInfo one-to-one relationship
             modelBuilder.Entity<Tenant>()
                 .HasOne(t => t.TenantInfo)
                 .WithOne(ti => ti.Tenant)
                 .HasForeignKey<TenantInfo>(ti => ti.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Tenant and NASServer one-to-many relationship
+            modelBuilder.Entity<Tenant>()
+                .HasMany(t => t.NASServers)
+                .WithOne(d => d.Tenant)
+                .HasForeignKey(d => d.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tenant and Device one-to-many relationship
@@ -155,6 +153,37 @@ namespace API.DataAccess
                 .Property(d => d.Status)
                 .HasConversion<string>();
 
+            // Configure the Device and Job relationship
+            modelBuilder.Entity<Device>()
+                .HasMany(d => d.Jobs)
+                .WithOne(j => j.Device)
+                .HasForeignKey(j => j.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure the DeviceJobStatus enum to be stored as a string
+            modelBuilder.Entity<DeviceJob>()
+                .Property(d => d.Status)
+                .HasConversion<string>();
+
+            // DeviceJob and DeviceJobInfo one-to-one relationship
+            modelBuilder.Entity<DeviceJob>()
+                .HasOne(dj => dj.Settings)
+                .WithOne(dji => dji.DeviceJob)
+                .HasForeignKey<DeviceJobInfo>(dji => dji.DeviceJobId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure the DeviceJobType enum to be stored as a string
+            modelBuilder.Entity<DeviceJobInfo>()
+                .Property(d => d.Type)
+                .HasConversion<string>();
+
+            // DeviceJobInfo and NASServer one-to-one relationship
+            modelBuilder.Entity<DeviceJobInfo>()
+                .HasOne(dji => dji.NASServer)
+                .WithOne()
+                .HasForeignKey<DeviceJobInfo>(dji => dji.NASServerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             // Tenant and InstallationKey one-to-many relationship
             modelBuilder.Entity<Tenant>()
                 .HasMany(t => t.InstallationKeys)
@@ -201,6 +230,11 @@ namespace API.DataAccess
             modelBuilder.Entity<SoftwareFile>()
                 .Property(s => s.FileType)
                 .HasConversion<string>();
+
+            // Configure the InstallationKeyType enum to be stored as a string
+            modelBuilder.Entity<InstallationKey>()
+                .Property(ik => ik.Type)
+                .HasConversion<string>();
         }
         private static void SeedData(IServiceProvider serviceProvider, string adminUserId, string normalUserId)
         {
@@ -224,6 +258,15 @@ namespace API.DataAccess
                 var tenantInfo3 = new TenantInfo { Name = "Mel Sauve", Email = "msauve@scotia.com", Phone = "111-222-3333", TenantId = tenant3.Id, Address = "325 Conestoga dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "3C2 B1A" };
 
                 context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
+                context.SaveChanges();
+
+                // Add NASServers
+
+                var nas1 = new NASServer { Name = "NAS1", BackupServerId = 0, Path = "/path/to/something", TenantId = tenant1.Id };
+                var nas2 = new NASServer { Name = "NAS2", BackupServerId = 0, Path = "/path/to/something", TenantId = tenant2.Id };
+                var nas3 = new NASServer { Name = "NAS3", BackupServerId = 0, Path = "/path/to/something", TenantId = tenant3.Id };
+
+                context.NASServers.AddRange(nas1, nas2, nas3);
                 context.SaveChanges();
 
                 // Add Devices and DeviceInfos
@@ -251,9 +294,9 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add InstallationKeys
-                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id, IsActive = true };
-                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id, IsActive = true };
-                var installationKey3 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant3.Id, IsActive = false };
+                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id, Type = InstallationKeyType.Server, IsActive = true };
+                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id, Type = InstallationKeyType.Server, IsActive = true };
+                var installationKey3 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant3.Id, Type = InstallationKeyType.Server, IsActive = false };
 
                 context.InstallationKeys.AddRange(installationKey1, installationKey2, installationKey3);
                 context.SaveChanges();
@@ -304,7 +347,7 @@ namespace API.DataAccess
                 var alert2 = new DeviceAlert { DeviceId = device2.Id, Severity = AlertSeverity.Information, Message = "Device is Online" };
                 var alert3 = new DeviceAlert { DeviceId = device3.Id, Severity = AlertSeverity.Low, Message = "Heart beat missed" };
 
-                context.Alerts.AddRange(alert1, alert2, alert3);
+                context.DeviceAlerts.AddRange(alert1, alert2, alert3);
                 context.SaveChanges();
 
                 // Add DeviceLogs
@@ -313,9 +356,37 @@ namespace API.DataAccess
                 var log2 = new DeviceLog { DeviceId = device2.Id, Type = LogType.Warning, Filename = "something.py", Function = "offline()", Message = "Device is offline", Code = 1, Time = DateTime.Now.AddMinutes(1) };
                 var log3 = new DeviceLog { DeviceId = device3.Id, Type = LogType.Error, Filename = "something.py", Function = "heartbeat()", Message = "Heart beat missed", Code = 3, Time = DateTime.Now.AddMinutes(2) };
 
-                context.Logs.AddRange(log1, log2, log3);
+                context.DeviceLogs.AddRange(log1, log2, log3);
                 context.SaveChanges();
 
+                // Add DeviceJobs
+
+                var job1 = new DeviceJob { DeviceId = device1.Id, Name = "Job 1", Status = DeviceJobStatus.NotStarted };
+                var job2 = new DeviceJob { DeviceId = device2.Id, Name = "Job 2", Status = DeviceJobStatus.NotStarted };
+                var job3 = new DeviceJob { DeviceId = device3.Id, Name = "Job 3", Status = DeviceJobStatus.NotStarted };
+
+                context.DeviceJobs.AddRange(job1, job2, job3);
+                context.SaveChanges();
+
+                // Add DeviceJobInfos
+
+                var jobInfo1 = new DeviceJobInfo { DeviceJobId = job1.Id, NASServerId = nas1.Id,  BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(1000), Path = "/path/to/something", UpdateInterval = 30, Retention = 14 };
+                var jobInfo2 = new DeviceJobInfo { DeviceJobId = job2.Id, NASServerId = nas2.Id, BackupServerId = 0, Type = DeviceJobType.Restore, Sampling = true, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(2000), Path = "/path/to/something", UpdateInterval = 30, Retention = 14 };
+                var jobInfo3 = new DeviceJobInfo { DeviceJobId = job3.Id, NASServerId = nas3.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(3000), Path = "/path/to/something", UpdateInterval = 30, Retention = 14 };
+
+                context.DeviceJobInfos.AddRange(jobInfo1, jobInfo2, jobInfo3);
+                context.SaveChanges();
+
+                // Add DeviceJobSchedules
+
+                var schedule1 = new DeviceJobSchedule { DeviceJobInfoId = jobInfo1.Id, Sunday = false, Monday = true, Tuesday = false, Wednesday = true, Thursday = false, Friday = true, Saturday = false };
+                var schedule2 = new DeviceJobSchedule { DeviceJobInfoId = jobInfo2.Id, Sunday = true, Monday = false, Tuesday = true, Wednesday = false, Thursday = false, Friday = true, Saturday = false };
+                var schedule3 = new DeviceJobSchedule { DeviceJobInfoId = jobInfo3.Id, Sunday = true, Monday = false, Tuesday = false, Wednesday = true, Thursday = true, Friday = false, Saturday = true };
+
+                context.DeviceJobSchedules.AddRange(schedule1, schedule2, schedule3);
+                context.SaveChanges();
+
+                
             }
         }
     }

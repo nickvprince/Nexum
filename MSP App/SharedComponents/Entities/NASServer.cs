@@ -7,22 +7,14 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
 {
-    public class InstallationKey
+    public class NASServer
     {
         public int Id { get; set; }
-        public string? Key { get; set; }
+        public int BackupServerId { get; set; }
+        public string? Name { get; set; }
+        public string? Path { get; set; }
         public int TenantId { get; set; }
-        public InstallationKeyType Type { get; set; }
         [JsonIgnore]
         public Tenant? Tenant { get; set; }
-        public bool IsActive { get; set; }
-        public bool IsDeleted { get; set; }
-    }
-
-    public enum InstallationKeyType
-    {
-        Server,
-        Device,
-        Uninstall
     }
 }

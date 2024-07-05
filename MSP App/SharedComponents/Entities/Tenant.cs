@@ -23,5 +23,6 @@ namespace SharedComponents.Entities
         public ICollection<Device>? Devices { get; set; }
         [JsonIgnore]
         public ICollection<ApplicationRolePermission>? RolePermissions { get; set; }
+        public ICollection<NASServer>? NASServers { get; set; }
     }
 }

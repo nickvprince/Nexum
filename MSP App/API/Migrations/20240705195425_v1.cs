@@ -245,37 +245,6 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ApplicationRolePermissions",
-                columns: table => new
-                {
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicationRolePermissions", x => new { x.RoleId, x.PermissionId });
-                    table.ForeignKey(
-                        name: "FK_ApplicationRolePermissions_ApplicationRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "ApplicationRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ApplicationRolePermissions_Permissions_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permissions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ApplicationRolePermissions_Tenants_TenantId",
-                        column: x => x.TenantId,
-                        principalTable: "Tenants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Devices",
                 columns: table => new
                 {
@@ -305,6 +274,7 @@ namespace API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TenantId = table.Column<int>(type: "int", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -313,6 +283,59 @@ namespace API.Migrations
                     table.PrimaryKey("PK_InstallationKeys", x => x.Id);
                     table.ForeignKey(
                         name: "FK_InstallationKeys_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NASServers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BackupServerId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TenantId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NASServers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_NASServers_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RolePermissions",
+                columns: table => new
+                {
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PermissionId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_ApplicationRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "ApplicationRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenants",
                         principalColumn: "Id",
@@ -347,7 +370,7 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Alerts",
+                name: "DeviceAlerts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -361,9 +384,9 @@ namespace API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Alerts", x => x.Id);
+                    table.PrimaryKey("PK_DeviceAlerts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Alerts_Devices_DeviceId",
+                        name: "FK_DeviceAlerts_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
                         principalColumn: "Id",
@@ -397,7 +420,29 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Logs",
+                name: "DeviceJobs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Progress = table.Column<int>(type: "int", nullable: true),
+                    DeviceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceJobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobs_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceLogs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -415,9 +460,9 @@ namespace API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Logs", x => x.Id);
+                    table.PrimaryKey("PK_DeviceLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Logs_Devices_DeviceId",
+                        name: "FK_DeviceLogs_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
                         principalColumn: "Id",
@@ -444,20 +489,64 @@ namespace API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Alerts_DeviceId",
-                table: "Alerts",
-                column: "DeviceId");
+            migrationBuilder.CreateTable(
+                name: "DeviceJobInfos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BackupServerId = table.Column<int>(type: "int", nullable: false),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdateInterval = table.Column<int>(type: "int", nullable: false),
+                    Sampling = table.Column<bool>(type: "bit", nullable: false),
+                    Retention = table.Column<int>(type: "int", nullable: false),
+                    DeviceJobId = table.Column<int>(type: "int", nullable: false),
+                    NASServerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceJobInfos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobInfos_DeviceJobs_DeviceJobId",
+                        column: x => x.DeviceJobId,
+                        principalTable: "DeviceJobs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobInfos_NASServers_NASServerId",
+                        column: x => x.NASServerId,
+                        principalTable: "NASServers",
+                        principalColumn: "Id");
+                });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationRolePermissions_PermissionId",
-                table: "ApplicationRolePermissions",
-                column: "PermissionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationRolePermissions_TenantId",
-                table: "ApplicationRolePermissions",
-                column: "TenantId");
+            migrationBuilder.CreateTable(
+                name: "DeviceJobSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Sunday = table.Column<bool>(type: "bit", nullable: false),
+                    Monday = table.Column<bool>(type: "bit", nullable: false),
+                    Tuesday = table.Column<bool>(type: "bit", nullable: false),
+                    Wednesday = table.Column<bool>(type: "bit", nullable: false),
+                    Thursday = table.Column<bool>(type: "bit", nullable: false),
+                    Friday = table.Column<bool>(type: "bit", nullable: false),
+                    Saturday = table.Column<bool>(type: "bit", nullable: false),
+                    DeviceJobInfoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceJobSchedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobSchedules_DeviceJobInfos_DeviceJobInfoId",
+                        column: x => x.DeviceJobInfoId,
+                        principalTable: "DeviceJobInfos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserRoles_RoleId",
@@ -504,10 +593,43 @@ namespace API.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DeviceAlerts_DeviceId",
+                table: "DeviceAlerts",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DeviceInfos_DeviceId",
                 table: "DeviceInfos",
                 column: "DeviceId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobInfos_DeviceJobId",
+                table: "DeviceJobInfos",
+                column: "DeviceJobId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobInfos_NASServerId",
+                table: "DeviceJobInfos",
+                column: "NASServerId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobs_DeviceId",
+                table: "DeviceJobs",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobSchedules_DeviceJobInfoId",
+                table: "DeviceJobSchedules",
+                column: "DeviceJobInfoId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceLogs_DeviceId",
+                table: "DeviceLogs",
+                column: "DeviceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Devices_TenantId",
@@ -520,14 +642,24 @@ namespace API.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Logs_DeviceId",
-                table: "Logs",
-                column: "DeviceId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MACAddresses_DeviceInfoId",
                 table: "MACAddresses",
                 column: "DeviceInfoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NASServers_TenantId",
+                table: "NASServers",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_PermissionId",
+                table: "RolePermissions",
+                column: "PermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_TenantId",
+                table: "RolePermissions",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TenantInfos_TenantId",
@@ -539,12 +671,6 @@ namespace API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Alerts");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationRolePermissions");
-
             migrationBuilder.DropTable(
                 name: "ApplicationUserRoles");
 
@@ -564,13 +690,22 @@ namespace API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "DeviceAlerts");
+
+            migrationBuilder.DropTable(
+                name: "DeviceJobSchedules");
+
+            migrationBuilder.DropTable(
+                name: "DeviceLogs");
+
+            migrationBuilder.DropTable(
                 name: "InstallationKeys");
 
             migrationBuilder.DropTable(
-                name: "Logs");
+                name: "MACAddresses");
 
             migrationBuilder.DropTable(
-                name: "MACAddresses");
+                name: "RolePermissions");
 
             migrationBuilder.DropTable(
                 name: "SoftwareFiles");
@@ -579,19 +714,28 @@ namespace API.Migrations
                 name: "TenantInfos");
 
             migrationBuilder.DropTable(
-                name: "Permissions");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationRoles");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "DeviceJobInfos");
+
+            migrationBuilder.DropTable(
                 name: "DeviceInfos");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationRoles");
+
+            migrationBuilder.DropTable(
+                name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "DeviceJobs");
+
+            migrationBuilder.DropTable(
+                name: "NASServers");
 
             migrationBuilder.DropTable(
                 name: "Devices");

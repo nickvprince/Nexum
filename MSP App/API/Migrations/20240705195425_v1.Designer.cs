@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240702172533_v1")]
+    [Migration("20240705195425_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -176,7 +176,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationRoles", (string)null);
+                    b.ToTable("ApplicationRoles");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationRolePermission", b =>
@@ -196,7 +196,7 @@ namespace API.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("ApplicationRolePermissions", (string)null);
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationUser", b =>
@@ -285,7 +285,7 @@ namespace API.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("ApplicationUserRoles", (string)null);
+                    b.ToTable("ApplicationUserRoles");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Device", b =>
@@ -312,7 +312,7 @@ namespace API.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Devices", (string)null);
+                    b.ToTable("Devices");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceAlert", b =>
@@ -346,7 +346,7 @@ namespace API.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.ToTable("Alerts");
+                    b.ToTable("DeviceAlerts");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
@@ -390,7 +390,124 @@ namespace API.Migrations
                     b.HasIndex("DeviceId")
                         .IsUnique();
 
-                    b.ToTable("DeviceInfos", (string)null);
+                    b.ToTable("DeviceInfos");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJob", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Progress")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("DeviceJobs");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJobInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BackupServerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DeviceJobId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("NASServerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Retention")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Sampling")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UpdateInterval")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceJobId")
+                        .IsUnique();
+
+                    b.HasIndex("NASServerId")
+                        .IsUnique();
+
+                    b.ToTable("DeviceJobInfos");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJobSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DeviceJobInfoId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Friday")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Monday")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Saturday")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Sunday")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Thursday")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Tuesday")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Wednesday")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceJobInfoId")
+                        .IsUnique();
+
+                    b.ToTable("DeviceJobSchedules");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceLog", b =>
@@ -436,7 +553,7 @@ namespace API.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.ToTable("Logs");
+                    b.ToTable("DeviceLogs");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.InstallationKey", b =>
@@ -459,11 +576,15 @@ namespace API.Migrations
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("InstallationKeys", (string)null);
+                    b.ToTable("InstallationKeys");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.MACAddress", b =>
@@ -485,7 +606,34 @@ namespace API.Migrations
 
                     b.HasIndex("DeviceInfoId");
 
-                    b.ToTable("MACAddresses", (string)null);
+                    b.ToTable("MACAddresses");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.NASServer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BackupServerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("NASServers");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
@@ -504,7 +652,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.SoftwareFile", b =>
@@ -529,7 +677,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SoftwareFiles", (string)null);
+                    b.ToTable("SoftwareFiles");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
@@ -557,7 +705,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tenants", (string)null);
+                    b.ToTable("Tenants");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
@@ -600,7 +748,7 @@ namespace API.Migrations
                     b.HasIndex("TenantId")
                         .IsUnique();
 
-                    b.ToTable("TenantInfos", (string)null);
+                    b.ToTable("TenantInfos");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -733,6 +881,47 @@ namespace API.Migrations
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJob", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                        .WithMany("Jobs")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJobInfo", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.DeviceJob", "DeviceJob")
+                        .WithOne("Settings")
+                        .HasForeignKey("SharedComponents.Entities.DeviceJobInfo", "DeviceJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SharedComponents.Entities.NASServer", "NASServer")
+                        .WithOne()
+                        .HasForeignKey("SharedComponents.Entities.DeviceJobInfo", "NASServerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("DeviceJob");
+
+                    b.Navigation("NASServer");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJobSchedule", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.DeviceJobInfo", "DeviceJobInfo")
+                        .WithOne("Schedule")
+                        .HasForeignKey("SharedComponents.Entities.DeviceJobSchedule", "DeviceJobInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeviceJobInfo");
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.DeviceLog", b =>
                 {
                     b.HasOne("SharedComponents.Entities.Device", "Device")
@@ -766,6 +955,17 @@ namespace API.Migrations
                     b.Navigation("DeviceInfo");
                 });
 
+            modelBuilder.Entity("SharedComponents.Entities.NASServer", b =>
+                {
+                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                        .WithMany("NASServers")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
                 {
                     b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
@@ -796,12 +996,24 @@ namespace API.Migrations
                     b.Navigation("DeviceInfo")
                         .IsRequired();
 
+                    b.Navigation("Jobs");
+
                     b.Navigation("Logs");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
                 {
                     b.Navigation("MACAddresses");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJob", b =>
+                {
+                    b.Navigation("Settings");
+                });
+
+            modelBuilder.Entity("SharedComponents.Entities.DeviceJobInfo", b =>
+                {
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
@@ -814,6 +1026,8 @@ namespace API.Migrations
                     b.Navigation("Devices");
 
                     b.Navigation("InstallationKeys");
+
+                    b.Navigation("NASServers");
 
                     b.Navigation("RolePermissions");
 

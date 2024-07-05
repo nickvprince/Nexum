@@ -20,13 +20,13 @@ namespace API.Services
                 try
                 {
                     // Add the log to the context
-                    await _appDbContext.Logs.AddAsync(log);
+                    await _appDbContext.DeviceLogs.AddAsync(log);
 
                     // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
                     if (result > 0)
                     {
-                        return await _appDbContext.Logs
+                        return await _appDbContext.DeviceLogs
                             .Where(l => l.Id == log.Id)
                             .FirstAsync();
                     }
@@ -46,7 +46,7 @@ namespace API.Services
                 try
                 {
                     // Get the existing log from the context
-                    var existingLog = await _appDbContext.Logs
+                    var existingLog = await _appDbContext.DeviceLogs
                         .Where(l => l.Id == log.Id)
                         .FirstAsync();
                     if (existingLog != null)
@@ -58,7 +58,7 @@ namespace API.Services
                         var result = await _appDbContext.SaveChangesAsync();
                         if (result >= 0)
                         {
-                            return await _appDbContext.Logs
+                            return await _appDbContext.DeviceLogs
                                 .Where(l => l.Id == log.Id)
                                 .FirstAsync();
                         }
@@ -75,13 +75,13 @@ namespace API.Services
         {
             try
             {
-                var log = await _appDbContext.Logs
+                var log = await _appDbContext.DeviceLogs
                     .Where(l => l.Id == id)
                     .FirstAsync();
                 if (log != null)
                 {
                     log.IsDeleted = true;
-                    _appDbContext.Logs.Update(log);
+                    _appDbContext.DeviceLogs.Update(log);
                     var result = await _appDbContext.SaveChangesAsync();
                     if (result > 0)
                     {
@@ -100,7 +100,7 @@ namespace API.Services
         {
             try
             {
-                var log = await _appDbContext.Logs
+                var log = await _appDbContext.DeviceLogs
                     .Where(l => l.Id == id)
                     .FirstAsync();
                 if (log != null)
@@ -119,7 +119,7 @@ namespace API.Services
         {
             try
             {
-                var logs = await _appDbContext.Logs.ToListAsync();
+                var logs = await _appDbContext.DeviceLogs.ToListAsync();
                 if (logs != null)
                 {
                     if (logs.Any())
@@ -139,7 +139,7 @@ namespace API.Services
         {
             try
             {
-                var logs = await _appDbContext.Logs
+                var logs = await _appDbContext.DeviceLogs
                     .Where(l => l.DeviceId == deviceId)
                     .ToListAsync();
                 if (logs != null)
@@ -161,7 +161,7 @@ namespace API.Services
         {
             try
             {
-                var logs = await _appDbContext.Logs
+                var logs = await _appDbContext.DeviceLogs
                     .Where(l => l.Device.TenantId == tenantId)
                     .ToListAsync();
                 if (logs != null)

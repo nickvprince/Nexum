@@ -22,6 +22,7 @@ namespace SharedComponents.Entities
         public bool IsActive { get; set; }
         public ICollection<DeviceAlert>? Alerts { get; set; }
         public ICollection<DeviceLog>? Logs { get; set; }
+        public ICollection<DeviceJob>? Jobs { get; set; }
     }
 
     public enum DeviceStatus
