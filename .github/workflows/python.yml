@@ -33,7 +33,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd ${{ matrix.project }}
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint pytest
