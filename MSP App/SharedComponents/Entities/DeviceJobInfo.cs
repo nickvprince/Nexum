@@ -12,7 +12,6 @@ namespace SharedComponents.Entities
     {
         public int Id { get; set; }
         public int BackupServerId { get; set; }
-        public string? Path { get; set; }
         public DeviceJobType? Type { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
