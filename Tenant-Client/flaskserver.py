@@ -47,38 +47,13 @@ class FlaskServer():
 
     @staticmethod
     def auth(recieved_client_secret, logger,identification):
-        """     This is substituted with local clientSecret
-        try:
-            # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=NEXUM-SQL;
-            DATABASE=your_database_name;Trusted_Connection=yes;')
-            cursor = conn.cursor()
-            query = "SELECT * FROM Security WHERE ID = ?"
-            cursor.execute(query, (ID,))
-            result = cursor.fetchone()
-
-            # set salt to the result[0], pepper to result[1], and salt2 to result[2]
-            salt = result[0]
-            pepper = result[1]
-            salt2 = result[2]
-
-            # close the sql connection
-            conn.close()
-        except:
-            return "405 Incorrect ID"
-
+        """     
+        Authenticates server requests
         """
-        # A2 uses client secret unhashed to generate the password used to encrypt the data
-        # The data is given salt, pepper, and salt2 then hashed.
-        # the hash is then encypted then sent
 
-        # to decrypt would be
-        # decrypt the data
-        # create a variable with the salt, pepper, and salt2 added to the client secret then hashed
-        # compare the hash to the decrypted data
-        # if they match the KEY is valid
         apikey = MySqlite.read_setting("apikey")
-        if str(apikey) == str(recieved_client_secret):
+        msp_api = MySqlite.read_setting("msp_api")
+        if str(apikey) == str(recieved_client_secret) or str(recieved_client_secret) == str(msp_api):
             return 200
         else:
             logger.log("ERROR", "get_files", "Access denied",
