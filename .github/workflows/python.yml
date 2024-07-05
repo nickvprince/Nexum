@@ -36,6 +36,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt || true  # Continue even if some packages fail to install
 
+    - name: List installed packages
+      run: python -m pip list
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$(pwd)/${{ matrix.project }}:$(pwd)" >> $GITHUB_ENV
+
+    - name: Set FLASK_APP environment variable
+      run: echo "FLASK_APP=flaskserver.py" >> $GITHUB_ENV
+
     - name: Start Flask server
       run: |
         cd ${{ matrix.project }}
