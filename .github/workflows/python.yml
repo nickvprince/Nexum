@@ -37,6 +37,9 @@ jobs:
         pip install -r requirements.txt || true  # Continue even if some packages fail to install
         pip install pylint pytest Flask
 
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+
     - name: Start Flask server
       run: |
         cd ${{ matrix.project }}
@@ -45,7 +48,7 @@ jobs:
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
-        pytest -k "tests.py"
+        pytest *tests.py
 
     - name: Lint with pylint
       run: |
