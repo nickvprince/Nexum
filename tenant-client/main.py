@@ -85,6 +85,11 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
+    MySqlite.write_setting("CLIENT_ID", "1")
+    MySqlite.write_setting("heartbeat_interval", "5")
+    
+    MySqlite.write_setting("server_address", "127.0.0.1")
+    MySqlite.write_setting("server_port", "5002")
     # create a Logger
     l = Logger()
     # init databases

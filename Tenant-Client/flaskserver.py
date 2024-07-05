@@ -349,7 +349,7 @@ class FlaskServer():
         """
         Restores files or directories
         """
-          logger=Logger()
+        logger=Logger()
         # get the json body
 
         # get the clientSecret from the json body

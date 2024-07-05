@@ -105,7 +105,7 @@ class API():
         """
         Call the API from tenant server to get the client id
         """
-        
+        return MySqlite.read_setting("CLIENT_ID")
 
         url = MySqlite.read_setting("server_address")+'/get_id'
         client_secret = MySqlite.read_setting("client_secret")

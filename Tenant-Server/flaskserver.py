@@ -162,7 +162,7 @@ class FlaskServer():
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey')
         # get the ID from the json body
-        client_id = data.get('clientid', '')
+        client_id = data.get('client_id', '')
         code = 0
         msg = ""
         if FlaskServer.auth(recieved_client_secret, logger, client_id) == 405:
@@ -174,7 +174,7 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[0] == client_id: # find the client address to match the ID passed where 0 is localhost
+                if str(i[0]) == str(client_id): # find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[2]}:{i[3]}/get_files"
                     try:
                         return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID":i[2]},timeout=10)
@@ -226,7 +226,7 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[2] == identification: # find the client address to match the ID passed where 0 is localhost
+                if str(i[0]) == str(identification): # find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[2]}:{i[3]}/start_job"
                     try:
                         return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
@@ -275,7 +275,7 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == identification: # find the client address to match the ID passed where 0 is localhost
+                if str(i[0]) == str(identification):# find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[2]}:{i[3]}/stop_job"
                     try:
                         return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
@@ -323,10 +323,10 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == identification: # find the client address to match the ID passed where 0 is localhost
+                if str(i[0]) == str(identification): # find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[2]}:{i[3]}/kill_job"
                     try:
-                            return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
+                        return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
                         "500", get_time())
@@ -373,7 +373,7 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == identification: # find the client address to match the ID passed where 0 is localhost
+                if str(i[0]) == str(identification): # find the client address to match the ID passed where 0 is localhost
                     url = f"http://{i[2]}:{i[3]}/enable_job"
                     try:
                         return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
@@ -442,7 +442,8 @@ class FlaskServer():
                 return "200 OK"
             else:
                 for i in CLIENTS:
-                    if i[1] == identification:
+
+                    if str(i[0]) == str(identification):
                         url = f"http://{i[2]}:{i[3]}/modify_job"
                         try:
                             return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
@@ -585,15 +586,19 @@ class FlaskServer():
         apikey = request.headers.get('apikey')
         identification = data.get('client_id', '')
         logger=Logger()
+        CLIENTS = MySqlite.load_clients()
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == 0:
                 return MySqlite.read_setting("Status")
             else:
                 for i in CLIENTS:
-                    if i[1] == identification:
-                        url = f"http://{i[2]}:{i[3]}/get_status"
+                    if str(i[0]) == str(identification):
+                        url = f"http://{i[2]}:{i[3]}/get_Status"
                         try:
-                            return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
+                            data = requests.get(url, headers={"apikey":apikey,"Content-Type": "application/json"},json={},timeout=10,verify=False)
+                            # data.headers["status"]
+                            status = data.headers.get("status")
+                            return status
                         except requests.exceptions.ConnectTimeout :
                             logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
                             "500", get_time())
