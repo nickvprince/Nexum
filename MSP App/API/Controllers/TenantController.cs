@@ -8,6 +8,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class TenantController : ControllerBase
     {
         private readonly DbTenantService _dbTenantService;
@@ -17,50 +18,91 @@ namespace API.Controllers
             _dbTenantService = dbTenantService;
         }
 
-        [HttpPost("Create")]
-        public IActionResult CreateTenant([FromBody] object tenant)
+        [HttpPost("")]
+        public async Task<IActionResult> CreateAsync([FromBody] Tenant tenant)
         {
-            //Create the permission
-            return Ok($"Tenant created successfully.");
+            Tenant? newTenant = await _dbTenantService.CreateAsync(tenant);
+            if (newTenant != null)
+            {
+                return Ok(newTenant);
+            }
+            return BadRequest("An error occurred while creating the tenant.");
         }
 
-        [HttpPut("Update")]
-        public IActionResult UpdateTenant([FromBody] object tenant)
+        [HttpPut("")]
+        public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant)
         {
-            //Update the permission
-            return Ok($"Tenant updated successfully.");
+            Tenant? updatedTenant = await _dbTenantService.UpdateAsync(tenant);
+            if (updatedTenant != null)
+            {
+                return Ok(updatedTenant);
+            }
+            return BadRequest("An error occurred while updating the tenant.");
         }
 
-        [HttpDelete("Delete/{id}")]
-        public IActionResult DeleteTenant(string id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            //Delete the permission
-            return Ok($"Tenant deleted successfully.");
+            if(await _dbTenantService.DeleteAsync(id))
+            {
+                return Ok($"Tenant deleted successfully.");
+
+            }
+            return NotFound("Tenant not found.");
         }
 
-        [HttpGet("Get/{id}")]
-        public IActionResult GetTenant(string id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAsync(int id)
         {
-            //Get the permission
-            return Ok($"Retrieved tenant successfully.");
+            Tenant? tenant = await _dbTenantService.GetAsync(id);
+            if (tenant != null)
+            {
+                return Ok(tenant);
+            }
+            return NotFound("Tenant not found.");
         }
 
-        [HttpGet("Get")]
-        public async Task<IActionResult> GetTenantsAsync()
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllAsync()
         {
-            //Get the permissions
-            List<Tenant> tenants = await _dbTenantService.GetAllAsync();
-
+            ICollection<Tenant> tenants = await _dbTenantService.GetAllAsync();
             if (tenants.Any())
             {
-                var response = new
-                {
-                    data = tenants,
-                    message = $"Retrieved tenants successfully."
-                };
-                return Ok(response);
+                return Ok(tenants);
             }
-            return NotFound(new { message = "No tenants found." });
+            return NotFound("No tenants found.");
+        }
+
+        [HttpPost("Create-Installation-Key/{tenantId}")]
+        public async Task<IActionResult> CreateInstallationKeyAsync(int tenantId)
+        {
+            InstallationKey? newInstallationKey = await _dbTenantService.CreateInstallationKeyAsync(tenantId);
+            if (newInstallationKey != null)
+            {
+                return Ok(newInstallationKey);
+            }
+            return BadRequest("An error occurred while creating the installation key.");
+        }
+
+        [HttpPut("Update-Installation-Key")]
+        public async Task<IActionResult> UpdateInstallationKeyAsync([FromBody] InstallationKey installationKey)
+        {
+            InstallationKey? updatedInstallationKey = await _dbTenantService.UpdateInstallationKeyAsync(installationKey);
+            if (updatedInstallationKey != null)
+            {
+                return Ok(updatedInstallationKey);
+            }
+            return BadRequest("An error occurred while updating the installation key.");
+        }
+        [HttpDelete("Delete-Installation-Key/{id}")]
+        public async Task<IActionResult> DeleteInstallationKeyAsync(string? installationKey)
+        {
+            if (await _dbTenantService.DeleteInstallationKeyAsync(installationKey))
+            {
+                return Ok($"Installation key deleted successfully.");
+
+            }
+            return NotFound("Installation key not found.");
         }
     }
 }

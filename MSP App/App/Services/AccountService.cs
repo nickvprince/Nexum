@@ -13,7 +13,7 @@ namespace App.Services
         {
         }
 
-        public async Task<User> LoginAsync(string username, string password)
+        public async Task<ApplicationUser> LoginAsync(string username, string password)
         {
             LoginRequest loginRequest = new LoginRequest
             {
@@ -21,14 +21,14 @@ namespace App.Services
                 Password = password
             };
 
-            var responseObject = await ProcessResponse(await _httpClient.PostAsJsonAsync("api/Auth/Login", loginRequest));
+            var responseObject = await ProcessResponse(await _httpClient.PostAsJsonAsync("Auth/Login", loginRequest));
             var objectProperty = responseObject.GetType().GetProperty("Object");
             var objectValue = objectProperty.GetValue(responseObject);
             JObject data = JObject.Parse(objectValue.ToString());
 
             //Use this for other object, not for User because IdentityUser has different cases (Must use camelCase)
             //var users = JsonSerializer.Deserialize<User>(objectValue.ToString());
-            User user = new User
+            ApplicationUser user = new ApplicationUser
             {
                 UserName = (string)data["userName"],
                 PasswordHash = (string)data["passwordHash"],

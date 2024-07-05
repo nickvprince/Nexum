@@ -4,6 +4,6 @@ namespace App.Models
 {
     public class TenantViewModel
     {
-        public List<Tenant>? Tenants { get; set; }
+        public ICollection<Tenant>? Tenants { get; set; }
     }
 }

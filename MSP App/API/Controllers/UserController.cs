@@ -8,6 +8,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class UserController : ControllerBase
     {
         private readonly DbUserService _dbUserService;
@@ -38,40 +39,30 @@ namespace API.Controllers
             return Ok($"User deleted successfully.");
         }
 
-        [HttpGet("Get/{username}")]
+        [HttpGet("{username}")]
         public async Task<IActionResult> GetUserAsync(string username)
         {
             //Get the user
-            User? user = await _dbUserService.GetAsync(username);
+            ApplicationUser? user = await _dbUserService.GetAsync(username);
 
             if (user != null)
             {
-                var response = new
-                {
-                    data = user,
-                    message = $"Retrieved user successfully."
-                };
-                return Ok(response);
+                return Ok(user);
             }
-            return NotFound(new { message = "User not found." });
+            return NotFound("User not found.");
         }
 
-        [HttpGet("Get")]
+        [HttpGet("")]
         public async Task<IActionResult> GetUsersAsync()
         {
             //Get the permissions
-            List<User> users = await _dbUserService.GetAllAsync();
+            ICollection<ApplicationUser> users = await _dbUserService.GetAllAsync();
 
             if (users.Any())
             {
-                var response = new
-                {
-                    data = users,
-                    message = $"Retrieved users successfully."
-                };
-                return Ok(response);
+                return Ok(users);
             }
-            return NotFound(new { message = "No users found." });
+            return NotFound("No users found.");
         }
     }
 }

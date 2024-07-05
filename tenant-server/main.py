@@ -1,6 +1,5 @@
 """
-# Program: tenant-server
-# File: main.py
+# Program: tenant-server# File: main.py
 # Authors: 1. Danny Smith
 #
 # Date: 3/192024
@@ -13,7 +12,7 @@
 
 # pylint: disable= no-member,no-name-in-module, import-error,global-variable-not-assigned
 
-
+import socket
 import time
 from iconmanager import IconManager, image_path
 from helperfunctions import logs, tenant_portal,load
@@ -24,6 +23,7 @@ from runjob import LOCAL_JOB
 from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
+import requests
 
 
 # Global variables
@@ -32,22 +32,6 @@ def init():
     Initializes the program
     """
     InitSql()
-    """
-    """
-    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("TENANT_ID","1")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("POLLING_INTERVAL","10")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5000")
-    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("heartbeat_interval","5")
-    MySqlite.write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
-    MySqlite.add_install_key("JBQDPYQ7310712631DHLSAU8AWY]")
-    MySqlite.add_install_key("LJA;HFLASBFOIASH[jfnW.FJPIH")
-
-    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
-    MySqlite.write_setting("version","1")
     global LOCAL_JOB
     LOCAL_JOB.load(0)
     Security.load_tenant_secret()
@@ -61,7 +45,7 @@ def main():
     init()
     clients = MySqlite.load_clients()
     l = Logger()
-    H = HeartBeat(Security.get_client_secret(), 10,clients)
+    _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
@@ -71,9 +55,9 @@ def main():
     # log a message
 
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    MySqlite.write_setting("Status","running")
     f = FlaskServer()
     f.run()
 
 if __name__ == "__main__":
-
     main()

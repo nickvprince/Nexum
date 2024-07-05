@@ -9,10 +9,10 @@ namespace SharedComponents.Services
 {
     public interface ITenantService
     {
-        public Task<bool> CreateAsync(Tenant tenant);
-        public Task<bool> EditAsync(Tenant tenant);
-        public Task<bool> DeleteAsync(string id);
-        public Task<Tenant?> GetAsync(string id);
-        public Task<List<Tenant>> GetAllAsync();
+        public Task<Tenant?> CreateAsync(Tenant tenant);
+        public Task<Tenant?> EditAsync(Tenant tenant);
+        public Task<bool> DeleteAsync(int id);
+        public Task<Tenant?> GetAsync(int id);
+        public Task<ICollection<Tenant>?> GetAllAsync();
     }
 }

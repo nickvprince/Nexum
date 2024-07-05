@@ -23,6 +23,7 @@ from job import Job
 from jobsettings import JobSettings
 from conf import Configuration
 from MySqlite import MySqlite
+from api import API
 RUN_JOB_OBJECT = None
 
 
@@ -76,19 +77,14 @@ class FlaskServer():
         # create a variable with the salt, pepper, and salt2 added to the client secret then hashed
         # compare the hash to the decrypted data
         # if they match the KEY is valid
-        recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
-
-        temp = Security.sha256_string(CLIENT_SECRET)
-
-        temp = Security.add_salt_pepper(temp, Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2")))
-
-
-
-        if str(recieved_client_secret) != temp:
+        apikey = MySqlite.read_setting("apikey")
+        if str(apikey) == str(recieved_client_secret):
+            return 200
+        else:
             logger.log("ERROR", "get_files", "Access denied",
             "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             return 405
-        return 200
+        return 500
 
 
 
@@ -118,9 +114,9 @@ class FlaskServer():
         # get the path from the json body
         path = data.get('path', '')
         # get the clientSecret from the json body
-        recieved_client_secret = data.get('clientSecret', '')
+        recieved_client_secret = request.headers.get('apikey', '')
         # get the ID from the json body
-        identification = data.get('ID', '')
+        identification = data.get('client_id', '')
         code = 0
         msg = ""
         if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
@@ -179,21 +175,33 @@ class FlaskServer():
         """
         Gives Current Job Information
         """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+            return make_response("401 Access Denied", 401)
+        
         return "200 OK"
 
-    @website.route('/get_jobs', methods=['GET'], )
-    @staticmethod
-    def get_jobs():
-        """
-        Gives job information for all clients
-        """
-        return "200 OK"
     @website.route('/force_checkin', methods=['GET'], )
     @staticmethod
     def force_checkin():
         """
         Forces a heartbeat
         """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+            return make_response("401 Access Denied", 401)
+        
+        
         return "200 OK"
 
 
@@ -203,6 +211,16 @@ class FlaskServer():
         """
         Gets the current status of running jobs or error state, version information etc
         """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+            return make_response("401 Access Denied", 401)
+        
+        status = API.get_status()
         return "200 OK"
 
     @website.route('/get_version', methods=['GET'], )
@@ -211,6 +229,16 @@ class FlaskServer():
         """
         Gets version information from the client
         """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+            return make_response("401 Access Denied", 401)
+        
+        version = MySqlite.read_setting("Version")
         return "200 ok"
 # -------------------------------------- GET ROUTES ------------------------------------------------
 
@@ -269,6 +297,14 @@ class FlaskServer():
         """
         Forces the client to pull an update from the server
         """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+
+        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+            return make_response("401 Access Denied", 401)
         return "200 OK"
 
     @website.route('/enable_job', methods=['PUT'], )
@@ -327,6 +363,7 @@ class FlaskServer():
         """
         Restores files or directories
         """
+
         return "200 OK"
 
     @website.route('/modify_job', methods=['POST'], )
