@@ -45,7 +45,7 @@ def main():
     init()
     clients = MySqlite.load_clients()
     l = Logger()
-    H = HeartBeat(Security.get_client_secret(), 10,clients)
+    _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
