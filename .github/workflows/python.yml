@@ -19,8 +19,8 @@ jobs:
       matrix:
         python-version: [3.12]
         project:
-          - 'tenant-client'
-          - 'tenant-server'
+          - 'Tenant-Client'
+          - 'Tenant-Server'
 
     steps:
     - name: Checkout code
