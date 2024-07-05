@@ -118,5 +118,23 @@ namespace API.Controllers
             }
             return BadRequest("Invalid request.");
         }
+
+        [HttpGet("By-Tenant/{tenantId}")]
+        public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<NASServer>? nasServers = await _dbNASServerService.GetAllByTenantIdAsync(tenantId);
+                if (nasServers != null)
+                {
+                    if (nasServers.Any())
+                    {
+                        return Ok(nasServers);
+                    }
+                }
+                return NotFound("No NAS Servers found for the tenant.");
+            }
+            return BadRequest("Invalid request.");
+        }
     }
 }
