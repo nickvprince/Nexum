@@ -63,57 +63,19 @@ class FlaskServer():
         RUN_JOB_OBJECT = run_job_object
     @staticmethod
     def auth(apikey, logger,identification):
-        """     This is substituted with local clientSecret
-        try:
-            # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=NEXUM-SQL;
-            DATABASE=your_database_name;Trusted_Connection=yes;')
-            cursor = conn.cursor()
-            query = "SELECT * FROM Security WHERE ID = ?"
-            cursor.execute(query, (ID,))
-            result = cursor.fetchone()
-
-            # set salt to the result[0], pepper to result[1], and salt2 to result[2]
-            salt = result[0]
-            pepper = result[1]
-            salt2 = result[2]
-
-            # close the sql connection
-            conn.close()
-        except:
-            return "405 Incorrect ID"
-
+        """    
+        authenticates requests to the server
         """
-        # A2 uses client secret unhashed to generate the password used to encrypt the data
-        # The data is given salt, pepper, and salt2 then hashed.
-        # the hash is then encypted then sent
 
-        # to decrypt would be
-        # decrypt the data
-        # create a variable with the salt, pepper, and salt2 added to the client secret then hashed
-        # compare the hash to the decrypted data
-        # if they match the KEY is valid
         internal_apikey = MySqlite.read_setting("apikey")
-        if apikey == internal_apikey:
+        msp_apikey = MySqlite.read_setting("msp_api")
+        if apikey == internal_apikey or apikey == msp_apikey:
             return 200
         else:
             logger.log("ERROR", "get_files", "Access denied",
             "405", get_time())
             return 405
 
-        """
-        recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
-        temp = Security.sha256_string(CLIENT_SECRET)
-        temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
-
-
-        if str(recieved_client_secret) != temp:
-            logger.log("ERROR", "get_files", "Access denied",
-            "405", get_time())
-            return 405
-        return 200
-
-        """
     @staticmethod
     def get_local_files(path:str):
         """
@@ -212,13 +174,10 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == client_id: # find the client address to match the ID passed where 0 is localhost
-                    url = f"http://{i[0]}:5000/start_job"
+                if i[0] == client_id: # find the client address to match the ID passed where 0 is localhost
+                    url = f"http://{i[2]}:{i[3]}/get_files"
                     try:
-                        if i[0]== "127.0.0.1":
-                            return FlaskServer.get_local_files(data.get('path', ''))
-                        else:
-                            return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
+                        return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID":i[2]},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
                         "500", get_time())
@@ -232,8 +191,6 @@ class FlaskServer():
                     except:
                         msg = "Internal server error"
                         code = 500
-
-
         if code==0:
             return "200 OK"
         else:
@@ -268,34 +225,10 @@ class FlaskServer():
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
-                if i[1] == identification: # find the client address to match the ID passed where 0 is localhost
-                    url = f"http://{i[0]}:5000/start_job"
+                if i[2] == identification: # find the client address to match the ID passed where 0 is localhost
+                    url = f"http://{i[2]}:{i[3]}/start_job"
                     try:
-
-                        if i[0]== "127.0.0.1":
-                            code = 200
-                            msg= "local job triggered"
-
-                            logger=Logger()
-                            # get the json body
-                            data = request.get_json()
-                            # get the clientSecret from the json body
-                            recieved_client_secret = data.get('clientSecret', '')
-                            # get the ID from the json body
-                            identification = data.get('ID', '')
-                            code = 0
-                            msg = ""
-
-                            if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
-                                code = 401
-                                msg = "Access Denied"
-                            RUN_JOB_OBJECT.trigger_job()
-                            if code==0:
-                                return "200 OK"
-                            else:
-                                return make_response(msg, code)
-                        else:
-                            return requests.post(url, json={"clientSecret": Security.encrypt_client_secret(Security.add_salt_pepper(Security.sha256_string(CLIENT_SECRET),"salt","pepricart","salt2")), "ID": identification},timeout=10)
+                        return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
                         "500", get_time())
@@ -810,7 +743,7 @@ class FlaskServer():
                 if result == 200:
                     # verify for the MSP
 
-                    return make_response("200 ok", 200, {"clientid": identification})
+                    return make_response("200 ok", 200, {"clientid": identification,"msp_api":MySqlite.read_setting("msp_api")})
                 else:
                     return make_response("500 Internal Server Error - CODE: 1000", 403)
             else:

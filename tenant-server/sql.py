@@ -215,6 +215,22 @@ class MySqlite():
             (input_id, 5, current_time, 3)) # default missednotify of 3 and default interval of 5
         conn.commit()
         conn.close()
+    @staticmethod
+    def get_backup_server(identification:int):
+        """
+        Get a backup server from the database
+        """
+        try:
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('''SELECT * FROM backup_servers WHERE id = ?''', (identification,))
+            result = cursor.fetchone()
+            conn.close()
+            return result
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Error getting backup server - "+str(e), 500, datetime.datetime.now())
+            return None
+        
 
     @staticmethod
     def load_clients():
@@ -298,6 +314,8 @@ class MySqlite():
         except:
             return None
 
+
+    
     @staticmethod
     def get_next_client_id():
         """
@@ -526,7 +544,22 @@ class InitSql():
         except Exception as e:
             MySqlite.write_log("ERROR", "MySqlite", "Job settings table not created - "+str(e), 500, datetime.datetime.now())
 
-
+    @staticmethod
+    def backup_servers():
+        """
+        Ensure backup servers file exists and the table is created
+        """
+        try:
+            # create db file settingsDirectory\\settings
+            create_db_file(settingsDirectory,job_settingsFile)
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            # creat table for backup servers : id,smb path,user,pass,name
+            cursor.execute('''CREATE TABLE IF NOT EXISTS backup_servers
+                            (id TEXT, path TEXT, username TEXT, password TEXT, name TEXT)''')
+            MySqlite.write_log("INFO", "MySqlite", "backup server table created", 200, datetime.datetime.now())
+        except:
+            MySqlite.write_log("ERROR", "MySqlite", "Backup servers table not created", 500, datetime.datetime.now())
     def __init__(self):
         # initialize all tables when the object is created
         InitSql.log_files()
@@ -537,4 +570,5 @@ class InitSql():
         InitSql.clients()
         InitSql.heartbeat()
         InitSql.install_keys()
+        InitSql.backup_servers()
         MySqlite.write_log("INFO", "MySqlite", "All tables created finishing sql INIT", 200, datetime.datetime.now())
