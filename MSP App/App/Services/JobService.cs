@@ -135,5 +135,19 @@ namespace App.Services
                 return null;
             }
         }
+
+        public async Task<ICollection<DeviceJob>?> GetAllByNASServerIdAsync(int nasServerId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"By-NASServer/{nasServerId}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<DeviceJob>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }
