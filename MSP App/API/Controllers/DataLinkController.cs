@@ -671,6 +671,22 @@ namespace API.Controllers
                     return Unauthorized("Invalid Device.");
                 }
 
+                InstallationKey? installationKey = await _dbInstallationKeyService.GetByInstallationKeyAsync(request.UninstallationKey);
+                if (installationKey == null)
+                {
+                    return Unauthorized("Invalid Uninstallation Key.");
+                }
+
+                if (installationKey.TenantId != tenant.Id || installationKey.Type != InstallationKeyType.Uninstall)
+                {
+                    return Unauthorized("Invalid Uninstallation Key.");
+                }
+
+                if (!installationKey.IsActive || installationKey.IsDeleted)
+                {
+                    return Unauthorized("Inactive Uninstallation Key.");
+                }
+
                 if (device.DeviceInfo != null)
                 {
                     if (device.DeviceInfo.Type == DeviceType.Server)
@@ -687,7 +703,12 @@ namespace API.Controllers
                     }
                     if(await _dbDeviceService.DeleteAsync(device.Id))
                     {
-                        return Ok("Device uninstalled.");
+                        installationKey.IsActive = false;
+                        installationKey = await _dbInstallationKeyService.UpdateAsync(installationKey);
+                        if (installationKey != null)
+                        {
+                            return Ok("Device uninstalled.");
+                        }
                     }
                 }
                 return BadRequest("An error occurred while uninstalling the device.");
