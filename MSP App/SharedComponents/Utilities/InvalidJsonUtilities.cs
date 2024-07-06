@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SharedComponents.RequestEntities.Http;
+using SharedComponents.Entities;
 
 namespace SharedComponents.Utilities
 {
@@ -7,7 +7,7 @@ namespace SharedComponents.Utilities
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(CreateJobRequest);
+            return objectType == typeof(DeviceJob);
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
@@ -17,31 +17,49 @@ namespace SharedComponents.Utilities
                 writer.WriteNull();
                 return;
             }
-            var createJobRequest = (CreateJobRequest)value;
+            var job = (DeviceJob)value;
 
             writer.WriteStartObject();
-
-            writer.WritePropertyName("client_id");
-            writer.WriteValue(createJobRequest.Client_Id);
-
-            //writer.WritePropertyName("jobs");
-            //writer.WriteStartObject();
-            if (createJobRequest.Jobs != null)
+            if (job.Device != null)
             {
-                foreach (var job in createJobRequest.Jobs)
+                if (job.Device.DeviceInfo != null)
                 {
-                    if (job.Settings != null)
-                    {
-                        writer.WritePropertyName("jobs");
-                        writer.WritePropertyName("client_id");
-                        writer.WritePropertyName(job.Title);
-                        serializer.Serialize(writer, job);
-                    }
+                    writer.WritePropertyName("client_id");
+                    writer.WriteValue(job.Device.DeviceInfo.ClientId);
+                }
+            }
+            if (job.Settings != null && job.Name != null)
+            {
+                if (job.Settings.Schedule != null)
+                {
+                    writer.WritePropertyName(job.JobId.ToString());
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("title");
+                    writer.WriteValue(job.Name);
+                    writer.WritePropertyName("settings");
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("schedule");
+                    writer.WriteValue(ScheduleUtilities.ConvertToTenantServerFormat(job.Settings.Schedule));
+                    writer.WritePropertyName("startTime");
+                    writer.WriteValue(job.Settings.StartTime);
+                    writer.WritePropertyName("stopTime");
+                    writer.WriteValue(job.Settings.EndTime);
+                    writer.WritePropertyName("retryCount");
+                    writer.WriteValue(job.Settings.retryCount);
+                    writer.WritePropertyName("sampling");
+                    writer.WriteValue(job.Settings.Sampling);
+                    writer.WritePropertyName("heartbeat_interval");
+                    writer.WriteValue(job.Settings.UpdateInterval);
+                    writer.WritePropertyName("retention");
+                    writer.WriteValue(job.Settings.Retention);
+                    writer.WritePropertyName("backupServerId");
+                    writer.WriteValue(job.Settings.BackupServerId);
+                    writer.WriteEndObject();
+                    writer.WriteEndObject();
                 }
             }
             writer.WriteEndObject();
-
-            writer.WriteEndObject();
+            serializer.Serialize(writer, job);
         }
         public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
