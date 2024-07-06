@@ -68,5 +68,148 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        [HttpPut("")]
+        public async Task<IActionResult> UpdateAsync([FromBody] JobUpdateRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(request.Id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (request.Settings != null)
+                {
+                    if (request.Settings.Schedule != null)
+                    {
+                        job.Name = request.Name;
+                        job.Settings.BackupServerId = request.Settings.BackupServerId;
+                        job.Settings.Type = request.Settings.Type;
+                        job.Settings.StartTime = request.Settings.StartTime;
+                        job.Settings.EndTime = request.Settings.EndTime;
+                        job.Settings.Schedule.Sunday = request.Settings.Schedule.Sunday;
+                        job.Settings.Schedule.Monday = request.Settings.Schedule.Monday;
+                        job.Settings.Schedule.Tuesday = request.Settings.Schedule.Tuesday;
+                        job.Settings.Schedule.Wednesday = request.Settings.Schedule.Wednesday;
+                        job.Settings.Schedule.Thursday = request.Settings.Schedule.Thursday;
+                        job.Settings.Schedule.Friday = request.Settings.Schedule.Friday;
+                        job.Settings.Schedule.Saturday = request.Settings.Schedule.Saturday;
+                        job = await _dbJobService.UpdateAsync(job);
+                        if (job != null)
+                        {
+                            return Ok(job);
+                        }
+                    }
+                }
+                return BadRequest("An error occurred while updating the job.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (await _dbJobService.DeleteAsync(id))
+                {
+                    return Ok();
+                }
+                return BadRequest("An error occurred while deleting the job.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job != null)
+                {
+                    return Ok(job);
+                }
+                return NotFound("Job not found.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllAsync();
+                if (jobs != null)
+                {
+                    if (jobs.Any())
+                    {
+                        return Ok(jobs);
+                    }
+                }
+                return NotFound("No jobs found.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("By-Device/{deviceId}")]
+        public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByDeviceIdAsync(deviceId);
+                if (jobs != null)
+                {
+                    if (jobs.Any())
+                    {
+                        return Ok(jobs);
+                    }
+                }
+                return NotFound("No jobs found for the device.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("By-Tenant/{tenantId}")]
+        public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByTenantIdAsync(tenantId);
+                if (jobs != null)
+                {
+                    if (jobs.Any())
+                    {
+                        return Ok(jobs);
+                    }
+                }
+                return NotFound("No jobs found for the tenant.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("By-NASServer/{nasServerId}")]
+        public async Task<IActionResult> GetAllByNASServerIdAsync(int nasServerId)
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByNASServerIdAsync(nasServerId);
+                if (jobs != null)
+                {
+                    if (jobs.Any())
+                    {
+                        return Ok(jobs);
+                    }
+                }
+                return NotFound("No jobs found for the backup server.");
+            }
+            return BadRequest("Invalid request.");
+        }
     }
 }

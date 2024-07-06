@@ -197,5 +197,29 @@ namespace API.Services
             }
             return null;
         }
+
+        public async Task<ICollection<DeviceJob>?> GetAllByNASServerIdAsync(int nasServerId)
+        {
+            try
+            {
+                var jobs = await _appDbContext.DeviceJobs
+                    .Where(j => j.Settings.NASServerId == nasServerId)
+                    .Include(j => j.Settings)
+                        .ThenInclude(s => s.Schedule)
+                    .ToListAsync();
+                if (jobs != null)
+                {
+                    if (jobs.Any())
+                    {
+                        return jobs;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all jobs by NAS server id: {ex.Message}");
+            }
+            return null;
+        }
     }
 }
