@@ -25,8 +25,6 @@ namespace API.Controllers
         private readonly DbBackupService _dbBackupService;
         private readonly DbNASServerService _dbNASServerService;
         private readonly IConfiguration _config;
-        private readonly string _apiBaseUrl;
-        private readonly string _webAppBaseUrl;
 
         public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, 
             DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, 
@@ -46,10 +44,6 @@ namespace API.Controllers
             _dbBackupService = dbBackupService;
             _dbNASServerService = dbNASServerService;
             _config = config;
-            _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
-                          _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
-            _webAppBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("BaseUri") + ":" +
-                             _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
         }
 
         [HttpGet("Urls")]
@@ -57,12 +51,28 @@ namespace API.Controllers
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
             {
+                string? apiUrl;
+                string? webUrl;
+                using (var client = new HttpClient())
+                {
+                    try
+                    {
+                        string? wanIpAddress = await client.GetStringAsync("http://api.ipify.org");
+                        apiUrl = wanIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
+                        webUrl = wanIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions
+                        return BadRequest("Unable to determine public IP address");
+                    }
+                }
                 UrlResponse response = new UrlResponse
                 {
-                    PortalUrl = _webAppBaseUrl + "/Account/login",
-                    NexumUrl = _apiBaseUrl + "/Software/Nexum",
-                    NexumServerUrl = _apiBaseUrl + "/Software/NexumServer",
-                    NexumServiceUrl = _apiBaseUrl + "/Software/NexumService"
+                    PortalUrl = webUrl + "/Account/login",
+                    NexumUrl = apiUrl + "/Software/Nexum",
+                    NexumServerUrl = apiUrl + "/Software/NexumServer",
+                    NexumServiceUrl = apiUrl + "/Software/NexumService"
                 };
                 return Ok(response);
             }
