@@ -78,9 +78,9 @@ namespace API.Controllers
                 {
                     return NotFound("Job not found.");
                 }
-                if (request.Settings != null)
+                if (request.Settings != null && job.Settings != null)
                 {
-                    if (request.Settings.Schedule != null)
+                    if (request.Settings.Schedule != null && job.Settings.Schedule != null)
                     {
                         job.Name = request.Name;
                         job.Settings.BackupServerId = request.Settings.BackupServerId;
