@@ -12,11 +12,13 @@ namespace API.Controllers
     public class JobController : ControllerBase
     {
         private readonly DbJobService _dbJobService;
+        private readonly HTTPJobService _httpJobService;
         private readonly DbDeviceService _dbDeviceService;
 
-        public JobController(DbJobService dbJobService, DbDeviceService dbDeviceService)
+        public JobController(DbJobService dbJobService, HTTPJobService httpJobService, DbDeviceService dbDeviceService)
         {
             _dbJobService = dbJobService;
+            _httpJobService = httpJobService;
             _dbDeviceService = dbDeviceService;
         }
 
@@ -44,6 +46,11 @@ namespace API.Controllers
                                 Type = request.Settings.Type,
                                 StartTime = request.Settings.StartTime,
                                 EndTime = request.Settings.EndTime,
+                                UpdateInterval = request.Settings.UpdateInterval,
+                                retryCount = request.Settings.retryCount,
+                                Sampling = request.Settings.Sampling,
+                                Retention = request.Settings.Retention,
+
                                 Schedule = new DeviceJobSchedule
                                 {
                                     Sunday = request.Settings.Schedule.Sunday,
@@ -59,7 +66,10 @@ namespace API.Controllers
                         job = await _dbJobService.CreateAsync(job);
                         if (job != null)
                         {
-                            return Ok(job);
+                            if(await _httpJobService.CreateJobAsync(device.TenantId, job))
+                            {
+                                return Ok(job);
+                            }
                         }
                     }
                 }
@@ -87,6 +97,10 @@ namespace API.Controllers
                         job.Settings.Type = request.Settings.Type;
                         job.Settings.StartTime = request.Settings.StartTime;
                         job.Settings.EndTime = request.Settings.EndTime;
+                        job.Settings.UpdateInterval = request.Settings.UpdateInterval;
+                        job.Settings.retryCount = request.Settings.retryCount;
+                        job.Settings.Sampling = request.Settings.Sampling;
+                        job.Settings.Retention = request.Settings.Retention;
                         job.Settings.Schedule.Sunday = request.Settings.Schedule.Sunday;
                         job.Settings.Schedule.Monday = request.Settings.Schedule.Monday;
                         job.Settings.Schedule.Tuesday = request.Settings.Schedule.Tuesday;

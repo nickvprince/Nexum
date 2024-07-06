@@ -426,6 +426,7 @@ namespace API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    JobId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Progress = table.Column<int>(type: "int", nullable: true),
@@ -529,12 +530,13 @@ namespace API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BackupServerId = table.Column<int>(type: "int", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdateInterval = table.Column<int>(type: "int", nullable: false),
+                    retryCount = table.Column<int>(type: "int", nullable: false),
                     Sampling = table.Column<bool>(type: "bit", nullable: false),
                     Retention = table.Column<int>(type: "int", nullable: false),
-                    DeviceJobId = table.Column<int>(type: "int", nullable: false)
+                    DeviceJobId = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EndTime = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

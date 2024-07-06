@@ -385,9 +385,9 @@ namespace API.DataAccess
 
                 // Add DeviceJobInfos
 
-                var jobInfo1 = new DeviceJobInfo { DeviceJobId = job1.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(1000), UpdateInterval = 30, Retention = 14 };
-                var jobInfo2 = new DeviceJobInfo { DeviceJobId = job2.Id, BackupServerId = 0, Type = DeviceJobType.Restore, Sampling = true, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(2000), UpdateInterval = 30, Retention = 14 };
-                var jobInfo3 = new DeviceJobInfo { DeviceJobId = job3.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(3000), UpdateInterval = 30, Retention = 14 };
+                var jobInfo1 = new DeviceJobInfo { DeviceJobId = job1.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now.ToString("HH:mm"), EndTime = DateTime.Now.AddMinutes(1000).ToString("HH:mm"), UpdateInterval = 30, Retention = 14 };
+                var jobInfo2 = new DeviceJobInfo { DeviceJobId = job2.Id, BackupServerId = 0, Type = DeviceJobType.Restore, Sampling = true, StartTime = DateTime.Now.ToString("HH:mm"), EndTime = DateTime.Now.AddMinutes(2000).ToString("HH:mm"), UpdateInterval = 30, Retention = 14 };
+                var jobInfo3 = new DeviceJobInfo { DeviceJobId = job3.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now.ToString("HH:mm"), EndTime = DateTime.Now.AddMinutes(3000).ToString("HH:mm"), UpdateInterval = 30, Retention = 14 };
 
                 context.DeviceJobInfos.AddRange(jobInfo1, jobInfo2, jobInfo3);
                 context.SaveChanges();

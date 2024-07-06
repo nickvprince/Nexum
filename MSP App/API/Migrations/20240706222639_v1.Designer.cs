@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240706211135_v1")]
+    [Migration("20240706222639_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -446,6 +446,9 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("int");
 
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -477,8 +480,8 @@ namespace API.Migrations
                     b.Property<int>("DeviceJobId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("EndTime")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Retention")
                         .HasColumnType("int");
@@ -486,14 +489,17 @@ namespace API.Migrations
                     b.Property<bool>("Sampling")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("StartTime")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UpdateInterval")
+                        .HasColumnType("int");
+
+                    b.Property<int>("retryCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
