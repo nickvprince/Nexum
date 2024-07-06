@@ -28,6 +28,8 @@ namespace API.Services
                     {
                         return await _appDbContext.DeviceJobs
                             .Where(j => j.Id == job.Id)
+                            .Include(j => j.Settings)
+                                .ThenInclude(s => s.Schedule)
                             .FirstAsync();
                     }
                 }
@@ -48,6 +50,8 @@ namespace API.Services
                     // Get the existing job from the context
                     var existingJob = await _appDbContext.DeviceJobs
                         .Where(j => j.Id == job.Id)
+                        .Include(j => j.Settings)
+                            .ThenInclude(s => s.Schedule)
                         .FirstAsync();
                     if (existingJob != null)
                     {
@@ -79,6 +83,8 @@ namespace API.Services
                 // Get the job from the context
                 var job = await _appDbContext.DeviceJobs
                     .Where(j => j.Id == id)
+                    .Include(j => j.Settings)
+                        .ThenInclude(s => s.Schedule)
                     .FirstAsync();
                 if (job != null)
                 {
@@ -106,6 +112,8 @@ namespace API.Services
             {
                 var job = await _appDbContext.DeviceJobs
                     .Where(j => j.Id == id)
+                    .Include(j => j.Settings)
+                        .ThenInclude(s => s.Schedule)
                     .FirstAsync();
                 if (job != null)
                 {
@@ -123,7 +131,10 @@ namespace API.Services
         {
             try
             {
-                var jobs = await _appDbContext.DeviceJobs.ToListAsync();
+                var jobs = await _appDbContext.DeviceJobs
+                    .Include(j => j.Settings)
+                        .ThenInclude(s => s.Schedule)
+                    .ToListAsync();
                 if (jobs != null)
                 {
                     if (jobs.Any())
@@ -145,6 +156,8 @@ namespace API.Services
             {
                 var jobs = await _appDbContext.DeviceJobs
                     .Where(j => j.DeviceId == deviceId)
+                    .Include(j => j.Settings)
+                        .ThenInclude(s => s.Schedule)
                     .ToListAsync();
                 if (jobs != null)
                 {
@@ -167,6 +180,8 @@ namespace API.Services
             {
                 var jobs = await _appDbContext.DeviceJobs
                     .Where(j => j.Device.TenantId == tenantId)
+                    .Include(j => j.Settings)
+                        .ThenInclude(s => s.Schedule)
                     .ToListAsync();
                 if (jobs != null)
                 {
