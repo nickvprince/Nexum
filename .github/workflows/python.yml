@@ -47,6 +47,11 @@ jobs:
         cd ${{ matrix.project }}
         python -m pip list
 
+    - name: Set PYTHONPATH
+      run: |
+        cd ${{ matrix.project }}
+        echo "PYTHONPATH=$(pwd):$(pwd)/${{ matrix.project }}" >> $GITHUB_ENV
+
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
