@@ -2,7 +2,7 @@ import jobsettings
 import unittest
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
-class JobSettingsTests (unittest.TestCase):
+class TestJobSettings (unittest.TestCase):
     def test_get_id(self):
         js = jobsettings.JobSettings()
         js.set_id(1)

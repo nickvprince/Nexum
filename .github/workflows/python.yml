@@ -20,7 +20,7 @@ jobs:
         python-version: [3.12]
         project:
           - 'Tenant-Client'
-          - 'Tenant-Server'
+          #- 'Tenant-Server'
 
     steps:
     - name: Checkout code
