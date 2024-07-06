@@ -20,7 +20,7 @@ jobs:
         python-version: [3.12]
         project:
           - 'Tenant-Client'
-        #  - 'Tenant-Server'
+          - 'Tenant-Server'
 
     steps:
     - name: Checkout code
@@ -47,25 +47,7 @@ jobs:
         cd ${{ matrix.project }}
         python -m pip list
 
-    - name: Set PYTHONPATH
-      run: |
-        cd ${{ matrix.project }}
-        echo "PYTHONPATH=$(pwd):$(pwd)/${{ matrix.project }}" >> $GITHUB_ENV
-
-    - name: Set FLASK_APP environment variable
-      run: |
-        cd ${{ matrix.project }}
-        echo "FLASK_APP=flaskserver.py" >> $GITHUB_ENV
-
-    - name: Start Flask server
-      run: |
-        cd ${{ matrix.project }}
-        nohup flask run &
-
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
         pytest || true
-
-    - name: Stop Flask server
-      run: pkill -f flask
