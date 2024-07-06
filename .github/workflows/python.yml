@@ -20,6 +20,7 @@ jobs:
         python-version: [3.12]
         project:
           - 'Tenant-Client'
+          - 'Tenant-Server'
 
     steps:
     - name: Checkout code
@@ -34,7 +35,8 @@ jobs:
       run: |
         cd ${{ matrix.project }}
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        # Install non-Windows specific packages
+        grep -v 'pywin32' requirements.txt | grep -v 'pyuac' | grep -v 'pywin32-ctypes' | python -m pip install -r /dev/stdin
 
     - name: List installed packages
       run: |
