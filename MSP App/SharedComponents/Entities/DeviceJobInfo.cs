@@ -12,7 +12,7 @@ namespace SharedComponents.Entities
     {
         public int Id { get; set; }
         public int BackupServerId { get; set; }
-        public DeviceJobType? Type { get; set; }
+        public DeviceJobType Type { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public DeviceJobSchedule? Schedule { get; set; }

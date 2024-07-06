@@ -21,6 +21,7 @@ namespace API.Controllers
         private readonly DbAlertService _dbAlertService;
         private readonly DbLogService _dbLogService;
         private readonly DbInstallationKeyService _dbInstallationKeyService;
+        private readonly DbJobService _dbJobService;
         private readonly IConfiguration _config;
         private readonly string _apiBaseUrl;
         private readonly string _webAppBaseUrl;
@@ -28,7 +29,8 @@ namespace API.Controllers
         public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, 
             DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, 
             DbAlertService dbAlertService, DbLogService dbLogService,
-            DbInstallationKeyService dbInstallationKeyService, IConfiguration config)
+            DbInstallationKeyService dbInstallationKeyService, DbJobService dbJobService,
+            IConfiguration config)
         {
             _dbTenantService = dbTenantService;
             _dbDeviceService = dbDeviceService;
@@ -37,6 +39,7 @@ namespace API.Controllers
             _dbAlertService = dbAlertService;
             _dbLogService = dbLogService;
             _dbInstallationKeyService = dbInstallationKeyService;
+            _dbJobService = dbJobService;
             _config = config;
             _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
                           _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
@@ -360,7 +363,7 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpPut("Update-Status")]
+        [HttpPut("Update-Device-Status")]
         public async Task<IActionResult> UpdateStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
         {
             if (await _dbSecurityService.ValidateAPIKey(apikey))
@@ -401,6 +404,61 @@ namespace API.Controllers
                     return Ok(response);
                 }
                 return BadRequest("An error occurred while updating the device status.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpPut("Update-Job-Status")]
+        public async Task<IActionResult> UpdateJobStatusAsync([FromHeader] string apikey, [FromBody] UpdateJobStatusRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByDeviceIdAsync(device.Id);
+                if (jobs == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                // select the first job (because Tenant Server can only accept 1 job with an id of 0)
+                DeviceJob? job = jobs.FirstOrDefault();
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (!Enum.IsDefined(typeof(DeviceJobStatus), request.Status))
+                {
+                    return BadRequest("Invalid Job Status.");
+                }
+                job.Status = request.Status;
+                job = await _dbJobService.UpdateAsync(job);
+                if (job != null)
+                {
+                    if(job.Settings != null)
+                    {
+                        UpdateJobStatusResponse response = new UpdateJobStatusResponse
+                        {
+                            Name = device.DeviceInfo?.Name,
+                            Type = EnumUtilities.EnumToString(job.Settings.Type),
+                            Status = EnumUtilities.EnumToString(job.Status),
+                            Progress = job.Progress
+                        };
+                        return Ok(response);
+                    }
+                }
+                return BadRequest("An error occurred while updating the job status.");
             }
             return Unauthorized("Invalid API Key.");
         }
