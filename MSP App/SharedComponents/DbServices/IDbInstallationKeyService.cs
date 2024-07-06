@@ -9,7 +9,7 @@ namespace SharedComponents.DbServices
 {
     public interface IDbInstallationKeyService
     {
-        public Task<InstallationKey?> CreateAsync(int tenantId);
+        public Task<InstallationKey?> CreateAsync(InstallationKey? installationkey);
         public Task<InstallationKey?> UpdateAsync(InstallationKey? installationkey);
         public Task<bool> DeleteAsync(int id);
         public Task<InstallationKey?> GetAsync(int id);

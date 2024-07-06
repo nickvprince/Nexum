@@ -13,29 +13,25 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<InstallationKey?> CreateAsync(int tenantId)
+        public async Task<InstallationKey?> CreateAsync(InstallationKey? installationKey)
         {
-            var installationKey = new InstallationKey
+            if (installationKey != null)
             {
-                Key = Guid.NewGuid().ToString(),
-                TenantId = tenantId,
-                IsActive = true,
-                IsDeleted = false
-            };
-            try
-            {
-                await _appDbContext.InstallationKeys.AddAsync(installationKey);
-                var result = await _appDbContext.SaveChangesAsync();
-                if (result > 0)
+                try
                 {
-                    return await _appDbContext.InstallationKeys
-                        .Where(i => i.Id == installationKey.Id)
-                        .FirstAsync();
+                    await _appDbContext.InstallationKeys.AddAsync(installationKey);
+                    var result = await _appDbContext.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return await _appDbContext.InstallationKeys
+                            .Where(i => i.Id == installationKey.Id)
+                            .FirstAsync();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while creating the installation key: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while creating the installation key: {ex.Message}");
+                }
             }
             return null;
         }

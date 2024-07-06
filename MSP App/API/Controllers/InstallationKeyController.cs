@@ -31,10 +31,18 @@ namespace API.Controllers
                 {
                     return NotFound("Tenant not found.");
                 }
-                InstallationKey? newInstallationKey = await _dbInstallationKeyService.CreateAsync(request.TenantId);
-                if (newInstallationKey != null)
+                InstallationKey? installationKey = new InstallationKey
                 {
-                    return Ok(newInstallationKey);
+                    Key = Guid.NewGuid().ToString(),
+                    TenantId = request.TenantId,
+                    Type = request.Type,
+                    IsActive = true,
+                    IsDeleted = false
+                };
+                installationKey = await _dbInstallationKeyService.CreateAsync(installationKey);
+                if (installationKey != null)
+                {
+                    return Ok(installationKey);
                 }
                 return BadRequest("An error occurred while creating the installation key.");
             }
