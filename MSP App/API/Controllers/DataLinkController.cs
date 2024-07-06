@@ -91,6 +91,11 @@ namespace API.Controllers
                     return Unauthorized("Inactive Installation Key.");
                 }
 
+                if (installationKey.Type != InstallationKeyType.Device || installationKey.Type != InstallationKeyType.Server)
+                {
+                    return Unauthorized("Invalid Installation Key Type.");
+                }
+
                 if (!Enum.IsDefined(typeof(DeviceType), request.Type))
                 {
                     return BadRequest("Invalid Device Type.");
@@ -107,6 +112,10 @@ namespace API.Controllers
                 }
                 if (request.Type == DeviceType.Server)
                 {
+                    if(installationKey.Type != InstallationKeyType.Server)
+                    {
+                        return Unauthorized("Invalid Installation Key Type.");
+                    }
                     if (devices != null)
                     {
                         Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
@@ -129,6 +138,10 @@ namespace API.Controllers
                 }
                 else
                 {
+                    if (installationKey.Type != InstallationKeyType.Device)
+                    {
+                        return Unauthorized("Invalid Installation Key Type.");
+                    }
                     if (devices != null)
                     {
                         Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
@@ -306,7 +319,7 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpPut("Update")]
+        [HttpPut("Update-Device")]
         public async Task<IActionResult> UpdateAsync([FromHeader] string apikey, [FromBody] UpdateDeviceRequest request)
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
@@ -364,7 +377,7 @@ namespace API.Controllers
         }
 
         [HttpPut("Update-Device-Status")]
-        public async Task<IActionResult> UpdateStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
+        public async Task<IActionResult> UpdateDeviceStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
         {
             if (await _dbSecurityService.ValidateAPIKey(apikey))
             {
