@@ -32,12 +32,16 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd ${{ matrix.project }}
         python -m pip install --upgrade pip
-        pip install -r requirements.txt || true  # Continue even if some packages fail to install
+        pip install -r requirements.txt
+
+    - name: List installed packages
+      run: |
+        cd ${{ matrix.project }}
+        python -m pip list
 
     - name: Run tests
       run: |
         cd ${{ matrix.project }}
         pytest || true
-
-
