@@ -54,9 +54,19 @@ namespace API.Controllers
                 {
                     return Unauthorized("Inactive Installation Key.");
                 }
+
+                if(installationKey.Type != InstallationKeyType.Server || installationKey.Type != InstallationKeyType.Device)
+                {
+                    return Unauthorized("Invalid Installation Key Type.");
+                }
+
                 ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(request.TenantId);
                 if (request.Type == DeviceType.Server)
                 {
+                    if(installationKey.Type != InstallationKeyType.Server)
+                    {
+                        return Unauthorized("Invalid Installation Key Type.");
+                    }
                     if (devices != null)
                     {
                         Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
@@ -75,6 +85,24 @@ namespace API.Controllers
                     if (tenant == null)
                     {
                         return BadRequest("An error occurred while updating the tenant.");
+                    }
+                }
+                else
+                {
+                    if (installationKey.Type != InstallationKeyType.Device)
+                    {
+                        return Unauthorized("Invalid Installation Key Type.");
+                    }
+                    if (devices != null)
+                    {
+                        Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
+                        if (server != null)
+                        {
+                            if (!server.IsVerified)
+                            {
+                                return BadRequest("Server not verified.");
+                            }
+                        }
                     }
                 }
                 device = new Device
