@@ -106,6 +106,31 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        [HttpPut("Status")]
+        public async Task<IActionResult> UpdateStatusAsync([FromBody] JobUpdateStatusRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(request.Id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (!Enum.IsDefined(typeof(DeviceJobStatus), request.Status))
+                {
+                    return BadRequest("Invalid Job Status.");
+                }
+                job.Status = request.Status;
+                job = await _dbJobService.UpdateAsync(job);
+                if (job != null)
+                {
+                    return Ok(job);
+                }
+                return BadRequest("An error occurred while updating the job status.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {

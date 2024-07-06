@@ -50,6 +50,21 @@ namespace App.Services
             }
         }
 
+        public async Task<DeviceJob?> UpdateStatusAsync(DeviceUpdateStatusRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync("Status", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DeviceJob>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             try

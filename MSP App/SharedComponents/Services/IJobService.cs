@@ -12,6 +12,7 @@ namespace SharedComponents.Services
     {
         public Task<DeviceJob?> CreateAsync(DeviceCreateRequest request);
         public Task<DeviceJob?> UpdateAsync(DeviceUpdateRequest request);
+        public Task<DeviceJob?> UpdateStatusAsync(DeviceUpdateStatusRequest request);
         public Task<bool> DeleteAsync(int id);
         public Task<DeviceJob?> GetAsync(int id);
         public Task<ICollection<DeviceJob>?> GetAllAsync();
