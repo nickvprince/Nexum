@@ -260,9 +260,9 @@ namespace API.DataAccess
                     return; // DB has been seeded
                 }
                 // Add Tenants first to get the generated IDs
-                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111 };
-                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111 };
-                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111 };
+                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
 
                 context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();
