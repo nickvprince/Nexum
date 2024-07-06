@@ -1,4 +1,5 @@
 ﻿using API.Services;
+using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
@@ -32,7 +33,9 @@ namespace API.Controllers
                 }
                 DeviceBackup? backup = new DeviceBackup
                 {
-                    DeviceId = request.DeviceId,
+                    Client_Id = device.DeviceInfo.ClientId,
+                    Uuid = device.DeviceInfo.Uuid,
+                    TenantId = device.TenantId,
                     Filename = request.Name,
                     Path = request.Path,
                     Date = request.Date
@@ -127,7 +130,12 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                ICollection<DeviceBackup>? backups = await _dbBackupService.GetAllByDeviceIdAsync(deviceId);
+                Device? device = await _dbDeviceService.GetAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                ICollection<DeviceBackup>? backups = await _dbBackupService.GetAllByClientIdAndUuidAsync(device.TenantId, device.DeviceInfo.ClientId, device.DeviceInfo.Uuid);
                 if (backups != null)
                 {
                     if (backups.Any())

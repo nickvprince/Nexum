@@ -16,7 +16,7 @@ namespace SharedComponents.Entities
         public DeviceJobStatus Status { get; set; }
         public int? Progress { get; set; }
         [Required]
-        public int DeviceId { get; set; }
+        public int? DeviceId { get; set; }
         [JsonIgnore]
         public Device? Device { get; set; }
     }

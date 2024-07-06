@@ -2,6 +2,7 @@
 using SharedComponents.Entities;
 using SharedComponents.Services;
 using SharedComponents.WebRequestEntities.DeviceRequests;
+using SharedComponents.WebRequestEntities.JobRequests;
 using System.Text;
 
 namespace App.Services
@@ -20,7 +21,7 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceJob?> CreateAsync(DeviceCreateRequest request)
+        public async Task<DeviceJob?> CreateAsync(JobCreateRequest request)
         {
             try
             {
@@ -35,7 +36,7 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceJob?> UpdateAsync(DeviceUpdateRequest request)
+        public async Task<DeviceJob?> UpdateAsync(JobUpdateRequest request)
         {
             try
             {
@@ -50,7 +51,7 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceJob?> UpdateStatusAsync(DeviceUpdateStatusRequest request)
+        public async Task<DeviceJob?> UpdateStatusAsync(JobUpdateStatusRequest request)
         {
             try
             {
@@ -136,18 +137,5 @@ namespace App.Services
             }
         }
 
-        public async Task<ICollection<DeviceJob>?> GetAllByNASServerIdAsync(int nasServerId)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"By-NASServer/{nasServerId}");
-                var responseData = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<ICollection<DeviceJob>>(responseData);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
     }
 }

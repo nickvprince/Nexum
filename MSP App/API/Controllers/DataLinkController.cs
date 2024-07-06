@@ -511,7 +511,9 @@ namespace API.Controllers
 
                 DeviceBackup? backup = new DeviceBackup
                 {
-                    DeviceId = device.Id,
+                    Client_Id = device.DeviceInfo.ClientId,
+                    Uuid = device.DeviceInfo.Uuid,
+                    TenantId = tenant.Id,
                     Filename = request.Name,
                     Path = request.Path,
                     Date = request.Date,
@@ -643,6 +645,52 @@ namespace API.Controllers
                     return Ok(response);
                 }
                 return BadRequest("An error occurred while creating the log.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpDelete("Uninstall")]
+        public async Task<IActionResult> UninstallAsync([FromHeader] string apikey, [FromBody] UninstallRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                if (device.DeviceInfo != null)
+                {
+                    if (device.DeviceInfo.Type == DeviceType.Server)
+                    {
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(tenant.Id);
+                        if (devices != null)
+                        {
+                            Device? nonServerDevice = devices.FirstOrDefault(d => d.DeviceInfo!.Type != DeviceType.Server);
+                            if (nonServerDevice != null)
+                            {
+                                return BadRequest("Cannot uninstall a server while other devices exist.");
+                            }
+                        }
+                    }
+                    if(await _dbDeviceService.DeleteAsync(device.Id))
+                    {
+                        return Ok("Device uninstalled.");
+                    }
+                }
+                return BadRequest("An error occurred while uninstalling the device.");
             }
             return Unauthorized("Invalid API Key.");
         }

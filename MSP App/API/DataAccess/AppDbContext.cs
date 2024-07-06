@@ -101,9 +101,9 @@ namespace API.DataAccess
 
             // Configure the NASServer and Backup relationship
             modelBuilder.Entity<NASServer>()
-                .HasMany(d => d.Backups)
-                .WithOne(j => j.NASServer)
-                .HasForeignKey(j => j.DeviceId)
+                .HasMany(n => n.Backups)
+                .WithOne(b => b.NASServer)
+                .HasForeignKey(b => b.NASServerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tenant and Device one-to-many relationship
@@ -161,12 +161,12 @@ namespace API.DataAccess
                 .Property(d => d.Status)
                 .HasConversion<string>();
 
-            // Configure the Device and Backup relationship
+            /*// Configure the Device and Backup relationship
             modelBuilder.Entity<Device>()
                 .HasMany(d => d.Backups)
                 .WithOne(j => j.Device)
                 .HasForeignKey(j => j.DeviceId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.NoAction);*/
 
             // Configure the Device and Job relationship
             modelBuilder.Entity<Device>()
@@ -192,12 +192,12 @@ namespace API.DataAccess
                 .Property(d => d.Type)
                 .HasConversion<string>();
 
-            // DeviceJobInfo and NASServer one-to-one relationship
+            /*// DeviceJobInfo and NASServer one-to-one relationship
             modelBuilder.Entity<DeviceJobInfo>()
                 .HasOne(dji => dji.NASServer)
                 .WithOne()
                 .HasForeignKey<DeviceJobInfo>(dji => dji.NASServerId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.NoAction);*/
 
             // Tenant and InstallationKey one-to-many relationship
             modelBuilder.Entity<Tenant>()
@@ -385,9 +385,9 @@ namespace API.DataAccess
 
                 // Add DeviceJobInfos
 
-                var jobInfo1 = new DeviceJobInfo { DeviceJobId = job1.Id, NASServerId = nas1.Id,  BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(1000), UpdateInterval = 30, Retention = 14 };
-                var jobInfo2 = new DeviceJobInfo { DeviceJobId = job2.Id, NASServerId = nas2.Id, BackupServerId = 0, Type = DeviceJobType.Restore, Sampling = true, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(2000), UpdateInterval = 30, Retention = 14 };
-                var jobInfo3 = new DeviceJobInfo { DeviceJobId = job3.Id, NASServerId = nas3.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(3000), UpdateInterval = 30, Retention = 14 };
+                var jobInfo1 = new DeviceJobInfo { DeviceJobId = job1.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(1000), UpdateInterval = 30, Retention = 14 };
+                var jobInfo2 = new DeviceJobInfo { DeviceJobId = job2.Id, BackupServerId = 0, Type = DeviceJobType.Restore, Sampling = true, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(2000), UpdateInterval = 30, Retention = 14 };
+                var jobInfo3 = new DeviceJobInfo { DeviceJobId = job3.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(3000), UpdateInterval = 30, Retention = 14 };
 
                 context.DeviceJobInfos.AddRange(jobInfo1, jobInfo2, jobInfo3);
                 context.SaveChanges();
@@ -403,9 +403,9 @@ namespace API.DataAccess
 
                 // Add DeviceBackups
 
-                var backup1 = new DeviceBackup { DeviceId = device1.Id, Filename = "Backup 1.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas1.Id };
-                var backup2 = new DeviceBackup { DeviceId = device2.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
-                var backup3 = new DeviceBackup { DeviceId = device3.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
+                var backup1 = new DeviceBackup { Client_Id = deviceInfo1.ClientId, Uuid = deviceInfo1.Uuid, TenantId = tenant1.Id, Filename = "Backup 1.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas1.Id };
+                var backup2 = new DeviceBackup { Client_Id = deviceInfo2.ClientId, Uuid = deviceInfo2.Uuid, TenantId = tenant1.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
+                var backup3 = new DeviceBackup { Client_Id = deviceInfo3.ClientId, Uuid = deviceInfo3.Uuid, TenantId = tenant1.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
 
                 context.DeviceBackups.AddRange(backup1, backup2, backup3);
                 context.SaveChanges();

@@ -127,12 +127,12 @@ namespace API.Services
             return null;
         }
 
-        public async Task<ICollection<DeviceBackup>?> GetAllByDeviceIdAsync(int deviceId)
+        public async Task<ICollection<DeviceBackup>?> GetAllByClientIdAndUuidAsync(int tenantId, int clientId, string? Uuid)
         {
             try
             {
                 var backups = await _appDbContext.DeviceBackups
-                    .Where(b => b.DeviceId == deviceId)
+                    .Where(b => b.TenantId == tenantId && b.Client_Id == clientId && b.Uuid == Uuid)
                     .ToListAsync();
                 if (backups != null)
                 {
@@ -154,7 +154,7 @@ namespace API.Services
             try
             {
                 var backups = await _appDbContext.DeviceBackups
-                    .Where(b => b.Device.TenantId == tenantId)
+                    .Where(b => b.TenantId == tenantId)
                     .ToListAsync();
                 if (backups != null)
                 {

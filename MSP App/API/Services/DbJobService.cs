@@ -198,12 +198,12 @@ namespace API.Services
             return null;
         }
 
-        public async Task<ICollection<DeviceJob>?> GetAllByNASServerIdAsync(int nasServerId)
+        public async Task<ICollection<DeviceJob>?> GetAllByBackupServerIdAsync(int tenantId, int backupServerId)
         {
             try
             {
                 var jobs = await _appDbContext.DeviceJobs
-                    .Where(j => j.Settings.NASServerId == nasServerId)
+                    .Where(j => j.Device.Tenant.Id == tenantId && j.Settings.BackupServerId == backupServerId)
                     .Include(j => j.Settings)
                         .ThenInclude(s => s.Schedule)
                     .ToListAsync();

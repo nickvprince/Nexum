@@ -12,10 +12,12 @@ namespace API.Controllers
     public class NASServerController : ControllerBase
     {
         private readonly DbNASServerService _dbNASServerService;
+        private readonly DbJobService _dbJobService;
 
-        public NASServerController(DbNASServerService dbNASServerService)
+        public NASServerController(DbNASServerService dbNASServerService, DbJobService dbJobService)
         {
             _dbNASServerService = dbNASServerService;
+            _dbJobService = dbJobService;
         }
 
         [HttpPost("")]
@@ -76,6 +78,17 @@ namespace API.Controllers
                 if (nasServer == null)
                 {
                     return NotFound("NAS Server not found.");
+                }
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByBackupServerIdAsync(nasServer.TenantId, nasServer.BackupServerId);
+                if (jobs != null) 
+                {
+                    foreach (DeviceJob job in jobs)
+                    {
+                        if (job.Status == DeviceJobStatus.InProgress || job.Status == DeviceJobStatus.Restarting)
+                        {
+                            return BadRequest("Cannot delete NAS Server while jobs are running.");
+                        }
+                    }
                 }
                 if (await _dbNASServerService.DeleteAsync(id))
                 {

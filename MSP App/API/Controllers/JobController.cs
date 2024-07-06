@@ -218,23 +218,5 @@ namespace API.Controllers
             }
             return BadRequest("Invalid request.");
         }
-
-        [HttpGet("By-NASServer/{nasServerId}")]
-        public async Task<IActionResult> GetAllByNASServerIdAsync(int nasServerId)
-        {
-            if (ModelState.IsValid)
-            {
-                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByNASServerIdAsync(nasServerId);
-                if (jobs != null)
-                {
-                    if (jobs.Any())
-                    {
-                        return Ok(jobs);
-                    }
-                }
-                return NotFound("No jobs found for the backup server.");
-            }
-            return BadRequest("Invalid request.");
-        }
     }
 }

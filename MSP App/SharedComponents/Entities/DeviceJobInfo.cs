@@ -11,7 +11,7 @@ namespace SharedComponents.Entities
     public class DeviceJobInfo
     {
         public int Id { get; set; }
-        public int BackupServerId { get; set; }
+        public int? BackupServerId { get; set; }
         public DeviceJobType Type { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
@@ -23,9 +23,6 @@ namespace SharedComponents.Entities
         public int DeviceJobId { get; set; }
         [JsonIgnore]
         public DeviceJob? DeviceJob { get; set; }
-        public int NASServerId { get; set; }
-        [JsonIgnore]
-        public NASServer? NASServer { get; set; }
     }
 
     public enum DeviceJobType

@@ -14,7 +14,7 @@ namespace SharedComponents.DbServices
         public Task<bool> DeleteAsync(int id);
         public Task<DeviceBackup?> GetAsync(int id);
         public Task<ICollection<DeviceBackup>?> GetAllAsync();
-        public Task<ICollection<DeviceBackup>?> GetAllByDeviceIdAsync(int deviceId);
+        public Task<ICollection<DeviceBackup>?> GetAllByClientIdAndUuidAsync(int tenantId, int clientId, string? Uuid);
         public Task<ICollection<DeviceBackup>?> GetAllByTenantIdAsync(int tenantId);
     }
 }
