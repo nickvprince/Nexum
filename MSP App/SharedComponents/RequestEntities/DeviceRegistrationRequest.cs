@@ -17,6 +17,7 @@ namespace SharedComponents.RequestEntities
         public string? InstallationKey { get; set; }
         public string? ApiBaseUrl { get; set; }
         public int? ApiBasePort { get; set; }
+        public string? ApiKey { get; set; }
         public DeviceType Type { get; set; }
         public ICollection<MACAddress>? MACAddresses { get; set; }
     }

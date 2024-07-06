@@ -106,6 +106,7 @@ namespace API.Migrations
                     ApiKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApiBaseUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApiBasePort = table.Column<int>(type: "int", nullable: true),
+                    ApiKeyServer = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>

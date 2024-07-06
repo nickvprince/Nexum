@@ -133,8 +133,22 @@ namespace API.Controllers
                     {
                         return BadRequest("Invalid API Base URL or Port.");
                     }
+                    if(request.ApiKey == null)
+                    {
+                        return BadRequest("Invalid Server API Key.");
+                    }
+                    ICollection<Tenant>? tenants = await _dbTenantService.GetAllAsync();
+                    if (tenants != null)
+                    {
+                        Tenant? existingTenant = tenants.FirstOrDefault(t => t.ApiKeyServer == request.ApiKey);
+                        if (existingTenant != null)
+                        {
+                            return BadRequest("This ApiKey is already assigned");
+                        }
+                    }
                     tenant.ApiBaseUrl = request.ApiBaseUrl;
                     tenant.ApiBasePort = request.ApiBasePort;
+                    tenant.ApiKeyServer = request.ApiKey;
                     tenant = await _dbTenantService.UpdateAsync(tenant);
                     if (tenant == null)
                     {

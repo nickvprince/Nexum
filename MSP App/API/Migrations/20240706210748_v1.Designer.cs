@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240706081956_v1")]
+    [Migration("20240706210748_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -729,6 +729,9 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ApiKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApiKeyServer")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")

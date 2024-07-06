@@ -728,6 +728,9 @@ namespace API.Migrations
                     b.Property<string>("ApiKey")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ApiKeyServer")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
