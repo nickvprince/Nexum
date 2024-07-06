@@ -31,6 +31,10 @@ namespace API.Controllers
                 {
                     return NotFound("Tenant not found.");
                 }
+                if (!Enum.IsDefined(typeof(InstallationKeyType), request.Type))
+                {
+                    return BadRequest("Invalid Log Type.");
+                }
                 InstallationKey? installationKey = new InstallationKey
                 {
                     Key = Guid.NewGuid().ToString(),
