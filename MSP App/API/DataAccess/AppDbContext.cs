@@ -99,6 +99,13 @@ namespace API.DataAccess
                 .HasForeignKey(d => d.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure the NASServer and Backup relationship
+            modelBuilder.Entity<NASServer>()
+                .HasMany(d => d.Backups)
+                .WithOne(j => j.NASServer)
+                .HasForeignKey(j => j.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Tenant and Device one-to-many relationship
             modelBuilder.Entity<Tenant>()
                 .HasMany(t => t.Devices)
@@ -159,7 +166,7 @@ namespace API.DataAccess
                 .HasMany(d => d.Backups)
                 .WithOne(j => j.Device)
                 .HasForeignKey(j => j.DeviceId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Configure the Device and Job relationship
             modelBuilder.Entity<Device>()
@@ -394,9 +401,11 @@ namespace API.DataAccess
                 context.DeviceJobSchedules.AddRange(schedule1, schedule2, schedule3);
                 context.SaveChanges();
 
-                var backup1 = new DeviceBackup { DeviceId = device1.Id, Name = "Backup 1", Date = DateTime.Now, Path = "/path/to/something" };
-                var backup2 = new DeviceBackup { DeviceId = device2.Id, Name = "Backup 2", Date = DateTime.Now, Path = "/path/to/something" };
-                var backup3 = new DeviceBackup { DeviceId = device3.Id, Name = "Backup 3", Date = DateTime.Now, Path = "/path/to/something" };
+                // Add DeviceBackups
+
+                var backup1 = new DeviceBackup { DeviceId = device1.Id, Filename = "Backup 1.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas1.Id };
+                var backup2 = new DeviceBackup { DeviceId = device2.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
+                var backup3 = new DeviceBackup { DeviceId = device3.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
 
                 context.DeviceBackups.AddRange(backup1, backup2, backup3);
                 context.SaveChanges();

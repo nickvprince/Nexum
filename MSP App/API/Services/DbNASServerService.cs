@@ -107,6 +107,25 @@ namespace API.Services
             return null;
         }
 
+        public async Task<NASServer?> GetByBackupServerIdAsync(int backupServerId, int tenantId)
+        {
+            try
+            {
+                var nasServer = await _appDbContext.NASServers
+                    .Where(n => n.BackupServerId == backupServerId && n.TenantId == tenantId)
+                    .FirstAsync();
+                if (nasServer != null)
+                {
+                    return nasServer;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the NAS Server by Backup Server ID: {ex.Message}");
+            }
+            return null;
+        }
+
         public async Task<ICollection<NASServer>?> GetAllAsync()
         {
             try

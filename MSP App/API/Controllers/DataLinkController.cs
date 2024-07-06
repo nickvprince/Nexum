@@ -22,6 +22,8 @@ namespace API.Controllers
         private readonly DbLogService _dbLogService;
         private readonly DbInstallationKeyService _dbInstallationKeyService;
         private readonly DbJobService _dbJobService;
+        private readonly DbBackupService _dbBackupService;
+        private readonly DbNASServerService _dbNASServerService;
         private readonly IConfiguration _config;
         private readonly string _apiBaseUrl;
         private readonly string _webAppBaseUrl;
@@ -30,6 +32,7 @@ namespace API.Controllers
             DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, 
             DbAlertService dbAlertService, DbLogService dbLogService,
             DbInstallationKeyService dbInstallationKeyService, DbJobService dbJobService,
+            DbBackupService dbBackupService, DbNASServerService dbNASServerService,
             IConfiguration config)
         {
             _dbTenantService = dbTenantService;
@@ -40,6 +43,8 @@ namespace API.Controllers
             _dbLogService = dbLogService;
             _dbInstallationKeyService = dbInstallationKeyService;
             _dbJobService = dbJobService;
+            _dbBackupService = dbBackupService;
+            _dbNASServerService = dbNASServerService;
             _config = config;
             _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
                           _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
@@ -472,6 +477,60 @@ namespace API.Controllers
                     }
                 }
                 return BadRequest("An error occurred while updating the job status.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpPost("Backup")]
+        public async Task<IActionResult> BackupAsync([FromHeader] string apikey, [FromBody] CreateBackupRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                NASServer? nasServer = await _dbNASServerService.GetByBackupServerIdAsync(tenant.Id, request.BackupServerId);
+                if (nasServer == null)
+                {
+                    return NotFound("NAS Server not found.");
+                }
+
+                DeviceBackup? backup = new DeviceBackup
+                {
+                    DeviceId = device.Id,
+                    Filename = request.Name,
+                    Path = request.Path,
+                    Date = request.Date,
+                    NASServerId = nasServer.Id
+                };
+
+                backup = await _dbBackupService.CreateAsync(backup);
+                if (backup != null)
+                {
+                    CreateBackupResponse response = new CreateBackupResponse
+                    {
+                        NASServerName = nasServer.Name,
+                        Filename = backup.Filename,
+                        Path = backup.Path,
+                        Date = backup.Date
+                    };
+                    return Ok(response);
+                }
+                return BadRequest("An error occurred while creating the backup.");
             }
             return Unauthorized("Invalid API Key.");
         }

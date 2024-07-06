@@ -16,5 +16,6 @@ namespace SharedComponents.Entities
         public int TenantId { get; set; }
         [JsonIgnore]
         public Tenant? Tenant { get; set; }
+        public ICollection<DeviceBackup>? Backups { get; set; }
     }
 }

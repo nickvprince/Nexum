@@ -33,7 +33,7 @@ namespace API.Controllers
                 DeviceBackup? backup = new DeviceBackup
                 {
                     DeviceId = request.DeviceId,
-                    Name = request.Name,
+                    Filename = request.Name,
                     Path = request.Path,
                     Date = request.Date
                 };
@@ -57,7 +57,7 @@ namespace API.Controllers
                 {
                     return NotFound("Backup not found.");
                 }
-                backup.Name = request.Name;
+                backup.Filename = request.Name;
                 backup.Path = request.Path;
                 backup.Date = request.Date;
                 backup = await _dbBackupService.UpdateAsync(backup);

@@ -13,6 +13,7 @@ namespace SharedComponents.DbServices
         public Task<NASServer?> UpdateAsync(NASServer? nasServer);
         public Task<bool> DeleteAsync(int id);
         public Task<NASServer?> GetAsync(int id);
+        public Task<NASServer?> GetByBackupServerIdAsync(int tenantId, int backupServerId);
         public Task<ICollection<NASServer>?> GetAllAsync();
         public Task<ICollection<NASServer>?> GetAllByTenantIdAsync(int tenantId);
     }
