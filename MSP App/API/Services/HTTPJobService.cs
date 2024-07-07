@@ -64,13 +64,13 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> StartJobAsync(int clientId)
+        public async Task<bool> StartJobAsync(int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(clientId))
+                if (await InitiallizeHttpClient(client_Id))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(clientId), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("start_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -84,13 +84,13 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> StopJobAsync(int clientId)
+        public async Task<bool> StopJobAsync(int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(clientId))
+                if (await InitiallizeHttpClient(client_Id))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(clientId), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("kill_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -104,13 +104,13 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> ResumeJobAsync(int clientId)
+        public async Task<bool> ResumeJobAsync(int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(clientId))
+                if (await InitiallizeHttpClient(client_Id))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(clientId), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("enable_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -124,13 +124,13 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> PauseJobAsync(int clientId)
+        public async Task<bool> PauseJobAsync(int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(clientId))
+                if (await InitiallizeHttpClient(client_Id))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(clientId), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("stop_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();

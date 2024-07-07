@@ -33,7 +33,7 @@ namespace API.Services.Interfaces
                             _httpClient.BaseAddress = baseUri;
                             return true;
                         }
-                        if (!string.IsNullOrEmpty(tenant.ApiKey))
+                        if (!string.IsNullOrEmpty(tenant.ApiKeyServer))
                         {
                             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("apikey", tenant.ApiKey);
                         }
