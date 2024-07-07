@@ -9,52 +9,19 @@ using System.Text;
 
 namespace API.Services
 {
-    public class HTTPJobService : IHTTPJobService
+    public class HTTPJobService : BaseHTTPService, IHTTPJobService
     {
-        public readonly HttpClient _httpClient;
-        public readonly IConfiguration _config;
-        public readonly AppDbContext _appDbContext;
-        public HTTPJobService(IConfiguration config, HttpClient httpClient, AppDbContext appDbContext)
+        public HTTPJobService(IConfiguration config, HttpClient httpClient, AppDbContext appDbContext) : base(config, httpClient, appDbContext)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
-        }
-
-        private async Task<bool> InitiallizeHttpClient(int tenantId)
-        {
-            try
+            //Use if tenant server api is updated with proper routes
+            /*if (_httpClient.BaseAddress != null)
             {
-                Tenant? tenant = await _appDbContext.Tenants
-                .Where(t => t.Id == tenantId)
-                .FirstAsync();
-                if (tenant != null)
-                {
-                    if(tenant.ApiBaseUrl != null && tenant.ApiBasePort != null)
-                    {
-                        string? apiUrl = tenant.ApiBaseUrl + ":" + tenant.ApiBasePort;
-                        if (apiUrl != null && Uri.TryCreate(apiUrl, UriKind.Absolute, out var baseUri))
-                        {
-                            _httpClient.BaseAddress = baseUri;
-                            return true;
-                        }
-                        if (!string.IsNullOrEmpty(tenant.ApiKey))
-                        {
-                            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("apikey", tenant.ApiKey);
-                        }
-                        else
-                        {
-                            Console.WriteLine("API key is not set for tenant.");
-                            return false;
-                        }
-                    }
-                }
+                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Job/");
             }
-            catch (Exception)
+            else
             {
-                Console.WriteLine("Error initializing API HttpClient.");
-            }
-            return false;
+                throw new InvalidOperationException("BaseAddress is not set.");
+            }*/
         }
 
         public async Task<bool> CreateJobAsync(int tenantId, DeviceJob job)
