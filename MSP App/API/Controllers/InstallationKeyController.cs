@@ -31,15 +31,22 @@ namespace API.Controllers
                 {
                     return NotFound("Tenant not found.");
                 }
-                if (!Enum.IsDefined(typeof(InstallationKeyType), request.Type))
+                if(request.Type == null)
                 {
-                    return BadRequest("Invalid Log Type.");
+                    return BadRequest("InstallationKey Type is required.");
+                }
+                if (request.Type.HasValue)
+                {
+                    if (!Enum.IsDefined(typeof(InstallationKeyType), request.Type.Value))
+                    {
+                        return BadRequest("Invalid InstallationKey Type.");
+                    }
                 }
                 InstallationKey? installationKey = new InstallationKey
                 {
                     Key = Guid.NewGuid().ToString(),
                     TenantId = request.TenantId,
-                    Type = request.Type,
+                    Type = request.Type.Value,
                     IsActive = true,
                     IsDeleted = false
                 };

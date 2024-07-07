@@ -10,6 +10,6 @@ namespace SharedComponents.WebRequestEntities.InstallationKeyRequests
     public class InstallationKeyCreateRequest
     {
         public int TenantId { get; set; }
-        public InstallationKeyType Type { get; set; }
+        public InstallationKeyType? Type { get; set; }
     }
 }
