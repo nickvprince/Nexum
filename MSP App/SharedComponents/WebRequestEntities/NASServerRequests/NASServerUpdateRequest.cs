@@ -13,6 +13,5 @@ namespace SharedComponents.WebRequestEntities.NASServerRequests
         public string? Path { get; set; }
         public string? NASUsername { get; set; }
         public string? NASPassword { get; set; }
-        public int BackupServerId { get; set; }
     }
 }

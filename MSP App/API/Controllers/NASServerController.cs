@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
+using SharedComponents.RequestEntities.HTTP;
+using SharedComponents.ResponseEntities.HTTP;
+using SharedComponents.Utilities;
 using SharedComponents.WebRequestEntities.NASServerRequests;
 
 namespace API.Controllers
@@ -13,11 +16,15 @@ namespace API.Controllers
     {
         private readonly DbNASServerService _dbNASServerService;
         private readonly DbJobService _dbJobService;
+        private readonly DbTenantService _dbTenantService;
+        private readonly HTTPNASServerService _httpNASServerService;
 
-        public NASServerController(DbNASServerService dbNASServerService, DbJobService dbJobService)
+        public NASServerController(DbNASServerService dbNASServerService, DbJobService dbJobService, DbTenantService dbTenantService, HTTPNASServerService httpNASServerService)
         {
             _dbNASServerService = dbNASServerService;
             _dbJobService = dbJobService;
+            _dbTenantService = dbTenantService;
+            _httpNASServerService = httpNASServerService;
         }
 
         [HttpPost("")]
@@ -25,19 +32,39 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
+                Tenant? tenant = await _dbTenantService.GetAsync(request.TenantId);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
                 NASServer? nasServer = new NASServer
                 {
                     Name = request.Name,
-                    //NASUsername = request.NASUsername,
-                    //NASPassword = request.NASPassword,
                     Path = request.Path,
-                    BackupServerId = request.BackupServerId,
-                    TenantId = request.TenantId
+                    TenantId = tenant.Id
                 };
                 nasServer = await _dbNASServerService.CreateAsync(nasServer);
                 if (nasServer != null)
                 {
-                    return Ok(nasServer);
+                    CreateNASServerRequest serverRequest = new CreateNASServerRequest
+                    {
+                        Name = nasServer.Name,
+                        Path = nasServer.Path,
+                        NASUsername = request.NASUsername,
+                        NASPassword = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(tenant.ApiKey, tenant.ApiKeyServer),request.NASPassword)
+                    };
+                    CreateNASServerResponse? serverResponse = await _httpNASServerService.CreateAsync(tenant.Id, serverRequest);
+                    if (serverResponse != null)
+                    {
+                        nasServer.BackupServerId = serverResponse.Id;
+                        nasServer = await _dbNASServerService.UpdateAsync(nasServer);
+                        if (nasServer != null)
+                        {
+                            return Ok(nasServer);
+                        }
+                        return BadRequest("An error occurred while updating the NAS Server.");
+                    }
+                    return BadRequest("An error occurred while creating the NAS Server on the tenant server.");
                 }
                 return BadRequest("An error occurred while creating the NAS Server.");
             }
@@ -55,14 +82,24 @@ namespace API.Controllers
                     return NotFound("NAS Server not found.");
                 }
                 nasServer.Name = request.Name;
-                //nasServer.NASUsername = request.NASUsername;
-                //nasServer.NASPassword = request.NASPassword;
                 nasServer.Path = request.Path;
-                nasServer.BackupServerId = request.BackupServerId;
                 nasServer = await _dbNASServerService.UpdateAsync(nasServer);
                 if (nasServer != null)
                 {
-                    return Ok(nasServer);
+                    UpdateNASServerRequest serverRequest = new UpdateNASServerRequest
+                    {
+                        Id = nasServer.BackupServerId,
+                        Name = nasServer.Name,
+                        Path = nasServer.Path,
+                        NASUsername = request.NASUsername,
+                        NASPassword = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(nasServer.Tenant.ApiKey, nasServer.Tenant.ApiKeyServer), request.NASPassword)
+                    };
+                    bool? serverResponse = await _httpNASServerService.UpdateAsync(nasServer.TenantId, serverRequest);
+                    if (serverResponse == true)
+                    {
+                        return Ok(nasServer);
+                    }
+                    return BadRequest("An error occurred while updating the NAS Server on the tenant server.");
                 }
                 return BadRequest("An error occurred while updating the NAS Server.");
             }
@@ -92,6 +129,7 @@ namespace API.Controllers
                 }
                 if (await _dbNASServerService.DeleteAsync(id))
                 {
+                    //Delete NAS Server on tenant server here
                     return Ok("NAS Server deleted.");
                 }
                 return BadRequest("An error occurred while deleting the NAS Server.");
