@@ -6,6 +6,7 @@ using SharedComponents.Entities;
 using SharedComponents.RequestEntities;
 using SharedComponents.ResponseEntities;
 using SharedComponents.Utilities;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -53,26 +54,41 @@ namespace API.Controllers
             {
                 string? apiUrl;
                 string? webUrl;
+                string? apiUrlLocal;
+                string? webUrlLocal;
                 using (var client = new HttpClient())
                 {
                     try
                     {
-                        string? wanIpAddress = await client.GetStringAsync("http://api.ipify.org");
+                        string? wanIpAddress = await URLUtilities.GetConnectedWANAddress();
                         apiUrl = wanIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
                         webUrl = wanIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
                     }
                     catch (Exception ex)
                     {
-                        // Handle exceptions
                         return BadRequest("Unable to determine public IP address");
+                    }
+                    try
+                    {
+                        string? localIpAddress = URLUtilities.GetConnectedIPv4Address();
+                        apiUrlLocal = localIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
+                        webUrlLocal = localIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest("Unable to determine local IP address");
                     }
                 }
                 UrlResponse response = new UrlResponse
                 {
                     PortalUrl = webUrl + "/Account/login",
+                    PortalUrlLocal = webUrlLocal + "/Account/login",
                     NexumUrl = apiUrl + "/Software/Nexum",
+                    NexumUrlLocal = apiUrlLocal + "/Software/Nexum",
                     NexumServerUrl = apiUrl + "/Software/NexumServer",
-                    NexumServiceUrl = apiUrl + "/Software/NexumService"
+                    NexumServerUrlLocal = apiUrlLocal + "/Software/NexumServer",
+                    NexumServiceUrl = apiUrl + "/Software/NexumService",
+                    NexumServiceUrlLocal = apiUrlLocal + "/Software/NexumService"
                 };
                 return Ok(response);
             }
