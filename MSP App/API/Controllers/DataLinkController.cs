@@ -122,7 +122,7 @@ namespace API.Controllers
                     return Unauthorized("Inactive Installation Key.");
                 }
 
-                if (installationKey.Type != InstallationKeyType.Device || installationKey.Type != InstallationKeyType.Server)
+                if (installationKey.Type != InstallationKeyType.Device && installationKey.Type != InstallationKeyType.Server)
                 {
                     return Unauthorized("Invalid Installation Key Type.");
                 }
@@ -155,11 +155,11 @@ namespace API.Controllers
                             return BadRequest("Server already exists.");
                         }
                     }
-                    if (request.ApiBaseUrl == null || request.ApiBasePort == null)
+                    if (string.IsNullOrEmpty(request.ApiBaseUrl) || request.ApiBasePort == null)
                     {
                         return BadRequest("Invalid API Base URL or Port.");
                     }
-                    if(request.ApiKey == null)
+                    if (string.IsNullOrEmpty(request.ApiKey))
                     {
                         return BadRequest("Invalid Server API Key.");
                     }
