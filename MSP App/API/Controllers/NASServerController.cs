@@ -129,7 +129,6 @@ namespace API.Controllers
                 }
                 if (await _dbNASServerService.DeleteAsync(id))
                 {
-                    //Delete NAS Server on tenant server here
                     DeleteNASServerRequest serverRequest = new DeleteNASServerRequest
                     {
                         Id = nasServer.BackupServerId
