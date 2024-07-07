@@ -554,7 +554,7 @@ namespace API.Controllers
                     Client_Id = device.DeviceInfo.ClientId,
                     Uuid = device.DeviceInfo.Uuid,
                     TenantId = tenant.Id,
-                    Filename = request.Name,
+                    Filename = request.Filename,
                     Path = request.Path,
                     Date = request.Date,
                     NASServerId = nasServer.Id
