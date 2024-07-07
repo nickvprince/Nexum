@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.JobRequests;
+using SharedComponents.WebEntities.Requests.JobRequests;
 
 namespace API.Controllers
 {

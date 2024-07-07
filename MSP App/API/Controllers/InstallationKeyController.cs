@@ -3,7 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.InstallationKeyRequests;
+using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
 
 namespace API.Controllers
 {

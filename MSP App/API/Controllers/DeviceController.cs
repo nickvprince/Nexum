@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.ResponseEntities;
-using SharedComponents.WebRequestEntities.DeviceRequests;
+using SharedComponents.WebEntities.Requests.DeviceRequests;
 
 namespace API.Controllers
 {

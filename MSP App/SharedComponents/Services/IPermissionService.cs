@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.PermissionRequests;
+using SharedComponents.WebEntities.Requests.PermissionRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

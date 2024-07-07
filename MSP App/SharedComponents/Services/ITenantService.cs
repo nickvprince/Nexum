@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.TenantRequests;
+using SharedComponents.WebEntities.Requests.TenantRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

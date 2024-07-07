@@ -28,7 +28,7 @@ namespace API.DataAccess
             // if username doesn't exist, create it and add it to role
             if (await userManager.FindByNameAsync(username) == null)
             {
-                adminUser = new ApplicationUser { UserName = username, FirstName = username };
+                adminUser = new ApplicationUser { UserName = username, FirstName = username, Type = AccountType.MSP };
                 var result = await userManager.CreateAsync(adminUser, password);
                 if (!result.Succeeded)
                 {
@@ -43,7 +43,7 @@ namespace API.DataAccess
             ApplicationUser? normalUser = null;
             if (await userManager.FindByNameAsync(username2) == null)
             {
-                normalUser = new ApplicationUser { UserName = username2, FirstName = username2 };
+                normalUser = new ApplicationUser { UserName = username2, FirstName = username2, Type = AccountType.MSP };
                 var result = await userManager.CreateAsync(normalUser, password2);
                 if (!result.Succeeded)
                 {
@@ -250,6 +250,11 @@ namespace API.DataAccess
             modelBuilder.Entity<InstallationKey>()
                 .Property(ik => ik.Type)
                 .HasConversion<string>();
+
+            // Configure the AccountType enum to be stored as a string
+            modelBuilder.Entity<ApplicationUser>()
+                .Property(u => u.Type)
+                .HasConversion<string>();
         }
         private static void SeedData(IServiceProvider serviceProvider, string adminUserId, string normalUserId)
         {
@@ -260,9 +265,9 @@ namespace API.DataAccess
                     return; // DB has been seeded
                 }
                 // Add Tenants first to get the generated IDs
-                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
-                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
-                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost:1111", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
 
                 context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();

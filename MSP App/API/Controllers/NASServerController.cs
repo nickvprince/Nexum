@@ -5,7 +5,7 @@ using SharedComponents.Entities;
 using SharedComponents.RequestEntities.HTTP;
 using SharedComponents.ResponseEntities.HTTP;
 using SharedComponents.Utilities;
-using SharedComponents.WebRequestEntities.NASServerRequests;
+using SharedComponents.WebEntities.Requests.NASServerRequests;
 
 namespace API.Controllers
 {

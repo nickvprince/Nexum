@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.NASServerRequests;
+using SharedComponents.WebEntities.Requests.NASServerRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

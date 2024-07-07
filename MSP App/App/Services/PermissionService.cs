@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.PermissionRequests;
+using SharedComponents.WebEntities.Requests.PermissionRequests;
 using System.Text;
 
 namespace App.Services

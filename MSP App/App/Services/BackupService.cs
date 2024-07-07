@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.BackupRequests;
+using SharedComponents.WebEntities.Requests.BackupRequests;
 using System.Text;
 
 namespace App.Services

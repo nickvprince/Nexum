@@ -3,7 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.BackupRequests;
+using SharedComponents.WebEntities.Requests.BackupRequests;
 
 namespace API.Controllers
 {

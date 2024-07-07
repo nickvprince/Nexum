@@ -1,6 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.DeviceRequests;
-using SharedComponents.WebRequestEntities.JobRequests;
+using SharedComponents.WebEntities.Requests.JobRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

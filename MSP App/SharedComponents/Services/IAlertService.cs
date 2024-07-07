@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.AlertRequests;
+using SharedComponents.WebEntities.Requests.AlertRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

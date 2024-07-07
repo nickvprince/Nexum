@@ -1,6 +1,5 @@
 ﻿using SharedComponents.RequestEntities.HTTP;
 using SharedComponents.ResponseEntities.HTTP;
-using SharedComponents.WebRequestEntities.NASServerRequests;
 
 namespace API.Services.Interfaces
 {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.AlertRequests;
+using SharedComponents.WebEntities.Requests.AlertRequests;
 
 namespace API.Controllers
 {

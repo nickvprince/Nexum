@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.LogRequests;
+using SharedComponents.WebEntities.Requests.LogRequests;
 using System.Text;
 
 namespace App.Services

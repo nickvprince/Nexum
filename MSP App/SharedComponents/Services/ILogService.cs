@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.LogRequests;
+using SharedComponents.WebEntities.Requests.LogRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.InstallationKeyRequests;
+using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
 using System.Text;
 
 namespace App.Services

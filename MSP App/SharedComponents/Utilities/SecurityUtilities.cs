@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -103,6 +104,17 @@ namespace SharedComponents.Utilities
                     }
                 }
             }
+        }
+        public static string? GenerateDefaultRandomPassword()
+        {
+            string password = "Nexum";
+            Random random = new Random();
+            for (int i = 0; i < 3; i++)
+            {
+                password += (int)random.Next(0, 9);
+            }
+            password += "!";
+            return password;
         }
     }
 }
