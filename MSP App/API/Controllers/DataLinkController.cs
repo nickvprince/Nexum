@@ -689,7 +689,7 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpDelete("Uninstall")]
+        [HttpPost("Uninstall")]
         public async Task<IActionResult> UninstallAsync([FromHeader] string apikey, [FromBody] UninstallRequest request)
         {
             if (await _dbSecurityService.ValidateAPIKey(apikey))
