@@ -71,7 +71,7 @@ namespace API.Services
                 if (await InitiallizeHttpClient(tenantId))
                 {
                     var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                    var response = await _httpClient.PostAsync($"delete_smb/", content);
+                    var response = await _httpClient.PostAsync($"delete_smb", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
                     return true;
@@ -80,6 +80,25 @@ namespace API.Services
             catch (Exception)
             {
                 Console.WriteLine("Error deleting NAS server on the server.");
+            }
+            return null;
+        }
+
+        public async Task<GetNASServerResponse?> GetAsync(int tenantId, int id)
+        {
+            try
+            {
+                if (await InitiallizeHttpClient(tenantId))
+                {
+                    var response = await _httpClient.GetAsync($"get_smb/{id}");
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    return JsonConvert.DeserializeObject<GetNASServerResponse>(responseData);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting NAS server from the server.");
             }
             return null;
         }
