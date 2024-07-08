@@ -51,7 +51,7 @@ namespace API.Services
                 if (await InitiallizeHttpClient(tenantId))
                 {
                     var content = new StringContent(JsonConvert.SerializeObject(job, new InvalidJsonUtilities()), Encoding.UTF8, "application/json");
-                    var response = await _httpClient.PutAsync("modify_job", content);
+                    var response = await _httpClient.PostAsync("modify_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
                     return true;
