@@ -64,11 +64,11 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> StartJobAsync(int client_Id)
+        public async Task<bool> StartJobAsync(int tenantId, int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(client_Id))
+                if (await InitiallizeHttpClient(tenantId))
                 {
                     var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("start_job", content);
@@ -84,11 +84,11 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> StopJobAsync(int client_Id)
+        public async Task<bool> StopJobAsync(int tenantId, int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(client_Id))
+                if (await InitiallizeHttpClient(tenantId))
                 {
                     var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("kill_job", content);
@@ -104,11 +104,11 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> ResumeJobAsync(int client_Id)
+        public async Task<bool> ResumeJobAsync(int tenantId, int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(client_Id))
+                if (await InitiallizeHttpClient(tenantId))
                 {
                     var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("enable_job", content);
@@ -124,11 +124,11 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> PauseJobAsync(int client_Id)
+        public async Task<bool> PauseJobAsync(int tenantId, int client_Id)
         {
             try
             {
-                if (await InitiallizeHttpClient(client_Id))
+                if (await InitiallizeHttpClient(tenantId))
                 {
                     var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("stop_job", content);
@@ -140,6 +140,25 @@ namespace API.Services
             catch (Exception)
             {
                 Console.WriteLine("Error pausing job on the server.");
+            }
+            return false;
+        }
+        //bool because cannot deserialize tenant server response
+        public async Task<bool> GetJobAsync(int tenantId, int client_Id)
+        {
+            try
+            {
+                if (await InitiallizeHttpClient(tenantId))
+                {
+                    var response = await _httpClient.GetAsync($"get_job/{client_Id}");
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting job from the server.");
             }
             return false;
         }
