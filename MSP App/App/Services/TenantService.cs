@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.TenantRequests;
+using SharedComponents.WebEntities.Requests.TenantRequests;
 using System.Text;
 
 namespace App.Services

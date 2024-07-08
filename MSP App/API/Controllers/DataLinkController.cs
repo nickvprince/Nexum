@@ -6,6 +6,7 @@ using SharedComponents.Entities;
 using SharedComponents.RequestEntities;
 using SharedComponents.ResponseEntities;
 using SharedComponents.Utilities;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -21,14 +22,17 @@ namespace API.Controllers
         private readonly DbAlertService _dbAlertService;
         private readonly DbLogService _dbLogService;
         private readonly DbInstallationKeyService _dbInstallationKeyService;
+        private readonly DbJobService _dbJobService;
+        private readonly DbBackupService _dbBackupService;
+        private readonly DbNASServerService _dbNASServerService;
         private readonly IConfiguration _config;
-        private readonly string _apiBaseUrl;
-        private readonly string _webAppBaseUrl;
 
         public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, 
             DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, 
             DbAlertService dbAlertService, DbLogService dbLogService,
-            DbInstallationKeyService dbInstallationKeyService, IConfiguration config)
+            DbInstallationKeyService dbInstallationKeyService, DbJobService dbJobService,
+            DbBackupService dbBackupService, DbNASServerService dbNASServerService,
+            IConfiguration config)
         {
             _dbTenantService = dbTenantService;
             _dbDeviceService = dbDeviceService;
@@ -37,11 +41,10 @@ namespace API.Controllers
             _dbAlertService = dbAlertService;
             _dbLogService = dbLogService;
             _dbInstallationKeyService = dbInstallationKeyService;
+            _dbJobService = dbJobService;
+            _dbBackupService = dbBackupService;
+            _dbNASServerService = dbNASServerService;
             _config = config;
-            _apiBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBaseUri") + ":" +
-                          _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
-            _webAppBaseUrl = _config.GetSection("ApiAppSettings")?.GetValue<string>("BaseUri") + ":" +
-                             _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
         }
 
         [HttpGet("Urls")]
@@ -49,12 +52,43 @@ namespace API.Controllers
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
             {
+                string? apiUrl;
+                string? webUrl;
+                string? apiUrlLocal;
+                string? webUrlLocal;
+                using (var client = new HttpClient())
+                {
+                    try
+                    {
+                        string? wanIpAddress = await URLUtilities.GetConnectedWANAddress();
+                        apiUrl = wanIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
+                        webUrl = wanIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest("Unable to determine public IP address");
+                    }
+                    try
+                    {
+                        string? localIpAddress = URLUtilities.GetConnectedIPv4Address();
+                        apiUrlLocal = localIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("APIBasePort") + "/api";
+                        webUrlLocal = localIpAddress + ":" + _config.GetSection("ApiAppSettings")?.GetValue<string>("BasePort");
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest("Unable to determine local IP address");
+                    }
+                }
                 UrlResponse response = new UrlResponse
                 {
-                    PortalUrl = _webAppBaseUrl + "/Account/login",
-                    NexumUrl = _apiBaseUrl + "/Software/Nexum",
-                    NexumServerUrl = _apiBaseUrl + "/Software/NexumServer",
-                    NexumServiceUrl = _apiBaseUrl + "/Software/NexumService"
+                    PortalUrl = webUrl + "/Account/login",
+                    PortalUrlLocal = webUrlLocal + "/Account/login",
+                    NexumUrl = apiUrl + "/Software/Nexum",
+                    NexumUrlLocal = apiUrlLocal + "/Software/Nexum",
+                    NexumServerUrl = apiUrl + "/Software/NexumServer",
+                    NexumServerUrlLocal = apiUrlLocal + "/Software/NexumServer",
+                    NexumServiceUrl = apiUrl + "/Software/NexumService",
+                    NexumServiceUrlLocal = apiUrlLocal + "/Software/NexumService"
                 };
                 return Ok(response);
             }
@@ -88,6 +122,11 @@ namespace API.Controllers
                     return Unauthorized("Inactive Installation Key.");
                 }
 
+                if (installationKey.Type != InstallationKeyType.Device && installationKey.Type != InstallationKeyType.Server)
+                {
+                    return Unauthorized("Invalid Installation Key Type.");
+                }
+
                 if (!Enum.IsDefined(typeof(DeviceType), request.Type))
                 {
                     return BadRequest("Invalid Device Type.");
@@ -104,6 +143,10 @@ namespace API.Controllers
                 }
                 if (request.Type == DeviceType.Server)
                 {
+                    if(installationKey.Type != InstallationKeyType.Server)
+                    {
+                        return Unauthorized("Invalid Installation Key Type.");
+                    }
                     if (devices != null)
                     {
                         Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
@@ -112,12 +155,26 @@ namespace API.Controllers
                             return BadRequest("Server already exists.");
                         }
                     }
-                    if (request.ApiBaseUrl == null || request.ApiBasePort == null)
+                    if (string.IsNullOrEmpty(request.ApiBaseUrl) || request.ApiBasePort == null)
                     {
                         return BadRequest("Invalid API Base URL or Port.");
                     }
+                    if (string.IsNullOrEmpty(request.ApiKey))
+                    {
+                        return BadRequest("Invalid Server API Key.");
+                    }
+                    ICollection<Tenant>? tenants = await _dbTenantService.GetAllAsync();
+                    if (tenants != null)
+                    {
+                        Tenant? existingTenant = tenants.FirstOrDefault(t => t.ApiKeyServer == request.ApiKey);
+                        if (existingTenant != null)
+                        {
+                            return BadRequest("This ApiKey is already assigned");
+                        }
+                    }
                     tenant.ApiBaseUrl = request.ApiBaseUrl;
                     tenant.ApiBasePort = request.ApiBasePort;
+                    tenant.ApiKeyServer = request.ApiKey;
                     tenant = await _dbTenantService.UpdateAsync(tenant);
                     if (tenant == null)
                     {
@@ -126,6 +183,10 @@ namespace API.Controllers
                 }
                 else
                 {
+                    if (installationKey.Type != InstallationKeyType.Device)
+                    {
+                        return Unauthorized("Invalid Installation Key Type.");
+                    }
                     if (devices != null)
                     {
                         Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
@@ -303,7 +364,7 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpPut("Update")]
+        [HttpPut("Update-Device")]
         public async Task<IActionResult> UpdateAsync([FromHeader] string apikey, [FromBody] UpdateDeviceRequest request)
         {
             if(await _dbSecurityService.ValidateAPIKey(apikey))
@@ -360,8 +421,8 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
-        [HttpPut("Update-Status")]
-        public async Task<IActionResult> UpdateStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
+        [HttpPut("Update-Device-Status")]
+        public async Task<IActionResult> UpdateDeviceStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
         {
             if (await _dbSecurityService.ValidateAPIKey(apikey))
             {
@@ -401,6 +462,117 @@ namespace API.Controllers
                     return Ok(response);
                 }
                 return BadRequest("An error occurred while updating the device status.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpPut("Update-Job-Status")]
+        public async Task<IActionResult> UpdateJobStatusAsync([FromHeader] string apikey, [FromBody] UpdateJobStatusRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+                ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByDeviceIdAsync(device.Id);
+                if (jobs == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                // select the first job (because Tenant Server can only accept 1 job with an id of 0)
+                DeviceJob? job = jobs.FirstOrDefault();
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (!Enum.IsDefined(typeof(DeviceJobStatus), request.Status))
+                {
+                    return BadRequest("Invalid Job Status.");
+                }
+                job.Status = request.Status;
+                job = await _dbJobService.UpdateAsync(job);
+                if (job != null)
+                {
+                    if(job.Settings != null)
+                    {
+                        UpdateJobStatusResponse response = new UpdateJobStatusResponse
+                        {
+                            Name = device.DeviceInfo?.Name,
+                            Type = EnumUtilities.EnumToString(job.Settings.Type),
+                            Status = EnumUtilities.EnumToString(job.Status),
+                            Progress = job.Progress
+                        };
+                        return Ok(response);
+                    }
+                }
+                return BadRequest("An error occurred while updating the job status.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpPost("Backup")]
+        public async Task<IActionResult> BackupAsync([FromHeader] string apikey, [FromBody] CreateBackupRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                NASServer? nasServer = await _dbNASServerService.GetByBackupServerIdAsync(tenant.Id, request.BackupServerId);
+                if (nasServer == null)
+                {
+                    return NotFound("NAS Server not found.");
+                }
+
+                DeviceBackup? backup = new DeviceBackup
+                {
+                    Client_Id = device.DeviceInfo.ClientId,
+                    Uuid = device.DeviceInfo.Uuid,
+                    TenantId = tenant.Id,
+                    Filename = request.Filename,
+                    Path = request.Path,
+                    Date = request.Date,
+                    NASServerId = nasServer.Id
+                };
+
+                backup = await _dbBackupService.CreateAsync(backup);
+                if (backup != null)
+                {
+                    CreateBackupResponse response = new CreateBackupResponse
+                    {
+                        NASServerName = nasServer.Name,
+                        Filename = backup.Filename,
+                        Path = backup.Path,
+                        Date = backup.Date
+                    };
+                    return Ok(response);
+                }
+                return BadRequest("An error occurred while creating the backup.");
             }
             return Unauthorized("Invalid API Key.");
         }
@@ -513,6 +685,73 @@ namespace API.Controllers
                     return Ok(response);
                 }
                 return BadRequest("An error occurred while creating the log.");
+            }
+            return Unauthorized("Invalid API Key.");
+        }
+
+        [HttpDelete("Uninstall")]
+        public async Task<IActionResult> UninstallAsync([FromHeader] string apikey, [FromBody] UninstallRequest request)
+        {
+            if (await _dbSecurityService.ValidateAPIKey(apikey))
+            {
+                Tenant? tenant = await _dbTenantService.GetByApiKeyAsync(apikey);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+
+                Device? device = await _dbDeviceService.GetByClientIdAndUuidAsync(tenant.Id, request.Client_Id, request.Uuid);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+
+                if (device.TenantId != tenant.Id)
+                {
+                    return Unauthorized("Invalid Device.");
+                }
+
+                InstallationKey? installationKey = await _dbInstallationKeyService.GetByInstallationKeyAsync(request.UninstallationKey);
+                if (installationKey == null)
+                {
+                    return Unauthorized("Invalid Uninstallation Key.");
+                }
+
+                if (installationKey.TenantId != tenant.Id || installationKey.Type != InstallationKeyType.Uninstall)
+                {
+                    return Unauthorized("Invalid Uninstallation Key.");
+                }
+
+                if (!installationKey.IsActive || installationKey.IsDeleted)
+                {
+                    return Unauthorized("Inactive Uninstallation Key.");
+                }
+
+                if (device.DeviceInfo != null)
+                {
+                    if (device.DeviceInfo.Type == DeviceType.Server)
+                    {
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(tenant.Id);
+                        if (devices != null)
+                        {
+                            Device? nonServerDevice = devices.FirstOrDefault(d => d.DeviceInfo!.Type != DeviceType.Server);
+                            if (nonServerDevice != null)
+                            {
+                                return BadRequest("Cannot uninstall a server while other devices exist.");
+                            }
+                        }
+                    }
+                    if(await _dbDeviceService.DeleteAsync(device.Id))
+                    {
+                        installationKey.IsActive = false;
+                        installationKey = await _dbInstallationKeyService.UpdateAsync(installationKey);
+                        if (installationKey != null)
+                        {
+                            return Ok("Device uninstalled.");
+                        }
+                    }
+                }
+                return BadRequest("An error occurred while uninstalling the device.");
             }
             return Unauthorized("Invalid API Key.");
         }

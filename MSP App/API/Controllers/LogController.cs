@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.LogRequests;
+using SharedComponents.WebEntities.Requests.LogRequests;
 
 namespace API.Controllers
 {

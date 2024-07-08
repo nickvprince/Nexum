@@ -3,7 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.RoleRequests;
+using SharedComponents.WebEntities.Requests.RoleRequests;
 
 namespace API.Controllers
 {
@@ -117,7 +117,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser? user = await _dbUserService.GetAsync(userId);
+                ApplicationUser? user = await _dbUserService.GetByIdAsync(userId);
                 if (user == null)
                 {
                     return NotFound("User not found.");
@@ -137,7 +137,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser? user = await _dbUserService.GetAsync(userId);
+                ApplicationUser? user = await _dbUserService.GetByIdAsync(userId);
                 if (user == null)
                 {
                     return NotFound("User not found.");
@@ -177,7 +177,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser? user = await _dbUserService.GetAsync(request.UserId);
+                ApplicationUser? user = await _dbUserService.GetByIdAsync(request.UserId);
                 if (user == null)
                 {
                     return NotFound("User not found.");
@@ -215,7 +215,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser? user = await _dbUserService.GetAsync(request.UserId);
+                ApplicationUser? user = await _dbUserService.GetByIdAsync(request.UserId);
                 if (user == null)
                 {
                     return NotFound("User not found.");

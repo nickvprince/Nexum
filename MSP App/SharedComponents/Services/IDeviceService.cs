@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.DeviceRequests;
+using SharedComponents.WebEntities.Requests.DeviceRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

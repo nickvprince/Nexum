@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.AlertRequests;
+using SharedComponents.WebEntities.Requests.AlertRequests;
 using System.Text;
 
 namespace App.Services

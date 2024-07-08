@@ -1,5 +1,5 @@
 ﻿using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.InstallationKeyRequests;
+using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

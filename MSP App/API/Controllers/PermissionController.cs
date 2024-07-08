@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.PermissionRequests;
+using SharedComponents.WebEntities.Requests.PermissionRequests;
 
 namespace API.Controllers
 {

@@ -19,11 +19,11 @@ namespace API.Services
             {
                 try
                 {
-                    await _appDbContext.Alerts.AddAsync(alert);
+                    await _appDbContext.DeviceAlerts.AddAsync(alert);
                     var result = await _appDbContext.SaveChangesAsync();
                     if (result > 0)
                     {
-                        return await _appDbContext.Alerts
+                        return await _appDbContext.DeviceAlerts
                             .Where(a => a.Id == alert.Id)
                             .FirstAsync();
                     }
@@ -43,7 +43,7 @@ namespace API.Services
             {
                 try
                 {
-                    var existingAlert = await _appDbContext.Alerts
+                    var existingAlert = await _appDbContext.DeviceAlerts
                         .Where(a => a.Id == alert.Id)
                         .FirstAsync();
                     if (existingAlert != null)
@@ -53,7 +53,7 @@ namespace API.Services
                         var result = await _appDbContext.SaveChangesAsync();
                         if (result >= 0)
                         {
-                            return await _appDbContext.Alerts
+                            return await _appDbContext.DeviceAlerts
                                 .Where(a => a.Id == alert.Id)
                                 .FirstAsync();
                         }
@@ -71,13 +71,13 @@ namespace API.Services
         {
             try
             {
-                var alert = await _appDbContext.Alerts
+                var alert = await _appDbContext.DeviceAlerts
                     .Where(i => i.Id == id)
                     .FirstAsync();
                 if (alert != null)
                 {
                     alert.IsDeleted = true;
-                    _appDbContext.Alerts.Update(alert);
+                    _appDbContext.DeviceAlerts.Update(alert);
                     var result = await _appDbContext.SaveChangesAsync();
                     if (result > 0)
                     {
@@ -96,7 +96,7 @@ namespace API.Services
         {
             try 
             {
-                var alerts = await _appDbContext.Alerts
+                var alerts = await _appDbContext.DeviceAlerts
                     .Where(a => a.Id == id)
                     .FirstAsync();
                 if (alerts != null)
@@ -115,7 +115,7 @@ namespace API.Services
         {
             try
             {
-                var alerts = await _appDbContext.Alerts.ToListAsync();
+                var alerts = await _appDbContext.DeviceAlerts.ToListAsync();
                 if (alerts != null)
                 {
                     if (alerts.Any())
@@ -135,7 +135,7 @@ namespace API.Services
         {
             try
             {
-                var alerts = await _appDbContext.Alerts
+                var alerts = await _appDbContext.DeviceAlerts
                     .Where(a => a.DeviceId == deviceId)
                     .ToListAsync();
                 if (alerts != null)
@@ -157,7 +157,7 @@ namespace API.Services
         {
             try
             {
-                var alerts = await _appDbContext.Alerts
+                var alerts = await _appDbContext.DeviceAlerts
                     .Where(a => a.Device.TenantId == tenantId)
                     .ToListAsync();
                 if (alerts != null)

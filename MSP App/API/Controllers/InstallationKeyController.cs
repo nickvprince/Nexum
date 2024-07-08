@@ -3,7 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.InstallationKeyRequests;
+using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
 
 namespace API.Controllers
 {
@@ -31,10 +31,29 @@ namespace API.Controllers
                 {
                     return NotFound("Tenant not found.");
                 }
-                InstallationKey? newInstallationKey = await _dbInstallationKeyService.CreateAsync(request.TenantId);
-                if (newInstallationKey != null)
+                if(request.Type == null)
                 {
-                    return Ok(newInstallationKey);
+                    return BadRequest("InstallationKey Type is required.");
+                }
+                if (request.Type.HasValue)
+                {
+                    if (!Enum.IsDefined(typeof(InstallationKeyType), request.Type.Value))
+                    {
+                        return BadRequest("Invalid InstallationKey Type.");
+                    }
+                }
+                InstallationKey? installationKey = new InstallationKey
+                {
+                    Key = Guid.NewGuid().ToString(),
+                    TenantId = request.TenantId,
+                    Type = request.Type.Value,
+                    IsActive = true,
+                    IsDeleted = false
+                };
+                installationKey = await _dbInstallationKeyService.CreateAsync(installationKey);
+                if (installationKey != null)
+                {
+                    return Ok(installationKey);
                 }
                 return BadRequest("An error occurred while creating the installation key.");
             }

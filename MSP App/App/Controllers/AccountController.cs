@@ -3,6 +3,7 @@ using App.Services;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
 using SharedComponents.RequestEntities;
+using SharedComponents.WebEntities.Responses.UserResponses;
 
 namespace App.Controllers
 {
@@ -50,7 +51,7 @@ namespace App.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAsync()
         {
-            ApplicationUser user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
+            UserResponse? user = await _userService.GetByUserNameAsync(HttpContext.Session.GetString("Username"));
             if (user != null)
             {
                 AccountViewModel accountViewModel = new AccountViewModel

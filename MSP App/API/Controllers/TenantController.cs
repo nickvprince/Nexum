@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
-using SharedComponents.WebRequestEntities.TenantRequests;
+using SharedComponents.WebEntities.Requests.TenantRequests;
 
 namespace API.Controllers
 {

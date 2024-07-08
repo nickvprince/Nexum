@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using SharedComponents.WebRequestEntities.RoleRequests;
+using SharedComponents.WebEntities.Requests.RoleRequests;
 using System.Text;
 
 namespace App.Services

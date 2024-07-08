@@ -18,10 +18,12 @@ namespace SharedComponents.Entities
         public string? ApiKey { get; set; }
         public string? ApiBaseUrl { get; set; }
         public int? ApiBasePort { get; set; }
+        public string? ApiKeyServer { get; set; }
         public bool IsActive { get; set; }
         public ICollection<InstallationKey>? InstallationKeys { get; set; }
         public ICollection<Device>? Devices { get; set; }
         [JsonIgnore]
         public ICollection<ApplicationRolePermission>? RolePermissions { get; set; }
+        public ICollection<NASServer>? NASServers { get; set; }
     }
 }
