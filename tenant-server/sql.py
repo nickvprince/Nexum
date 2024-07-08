@@ -215,6 +215,56 @@ class MySqlite():
             (input_id, 5, current_time, 3)) # default missednotify of 3 and default interval of 5
         conn.commit()
         conn.close()
+
+
+    @staticmethod
+    def delete_backup_server(identification:int):
+        """
+        Delete a backup server from the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM backup_servers WHERE id = ?", (identification,))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def edit_backup_server(identification:int, path, username, password, name):
+        """
+        Edit a backup server in the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''UPDATE backup_servers SET path = ?, username = ?, password = ?, name = ? WHERE id = ?''',
+        (path, username, password, name, identification))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def write_backup_server( name, path, username, password):
+        """
+        Write a backup server to the database
+        """
+        # get the next id
+
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT MAX(id) FROM backup_servers''')
+        result = cursor.fetchone()[0]
+        if result is not None:
+            identification = int(result) + 1
+        else:
+            identification = 1
+        conn.close()
+
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''INSERT INTO backup_servers (id, path, username, password, name)
+                    VALUES (?, ?, ?, ?, ?)''',
+                    (identification, path, username, password, name))
+        conn.commit()
+        conn.close()
+        return identification
     @staticmethod
     def get_backup_server(identification:int):
         """
@@ -443,7 +493,7 @@ class InitSql():
             cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
                 (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
                     retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
-                        notifyEmail TEXT, heartbeatInterval TEXT)''')
+                        notifyEmail TEXT, heartbeatInterval TEXT,path TEXT,username TEXT,password TEXT)''')
             # Close connection
             conn.commit()
             conn.close()

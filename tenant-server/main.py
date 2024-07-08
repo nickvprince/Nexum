@@ -42,8 +42,11 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
-    MySqlite.write_setting("apikey","testing123")
+
     init()
+    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
+    MySqlite.write_setting("msp_api","a109ef4c-b611-4aff-ac26-07b86a7161aa")
+    MySqlite.write_setting("version","alpha 1.0.0")
     clients = MySqlite.load_clients()
     l = Logger()
     _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)

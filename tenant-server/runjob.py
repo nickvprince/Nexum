@@ -142,3 +142,10 @@ class RunJob():
         """
         # stop the job
         self.kill_job_var = True
+
+    @staticmethod
+    def get_job():
+        """
+        Gets the job info
+        """
+        return LOCAL_JOB

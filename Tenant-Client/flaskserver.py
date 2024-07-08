@@ -240,8 +240,7 @@ class FlaskServer():
         Triggers the RunJob with the job assigned to this computer
         """
         logger=Logger()
-        # get the json body
-        data = request.get_json()
+
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
 
@@ -263,8 +262,6 @@ class FlaskServer():
         Triggers the stopjob with the job assigned to this computer
         """
         logger=Logger()
-        # get the json body
-        data = request.get_json()
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
         # get the ID from the json body
@@ -341,6 +338,8 @@ class FlaskServer():
             return make_response ("200 OK", 200)
         else:
             return make_response("500 Internal Server Error", 500)
+
+
 # -------------------------------------- PUT ROUTES ------------------------------------------------
 # -------------------------------------- POST ROUTES -----------------------------------------------
     @website.route('/restore', methods=['POST'], )
@@ -381,9 +380,10 @@ class FlaskServer():
 
 
         if FlaskServer.auth(secret, logger, MySqlite.read_setting("CLIENT_ID")) == 200:
-            recieved_job = data.get(MySqlite.read_setting("CLIENT_ID"), '')
+            recieved_job = data.get("0", '')
             # recieve settings as json
             recieved_settings = recieved_job.get('settings', '')
+
 
             job_to_save = Job()
             job_to_save.set_id(MySqlite.read_setting("CLIENT_ID"))
@@ -414,9 +414,12 @@ class FlaskServer():
             job_to_save.set_config(config)
 
             # save the job to the database
-            job_to_save.save()
-            RUN_JOB_OBJECT.set_job(job_to_save)
-            return "200 OK"
+            try:
+                job_to_save.save()
+                RUN_JOB_OBJECT.set_job(job_to_save)
+                return "200 OK"
+            except Exception as e :
+                return make_response("Job exists",200)
         elif FlaskServer.auth(secret, logger, id) == 405:
             return "401 Access Denied"
         else:
