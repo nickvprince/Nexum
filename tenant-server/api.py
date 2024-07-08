@@ -190,3 +190,12 @@ class API():
         Logger.debug_print("Getting update path")
         # call the API from tenant server to get the update path
         return "https://nexum.com/tenant_portal?update=1.27.4"
+
+    @staticmethod
+    def server_beat():
+        """
+        Call the API from tenant server to send the server beat
+        """
+        Logger.debug_print("Sending server beat")
+        # call the API from tenant server to send the server beat
+        return True

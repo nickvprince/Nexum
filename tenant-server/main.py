@@ -31,24 +31,7 @@ def init():
     """
     Initializes the program
     """
-    MySqlite.write_client(0,"Danny-Server","127.0.0.1","5002","Online","AD-0F-4C-AF-DC")
-    MySqlite.write_client(1,"Danny-PC","192.168.1.50","5002","Online","AD-0F-4C-AF-DC")
     InitSql()
-    MySqlite.write_setting("client_secret", "01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
-    MySqlite.write_setting("TENANT_ID","1")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("POLLING_INTERVAL","10")
-    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5002")
-    MySqlite.write_setting("msp-port","7101")
-    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("heartbeat_interval","5")
-    MySqlite.write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
-    MySqlite.add_install_key("JBQDPYQ7310712631DHLSAU8AWY]")
-    MySqlite.add_install_key("LJA;HFLASBFOIASH[jfnW.FJPIH")
-    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
-    MySqlite.write_setting("version","1")
     global LOCAL_JOB
     LOCAL_JOB.load(0)
     Security.load_tenant_secret()
@@ -59,10 +42,14 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
+
     init()
+    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
+    MySqlite.write_setting("msp_api","a109ef4c-b611-4aff-ac26-07b86a7161aa")
+    MySqlite.write_setting("version","alpha 1.0.0")
     clients = MySqlite.load_clients()
     l = Logger()
-    H = HeartBeat(Security.get_client_secret(), 10,clients)
+    _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
@@ -72,9 +59,9 @@ def main():
     # log a message
 
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    MySqlite.write_setting("Status","running")
     f = FlaskServer()
     f.run()
 
 if __name__ == "__main__":
-
     main()

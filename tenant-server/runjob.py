@@ -63,17 +63,13 @@ class RunJob():
                 # check response for what happened
                 self.job_running_var = False
                 # set job status to killed
-                new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-                new_client = list(new_client)
-                new_client.remove(new_client[4])
-                new_client.insert(4,"idle")
-                MySqlite.update_client(new_client)
+                MySqlite.write_setting("status","Idle")
 
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
-               # command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
-                command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
+                command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                #command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
 
                 url = 'http://127.0.0.1:5004/start_job_service'
                 body = {
@@ -88,12 +84,7 @@ class RunJob():
                     Logger.debug_print("Error: "+str(e))
                 # check response for what happened
                 # set job status to running
-                
-                new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-                new_client = list(new_client)
-                new_client.remove(new_client[4])
-                new_client.insert(4,"running")
-                MySqlite.update_client(new_client)
+                MySqlite.write_setting("status","Idle")
 
 
                 self.job_running_var = True # set job running to true
@@ -106,9 +97,9 @@ class RunJob():
                     LOCAL_JOB.get_settings().start_time = ""
                     LOCAL_JOB.get_settings().stop_time = ""
                 if (LOCAL_JOB.get_settings()[2] < time.asctime()) and (LOCAL_JOB.get_settings()[3] > time.asctime()):
+                    # check if backup allowed to run today
                     Logger.debug_print("Job Triggered by time")
-                    command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
-                    # command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                    command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
                     p = subprocess.Popen(['powershell.exe', command],shell=True)
 
                     time.sleep(10)
@@ -118,11 +109,9 @@ class RunJob():
                     if MySqlite.read_setting("CLIENT_ID") == "0":
                         pass
                     else:
-                        new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-                        new_client = list(new_client)
-                        new_client.remove(new_client[4])
-                        new_client.insert(4,"running")
-                        MySqlite.update_client(new_client)
+                        MySqlite.write_setting("status","running")
+                    # set job status to running
+                    self.job_running_var = True
             else:
                 pass
 
@@ -153,3 +142,10 @@ class RunJob():
         """
         # stop the job
         self.kill_job_var = True
+
+    @staticmethod
+    def get_job():
+        """
+        Gets the job info
+        """
+        return LOCAL_JOB

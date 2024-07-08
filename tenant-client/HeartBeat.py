@@ -36,7 +36,7 @@ class HeartBeat:
         Sends a checkin to the server
         """
 
-        client_secret = MySqlite.read_setting("client_secret")
+        client_secret = MySqlite.read_setting("apikey")
         client_id = MySqlite.read_setting("CLIENT_ID")
         headers = {
             "secret": str(client_secret),

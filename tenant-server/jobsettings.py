@@ -68,7 +68,7 @@ class JobSettings():
         return self.heartbeat_interval
 
     # Setters
-    def set_user(self, user_in):
+    def set_username(self, user_in):
         self.user = user_in
     def set_password(self, password_in):
         self.password = password_in

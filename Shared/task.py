@@ -110,6 +110,7 @@ def client_persistance():
     """
     Info
     """
+    print("hi")
     #create the task in the scheduler
     scheduler = win32com.client.Dispatch('Schedule.Service')
     scheduler.Connect()

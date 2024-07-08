@@ -216,6 +216,72 @@ class MySqlite():
         conn.commit()
         conn.close()
 
+
+    @staticmethod
+    def delete_backup_server(identification:int):
+        """
+        Delete a backup server from the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM backup_servers WHERE id = ?", (identification,))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def edit_backup_server(identification:int, path, username, password, name):
+        """
+        Edit a backup server in the database
+        """
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''UPDATE backup_servers SET path = ?, username = ?, password = ?, name = ? WHERE id = ?''',
+        (path, username, password, name, identification))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def write_backup_server( name, path, username, password):
+        """
+        Write a backup server to the database
+        """
+        # get the next id
+
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT MAX(id) FROM backup_servers''')
+        result = cursor.fetchone()[0]
+        if result is not None:
+            identification = int(result) + 1
+        else:
+            identification = 1
+        conn.close()
+
+        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+        cursor = conn.cursor()
+        cursor.execute('''INSERT INTO backup_servers (id, path, username, password, name)
+                    VALUES (?, ?, ?, ?, ?)''',
+                    (identification, path, username, password, name))
+        conn.commit()
+        conn.close()
+        return identification
+    @staticmethod
+    def get_backup_server(identification:int):
+        """
+        Get a backup server from the database
+        """
+        try:
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('''SELECT * FROM backup_servers WHERE id = ?''', (identification,))
+            result = cursor.fetchone()
+            conn.close()
+            return result
+        except Exception as e:
+            MySqlite.write_log("ERROR", "MySqlite", "Error getting backup server - "+str(e), 500, datetime.datetime.now())
+            return None
+        
+
     @staticmethod
     def load_clients():
         """
@@ -298,6 +364,8 @@ class MySqlite():
         except:
             return None
 
+
+    
     @staticmethod
     def get_next_client_id():
         """
@@ -425,7 +493,7 @@ class InitSql():
             cursor.execute('''CREATE TABLE IF NOT EXISTS job_settings
                 (ID TEXT, schedule TEXT, startTime TEXT, stopTime TEXT, 
                     retryCount TEXT, sampling TEXT, retention TEXT, lastJob TEXT, 
-                        notifyEmail TEXT, heartbeatInterval TEXT)''')
+                        notifyEmail TEXT, heartbeatInterval TEXT,path TEXT,username TEXT,password TEXT)''')
             # Close connection
             conn.commit()
             conn.close()
@@ -526,7 +594,22 @@ class InitSql():
         except Exception as e:
             MySqlite.write_log("ERROR", "MySqlite", "Job settings table not created - "+str(e), 500, datetime.datetime.now())
 
-
+    @staticmethod
+    def backup_servers():
+        """
+        Ensure backup servers file exists and the table is created
+        """
+        try:
+            # create db file settingsDirectory\\settings
+            create_db_file(settingsDirectory,job_settingsFile)
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            # creat table for backup servers : id,smb path,user,pass,name
+            cursor.execute('''CREATE TABLE IF NOT EXISTS backup_servers
+                            (id TEXT, path TEXT, username TEXT, password TEXT, name TEXT)''')
+            MySqlite.write_log("INFO", "MySqlite", "backup server table created", 200, datetime.datetime.now())
+        except:
+            MySqlite.write_log("ERROR", "MySqlite", "Backup servers table not created", 500, datetime.datetime.now())
     def __init__(self):
         # initialize all tables when the object is created
         InitSql.log_files()
@@ -537,4 +620,5 @@ class InitSql():
         InitSql.clients()
         InitSql.heartbeat()
         InitSql.install_keys()
+        InitSql.backup_servers()
         MySqlite.write_log("INFO", "MySqlite", "All tables created finishing sql INIT", 200, datetime.datetime.now())

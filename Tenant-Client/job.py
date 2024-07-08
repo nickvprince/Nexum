@@ -67,15 +67,33 @@ class Job():
         """
         Saves the job to the database
         """
+        # check if the job already exists
+        conn = sqlite3.connect(settingsDirectory+jobFile)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM job WHERE ID = ?', ("0"))
+        info = cursor.fetchone()
+        conn.close()
+
+        if info is not None:
+            # delete the job since it exists
+            conn = sqlite3.connect(settingsDirectory+jobFile)
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM job WHERE ID = ?', ("0"))
+            cursor.execute('DELETE FROM config WHERE ID = ?', ("0"))
+            cursor.execute('DELETE FROM job_settings WHERE ID = ?', ("0"))
+            conn.commit()
+            conn.close()
+
+
+
         conn1 = sqlite3.connect(settingsDirectory+job_settingsFile)
         cursor1 = conn1.cursor()
-        cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention,lastJob, notifyEmail, heartbeatInterval,user,password,backupPath)'
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)', 
+        cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention,lastJob, notifyEmail, heartbeatInterval)'
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
         (self.settings.get_id(), self.settings.get_schedule(), self.settings.get_start_time(),
         self.settings.get_stop_time(), self.settings.get_retry_count(), 
-        self.settings.get_sampling(), self.settings.get_retention(), self.settings.get_last_job(),
-        self.settings.get_notify_email(), self.settings.get_heartbeat_interval(), 
-        self.settings.get_user(), self.settings.get_password(), self.settings.get_backup_path()))
+        self.settings.get_sampling(), self.settings.get_retention(), "",
+        "", self.settings.get_heartbeat_interval(), ))
         conn1.commit()
         conn1.close()
         conn2 = sqlite3.connect(settingsDirectory+configFile)
