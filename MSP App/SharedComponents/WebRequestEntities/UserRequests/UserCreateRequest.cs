@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedComponents.RequestEntities
+namespace SharedComponents.WebRequestEntities.UserRequests
 {
-    public class GetUserRequest
+    public class UserCreateRequest
     {
-        public string Username { get; set; }
     }
 }

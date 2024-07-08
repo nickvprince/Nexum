@@ -33,8 +33,12 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TenantService>();
+builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddScoped<LogService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<InstallationKeyService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

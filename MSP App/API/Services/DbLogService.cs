@@ -24,10 +24,12 @@ namespace API.Services
 
                     // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
-
-                    return await _appDbContext.Logs
-                        .Where(l => l.Id == log.Id)
-                        .FirstOrDefaultAsync();
+                    if (result > 0)
+                    {
+                        return await _appDbContext.Logs
+                            .Where(l => l.Id == log.Id)
+                            .FirstAsync();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -37,11 +39,45 @@ namespace API.Services
             return null;
         }
 
+        public async Task<DeviceLog?> UpdateAsync(DeviceLog? log)
+        {
+            if (log != null)
+            {
+                try
+                {
+                    // Get the existing log from the context
+                    var existingLog = await _appDbContext.Logs
+                        .Where(l => l.Id == log.Id)
+                        .FirstAsync();
+                    if (existingLog != null)
+                    {
+                        // Update the existing log with the new values
+                        _appDbContext.Entry(existingLog).CurrentValues.SetValues(log);
+
+                        // Save changes to the database
+                        var result = await _appDbContext.SaveChangesAsync();
+                        if (result >= 0)
+                        {
+                            return await _appDbContext.Logs
+                                .Where(l => l.Id == log.Id)
+                                .FirstAsync();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while updating the log: {ex.Message}");
+                }
+            }
+            return null;
+        }
         public async Task<bool> DeleteAsync(int id)
         {
             try
             {
-                var log = await _appDbContext.Logs.FindAsync(id);
+                var log = await _appDbContext.Logs
+                    .Where(l => l.Id == id)
+                    .FirstAsync();
                 if (log != null)
                 {
                     log.IsDeleted = true;
@@ -62,15 +98,85 @@ namespace API.Services
 
         public async Task<DeviceLog?> GetAsync(int id)
         {
-            return await _appDbContext.Logs
-                .Where(l => l.Id == id)
-                .FirstOrDefaultAsync();
+            try
+            {
+                var log = await _appDbContext.Logs
+                    .Where(l => l.Id == id)
+                    .FirstAsync();
+                if (log != null)
+                {
+                    return log;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the log: {ex.Message}");
+            }
+            return null;
         }
 
-        public async Task<ICollection<DeviceLog>> GetAllAsync()
+        public async Task<ICollection<DeviceLog>?> GetAllAsync()
         {
-            return await _appDbContext.Logs
-                .ToListAsync();
+            try
+            {
+                var logs = await _appDbContext.Logs.ToListAsync();
+                if (logs != null)
+                {
+                    if (logs.Any())
+                    {
+                        return logs;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all logs: {ex.Message}");
+            }
+            return null;
+        }
+
+        public async Task<ICollection<DeviceLog>?> GetAllByDeviceIdAsync(int deviceId)
+        {
+            try
+            {
+                var logs = await _appDbContext.Logs
+                    .Where(l => l.DeviceId == deviceId)
+                    .ToListAsync();
+                if (logs != null)
+                {
+                    if (logs.Any())
+                    {
+                        return logs;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting logs by device id: {ex.Message}");
+            }
+            return null;
+        }
+
+        public async Task<ICollection<DeviceLog>?> GetAllByTenantIdAsync(int tenantId)
+        {
+            try
+            {
+                var logs = await _appDbContext.Logs
+                    .Where(l => l.Device.TenantId == tenantId)
+                    .ToListAsync();
+                if (logs != null)
+                {
+                    if (logs.Any())
+                    { 
+                        return logs;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting logs by tenant id: {ex.Message}");
+            }
+            return null;
         }
     }
 }

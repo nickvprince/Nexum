@@ -14,6 +14,6 @@ namespace SharedComponents.DbServices
         public Task<SoftwareFile?> GetLatestNexumAsync();
         public Task<SoftwareFile?> GetLatestNexumServerAsync();
         public Task<SoftwareFile?> GetLatestNexumServiceAsync();
-        public Task<ICollection<SoftwareFile>> GetAllAsync();
+        public Task<ICollection<SoftwareFile>?> GetAllAsync();
     }
 }

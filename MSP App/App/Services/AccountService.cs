@@ -1,7 +1,7 @@
 ﻿using App.Models;
 using Newtonsoft.Json.Linq;
 using SharedComponents.Entities;
-using SharedComponents.RequestEntities;
+using SharedComponents.WebRequestEntities;
 using SharedComponents.Services;
 using System.Text.Json;
 

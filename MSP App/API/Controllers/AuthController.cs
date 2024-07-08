@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
-using SharedComponents.RequestEntities;
+using SharedComponents.WebRequestEntities;
 
 namespace API.Controllers
 {
