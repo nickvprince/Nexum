@@ -63,11 +63,6 @@ namespace API.Services
             return false;
         }
 
-        public Task<bool?> GetDeviceBeatAsync(int tenantId, int client_id)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<GetDeviceFilesResponse?> GetDeviceFilesAsync(int tenantId, GetDeviceFilesRequest request)
         {
             try
