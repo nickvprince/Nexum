@@ -162,5 +162,24 @@ namespace API.Services
             }
             return false;
         }
+        //cannot deserialize tenant server response (Not implemented)
+        public async Task<bool> GetAllJobAsync(int tenantId, int client_Id)
+        {
+            try
+            {
+                if (await InitiallizeHttpClient(tenantId))
+                {
+                    var response = await _httpClient.GetAsync($"get_jobs/{client_Id}");
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting all jobs from the server.");
+            }
+            return false;
+        }
     }
 }

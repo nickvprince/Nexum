@@ -70,6 +70,7 @@ namespace API.Controllers
                             {
                                 return Ok(job);
                             }
+                            return BadRequest("An error occurred while creating the job on the tenant server.");
                         }
                     }
                 }

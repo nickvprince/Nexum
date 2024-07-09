@@ -12,5 +12,7 @@ namespace API.Services.Interfaces
         public Task<bool> PauseJobAsync(int tenantId, int client_Id);
         //bool because cannot deserialize tenant server response
         public Task<bool> GetJobAsync(int tenantId, int client_Id);
+        //cannot deserialize tenant server response (Not implemented)
+        public Task<bool> GetAllJobAsync(int tenantId, int client_Id);
     }
 }
