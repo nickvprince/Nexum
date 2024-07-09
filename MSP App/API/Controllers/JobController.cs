@@ -89,6 +89,15 @@ namespace API.Controllers
                 {
                     return NotFound("Job not found.");
                 }
+                if(job.DeviceId == null)
+                {
+                    return NotFound("Job device not found.");
+                }
+                Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
                 if (request.Settings != null && job.Settings != null)
                 {
                     if (request.Settings.Schedule != null && job.Settings.Schedule != null)
@@ -112,7 +121,10 @@ namespace API.Controllers
                         job = await _dbJobService.UpdateAsync(job);
                         if (job != null)
                         {
-                            return Ok(job);
+                            if (await _httpJobService.UpdateJobAsync(device.TenantId, job))
+                            {
+                                return Ok(job);
+                            }
                         }
                     }
                 }
