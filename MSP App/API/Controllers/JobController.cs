@@ -89,15 +89,6 @@ namespace API.Controllers
                 {
                     return NotFound("Job not found.");
                 }
-                if(job.DeviceId == null)
-                {
-                    return NotFound("Job device not found.");
-                }
-                Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
-                if (device == null)
-                {
-                    return NotFound("Device not found.");
-                }
                 if (request.Settings != null && job.Settings != null)
                 {
                     if (request.Settings.Schedule != null && job.Settings.Schedule != null)
@@ -121,9 +112,17 @@ namespace API.Controllers
                         job = await _dbJobService.UpdateAsync(job);
                         if (job != null)
                         {
-                            if (await _httpJobService.UpdateJobAsync(device.TenantId, job))
+                            if (job.DeviceId != null)
                             {
-                                return Ok(job);
+                                Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                                if (device != null)
+                                {
+                                    if (await _httpJobService.UpdateJobAsync(device.TenantId, job))
+                                    {
+                                        return Ok(job);
+                                    }
+                                    return BadRequest("An error occurred while updating the job on the tenant server.");
+                                }
                             }
                         }
                     }
@@ -170,7 +169,19 @@ namespace API.Controllers
                 }
                 if (await _dbJobService.DeleteAsync(id))
                 {
-                    return Ok();
+                    if (job.DeviceId != null)
+                    {
+                        Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                        if (device != null)
+                        {
+                            if (await _httpJobService.StopJobAsync(device.TenantId, job.Id))
+                            {
+                                return Ok("Job deleted successfully.");
+                            }
+                            return BadRequest("An error occurred while deleting the job on the tenant server.");
+                        }
+                    }
+                    return Ok("Job deleted successfully.");
                 }
                 return BadRequest("An error occurred while deleting the job.");
             }
@@ -182,6 +193,9 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Update this to get the job from the tenant server
+                // Then update the job in the database
+                // Then, below
                 DeviceJob? job = await _dbJobService.GetAsync(id);
                 if (job != null)
                 {
@@ -197,6 +211,9 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Update this to get all jobs from the tenant server
+                // Then update the jobs in the database
+                // Then, below
                 ICollection<DeviceJob>? jobs = await _dbJobService.GetAllAsync();
                 if (jobs != null)
                 {
@@ -215,6 +232,9 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Update this to get all jobs from the tenant server
+                // Then update the jobs in the database
+                // Then, below
                 ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByDeviceIdAsync(deviceId);
                 if (jobs != null)
                 {
@@ -233,6 +253,9 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Update this to get all jobs from the tenant server
+                // Then update the jobs in the database
+                // Then, below
                 ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByTenantIdAsync(tenantId);
                 if (jobs != null)
                 {
