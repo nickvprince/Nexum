@@ -59,6 +59,7 @@ class API():
         url = 'http://127.0.0.1:5004/get_status'
 
         headers = {
+            "apikey":MySqlite.read_setting("apikey"),
             "Content-Type": "application/json"
         }
         try:

@@ -27,8 +27,7 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
+
 from requests import get
 import socket
 import uuid
@@ -43,8 +42,37 @@ PORT=5002
 HOST = '0.0.0.0'
 
 @staticmethod
-def unpad(ct):
-    return ct[:-ct[-1]]
+def convert_job_status():
+    """
+    Converts the status to a enum
+    """
+    job_status = MySqlite.read_setting("job_status")
+    if job_status == "InProgress":
+        return 1
+    elif job_status == "NotStarted":
+        return 0
+    elif job_status == "Failed":
+        return 3
+    elif job_status == "Completed":
+        return 2
+    else:
+        return -1
+@staticmethod
+def convert_device_status():
+    """
+    Converts the status to a enum
+    """
+    status = MySqlite.read_setting("Status")
+    if status == "Online":
+        return 1
+    elif status == "Offline":
+        return 0
+    elif status == "ServiceOffline":
+        return 2
+    else:
+        return -1
+
+
 
 @staticmethod
 def get_time():
@@ -53,39 +81,9 @@ def get_time():
     """
     return time.strftime("%Y-%m-%dt%H:%M:%S:%m", time.localtime())
 
-@staticmethod
-def shuffle(apikey:str,mspapi:str):
-    """
-    Shuffles the api keys
-    """
-    api=MySqlite.read_setting("apikey")
-    msp=MySqlite.read_setting("msp_api")
-    # for char in range mspapi-1 password = msp_api[i]+api[i+1]
-    password = ""
-    for i in range(len(mspapi)):
-       password+=mspapi[i]+apikey[i]
-    return password
 
-@staticmethod
-def decrypt_password(password:str):
-        encryption_key=shuffle(MySqlite.read_setting("apikey"),MySqlite.read_setting("msp_api"))
 
-        # only take first 32 chars
-        encryption_key=encryption_key[:32]
 
-        cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
-        decryptor = cipher.decryptor()
-        
-
-        # Decode the string from base64
-        decoded_string = base64.b64decode(password)
-        
-        # Decrypt the string using AES
-        decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
-        decrypted_string = str(decrypted_string.decode("utf-8"))
-        #rstrip \0b
-        decrypted_string = decrypted_string.rstrip("\x0b")
-        return str(decrypted_string)
 
 
 # pylint: disable= bare-except
@@ -697,7 +695,10 @@ class FlaskServer():
         CLIENTS = MySqlite.load_clients()
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == str(0):
-                return MySqlite.read_setting("Status")
+                content = {
+                    "status": convert_device_status(),
+                }
+                return make_response(content, 200)
             else:
                 for i in CLIENTS:
                     if str(i[0]) == str(identification):
@@ -724,6 +725,57 @@ class FlaskServer():
         else:
             return make_response("401 Access Denied", 401)
 
+    @website.route('/get_job_status', methods=['POST'], )
+    @staticmethod
+    def get_job_status():
+        """
+        Gets the current status of running job
+        """
+
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
+        # get the ID from the json body
+        recieved_client_id = data.get('client_id', '')
+
+
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
+            return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            if recieved_client_id == str(0):
+                content = {
+                    "status": convert_job_status(),
+                }
+                return make_response (content,200)
+            else:
+                global CLIENTS
+                CLIENTS = MySqlite.load_clients()
+                for i in CLIENTS:
+                    if i[0] == recieved_client_id:
+                        url = f"http://{i[2]}:{i[3]}/get_job_status"
+                        try:
+                            return requests.post(url, headers={"apikey":MySqlite.read_setting("apikey"),"Content-Type":"application/json"},json={},timeout=10)
+                        except requests.exceptions.ConnectTimeout :
+                            logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
+                            "500", get_time())
+                            code=402
+                            msg=f"Timeout connecting to {i[0]}"
+                        except requests.exceptions.ConnectionError:
+                            logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
+                            "500", get_time())
+                            code=402
+                            msg=f"Error connecting to {i[0]}"
+                        except:
+                            msg = "Internal server error"
+                            code = 500
+                return make_response("Client not found", 403)
+            # return status
+            return make_response (content,200)
+        else:
+            return make_response("500 Internal Server Error", 500)
 
     @website.route('/force_update', methods=['POST'], )
     @staticmethod

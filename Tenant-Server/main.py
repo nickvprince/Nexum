@@ -44,9 +44,12 @@ def main():
     """
 
     init()
-    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
+    MySqlite.write_setting("apikey","922ef041-a5ef-4473-90c8-46038b052a28")# 01ee3ece-7976-4cda-b4f4-00d5f68d1cbd
     MySqlite.write_setting("msp_api","a109ef4c-b611-4aff-ac26-07b86a7161aa")
-    MySqlite.write_setting("version","alpha 1.0.0")
+    MySqlite.write_setting("version","1.0.0")
+    MySqlite.write_setting("versiontag","alpha")
+    MySqlite.write_setting("Status","Online")
+    MySqlite.write_setting("job_status","NotStarted")
     clients = MySqlite.load_clients()
     l = Logger()
     _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
@@ -59,7 +62,6 @@ def main():
     # log a message
 
     l.log("INFO", "Main", "Main has started", "000", time.asctime())
-    MySqlite.write_setting("Status","running")
     f = FlaskServer()
     f.run()
 

@@ -28,6 +28,37 @@ RUN_JOB_OBJECT = None
 
 
 
+@staticmethod
+def convert_job_status():
+    """
+    Converts the status to a enum
+    """
+    job_status = MySqlite.read_setting("job_status")
+    if job_status == "InProgress":
+        return 1
+    elif job_status == "NotStarted":
+        return 0
+    elif job_status == "Failed":
+        return 3
+    elif job_status == "Completed":
+        return 2
+    else:
+        return -1
+
+@staticmethod
+def convert_device_status():
+    """
+    Converts the status to a enum
+    """
+    status = MySqlite.read_setting("Status")
+    if status == "Online":
+        return 1
+    elif status == "Offline":
+        return 0
+    elif status == "ServiceOffline":
+        return 2
+    else:
+        return -1
 
 # pylint: disable= bare-except
 class FlaskServer():
@@ -184,10 +215,9 @@ class FlaskServer():
         else:
             return make_response("500 Internal Server Error", 500)
 
-
-    @website.route('/get_Status', methods=['GET'], )
+    @website.route('/get_Status', methods=['POST'], )
     @staticmethod
-    def get_job_status():
+    def get_status():
         """
         Gets the current status of running jobs or error state, version information etc
         """
@@ -201,13 +231,38 @@ class FlaskServer():
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
-            status = API.get_status()
+            content = {
+                "status": convert_job_status(),
+            }
             # return status
-            return make_response ("200 OK", 200,{"status":status})
+            return make_response (content,200)
         else:
             return make_response("500 Internal Server Error", 500)
         
+    @website.route('/get_job_status', methods=['POST'], )
+    @staticmethod
+    def get_job_status():
+        """
+        Gets the current status of running job
+        """
+        logger=Logger()
+        # get the json body
+        data = request.get_json()
+        # get the clientSecret from the json body
+        recieved_client_secret = request.headers.get('apikey', '')
 
+        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        if authcode == 405:
+            return make_response("401 Access Denied", 401)
+        elif authcode == 200:
+            content = {
+                "status": convert_job_status(),
+            }
+            # return status
+            return make_response (content,200)
+        else:
+            return make_response("500 Internal Server Error", 500)
+        
     @website.route('/get_version', methods=['GET'], )
     @staticmethod
     def get_version():

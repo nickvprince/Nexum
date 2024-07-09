@@ -13,6 +13,7 @@
 
 """
 # pylint: disable= import-error, unused-argument
+import time
 from sql import MySqlite,InitSql
 
 class Logger():
@@ -36,6 +37,7 @@ class Logger():
         """
         Information
         """
+        date = time.strftime("%Y-%m-%dt%H:%M:%S:%m", time.localtime())
         MySqlite.write_log(severity, subject, message, code, date)
     @staticmethod
     def debug_print(message):

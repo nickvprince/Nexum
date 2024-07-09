@@ -11,49 +11,66 @@ import win32service
 from pyuac import main_requires_admin
 import win32serviceutil
 from security import Security
+import tempfile
+import sqlite3
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import base64
 
 app = Flask(__name__)
 
+# decrypt a string using AES
+@staticmethod
+def decrypt_string(password, string):
+    """
+    Decrypt a string with AES-256 bit decryption
+    """
+    # Pad the password to be 16 bytes long
+    password_hashed = str(password).ljust(16).encode('utf-8')
 
+    # Create a new AES cipher with the password as the key
+    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+
+    # Decode the string from base64
+    decoded_string = base64.b64decode(string)
+
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    try:
+        return decrypted_string.decode('utf-8')
+    except UnicodeDecodeError:
+        return "Decryption failed"
+    except:
+        return "Decryption failed"
+    
+@staticmethod
+def read_setting(setting):
+    """
+    Read a setting from the database
+    """
+    try:
+        conn = sqlite3.connect(tempfile.gettempdir()+'\\settings\\settings.db')
+        cursor = conn.cursor()
+        cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+        value = cursor.fetchone()[0]
+        conn.close()
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:24]
+        value = decrypt_string(output,value)
+        return value.rstrip()
+    except:
+        return None
 
 def auth(recieved_client_secret):
-    """     This is substituted with local clientSecret
-    try:
-            # open sql connection to 'NEXUM-SQL' and select * from Security where ID = id
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=NEXUM-SQL;
-            DATABASE=your_database_name;Trusted_Connection=yes;')
-            cursor = conn.cursor()
-            query = "SELECT * FROM Security WHERE ID = ?"
-            cursor.execute(query, (ID,))
-            result = cursor.fetchone()
+    """     
+    Authenticate with the APIKEY
+    """
 
-            # set salt to the result[0], pepper to result[1], and salt2 to result[2]
-            salt = result[0]
-            pepper = result[1]
-            salt2 = result[2]
-
-            # close the sql connection
-            conn.close()
-        except:
-            return "405 Incorrect ID"
-
-        """
-        # A2 uses client secret unhashed to generate the password used to encrypt the data
-        # The data is given salt, pepper, and salt2 then hashed.
-        # the hash is then encypted then sent
-
-        # to decrypt would be
-        # decrypt the data
-        # create a variable with the salt, pepper, and salt2 added to the client secret then hashed
-        # compare the hash to the decrypted data
-        # if they match the KEY is valid
-    recieved_client_secret = Security.decrypt_client_secret(recieved_client_secret)
-    temp = Security.sha256_string(Security.get_client_secret())
-    temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
-    print("temp: "+str(temp))
-    print("recieved_client_secret: "+str(recieved_client_secret))
-
-    if str(recieved_client_secret) == temp:
+    if str(recieved_client_secret) == read_setting("apikey"):
         return 200
     return 405
 
@@ -63,7 +80,7 @@ def start_job(start_job_commands=""):
     starts a job
     """
     # add auth
-    recieved_client_secret = request.headers.get('clientSecret')
+    recieved_client_secret = request.headers.get('apikey')
     if(auth(recieved_client_secret) == 200):
         try:
             start_job_commands = request.json['start_job_commands']
@@ -71,6 +88,7 @@ def start_job(start_job_commands=""):
             result =subprocess.Popen(["powershell.exe", "wbadmin start backup "+str(start_job_commands)],stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             output = result.stdout
             response = {"result": "{"+str(output.readlines())+"}"}
+            print(response)
             return response
         except Exception as e:
             return make_response(str(e), 500)
@@ -83,13 +101,14 @@ def stop_job():
     Stops the job
     """
     # add auth
-    recieved_client_secret = request.headers.get('clientSecret')
+    recieved_client_secret = request.headers.get('apikey')
     if(auth(recieved_client_secret) == 200):
         try:
             command = "wbadmin stop job -quiet"
             p = subprocess.Popen(['powershell.exe', command],shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = p.stdout
             response = {"result": "{"+str(output.readlines())+"}"}
+            print(response)
             return response
         except Exception as e:
             return make_response(str(e), 500)
@@ -106,7 +125,7 @@ def get_status():
     """
     # add auth
     #get clientSecret from header
-    recieved_client_secret = request.headers.get('clientSecret')
+    recieved_client_secret = request.headers.get('apikey')
     if(auth(recieved_client_secret) == 200):
         try:
             result = subprocess.Popen(["powershell.exe", "wbadmin Get status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -115,6 +134,7 @@ def get_status():
             value =output.read(160)
 
             response = {"result": "{"+str(value)+"}"}
+            print(response)
             return response
         except Exception as e:
             return make_response(str(e), 500)
