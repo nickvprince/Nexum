@@ -15,7 +15,27 @@
 # pylint: disable= import-error, unused-argument
 import time
 from sql import MySqlite,InitSql
+import requests
 
+@staticmethod
+def convert_type(type):
+    """
+    Convert a string to a type
+    """
+    if type == "Trace":
+        return 0
+    elif type == "Debug":
+        return 1
+    elif type == "INFO":
+        return 2
+    elif type == "warning":
+        return 3
+    elif type == "Error":
+        return 4
+    elif type == "Critical":
+        return 5
+    else:
+        return -1
 class Logger():
 
     """
@@ -33,12 +53,31 @@ class Logger():
 
 
     # log a message to the database
-    def log(self, severity, subject, message, code, date):
+    def log(self, severity, Function, message, code,filename):
         """
         Information
         """
         date = time.strftime("%Y-%m-%dt%H:%M:%S:%m", time.localtime())
-        MySqlite.write_log(severity, subject, message, code, date)
+        # post to https://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}/api/DataLink/Log
+        header ={
+            "Content-Type": "application/json",
+            "apikey": MySqlite.read_setting("apikey")
+        }
+        content = {
+            "cient_id": MySqlite.read_setting("CLIENT_ID"),
+            "uuid": MySqlite.read_setting("uuid"),
+            "type": convert_type(severity),
+            "Function": Function,
+            "message": message,
+            "code": code,
+            "time": date,
+            "filename": filename
+        }
+        try:
+            response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Log", headers=header, json=content,timeout=5)
+        except Exception as e:
+            print(e)
+        MySqlite.write_log(severity, Function, message, code, date)
     @staticmethod
     def debug_print(message):
         """

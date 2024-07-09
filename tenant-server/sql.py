@@ -21,6 +21,8 @@ import base64
 import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import requests
+import json
 
 #pylint: disable=bare-except,line-too-long
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
@@ -32,6 +34,20 @@ configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
+@staticmethod
+def convert_device_status():
+    """
+    Converts the status to a enum
+    """
+    status = MySqlite.read_setting("Status")
+    if status == "Online":
+        return 1
+    elif status == "Offline":
+        return 0
+    elif status == "ServiceOffline":
+        return 2
+    else:
+        return -1
 def create_db_file(directory,path):
     """
     create the database file if it does not exist and the folder for it
@@ -324,10 +340,34 @@ class MySqlite():
         Write a setting to the database
         """
         result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                capture_output=True, text=True,check=True,shell=True)
+        capture_output=True, text=True,check=True,shell=True)
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:24]
+        if setting == "Status":
+            header = {
+                'Content-Type':'application/json',
+                'apikey':"d0788646-13f5-4c7d-9400-73adc9c798e4"
+            }
+            content:json = {
+                "client_id":int(MySqlite.read_setting("CLIENT_ID")),
+                "uuid":str("05bc95e5-3873-4c5d-b08a-09a0310aac18"),
+                "status":int(convert_device_status())
+                
+            }
+            try:
+                server_address = MySqlite.read_setting("msp_server_address")
+                msp_port = MySqlite.read_setting("msp-port")
+                protocol = r"https://"
+
+                response = requests.put(f"{protocol}{server_address}:{msp_port}/api/DataLink/Update-Device-Status", headers=header, json=json.dumps(content),timeout=5,verify=False)
+            except Exception as e:
+                print(e)
+            if response.status_code == 200:
+                return 200
+            else:
+                return 500
+
 
         value = encrypt_string(output,value)
 

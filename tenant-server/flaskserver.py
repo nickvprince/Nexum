@@ -112,8 +112,8 @@ class FlaskServer():
         if apikey == internal_apikey or apikey == msp_apikey:
             return 200
         else:
-            logger.log("ERROR", "get_files", "Access denied",
-            "405", get_time())
+            logger.log("ERROR", "auth", "Access denied",
+            "405", "flaskserver.py")
             return 405
 
     @staticmethod
@@ -140,33 +140,33 @@ class FlaskServer():
         # pylint: enable=unused-variable, enable=invalid-name
         # check if the path exists
         if not os.path.exists(path):
-            logger.log("ERROR", "get_files", "Path not found",
-            "404", get_time())
+            logger.log("ERROR", "get_local_files", "Path not found",
+            "404", "flaskserver.py")
             code=404
             msg="Incorrect path"
         # check if the path is a directory
         elif not os.path.isdir(path):
-            logger.log("ERROR", "get_files", "Path is not a directory",
-            "404", get_time())
+            logger.log("ERROR", "get_local_files", "Path is not a directory",
+            "404", "flaskserver.py")
             code=404
             msg="Path is not a directory"
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
-            logger.log("ERROR", "get_files", "Path is not accessible",
-            "404", get_time())
+            logger.log("ERROR", "get_local_files", "Path is not accessible",
+            "404", "flaskserver.py")
             code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
-            logger.log("ERROR", "get_files", "Path is empty",
-            "404", get_time())
+            logger.log("ERROR", "get_local_files", "Path is empty",
+            "404", "flaskserver.py")
             code=404
             msg="Path is empty"
         # get the files and directories in the path
         # if error is returned, do not get file directories
         elif str(path).lower() == str("c:"):
-            logger.log("ERROR", "get_files", "Path is not accessible",
-            "401", get_time())
+            logger.log("ERROR", "get_local_files", "Path is not accessible",
+            "401", "flaskserver.py")
             code=401
             msg="Path is not accessible Access Denied"
         if code==0:
@@ -175,12 +175,12 @@ class FlaskServer():
                 msg = files
             except PermissionError:
                 logger.log("ERROR", "get_files", "Permission error",
-                "1005", get_time())
+                "1005", "flaskserver.py")
                 code = 401
                 msg = "Access Denied"
             except:
                 logger.log("ERROR", "get_files", "General Error getting files",
-                "1002", get_time())
+                "1002", "flaskserver.py")
                 code= 500
                 msg = "Internal server error"
         else:
@@ -224,13 +224,13 @@ class FlaskServer():
                         headers = response.headers
                         return make_response(body, 200)
                     except requests.exceptions.ConnectTimeout :
-                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "get_files.relay.get_files", f"Timeout connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
-                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "get_files.relay.get_files", f"Error connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -278,13 +278,13 @@ class FlaskServer():
                     try:
                         return requests.put(url,data={},headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
                     except requests.exceptions.ConnectTimeout :
-                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "start_job.relay.start_job", f"Timeout connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
-                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "start_job.relay.start_job", f"Error connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -330,13 +330,13 @@ class FlaskServer():
                         response= requests.put(url,data={},headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
                         return make_response("",response.status_code)
                     except requests.exceptions.ConnectTimeout :
-                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "stop_job.relay.stop_job", f"Timeout connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
-                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "stop_job.relay.stop_job", f"Error connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -381,13 +381,13 @@ class FlaskServer():
                         response= requests.put(url,headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
                         return make_response("",response.status_code)
                     except requests.exceptions.ConnectTimeout :
-                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "kill_job.relay.kill_job", f"Timeout connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
-                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "kill_job.relay.kill_job", f"Error connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -434,13 +434,13 @@ class FlaskServer():
                         response= requests.put(url, headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
                         return make_response("",response.status_code)
                     except requests.exceptions.ConnectTimeout :
-                        logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "enable_job.relay.enable_job", f"Timeout connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Timeout connecting to {i[0]}"
                     except requests.exceptions.ConnectionError:
-                        logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "enable_job.relay.enable_job", f"Error connecting to {i[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Error connecting to {i[0]}"
                     except:
@@ -508,13 +508,13 @@ class FlaskServer():
                             response=requests.request("POST", url, json=content, headers={"Content-Type":"application/json","apikey":MySqlite.read_setting("apikey")},timeout=10)
                             return make_response("", response.status_code)
                         except requests.exceptions.ConnectTimeout :
-                            logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "modify_job.relay.modify_job", f"Timeout connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Timeout connecting to {i[0]}"
                         except requests.exceptions.ConnectionError:
-                            logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "modify_job.relay.modify_job", f"Error connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Error connecting to {i[0]}"
                         except:
@@ -554,7 +554,7 @@ class FlaskServer():
 
 
             except Exception as e:
-                MySqlite.write_log("ERROR","Install Server", "Failed to get URLS " + str(e),"1009",get_time())
+                MySqlite.write_log("ERROR","nexum", "Failed to get URLS " + str(e),"1009","flaskserver.py")
 
 
     @staticmethod
@@ -585,7 +585,7 @@ class FlaskServer():
 
 
             except Exception as e:
-                MySqlite.write_log("ERROR","Install Server", "Failed to get URLS " + str(e),"1009",get_time())
+                MySqlite.write_log("ERROR","nexumservice", "Failed to get URLS " + str(e),"1009","flaskserver.py")
 
     @website.route('/get_job', methods=['GET'], )
     @staticmethod
@@ -629,13 +629,13 @@ class FlaskServer():
                     try:
                         return requests.get(url, headers={"apikey":apikey,"Content-Type": "application/json"},json={},timeout=10,verify=False)
                     except requests.exceptions.ConnectTimeout :
-                        logger.log("ERROR", "start_job", f"Timeout connecting to {client[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "get_job.relay.get_job", f"Timeout connecting to {client[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Timeout connecting to {client[0]}"
                     except requests.exceptions.ConnectionError:
-                        logger.log("ERROR", "start_job", f"Error connecting to {client[0]}",
-                        "500", get_time())
+                        logger.log("ERROR", "get_job.relay.get_job", f"Error connecting to {client[0]}",
+                        "500", "flaskserver.py")
                         code=402
                         msg=f"Error connecting to {client[0]}"
                     except:
@@ -709,13 +709,13 @@ class FlaskServer():
                             status = data.headers.get("status")
                             return status
                         except requests.exceptions.ConnectTimeout :
-                            logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "get_status.relay.get_status", f"Timeout connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Timeout connecting to {i[0]}"
                         except requests.exceptions.ConnectionError:
-                            logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "get_status.relay.get_status", f"Error connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Error connecting to {i[0]}"
                         except:
@@ -759,13 +759,13 @@ class FlaskServer():
                         try:
                             return requests.post(url, headers={"apikey":MySqlite.read_setting("apikey"),"Content-Type":"application/json"},json={},timeout=10)
                         except requests.exceptions.ConnectTimeout :
-                            logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "get_job_status.relay.get_job_status", f"Timeout connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Timeout connecting to {i[0]}"
                         except requests.exceptions.ConnectionError:
-                            logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "get_job_status.relay.get_job_status", f"Error connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Error connecting to {i[0]}"
                         except:
@@ -800,13 +800,13 @@ class FlaskServer():
                         try:
                             return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
                         except requests.exceptions.ConnectTimeout :
-                            logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "force_update.relay.force_update", f"Timeout connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Timeout connecting to {i[0]}"
                         except requests.exceptions.ConnectionError:
-                            logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "force_update.relay.force_update", f"Error connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Error connecting to {i[0]}"
                         except:
@@ -831,7 +831,11 @@ class FlaskServer():
         logger=Logger()
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == str(0):
-                return MySqlite.read_setting("version")
+                content= {
+                    "version": MySqlite.read_setting("version"),
+                    "tag": MySqlite.read_setting("versiontag")
+                }
+                return make_response(content,200)
             else:
                 for i in CLIENTS:
                     if i[1] == identification:
@@ -839,20 +843,20 @@ class FlaskServer():
                         try:
                             return requests.post(url, json={"apikey":MySqlite.read_setting("apikey"), "ID": identification},timeout=10)
                         except requests.exceptions.ConnectTimeout :
-                            logger.log("ERROR", "start_job", f"Timeout connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "get_version.relay.get_version", f"Timeout connecting to {i[0]}",
+                            "500","flaskserver.py")
                             code=402
                             msg=f"Timeout connecting to {i[0]}"
                         except requests.exceptions.ConnectionError:
-                            logger.log("ERROR", "start_job", f"Error connecting to {i[0]}",
-                            "500", get_time())
+                            logger.log("ERROR", "get_version.relay.get_version", f"Error connecting to {i[0]}",
+                            "500", "flaskserver.py")
                             code=402
                             msg=f"Error connecting to {i[0]}"
                         except:
                             msg = "Internal server error"
                             code = 500
                 return make_response("Client not found", 403)
-        return "200 OK"
+        return make_response("401 Access Denied", 401)
 
 
     @website.route('/get_jobs', methods=['GET'], )
@@ -896,13 +900,13 @@ class FlaskServer():
                     response= requests.get(url, headers={"apikey":apikey,"Content-Type": "application/json"},json={},timeout=10,verify=False)
                     jobs.append(response.json())
                 except requests.exceptions.ConnectTimeout :
-                    logger.log("ERROR", "start_job", f"Timeout connecting to {client[0]}",
-                    "500", get_time())
+                    logger.log("ERROR", "getjobs.relay.getjob", f"Timeout connecting to {client[0]}",
+                    "500", "flaskserver.py")
                     code=402
                     msg=f"Timeout connecting to {client[0]}"
                 except requests.exceptions.ConnectionError:
-                    logger.log("ERROR", "start_job", f"Error connecting to {client[0]}",
-                    "500", get_time())
+                    logger.log("ERROR", "get_jobs.relay.get_job", f"Error connecting to {client[0]}",
+                    "500", "flaskserver.py")
                     code=402
                     msg=f"Error connecting to {client[0]}"
                 except:
@@ -944,8 +948,8 @@ class FlaskServer():
         if(MySqlite.read_setting("apikey") == secret):
             req = requests.request("GET", f"{"https://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{URLS_ROUTE}",
                         timeout=30, headers={"Content-Type": "application/json","apikey":secret}, verify=False)
-            Logger.log("INFO",0,"flask",f"Request to MSP: {req.status_code}",200, get_time())
-            Logger.log("INFO",0,"flask",f"Request to MSP: {req.content}",200, get_time())
+            Logger.log("INFO","urls","flask",f"Request to MSP: {req.status_code}",200, "flaskserver.py")
+            Logger.log("INFO","urls","flask",f"Request to MSP: {req.content}",200, "flaskserver.py")
 
             return make_response(req.content, str(req.status_code))
 
@@ -1079,11 +1083,11 @@ class FlaskServer():
             ],
             "installationKey":key
         }
-            logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, get_time())
-            logger.log("INFO", "check-installer", f"path :{"https://"} {MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}", 200, get_time())
+            logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, "flaskserver.py")
+            logger.log("INFO", "check-installer", f"path :{"https://"} {MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}", 200, "flaskserver.py")
             req = requests.request("POST", f"{"https://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("msp-port")}/{CLIENT_REGISTRATION_PATH}",
                         timeout=30, headers={"Content-Type": "application/json","apikey":secret}, json=payload, verify=False)
-            logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, get_time())
+            logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, "flaskserver.py")
             # if msp returns 200 ok, then return 200 ok
             if req.status_code == 200:
                 result = MySqlite.write_client(identification, name, ip, port, status, mac)
@@ -1119,10 +1123,10 @@ class FlaskServer():
                 MySqlite.delete_client(identification)
                 return make_response("200 ok", 200)
             else:
-                logger.log("ERROR", "uninstall", "Key does not match",1201, get_time())
+                logger.log("ERROR", "uninstall", "Key does not match",1201, "flaskserver.py")
                 return make_response("403 Rejected", 403)
         else:
-            logger.log("ERROR", "uninstall", "Access Denied",405, get_time())
+            logger.log("ERROR", "uninstall", "Access Denied",405,"flaskserver.py")
             return make_response("401 Access Denied", 401)
     # HELPERS
     def run(self):

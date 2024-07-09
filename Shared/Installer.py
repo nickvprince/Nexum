@@ -735,9 +735,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
                     verify=SSL_CHECK)
 
             request = request.json()
-            service_url=request["nexumServiceUrl"]
-            server_url=request["nexumUrl"]
-            portal_url=request["portalUrl"]
+            service_url=request["nexumServiceUrlLocal"]
+            server_url=request["nexumUrlLocal"]
+            portal_url=request["portalUrlLocal"]
             write_setting("TENANT_PORTAL_URL",portal_url)
             write_log("INFO","Install Server", f"service:{service_url} server:{server_url}",
                     0,get_time())
@@ -882,7 +882,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     server_address = backupserver.split(":")[0]
     server_port = backupserver.split(":")[1]
     write_setting("CLIENT_ID",str(0))
-    write_setting("server_address",server_address)
+    write_setting("msp_server_address",server_address)
     write_setting("server_port",server_port)
     write_setting("service_address","127.0.0.1:5004")
     write_setting("Status","Installing")
@@ -943,9 +943,9 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
                     timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                     verify=SSL_CHECK)
             request = request.json()
-            service_url=request["nexumServiceUrl"]
-            server_url=request["nexumServerUrl"]
-            portal_url=request["portalUrl"]
+            service_url=request["nexumServiceUrlLocal"]
+            server_url=request["nexumServerUrlLocal"]
+            portal_url=request["portalUrLocal"]
             write_setting("TENANT_PORTAL_URL",portal_url)
             write_log("INFO","Install Server", f"service:{service_url} server:{server_url}",
                     0,get_time())
