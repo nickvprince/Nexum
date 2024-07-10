@@ -36,11 +36,11 @@ namespace API.Services.Interfaces
                         if (!string.IsNullOrEmpty(tenant.ApiKeyServer))
                         {
                             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("apikey", tenant.ApiKey);
+                            return true;
                         }
                         else
                         {
                             Console.WriteLine("API key is not set for tenant.");
-                            return false;
                         }
                     }
                 }

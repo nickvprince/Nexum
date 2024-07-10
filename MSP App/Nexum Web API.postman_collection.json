@@ -10,143 +10,6 @@
 			"name": "Server API",
 			"item": [
 				{
-					"name": "DataLink/Check-For-Updates",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"nexumVersion\": \"1.0.0\",\r\n    \"nexumTag\": \"alpha\",\r\n    \"nexumServerVersion\": \"1.0.0\",\r\n    \"nexumServerTag\": \"alpha\",\r\n    \"nexumServiceVersion\": \"1.0.1\",\r\n    \"nexumServiceTag\": \"alpha\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Check-For-Updates",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Check-For-Updates"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Software/Nexum",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apiKey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/Software/Nexum",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"Software",
-								"Nexum"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Software/NexumServer",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apiKey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/Software/NexumServer",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"Software",
-								"NexumServer"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Software/NexumService",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apiKey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/Software/NexumService",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"Software",
-								"NexumService"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Urls",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apiKey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Urls",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Urls"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "DataLink/Register (Server)",
 					"request": {
 						"method": "POST",
@@ -159,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"type\": 0,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"type\": 0,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"ApiKey\": \"KeyHere\",\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -283,108 +146,6 @@
 					"response": []
 				},
 				{
-					"name": "DataLink/Update (Server)",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Update",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Update"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Update (Client)",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": {{clientClientId}},\r\n    \"uuid\": \"{{clientUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Update",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Update"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Update-Status",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Update-Status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Update-Status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "DataLink/Alert",
 					"request": {
 						"method": "POST",
@@ -397,7 +158,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"severity\": 3,\r\n    \"message\": \"Heartbeat missed\",\r\n    \"time\": \"2024-06-20T08:33:09.203Z\"\r\n}",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"severity\": 3,\r\n    \"message\": \"Heartbeat missed\",\r\n    \"time\": \"2024-06-20T08:33:09.203Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -431,7 +192,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"filename\": \"something.py\",\r\n    \"function\": \"getAsync()\",\r\n    \"message\": \"Device X has gone offline\",\r\n    \"code\": 10,\r\n    \"time\": \"2024-06-20T08:33:09.203Z\",\r\n    \"type\": 0\r\n}",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"filename\": \"something.py\",\r\n    \"function\": \"getAsync()\",\r\n    \"message\": \"Device X has gone offline\",\r\n    \"code\": 10,\r\n    \"time\": \"2024-06-20T08:33:09.203Z\",\r\n    \"type\": 0\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -447,6 +208,347 @@
 								"api",
 								"DataLink",
 								"Log"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Backup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"filename\": \"backup1\",\r\n    \"Path\": \"../../backup1.vdhk\",\r\n    \"Date\": \"2024-06-20T08:33:09.203Z\",\r\n    \"BackupServerId\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Backup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Backup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device (Server)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device (Client)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": {{clientClientId}},\r\n    \"uuid\": \"{{clientUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device-Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device-Status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device-Status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Job-Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1,\r\n    \"progress\": 20\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Job-Status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Job-Status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Job-Status (No Progress)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Job-Status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Job-Status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Urls",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Urls",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Urls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Check-For-Updates",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nexumVersion\": \"1.0.0\",\r\n    \"nexumTag\": \"alpha\",\r\n    \"nexumServerVersion\": \"1.0.0\",\r\n    \"nexumServerTag\": \"alpha\",\r\n    \"nexumServiceVersion\": \"1.0.1\",\r\n    \"nexumServiceTag\": \"alpha\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Check-For-Updates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Check-For-Updates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software/Nexum",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Software/Nexum",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Software",
+								"Nexum"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software/NexumServer",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Software/NexumServer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Software",
+								"NexumServer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software/NexumService",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Software/NexumService",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Software",
+								"NexumService"
 							]
 						}
 					},
@@ -614,7 +716,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"tenantid\": {{tenantId}}\r\n}",
+									"raw": "{\r\n    \"tenantid\": {{tenantId}},\r\n    \"type\": 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -732,6 +834,38 @@
 										"InstallationKey",
 										"By-Tenant",
 										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "NASServer Requests",
+					"item": [
+						{
+							"name": "NASServer",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"NAS1\",\r\n    \"path\": \"/smb/../../\",\r\n    \"nasUsername\": \"testnas\",\r\n    \"nasPassword\": \"nas123\",\r\n    \"tenantId\": {{tenantId}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/NASServer",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"NASServer"
 									]
 								}
 							},
@@ -1799,7 +1933,7 @@
 		},
 		{
 			"key": "apiKey",
-			"value": "1352305a-4fed-4754-86c2-f5cbb3e01715",
+			"value": "e255a931-426a-4dab-a72a-f541613d2707",
 			"type": "string"
 		},
 		{
@@ -1812,12 +1946,12 @@
 		},
 		{
 			"key": "serverInstallationKey",
-			"value": "7c6232f4-da82-4f2f-bd2a-de8995b6bc84",
+			"value": "65247b9a-c206-4798-a824-7fd562074869",
 			"type": "string"
 		},
 		{
 			"key": "clientInstallationKey",
-			"value": "96dd6fe6-4e62-45cb-9be4-3fb99347d28c",
+			"value": "519a2f9f-c677-4d9b-b422-8d3c680eaf41",
 			"type": "string"
 		},
 		{
