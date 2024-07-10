@@ -350,7 +350,7 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpGet("{id}/Stop")]
+        [HttpPost("{id}/Stop")]
         public async Task<IActionResult> StopAsync(int id)
         {
             if (ModelState.IsValid)
@@ -377,7 +377,7 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpGet("{id}/Refresh")]
+        [HttpPost("{id}/Refresh")]
         public async Task<IActionResult> RefreshAsync(int id)
         {
             if (ModelState.IsValid)
