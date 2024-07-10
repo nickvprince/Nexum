@@ -9,6 +9,6 @@ namespace SharedComponents.Services
 {
     public interface IAccountService
     {
-        public Task<User> LoginAsync(string username, string password);
+        public Task<ApplicationUser> LoginAsync(string username, string password);
     }
 }

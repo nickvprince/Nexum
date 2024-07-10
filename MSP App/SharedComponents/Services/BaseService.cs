@@ -14,7 +14,7 @@ namespace SharedComponents.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
             string? apiBaseUrl = _config.GetSection("WebAppSettings")?.GetValue<string>("APIBaseUri") + ":" + 
-                _config.GetSection("WebAppSettings")?.GetValue<string>("APIBasePort");
+                _config.GetSection("WebAppSettings")?.GetValue<string>("APIBasePort") + "/api/";
 
             // Attempt to get the Base URL, handle potential errors gracefully
             if (apiBaseUrl != null && Uri.TryCreate(apiBaseUrl, UriKind.Absolute, out var baseUri))
@@ -44,7 +44,20 @@ namespace SharedComponents.Services
             }
             else
             {
-                // Handle error cases (you might want to throw an exception here)
+                return null;
+            }
+        }
+
+
+        public async Task<dynamic?> ProcessResponsev2(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<dynamic>();
+                return data?.data?.ToObject<List<dynamic>>();
+            }
+            else
+            {
                 return null;
             }
         }

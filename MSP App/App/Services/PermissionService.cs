@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
-using System.Text.Json;
+using SharedComponents.WebRequestEntities.PermissionRequests;
+using System.Text;
 
 namespace App.Services
 {
@@ -9,49 +10,87 @@ namespace App.Services
     {
         public PermissionService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
         {
-        }
-        public Task<bool> CreateAsync(Permission permission)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> EditAsync(Permission permission)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Permission> GetAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<List<Permission>> GetAllAsync()
-        {
-            var responseObject = await ProcessResponse(await _httpClient.GetAsync("api/Permission/Get"));
-            var objectProperty = responseObject.GetType().GetProperty("Object");
-            var objectValue = objectProperty.GetValue(responseObject);
-            JArray permissionArray = JArray.Parse(objectValue.ToString());
-
-            List<Permission> permissions = new List<Permission>();
-
-            foreach (JObject permissionObject in permissionArray)
+            if (_httpClient.BaseAddress != null)
             {
-                Permission permission = new Permission
-                {
-                    Id = (int)permissionObject["id"],
-                    Name = (string)permissionObject["name"],
-                    Description = (string)permissionObject["description"],
-                    IsActive = (bool)permissionObject["isActive"],
-                };
-                permissions.Add(permission);
+                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Permission/");
             }
+            else
+            {
+                throw new InvalidOperationException("BaseAddress is not set.");
+            }
+        }
 
-            return permissions;
+        public async Task<Permission?> CreateAsync(PermissionCreateRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Permission>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Permission?> UpdateAsync(PermissionUpdateRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Permission>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{id}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<Permission?> GetAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{id}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Permission>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ICollection<Permission>?> GetAllAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<Permission>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

@@ -14,26 +14,26 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public Task<bool> AddAsync(User user)
+        public Task<bool> AddAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public Task<bool> DeleteAsync(string? id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> EditAsync(User user)
+        public Task<bool> EditAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User?> GetAsync(string username)
+        public async Task<ApplicationUser?> GetAsync(string? id)
         {
-            return await _appDbContext.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            return await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
-        public async Task<List<User>> GetAllAsync()
+        public async Task<ICollection<ApplicationUser>> GetAllAsync()
         {
             return await _appDbContext.Users.ToListAsync();
         }

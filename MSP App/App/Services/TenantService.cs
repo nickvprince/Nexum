@@ -1,6 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SharedComponents.Entities;
 using SharedComponents.Services;
+using SharedComponents.WebRequestEntities.TenantRequests;
+using System.Text;
 
 namespace App.Services
 {
@@ -8,51 +11,101 @@ namespace App.Services
     {
         public TenantService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
         {
-        }
-
-        public Task<bool> CreateAsync(Tenant tenant)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> EditAsync(Tenant tenant)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Tenant?> GetAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<List<Tenant>> GetAllAsync()
-        {
-            var responseObject = await ProcessResponse(await _httpClient.GetAsync("api/Tenant/Get"));
-            var objectProperty = responseObject.GetType().GetProperty("Object");
-            var objectValue = objectProperty.GetValue(responseObject);
-            JArray tenantArray = JArray.Parse(objectValue.ToString());
-
-            List<Tenant> tenants = new List<Tenant>();
-
-            foreach (JObject tenantObject in tenantArray)
+            if (_httpClient.BaseAddress != null)
             {
-                Tenant tenant = new Tenant
-                {
-                    
-                    Id = (int)tenantObject["id"],
-                    Name = (string)tenantObject["name"],
-                    ApiKey = (string)tenantObject["apiKey"],
-                    IsActive = (bool)tenantObject["isActive"],
-                };
-                tenants.Add(tenant);
+                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Tenant/");
             }
+            else
+            {
+                throw new InvalidOperationException("BaseAddress is not set.");
+            }
+        }
 
-            return tenants;
+        public async Task<Tenant?> CreateAsync(TenantCreateRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Tenant>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Tenant?> UpdateAsync(TenantUpdateRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Tenant>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{id}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<Tenant?> GetAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{id}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Tenant>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Tenant?> GetRichAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{id}/Rich");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Tenant>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ICollection<Tenant>?> GetAllAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<Tenant>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

@@ -9,10 +9,10 @@ namespace SharedComponents.DbServices
 {
     public interface IDbUserService
     {
-        public Task<bool> AddAsync(User user);
-        public Task<bool> EditAsync(User user);
-        public Task<bool> DeleteAsync(int id);
-        public Task<User?> GetAsync(string username);
-        public Task<List<User>> GetAllAsync();
+        public Task<bool> AddAsync(ApplicationUser user);
+        public Task<bool> EditAsync(ApplicationUser user);
+        public Task<bool> DeleteAsync(string? id);
+        public Task<ApplicationUser?> GetAsync(string? id);
+        public Task<ICollection<ApplicationUser>> GetAllAsync();
     }
 }

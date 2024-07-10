@@ -34,7 +34,7 @@ namespace App.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await _accountService.LoginAsync(loginViewModel.Username, loginViewModel.Password);
+                ApplicationUser user = await _accountService.LoginAsync(loginViewModel.Username, loginViewModel.Password);
                 if (user != null)
                 {
                     HttpContext.Session.SetString("Username", user.UserName);
@@ -50,7 +50,7 @@ namespace App.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAsync()
         {
-            User user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
+            ApplicationUser user = await _userService.GetAsync(HttpContext.Session.GetString("Username"));
             if (user != null)
             {
                 AccountViewModel accountViewModel = new AccountViewModel

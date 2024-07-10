@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
+using SharedComponents.WebRequestEntities.PermissionRequests;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1-Web")]
     public class PermissionController : ControllerBase
     {
         private readonly DbPermissionService _dbPermissionService;
@@ -16,50 +18,90 @@ namespace API.Controllers
             _dbPermissionService = dbPermissionService;
         }
 
-        [HttpPost("Create")]
-        public IActionResult CreatePermission([FromBody] object permission)
+        [HttpPost("")]
+        public async Task<IActionResult> CreateAsync([FromBody] PermissionCreateRequest request)
         {
-            //Create the permission
-            return Ok($"Permission created successfully.");
-        }
-
-        [HttpPut("Update")]
-        public IActionResult UpdatePermission([FromBody] object permission)
-        {
-            //Update the permission
-            return Ok($"Permission updated successfully.");
-        }
-
-        [HttpDelete("Delete/{id}")]
-        public IActionResult DeletePermission(string id)
-        {
-            //Delete the permission
-            return Ok($"Permission deleted successfully.");
-        }
-
-        [HttpGet("Get/{id}")]
-        public IActionResult GetPermission(string id)
-        {
-            //Get the permission
-            return Ok($"Retrieved permission successfully.");
-        }
-
-        [HttpGet("Get")]
-        public async Task<IActionResult> GetPermissionsAsync()
-        {
-            //Get the permissions
-            List<Permission> permissions = await _dbPermissionService.GetAllAsync();
-
-            if (permissions.Any())
+            if(ModelState.IsValid)
             {
-                var response = new
+                Permission? permission = new Permission
                 {
-                    data = permissions,
-                    message = $"Retrieved permissions successfully."
+                    Name = request.Name,
+                    Description = request.Description
                 };
-                return Ok(response);
+                permission = await _dbPermissionService.CreateAsync(permission);
+                if (permission != null)
+                {
+                    return Ok(permission);
+                }
+                return BadRequest("An error occurred while creating the permission.");
             }
-            return NotFound(new { message = "No permissions found." });
+            return BadRequest("Invalid Request.");
+        }
+
+        [HttpPut("")]
+        public async Task<IActionResult> UpdateAsync([FromBody] PermissionUpdateRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                Permission? permission = await _dbPermissionService.GetAsync(request.Id);
+                if (permission == null)
+                {
+                    return NotFound("Permission not found.");
+                }
+                permission.Name = request.Name;
+                permission.Description = request.Description;
+                permission = await _dbPermissionService.UpdateAsync(permission);
+                if (permission != null)
+                {
+                    return Ok(permission);
+                }
+                return BadRequest("An error occurred while updating the permission.");
+            }
+            return BadRequest("Invalid Request.");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _dbPermissionService.DeleteAsync(id))
+                {
+                    return Ok($"Permission deleted successfully.");
+                }
+                return NotFound("Permission not found.");
+            }
+            return BadRequest("Invalid Request.");
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                Permission? permission = await _dbPermissionService.GetAsync(id);
+                if (permission != null)
+                {
+                    return Ok(permission);
+                }
+                return NotFound("Permission not found.");
+            }
+            return BadRequest("Invalid Request.");
+        }
+
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<Permission>? permissions = await _dbPermissionService.GetAllAsync();
+                if (permissions != null)
+                {
+                    return Ok(permissions);
+                }
+                return NotFound("No permissions found.");
+            }
+            return BadRequest("Invalid Request.");
         }
     }
 }

@@ -4,6 +4,6 @@ namespace App.Models
 {
     public class UserViewModel
     {
-        public List<User>? Users { get; set; }
+        public ICollection<ApplicationUser>? Users { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SharedComponents.Entities;
 using SharedComponents.Services;
 using System.Text.Json;
@@ -16,58 +17,28 @@ namespace App.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> EditAsync(User user)
+        public Task<bool> EditAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> CreateAsync(User user)
+        public Task<bool> CreateAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User?> GetAsync(string username)
+        public async Task<ApplicationUser?> GetAsync(string username)
         {
-            var responseObject = await ProcessResponse(await _httpClient.GetAsync($"api/User/Get/{username}"));
-            var objectProperty = responseObject.GetType().GetProperty("Object");
-            var objectValue = objectProperty.GetValue(responseObject);
-            JObject userObject = JObject.Parse(objectValue.ToString());
-
-            string? passwordHash = userObject["passwordHash"]?.ToString();
-
-            User user = new User
-            {
-                UserName = userObject["userName"]?.ToString(),
-                PasswordHash = passwordHash?.Substring(0, 25),
-                Email = userObject["email"]?.ToString(),
-            };
-
-            return user;
+            var response = await _httpClient.GetAsync($"User/{username}");
+            var responseData = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ApplicationUser>(responseData);
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<ICollection<ApplicationUser>?> GetAllAsync()
         {
-            var responseObject = await ProcessResponse(await _httpClient.GetAsync("api/User/Get"));
-            var objectProperty = responseObject.GetType().GetProperty("Object");
-            var objectValue = objectProperty.GetValue(responseObject);
-            JArray usersArray = JArray.Parse(objectValue.ToString());
-
-            List<User> users = new List<User>();
-
-            foreach (JObject userObject in usersArray)
-            {
-                string passwordHash = (string)userObject["passwordHash"].ToString();
-                User user = new User
-                {
-                    Id = (string)userObject["id"], //not currently working because identiyUser does not allow for manual id management
-                    UserName = (string)userObject["userName"],
-                    PasswordHash = passwordHash.Substring(0, 25),
-                    Email = (string)userObject["email"],
-                };
-                users.Add(user);
-            }
-
-            return users;
+            var response = await _httpClient.GetAsync("User");
+            var responseData = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ICollection<ApplicationUser>>(responseData);
         }
     }
 }

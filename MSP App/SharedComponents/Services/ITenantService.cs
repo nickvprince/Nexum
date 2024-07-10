@@ -1,4 +1,5 @@
 ﻿using SharedComponents.Entities;
+using SharedComponents.WebRequestEntities.TenantRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,11 @@ namespace SharedComponents.Services
 {
     public interface ITenantService
     {
-        public Task<bool> CreateAsync(Tenant tenant);
-        public Task<bool> EditAsync(Tenant tenant);
-        public Task<bool> DeleteAsync(string id);
-        public Task<Tenant?> GetAsync(string id);
-        public Task<List<Tenant>> GetAllAsync();
+        public Task<Tenant?> CreateAsync(TenantCreateRequest request);
+        public Task<Tenant?> UpdateAsync(TenantUpdateRequest request);
+        public Task<bool> DeleteAsync(int id);
+        public Task<Tenant?> GetAsync(int id);
+        public Task<Tenant?> GetRichAsync(int id);
+        public Task<ICollection<Tenant>?> GetAllAsync();
     }
 }

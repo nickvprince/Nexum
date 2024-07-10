@@ -14,29 +14,173 @@ namespace API.Services
             _appDbContext = appDbContext;
         }
 
-        public Task<bool> CreateAsync(Tenant tenant)
+        public async Task<Tenant?> CreateAsync(Tenant? tenant)
         {
-            throw new NotImplementedException();
+            if (tenant != null)
+            {
+                tenant.ApiKey = Guid.NewGuid().ToString();
+                try
+                {
+                    // Add the tenant to the context
+                    await _appDbContext.Tenants.AddAsync(tenant);
+
+                    // Save changes to the database
+                    var result = await _appDbContext.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return await _appDbContext.Tenants
+                            .Where(t => t.Id == tenant.Id)
+                            .Include(t => t.TenantInfo)
+                            .FirstAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while creating the tenant: {ex.Message}");
+                }
+            }
+            return null;
         }
 
-        public Task<bool> EditAsync(Tenant tenant)
+        public async Task<Tenant?> UpdateAsync(Tenant? tenant)
         {
-            throw new NotImplementedException();
+            if (tenant != null)
+            {
+                try
+                {
+                    var existingTenant = await _appDbContext.Tenants
+                        .Where(t => t.Id == tenant.Id)
+                        .FirstAsync();
+                    if (existingTenant != null)
+                    {
+                        _appDbContext.Entry(existingTenant).CurrentValues.SetValues(tenant);
+
+                        var result = await _appDbContext.SaveChangesAsync();
+                        if (result >= 0)
+                        {
+                            return await _appDbContext.Tenants
+                                .Where(t => t.Id == tenant.Id)
+                                .Include(t => t.TenantInfo)
+                                .FirstAsync();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred while updating the tenant: {ex.Message}");
+                }
+            }
+            return null;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tenant = await _appDbContext.Tenants
+                    .Where(t => t.Id == id)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    _appDbContext.Tenants.Remove(tenant);
+                    var result = await _appDbContext.SaveChangesAsync();
+                    if (result > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting the tenant: {ex.Message}");
+            }
+            return false;
+        }
+        
+        public async Task<Tenant?> GetAsync(int id)
+        {
+            try
+            {
+                var tenant = await _appDbContext.Tenants
+                    .Where(t => t.Id == id)
+                    .Include(t => t.TenantInfo)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the tenant: {ex.Message}");
+            }
+            return null;
+        }
+        
+        public async Task<Tenant?> GetRichAsync(int id)
+        {
+            try
+            {
+                var tenant =  await _appDbContext.Tenants
+                    .Where(t => t.Id == id)
+                    .Include(t => t.TenantInfo)
+                    .Include(t => t.InstallationKeys)
+                    .Include(t => t.Devices!)
+                        .ThenInclude(d => d.DeviceInfo!)
+                            .ThenInclude(di => di.MACAddresses)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the tenant: {ex.Message}");
+            }
+            return null;
         }
 
-        public Task<Tenant> GetAsync(int id)
+        public async Task<Tenant?> GetByApiKeyAsync(string? apikey)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tenant = await _appDbContext.Tenants
+                    .Where(t => t.ApiKey == apikey)
+                    .Include(t => t.TenantInfo)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the tenant: {ex.Message}");
+            }
+            return null;
         }
-
-        public async Task<List<Tenant>> GetAllAsync()
+        
+        public async Task<ICollection<Tenant>?> GetAllAsync()
         {
-            return await _appDbContext.Tenants.ToListAsync();
+            try
+            {
+                var tenants = await _appDbContext.Tenants
+                    .Include(t => t.TenantInfo)
+                    .ToListAsync();
+                if (tenants != null)
+                {
+                    if (tenants.Any())
+                    {
+                        return tenants;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all tenants: {ex.Message}");
+            }
+            return null;
         }
     }
 }

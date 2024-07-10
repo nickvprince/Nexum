@@ -9,10 +9,10 @@ namespace SharedComponents.DbServices
 {
     public interface IDbPermissionService
     {
-        public Task<bool> AddAsync(Permission permission);
-        public Task<bool> EditAsync(Permission permission);
+        public Task<Permission?> CreateAsync(Permission? permission);
+        public Task<Permission?> UpdateAsync(Permission? permission);
         public Task<bool> DeleteAsync(int id);
-        public Task<Permission> GetAsync(int id);
-        public Task<List<Permission>> GetAllAsync();
+        public Task<Permission?> GetAsync(int id);
+        public Task<ICollection<Permission>?> GetAllAsync();
     }
 }
