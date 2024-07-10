@@ -1,6 +1,7 @@
 ﻿using API.DataAccess;
 using API.Services.Interfaces;
 using Newtonsoft.Json;
+using SharedComponents.Entities;
 using SharedComponents.RequestEntities.HTTP;
 using SharedComponents.ResponseEntities.HTTP;
 using SharedComponents.Utilities;
@@ -61,6 +62,25 @@ namespace API.Services
                 Console.WriteLine("Error forcing device update on the server.");
             }
             return false;
+        }
+
+        public async Task<DeviceStatus?> GetDeviceStatusAsync(int tenantId, int clientId)
+        {
+            try
+            {
+                if (await InitiallizeHttpClient(tenantId))
+                {
+                    var response = await _httpClient.GetAsync($"get_status/{clientId}");
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    return JsonConvert.DeserializeObject<DeviceStatus>(responseData);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting device status from the server.");
+            }
+            return null;
         }
 
         public async Task<GetDeviceFilesResponse?> GetDeviceFilesAsync(int tenantId, GetDeviceFilesRequest request)

@@ -1,4 +1,5 @@
-﻿using SharedComponents.RequestEntities.HTTP;
+﻿using SharedComponents.Entities;
+using SharedComponents.RequestEntities.HTTP;
 using SharedComponents.ResponseEntities.HTTP;
 
 namespace API.Services.Interfaces
@@ -7,6 +8,7 @@ namespace API.Services.Interfaces
     {
         public Task<bool?> ForceDeviceCheckinAsync(int tenantId, int client_id);
         public Task<bool?> ForceDeviceUpdateAsync(int tenantId, int client_id);
+        public Task<DeviceStatus?> GetDeviceStatusAsync(int tenantId, int client_id);
         public Task<GetDeviceFilesResponse?> GetDeviceFilesAsync(int tenantId, GetDeviceFilesRequest request);
     }
 }
