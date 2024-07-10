@@ -17,5 +17,6 @@ namespace SharedComponents.Services
         public Task<Device?> GetAsync(int id);
         public Task<ICollection<Device>?> GetAllAsync();
         public Task<ICollection<Device>?> GetAllByTenantIdAsync(int tenantId);
+        public Task<bool> RefreshAsync(int id);
     }
 }

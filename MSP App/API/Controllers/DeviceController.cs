@@ -300,6 +300,8 @@ namespace API.Controllers
                 {
                     return NotFound("DeviceInfo not found.");
                 }
+                // force checkin here
+                //pause here
                 DeviceStatus? status = await _httpDeviceService.GetDeviceStatusAsync(device.TenantId, device.DeviceInfo.ClientId);
                 if (status != null)
                 {

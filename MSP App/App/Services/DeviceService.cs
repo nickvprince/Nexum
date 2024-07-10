@@ -122,5 +122,19 @@ namespace App.Services
             }
         }
 
+        public async Task<bool> RefreshAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{id}/Refresh", null);
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
