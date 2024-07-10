@@ -119,7 +119,13 @@ class RunJob():
                     MySqlite.write_setting("job_status","NotStarted")
                     MySqlite.write_setting("Status","ServiceOffline")
                     Logger.debug_print("Error: "+str(e))
-                time.sleep(2)
+                time.sleep(5)
+                #ensures the servce is online regardless of what happens or is supposed to happen
+                try:
+                    response = requests.post("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                    MySqlite.write_setting("Status","Online")
+                except:
+                    Mysqlite.write_setting("Status","ServiceOffline")
                 # check response for what happened
                 self.job_running_var = False
                 # set job status to killed

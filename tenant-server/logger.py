@@ -61,11 +61,11 @@ class Logger():
         # post to https://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}/api/DataLink/Log
         header ={
             "Content-Type": "application/json",
-            "apikey": "d0788646-13f5-4c7d-9400-73adc9c798e4"
+            "apikey": MySqlite.read_setting("apikey"),
         }
         content = {
             "client_id": MySqlite.read_setting("CLIENT_ID"),
-            "uuid": "05bc95e5-3873-4c5d-b08a-09a0310aac18",
+            "uuid": MySqlite.read_setting("uuid"),
             "type": convert_type(severity),
             "Function": Function,
             "message": message,

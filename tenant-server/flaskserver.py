@@ -1090,7 +1090,7 @@ class FlaskServer():
             logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, "flaskserver.py")
             # if msp returns 200 ok, then return 200 ok
             if req.status_code == 200:
-                result = MySqlite.write_client(identification, name, ip, port, status, mac)
+                result = MySqlite.write_client(identification, name, ip, port, status, mac,uid)
                 if result == 200:
                     # verify for the MSP
 

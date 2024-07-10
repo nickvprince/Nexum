@@ -335,6 +335,17 @@ class MySqlite():
         conn.commit()
         conn.close()
     @staticmethod
+    def get_client_uuid(client_id):
+        """
+        Get the uuid of a client
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT uuid FROM clients WHERE id = ?''', (client_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0]
+    @staticmethod
     def write_setting(setting, value):
         """
         Write a setting to the database
@@ -343,15 +354,15 @@ class MySqlite():
         capture_output=True, text=True,check=True,shell=True)
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
-        output = output[:24]
+        output = output[:32]
         if setting == "Status":
             header ={
                 "Content-Type":"application/json",
-                "apikey":"d0788646-13f5-4c7d-9400-73adc9c798e4"
+                "apikey":MySqlite.read_setting("apikey")
             }
             content = {
                 "client_id": MySqlite.read_setting("CLIENT_ID"),
-                "uuid": "05bc95e5-3873-4c5d-b08a-09a0310aac18",
+                "uuid": MySqlite.read_setting("uuid"),
                 "status": convert_device_status()
 
             }
@@ -400,7 +411,7 @@ class MySqlite():
                                     capture_output=True, text=True,check=True,shell=True) # enc with uuid
             output = result.stdout.strip()
             output = output.split('\n\n', 1)[-1]
-            output = output[:24]
+            output = output[:32]
             value = decrypt_string(output,value)
             return value.rstrip()
         except:
@@ -452,7 +463,7 @@ class MySqlite():
         conn.close()
 
     @staticmethod
-    def write_client(identification, name, address, port, status, mac):
+    def write_client(identification, name, address, port, status, mac, uuid):
         """
         Write a client to the database
         """
@@ -462,9 +473,9 @@ class MySqlite():
         existing_address = cursor.fetchone()
         if existing_address:
             return 500
-        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC)
-                    VALUES (?, ?, ?, ?, ?, ?)''',
-                    (identification, name, address, port, status, mac))
+        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC,uuid)
+                    VALUES (?, ?, ?, ?, ?, ?,?)''',
+                    (identification, name, address, port, status, mac,uuid))
         conn.commit()
         conn.close()
         MySqlite.write_heartbeat(identification, 5, datetime.datetime.now(), 3)

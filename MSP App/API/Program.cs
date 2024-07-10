@@ -50,6 +50,7 @@ builder.Services.AddScoped<DbInstallationKeyService>();
 builder.Services.AddScoped<DbNASServerService>();
 builder.Services.AddScoped<DbBackupService>();
 builder.Services.AddScoped<DbJobService>();
+builder.Services.AddScoped<HTTPJobService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
