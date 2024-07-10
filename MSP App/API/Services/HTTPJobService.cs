@@ -24,7 +24,7 @@ namespace API.Services
             }*/
         }
 
-        public async Task<bool> CreateJobAsync(int tenantId, DeviceJob job)
+        public async Task<bool> CreateAsync(int tenantId, DeviceJob job)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> UpdateJobAsync(int tenantId, DeviceJob job)
+        public async Task<bool> UpdateAsync(int tenantId, DeviceJob job)
         {
             try
             {
@@ -64,7 +64,27 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> StartJobAsync(int tenantId, int client_Id)
+        public async Task<bool> DeleteAsync(int tenantId, int client_Id, int id)
+        {
+            try
+            {
+                if (await InitiallizeHttpClient(tenantId))
+                {
+                    var content = new StringContent(JsonConvert.SerializeObject(client_Id), Encoding.UTF8, "application/json");
+                    var response = await _httpClient.DeleteAsync($"delete_job/{client_Id}?job_id={id}");
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error deleting job on the server.");
+            }
+            return false;
+        }
+
+        public async Task<bool> StartAsync(int tenantId, int client_Id)
         {
             try
             {
@@ -84,7 +104,7 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> StopJobAsync(int tenantId, int client_Id)
+        public async Task<bool> StopAsync(int tenantId, int client_Id)
         {
             try
             {
@@ -104,7 +124,7 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> ResumeJobAsync(int tenantId, int client_Id)
+        public async Task<bool> ResumeAsync(int tenantId, int client_Id)
         {
             try
             {
@@ -124,7 +144,7 @@ namespace API.Services
             return false;
         }
 
-        public async Task<bool> PauseJobAsync(int tenantId, int client_Id)
+        public async Task<bool> PauseAsync(int tenantId, int client_Id)
         {
             try
             {
@@ -144,7 +164,7 @@ namespace API.Services
             return false;
         }
         //bool because cannot deserialize tenant server response
-        public async Task<bool> GetJobAsync(int tenantId, int client_Id)
+        public async Task<bool> GetAsync(int tenantId, int client_Id)
         {
             try
             {
@@ -163,7 +183,7 @@ namespace API.Services
             return false;
         }
         //cannot deserialize tenant server response (Not implemented)
-        public async Task<bool> GetAllJobAsync(int tenantId, int client_Id)
+        public async Task<bool> GetAllAsync(int tenantId, int client_Id)
         {
             try
             {

@@ -66,7 +66,7 @@ namespace API.Controllers
                         job = await _dbJobService.CreateAsync(job);
                         if (job != null)
                         {
-                            if(await _httpJobService.CreateJobAsync(device.TenantId, job))
+                            if(await _httpJobService.CreateAsync(device.TenantId, job))
                             {
                                 return Ok(job);
                             }
@@ -117,7 +117,7 @@ namespace API.Controllers
                                 Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
                                 if (device != null)
                                 {
-                                    if (await _httpJobService.UpdateJobAsync(device.TenantId, job))
+                                    if (await _httpJobService.UpdateAsync(device.TenantId, job))
                                     {
                                         return Ok(job);
                                     }
@@ -174,7 +174,7 @@ namespace API.Controllers
                         Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
                         if (device != null)
                         {
-                            if (await _httpJobService.StopJobAsync(device.TenantId, job.Id))
+                            if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.Id))
                             {
                                 return Ok("Job deleted successfully.");
                             }
@@ -265,6 +265,114 @@ namespace API.Controllers
                     }
                 }
                 return NotFound("No jobs found for the tenant.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpPost("{id}/Start")]
+        public async Task<IActionResult> StartAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (job.DeviceId != null)
+                {
+                    Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                    if (device != null)
+                    {
+                        if (await _httpJobService.StartAsync(device.TenantId, job.Id))
+                        {
+                            return Ok("Job started successfully.");
+                        }
+                        return BadRequest("An error occurred while starting the job on the tenant server.");
+                    }
+                }
+                return BadRequest("An error occurred while starting the job.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpPost("{id}/Pause")]
+        public async Task<IActionResult> PauseAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (job.DeviceId != null)
+                {
+                    Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                    if (device != null)
+                    {
+                        if (await _httpJobService.PauseAsync(device.TenantId, job.Id))
+                        {
+                            return Ok("Job paused successfully.");
+                        }
+                        return BadRequest("An error occurred while pausing the job on the tenant server.");
+                    }
+                }
+                return BadRequest("An error occurred while pausing the job.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpPost("{id}/Resume")]
+        public async Task<IActionResult> ResumeAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (job.DeviceId != null)
+                {
+                    Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                    if (device != null)
+                    {
+                        if (await _httpJobService.ResumeAsync(device.TenantId, job.Id))
+                        {
+                            return Ok("Job resumed successfully.");
+                        }
+                        return BadRequest("An error occurred while resuming the job on the tenant server.");
+                    }
+                }
+                return BadRequest("An error occurred while resuming the job.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("{id}/Stop")]
+        public async Task<IActionResult> StopAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (job.DeviceId != null)
+                {
+                    Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                    if (device != null)
+                    {
+                        if (await _httpJobService.StopAsync(device.TenantId, job.Id))
+                        {
+                            return Ok("Job stopped successfully.");
+                        }
+                        return BadRequest("An error occurred while stopping the job on the tenant server.");
+                    }
+                }
+                return BadRequest("An error occurred while stopping the job.");
             }
             return BadRequest("Invalid request.");
         }
