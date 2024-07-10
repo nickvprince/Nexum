@@ -16,12 +16,15 @@ namespace API.Controllers
         private readonly DbDeviceService _dbDeviceService;
         private readonly DbTenantService _dbTenantService;
         private readonly DbInstallationKeyService _dbInstallationKeyService;
+        private readonly HTTPDeviceService _httpDeviceService;
 
-        public DeviceController(DbDeviceService dbDeviceService, DbTenantService dbTenantService, DbInstallationKeyService dbInstallationKeyService)
+        public DeviceController(DbDeviceService dbDeviceService, DbTenantService dbTenantService,
+            DbInstallationKeyService dbInstallationKeyService, HTTPDeviceService httpDeviceService)
         {
             _dbDeviceService = dbDeviceService;
             _dbTenantService = dbTenantService;
             _dbInstallationKeyService = dbInstallationKeyService;
+            _httpDeviceService = httpDeviceService;
         }
 
         [HttpPost("")]
@@ -279,6 +282,35 @@ namespace API.Controllers
                     }
                 }
                 return NotFound("No devices found for the specified tenant.");
+            }
+            return BadRequest("Invalid Request.");
+        }
+
+        [HttpPost("{id}/Refresh")]
+        public async Task<IActionResult> RefreshAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                Device? device = await _dbDeviceService.GetAsync(id);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                if (device.DeviceInfo == null)
+                {
+                    return NotFound("DeviceInfo not found.");
+                }
+                DeviceStatus? status = await _httpDeviceService.GetDeviceStatusAsync(device.TenantId, device.DeviceInfo.ClientId);
+                if (status != null)
+                {
+                    device.Status = status;
+                    device = await _dbDeviceService.UpdateAsync(device);
+                    if (device != null)
+                    {
+                        return Ok(device);
+                    }
+                }
+                return BadRequest("An error occurred while updating the device.");
             }
             return BadRequest("Invalid Request.");
         }
