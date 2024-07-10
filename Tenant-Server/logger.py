@@ -57,15 +57,15 @@ class Logger():
         """
         Information
         """
-        date = time.strftime("%Y-%m-%dt%H:%M:%S:%m", time.localtime())
+        date = time.strftime("%Y-%m-%dT%H:%M:%S.%m", time.localtime())
         # post to https://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}/api/DataLink/Log
         header ={
             "Content-Type": "application/json",
-            "apikey": MySqlite.read_setting("apikey")
+            "apikey": "d0788646-13f5-4c7d-9400-73adc9c798e4"
         }
         content = {
-            "cient_id": MySqlite.read_setting("CLIENT_ID"),
-            "uuid": MySqlite.read_setting("uuid"),
+            "client_id": MySqlite.read_setting("CLIENT_ID"),
+            "uuid": "05bc95e5-3873-4c5d-b08a-09a0310aac18",
             "type": convert_type(severity),
             "Function": Function,
             "message": message,
@@ -74,7 +74,8 @@ class Logger():
             "filename": filename
         }
         try:
-            response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Log", headers=header, json=content,timeout=5)
+            response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Log", headers=header, json=content,timeout=5,verify=False)
+            print(response.status_code)
         except Exception as e:
             print(e)
         MySqlite.write_log(severity, Function, message, code, date)

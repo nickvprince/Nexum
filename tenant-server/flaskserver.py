@@ -587,9 +587,9 @@ class FlaskServer():
             except Exception as e:
                 MySqlite.write_log("ERROR","nexumservice", "Failed to get URLS " + str(e),"1009","flaskserver.py")
 
-    @website.route('/get_job', methods=['GET'], )
+    @website.route('/get_job/<int:id>', methods=['GET'], )
     @staticmethod
-    def get_job():
+    def get_job(id):
         """
         Gives Current Job Information
         """
@@ -598,7 +598,7 @@ class FlaskServer():
         CLIENTS = MySqlite.load_clients()
         # get client secret from header
         apikey = request.headers.get('apikey')
-        identification = data.get('client_id', '')
+        identification = id
         logger=Logger()
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == str(0):
@@ -680,16 +680,16 @@ class FlaskServer():
         return "200 OK"
 
 
-    @website.route('/get_status', methods=['GET'], )
+    @website.route('/get_status/<int:id>', methods=['GET'], )
     @staticmethod
-    def get_status():
+    def get_status(id):
         """
         Gets the current status of running jobs or error state, version information etc
         """
         data = request.get_json()
         # get client secret from header
         apikey = request.headers.get('apikey')
-        identification = data.get('client_id', '')
+        identification = id
         logger=Logger()
         global CLIENTS
         CLIENTS = MySqlite.load_clients()
@@ -725,9 +725,9 @@ class FlaskServer():
         else:
             return make_response("401 Access Denied", 401)
 
-    @website.route('/get_job_status', methods=['POST'], )
+    @website.route('/get_job_status/<int:id>', methods=['GET'], )
     @staticmethod
-    def get_job_status():
+    def get_job_status(id):
         """
         Gets the current status of running job
         """
@@ -738,7 +738,7 @@ class FlaskServer():
         # get the clientSecret from the json body
         recieved_client_secret = request.headers.get('apikey', '')
         # get the ID from the json body
-        recieved_client_id = data.get('client_id', '')
+        recieved_client_id = id
 
 
         authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
@@ -793,7 +793,7 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == 0:
                 pass # update server
-            else:   
+            else:
                 for i in CLIENTS:
                     if i[1] == identification:
                         url = f"http://{i[2]}:{i[3]}/force_update"
@@ -816,16 +816,16 @@ class FlaskServer():
         return "200 OK"
 
 
-    @website.route('/get_version', methods=['GET'], )
+    @website.route('/get_version/<int:id>', methods=['GET'], )
     @staticmethod
-    def get_version():
+    def get_version(id):
         """
         Gets version information from the client
         """
         data = request.get_json()
         # get client secret from header
         apikey = request.headers.get('apikey')
-        identification = data.get('client_id', '')
+        identification = id
         global CLIENTS
         CLIENTS = MySqlite.load_clients()
         logger=Logger()
@@ -987,16 +987,16 @@ class FlaskServer():
         else:
             return make_response("500 Internal Server Error", 500)
         
-    @website.route('/get_smb', methods=['GET'], )
+    @website.route('/get_smb/<int:id>', methods=['GET'], )
     @staticmethod
-    def get_smb():
+    def get_smb(id):
         """
         Gets smb share information
         """
 
         # get client secret from header
         apikey = request.headers.get('apikey')
-        identification = request.get_json().get('id', '')
+        identification = id
         logger=Logger()
         auth=FlaskServer.auth(apikey, logger,  MySqlite.read_setting("client_id"))
         if auth == 200:
@@ -1014,15 +1014,15 @@ class FlaskServer():
         else:
             return make_response("500 Internal Server Error", 500)
 
-    @website.route('/delete_smb', methods=['DELETE'], )
+    @website.route('/delete_smb/<int:id>', methods=['DELETE'], )
     @staticmethod
-    def delete_smb():
+    def delete_smb(id):
         """
         Deletes a smb share
         """
         # get client secret from header
         apikey = request.headers.get('apikey')
-        identification = request.get_json().get('id', '')
+        identification = id
         logger=Logger()
         auth = FlaskServer.auth(apikey, logger, MySqlite.read_setting("id"))
         if auth == 200:
