@@ -201,5 +201,24 @@ namespace API.Services
             }
             return false;
         }
+
+        public async Task<DeviceJobStatus?> GetStatusAsync(int tenantId, int client_Id, int id)
+        {
+            try
+            {
+                if (await InitiallizeHttpClient(tenantId))
+                {
+                    var response = await _httpClient.GetAsync($"get_job_status/{client_Id}?job_id={id}");
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    return JsonConvert.DeserializeObject<DeviceJobStatus>(responseData);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting job status from the server.");
+            }
+            return null;
+        }
     }
 }

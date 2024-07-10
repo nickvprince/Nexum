@@ -376,5 +376,38 @@ namespace API.Controllers
             }
             return BadRequest("Invalid request.");
         }
+
+        [HttpGet("{id}/Refresh")]
+        public async Task<IActionResult> RefreshAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                DeviceJob? job = await _dbJobService.GetAsync(id);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+                if (job.DeviceId != null)
+                {
+                    Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                    if (device != null)
+                    {
+                        DeviceJobStatus? status = await _httpJobService.GetStatusAsync(device.TenantId, device.DeviceInfo.ClientId, job.Id);
+                        if (status != null)
+                        {
+                            job.Status = (DeviceJobStatus)status;
+                            job = await _dbJobService.UpdateAsync(job);
+                            if (job != null)
+                            {
+                                return Ok("Job status refreshed.");
+                            }
+                        }
+                        return BadRequest("An error occurred while getting the job status from the tenant server.");
+                    }
+                }
+                return BadRequest("An error occurred while getting the job status.");
+            }
+            return BadRequest("Invalid request.");
+        }
     }
 }

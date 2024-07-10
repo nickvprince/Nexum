@@ -15,5 +15,6 @@ namespace API.Services.Interfaces
         public Task<bool> GetAsync(int tenantId, int client_Id);
         //cannot deserialize tenant server response (Not implemented)
         public Task<bool> GetAllAsync(int tenantId, int client_Id);
+        public Task<DeviceJobStatus?> GetStatusAsync(int tenantId, int client_Id, int id);
     }
 }
