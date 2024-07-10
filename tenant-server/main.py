@@ -1,6 +1,5 @@
 """
-# Program: tenant-server
-# File: main.py
+# Program: tenant-server# File: main.py
 # Authors: 1. Danny Smith
 #
 # Date: 3/192024
@@ -13,7 +12,7 @@
 
 # pylint: disable= no-member,no-name-in-module, import-error,global-variable-not-assigned
 
-
+import socket
 import time
 from iconmanager import IconManager, image_path
 from helperfunctions import logs, tenant_portal,load
@@ -24,6 +23,7 @@ from runjob import LOCAL_JOB
 from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
+import subprocess
 
 
 # Global variables
@@ -31,21 +31,37 @@ def init():
     """
     Initializes the program
     """
-    global LOCAL_JOB
     InitSql()
-    #LOCAL_JOB.load(0) -- need error handling
-    #start watchdog.exe
+    global LOCAL_JOB
+    LOCAL_JOB.load(0)
     Security.load_tenant_secret()
     load()
+    #start watchdog.exe
 
 def main():
     """
     Main method of the program for testing and starting the program
     """
+    MySqlite.write_setting("msp_server_address","127.0.0.1")
+    MySqlite.write_setting("msp-port","7101")
+    MySqlite.write_setting("CLIENT_ID","0")
     init()
+    MySqlite.write_setting("apikey","922ef041-a5ef-4473-90c8-46038b052a28")# 01ee3ece-7976-4cda-b4f4-00d5f68d1cbd
+    MySqlite.write_setting("msp_api","a109ef4c-b611-4aff-ac26-07b86a7161aa")
+    MySqlite.write_setting("version","1.0.0")
+    MySqlite.write_setting("versiontag","alpha")
+    MySqlite.write_setting("Status","Online")
+    MySqlite.write_setting("job_status","NotStarted")
+    result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+    capture_output=True, text=True,check=True,shell=True)
+    output = result.stdout.strip()
+    output = output.split('\n\n', 1)[-1]
+    MySqlite.write_setting("uuid",output)
+    MySqlite.write_setting("msp_server_address","127.0.0.1")
+    MySqlite.write_setting("msp-port","7101")
     clients = MySqlite.load_clients()
     l = Logger()
-    H = HeartBeat(Security.get_client_secret(), 10,clients)
+    _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
@@ -54,18 +70,9 @@ def main():
     i.run()
     # log a message
 
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    l.log("INFO", "Main", "Main has started", "000","main.py")
     f = FlaskServer()
     f.run()
 
 if __name__ == "__main__":
-    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("TENANT_ID","1")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
-    MySqlite.write_setting("POLLING_INTERVAL","10")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5000")
-    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("heartbeat_interval","5")
     main()

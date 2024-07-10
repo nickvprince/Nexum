@@ -21,6 +21,7 @@ from cryptography.hazmat.backends import default_backend
 from logger import Logger
 from MySqlite import MySqlite
 CLIENT_SECRET = "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # secret for the client to communicate with A2
+ENCODING = "utf-8"
 # pylint: disable= bare-except
 
 class Security():
@@ -71,7 +72,7 @@ class Security():
         SHA256 a string
         """
         # Convert the string to bytes
-        string_bytes = str(string).encode('utf-8')
+        string_bytes = str(string).encode(ENCODING)
 
             # Compute the SHA-256 hash
         sha256_hash = hashlib.sha256(string_bytes).hexdigest()
@@ -85,14 +86,14 @@ class Security():
         Encrypt a string with AES-256 bit encryption
         """
         # Pad the password to be 16 bytes long
-        password_hashed = str(password).ljust(16).encode('utf-8')
+        password_hashed = str(password).ljust(16).encode(ENCODING)
 
         # Create a new AES cipher with the password as the key
         cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
         encryptor = cipher.encryptor()
 
         # Pad the string to be a multiple of 16 bytes long
-        string = string.ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+        string = string.ljust((len(string) // 16 + 1) * 16).encode(ENCODING)
 
         # Encrypt the string using AES
         encrypted_string = encryptor.update(string) + encryptor.finalize()
@@ -100,7 +101,7 @@ class Security():
         # Encode the encrypted string in base64
         encoded_string = base64.b64encode(encrypted_string)
 
-        return encoded_string.decode('utf-8')
+        return encoded_string.decode(ENCODING)
 
     # decrypt a string using AES
     @staticmethod
@@ -110,7 +111,7 @@ class Security():
         """
         l = Logger()
         # Pad the password to be 16 bytes long
-        password_hashed = str(password).ljust(16).encode('utf-8')
+        password_hashed = str(password).ljust(16).encode(ENCODING)
 
         # Create a new AES cipher with the password as the key
         cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
@@ -122,7 +123,7 @@ class Security():
         # Decrypt the string using AES
         decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
         try:
-            return decrypted_string.decode('utf-8')
+            return decrypted_string.decode(ENCODING)
         except UnicodeDecodeError:
             l.log("ERROR", "decrypt_string", "Decryption failed", "1004", time.asctime())
             return "Decryption failed"
