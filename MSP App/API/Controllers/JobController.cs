@@ -14,12 +14,15 @@ namespace API.Controllers
         private readonly DbJobService _dbJobService;
         private readonly HTTPJobService _httpJobService;
         private readonly DbDeviceService _dbDeviceService;
+        private readonly DbNASServerService _dbNASServerService;
 
-        public JobController(DbJobService dbJobService, HTTPJobService httpJobService, DbDeviceService dbDeviceService)
+        public JobController(DbJobService dbJobService, HTTPJobService httpJobService, 
+            DbDeviceService dbDeviceService, DbNASServerService dbNASServerService)
         {
             _dbJobService = dbJobService;
             _httpJobService = httpJobService;
             _dbDeviceService = dbDeviceService;
+            _dbNASServerService = dbNASServerService;
         }
 
         [HttpPost("")]
@@ -34,7 +37,12 @@ namespace API.Controllers
                 }
                 if (request.Settings != null)
                 {
-                    if(request.Settings.Schedule != null)
+                    NASServer? nasServer = await _dbNASServerService.GetByBackupServerIdAsync(device.TenantId, request.Settings.BackupServerId);
+                    if (nasServer == null)
+                    {
+                        return NotFound("NAS Server not found.");
+                    }
+                    if (request.Settings.Schedule != null)
                     {
                         DeviceJob? job = new DeviceJob
                         {
@@ -91,37 +99,51 @@ namespace API.Controllers
                 }
                 if (request.Settings != null && job.Settings != null)
                 {
-                    if (request.Settings.Schedule != null && job.Settings.Schedule != null)
+                    if(job.DeviceId != null)
                     {
-                        job.Name = request.Name;
-                        job.Settings.BackupServerId = request.Settings.BackupServerId;
-                        job.Settings.Type = request.Settings.Type;
-                        job.Settings.StartTime = request.Settings.StartTime;
-                        job.Settings.EndTime = request.Settings.EndTime;
-                        job.Settings.UpdateInterval = request.Settings.UpdateInterval;
-                        job.Settings.retryCount = request.Settings.retryCount;
-                        job.Settings.Sampling = request.Settings.Sampling;
-                        job.Settings.Retention = request.Settings.Retention;
-                        job.Settings.Schedule.Sunday = request.Settings.Schedule.Sunday;
-                        job.Settings.Schedule.Monday = request.Settings.Schedule.Monday;
-                        job.Settings.Schedule.Tuesday = request.Settings.Schedule.Tuesday;
-                        job.Settings.Schedule.Wednesday = request.Settings.Schedule.Wednesday;
-                        job.Settings.Schedule.Thursday = request.Settings.Schedule.Thursday;
-                        job.Settings.Schedule.Friday = request.Settings.Schedule.Friday;
-                        job.Settings.Schedule.Saturday = request.Settings.Schedule.Saturday;
-                        job = await _dbJobService.UpdateAsync(job);
-                        if (job != null)
+
+                        Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                        if (device == null)
                         {
-                            if (job.DeviceId != null)
+                            return NotFound("Device not found.");
+                        }
+                        NASServer? nasServer = await _dbNASServerService.GetByBackupServerIdAsync(device.TenantId, request.Settings.BackupServerId);
+                        if (nasServer == null)
+                        {
+                            return NotFound("NAS Server not found.");
+                        }
+                        if (request.Settings.Schedule != null && job.Settings.Schedule != null)
+                        {
+                            job.Name = request.Name;
+                            //job.Settings.BackupServerId = request.Settings.BackupServerId; #disable changing backup server
+                            job.Settings.Type = request.Settings.Type;
+                            job.Settings.StartTime = request.Settings.StartTime;
+                            job.Settings.EndTime = request.Settings.EndTime;
+                            job.Settings.UpdateInterval = request.Settings.UpdateInterval;
+                            job.Settings.retryCount = request.Settings.retryCount;
+                            job.Settings.Sampling = request.Settings.Sampling;
+                            job.Settings.Retention = request.Settings.Retention;
+                            job.Settings.Schedule.Sunday = request.Settings.Schedule.Sunday;
+                            job.Settings.Schedule.Monday = request.Settings.Schedule.Monday;
+                            job.Settings.Schedule.Tuesday = request.Settings.Schedule.Tuesday;
+                            job.Settings.Schedule.Wednesday = request.Settings.Schedule.Wednesday;
+                            job.Settings.Schedule.Thursday = request.Settings.Schedule.Thursday;
+                            job.Settings.Schedule.Friday = request.Settings.Schedule.Friday;
+                            job.Settings.Schedule.Saturday = request.Settings.Schedule.Saturday;
+                            job = await _dbJobService.UpdateAsync(job);
+                            if (job != null)
                             {
-                                Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
-                                if (device != null)
+                                if (job.DeviceId != null)
                                 {
-                                    if (await _httpJobService.UpdateAsync(device.TenantId, job))
+                                    device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                                    if (device != null)
                                     {
-                                        return Ok(job);
+                                        if (await _httpJobService.UpdateAsync(device.TenantId, job))
+                                        {
+                                            return Ok(job);
+                                        }
+                                        return BadRequest("An error occurred while updating the job on the tenant server.");
                                     }
-                                    return BadRequest("An error occurred while updating the job on the tenant server.");
                                 }
                             }
                         }
@@ -181,7 +203,6 @@ namespace API.Controllers
                             return BadRequest("An error occurred while deleting the job on the tenant server.");
                         }
                     }
-                    return Ok("Job deleted successfully.");
                 }
                 return BadRequest("An error occurred while deleting the job.");
             }
