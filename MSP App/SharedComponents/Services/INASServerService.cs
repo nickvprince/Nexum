@@ -16,5 +16,6 @@ namespace SharedComponents.Services
         public Task<NASServer?> GetAsync(int id);
         public Task<ICollection<NASServer>?> GetAllAsync();
         public Task<ICollection<NASServer>?> GetAllByTenantIdAsync(int tenantId);
+        public Task<ICollection<NASServer>?> GetAllByDeviceIdAsync(int deviceId);
     }
 }

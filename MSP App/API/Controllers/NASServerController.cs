@@ -64,6 +64,10 @@ namespace API.Controllers
                         }
                         return BadRequest("An error occurred while updating the NAS Server.");
                     }
+                    if (!await _dbNASServerService.DeleteAsync(nasServer.Id))
+                    {
+                        Console.WriteLine("An error occurred while deleting the NAS Server.");
+                    }
                     return BadRequest("An error occurred while creating the NAS Server on the tenant server.");
                 }
                 return BadRequest("An error occurred while creating the NAS Server.");
@@ -99,6 +103,7 @@ namespace API.Controllers
                     {
                         return Ok(nasServer);
                     }
+                    
                     return BadRequest("An error occurred while updating the NAS Server on the tenant server.");
                 }
                 return BadRequest("An error occurred while updating the NAS Server.");
@@ -192,6 +197,24 @@ namespace API.Controllers
                     }
                 }
                 return NotFound("No NAS Servers found for the tenant.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("By-Device/{deviceId}")]
+        public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<NASServer>? nasServers = await _dbNASServerService.GetAllByDeviceIdAsync(deviceId);
+                if (nasServers != null)
+                {
+                    if (nasServers.Any())
+                    {
+                        return Ok(nasServers);
+                    }
+                }
+                return NotFound("No NAS Servers found for the device.");
             }
             return BadRequest("Invalid request.");
         }
