@@ -2,7 +2,7 @@
 
 namespace App.Models
 {
-    public class AccountViewModel
+    public class UserInfoViewModel
     {
         public string? Username { get; set; }
         [Required]
