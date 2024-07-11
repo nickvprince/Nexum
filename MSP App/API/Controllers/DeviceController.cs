@@ -301,18 +301,25 @@ namespace API.Controllers
                     return NotFound("DeviceInfo not found.");
                 }
                 // force checkin here
-                //pause here
-                DeviceStatus? status = await _httpDeviceService.GetDeviceStatusAsync(device.TenantId, device.DeviceInfo.ClientId);
-                if (status != null)
+                bool? checkin = await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, device.DeviceInfo.ClientId);
+                if (checkin != null)
                 {
-                    device.Status = status;
-                    device = await _dbDeviceService.UpdateAsync(device);
-                    if (device != null)
+                    if (checkin == true)
                     {
-                        return Ok(device);
+                        DeviceStatus? status = await _httpDeviceService.GetDeviceStatusAsync(device.TenantId, device.DeviceInfo.ClientId);
+                        if (status != null)
+                        {
+                            device.Status = status;
+                            device = await _dbDeviceService.UpdateAsync(device);
+                            if (device != null)
+                            {
+                                return Ok(device);
+                            }
+                        }
+                        return Ok("Device refresh request sent successfully.");
                     }
                 }
-                return BadRequest("An error occurred while updating the device.");
+                return BadRequest("An error occurred while refreshing the device on the tenant server.");
             }
             return BadRequest("Invalid Request.");
         }
