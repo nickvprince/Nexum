@@ -30,10 +30,6 @@ namespace SharedComponents.WebEntities.Requests.JobRequests
                     _startTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
                                               parsedTime.Hour, parsedTime.Minute, 0);
                 }
-                else
-                {
-                    throw new ArgumentException("Invalid time format. Please use HH:mm.");
-                }
             }
         }
 
@@ -47,10 +43,6 @@ namespace SharedComponents.WebEntities.Requests.JobRequests
                 {
                     _endTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
                                             parsedTime.Hour, parsedTime.Minute, 0);
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid time format. Please use HH:mm.");
                 }
             }
         }
