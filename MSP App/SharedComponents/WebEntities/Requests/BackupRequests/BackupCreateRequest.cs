@@ -12,5 +12,6 @@ namespace SharedComponents.WebEntities.Requests.BackupRequests
         public string? Name { get; set; }
         public string? Path { get; set; }
         public DateTime? Date { get; set; }
+        public int NASServerId { get; set; }
     }
 }

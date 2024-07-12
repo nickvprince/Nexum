@@ -1,6 +1,7 @@
 ﻿using API.Services;
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.BackupRequests;
@@ -14,11 +15,13 @@ namespace API.Controllers
     {
         private readonly DbBackupService _dbBackupService;
         private readonly DbDeviceService _dbDeviceService;
+        private readonly DbNASServerService _dbNASServerService;
 
-        public BackupController(DbBackupService dbBackupService, DbDeviceService dbDeviceService)
+        public BackupController(DbBackupService dbBackupService, DbDeviceService dbDeviceService, DbNASServerService dbNASServerService)
         {
             _dbBackupService = dbBackupService;
             _dbDeviceService = dbDeviceService;
+            _dbNASServerService = dbNASServerService;
         }
 
         [HttpPost("")]
@@ -30,6 +33,15 @@ namespace API.Controllers
                 if (device == null)
                 {
                     return NotFound("Device not found.");
+                }
+                NASServer? nasServer = await _dbNASServerService.GetAsync(request.NASServerId);
+                if (nasServer == null)
+                {
+                    return NotFound("NAS Server not found.");
+                }
+                if(nasServer.TenantId != device.TenantId)
+                {
+                    return BadRequest("NAS Server does not belong to the specified device's tenant.");
                 }
                 DeviceBackup? backup = new DeviceBackup
                 {
