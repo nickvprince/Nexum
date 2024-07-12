@@ -852,7 +852,7 @@
 							"response": []
 						},
 						{
-							"name": "Job/{id}/Refresh (POST get_job_status/{clientId}?job_id={id})",
+							"name": "Job/{id}/Refresh (GET get_job_status/{clientId}?job_id={id})",
 							"request": {
 								"method": "POST",
 								"header": [],
