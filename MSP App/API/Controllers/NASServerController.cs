@@ -85,6 +85,11 @@ namespace API.Controllers
                 {
                     return NotFound("NAS Server not found.");
                 }
+                Tenant? tenant = await _dbTenantService.GetAsync(nasServer.TenantId);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
                 nasServer.Name = request.Name;
                 nasServer.Path = request.Path;
                 nasServer = await _dbNASServerService.UpdateAsync(nasServer);
@@ -96,7 +101,7 @@ namespace API.Controllers
                         Name = nasServer.Name,
                         Path = nasServer.Path,
                         NASUsername = request.NASUsername,
-                        NASPassword = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(nasServer.Tenant.ApiKey, nasServer.Tenant.ApiKeyServer), request.NASPassword)
+                        NASPassword = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(tenant.ApiKey, tenant.ApiKeyServer), request.NASPassword)
                     };
                     bool? serverResponse = await _httpNASServerService.UpdateAsync(nasServer.TenantId, serverRequest);
                     if (serverResponse == true)
