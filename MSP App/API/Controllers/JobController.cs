@@ -189,22 +189,24 @@ namespace API.Controllers
                 {
                     return NotFound("Job not found.");
                 }
-                if (await _dbJobService.DeleteAsync(id))
+
+                if (job.DeviceId == null)
                 {
-                    if (job.DeviceId != null)
-                    {
-                        Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
-                        if (device != null)
-                        {
-                            if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.Id))
-                            {
-                                return Ok("Job deleted successfully.");
-                            }
-                            return BadRequest("An error occurred while deleting the job on the tenant server.");
-                        }
-                    }
+                    return NotFound("Device not found.");
                 }
-                return BadRequest("An error occurred while deleting the job.");
+                Device? device = await _dbDeviceService.GetAsync((int)job.DeviceId);
+                if (device != null)
+                {
+                    if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.Id))
+                    {
+                        if (await _dbJobService.DeleteAsync(id))
+                        {
+                            return Ok("Job deleted successfully.");
+                        }
+                        return BadRequest("An error occurred while deleting the job.");
+                    }
+                    return BadRequest("An error occurred while deleting the job on the tenant server.");
+                }
             }
             return BadRequest("Invalid request.");
         }
