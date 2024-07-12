@@ -23,12 +23,13 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import requests
 import json
+import tempfile
 
 #pylint: disable=bare-except,line-too-long
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
-SETTINGS_PATH= os.path.join(current_dir, 
-    settingsDirectory+'\\settings.db') # path to the settings database
+settingsDirectory = os.path.join(os.getcwd(),"../settings") # directory for settings
+SETTINGS_PATH= os.path.join(
+    settingsDirectory+'/settings.db') # path to the settings database
 jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
@@ -355,6 +356,21 @@ class MySqlite():
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:32]
+
+
+        value = encrypt_string(output,value)
+
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+        existing_value = cursor.fetchone()
+        if existing_value:
+            cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
+        else:
+            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''',
+                           (setting, value))
+        conn.commit()
+        conn.close()
         if setting == "Status":
             header ={
                 "Content-Type":"application/json",
@@ -381,20 +397,6 @@ class MySqlite():
             else:
                 return 500
 
-
-        value = encrypt_string(output,value)
-
-        conn = sqlite3.connect(SETTINGS_PATH)
-        cursor = conn.cursor()
-        cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
-        existing_value = cursor.fetchone()
-        if existing_value:
-            cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
-        else:
-            cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''',
-                           (setting, value))
-        conn.commit()
-        conn.close()
 
     @staticmethod
     def read_setting(setting):
@@ -562,8 +564,9 @@ class InitSql():
             create_db_file(settingsDirectory,job_settingsFile)
             conn = sqlite3.connect(settingsDirectory+job_settingsFile)
             cursor = conn.cursor()
+            # drop table
             cursor.execute('''CREATE TABLE IF NOT EXISTS clients
-                            (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT)''')
+                            (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT, uuid TEXTS)''')
             # Close connection
             conn.commit()
             conn.close()

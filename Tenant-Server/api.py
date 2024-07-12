@@ -159,9 +159,9 @@ class API():
             "apikey":MySqlite.read_setting("apikey")
         }
         content = {
-            "client_id": client_id,
+            "client_id": int(client_id),
             "uuid": MySqlite.get_client_uuid(client_id),
-            "status": "0" # offline device status
+            "status": 0# offline device status
 
         }
 

@@ -95,6 +95,7 @@ class RunJob():
         """
         while self.leave is False: # As long as the job is not terminated
             self.logger.log("INFO","RunJob","Checking backup statuses","0","runjob.py")
+            
             if self.kill_job_var is True:
                 # stop the job
                 self.logger.log("INFO","RunJob","Killing job","0","runjob.py")
@@ -126,13 +127,7 @@ class RunJob():
                     Logger.debug_print("Error: "+str(e))
                 time.sleep(5)
                 #ensures the servce is online regardless of what happens or is supposed to happen
-                try:
-                    self.logger.log("INFO","RunJob","Checking status of service","0","runjob.py")
-                    response = requests.post("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
-                    MySqlite.write_setting("Status","Online")
-                except:
-                    self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
-                    Mysqlite.write_setting("Status","ServiceOffline")
+             
                 # check response for what happened
                 self.job_running_var = False
                 # set job status to killed
@@ -191,6 +186,17 @@ class RunJob():
                 
 
             time.sleep(5)
+            try:
+                headers = {
+                    "apikey": MySqlite.read_setting("apikey"),
+                    "Content-Type": "application/json"
+                }
+                self.logger.log("INFO","RunJob","Checking status of service","0","runjob.py")
+                response = requests.post("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                MySqlite.write_setting("Status","Online")
+            except Exception as e:
+                self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
+                MySqlite.write_setting("Status","ServiceOffline")
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
             if LOCAL_JOB.get_settings()is not None:

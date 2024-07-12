@@ -85,4 +85,4 @@ using (var scope = scopeFactory.CreateScope())
     await AppDbContext.IntitalizeUserIdentities(scope.ServiceProvider);
 }
 
-app.Run();
+app.Run("https://0.0.0.0:7101");
