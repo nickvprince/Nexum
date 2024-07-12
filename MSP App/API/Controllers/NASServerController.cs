@@ -137,20 +137,21 @@ namespace API.Controllers
                         }
                     }
                 }
-                if (await _dbNASServerService.DeleteAsync(id))
+                
+                DeleteNASServerRequest serverRequest = new DeleteNASServerRequest
                 {
-                    DeleteNASServerRequest serverRequest = new DeleteNASServerRequest
-                    {
-                        Id = nasServer.BackupServerId
-                    };
-                    bool? serverResponse = await _httpNASServerService.DeleteAsync(nasServer.TenantId, serverRequest);
-                    if (serverResponse == true)
+                    Id = nasServer.BackupServerId
+                };
+                bool? serverResponse = await _httpNASServerService.DeleteAsync(nasServer.TenantId, serverRequest);
+                if (serverResponse == true)
+                {
+                    if (await _dbNASServerService.DeleteAsync(id))
                     {
                         return Ok("NAS Server deleted.");
                     }
-                    return BadRequest("An error occurred while deleting the NAS Server on the tenant server.");
+                    return BadRequest("An error occurred while deleting the NAS Server.");
                 }
-                return BadRequest("An error occurred while deleting the NAS Server.");
+                return BadRequest("An error occurred while deleting the NAS Server on the tenant server.");
             }
             return BadRequest("Invalid request.");
         }
