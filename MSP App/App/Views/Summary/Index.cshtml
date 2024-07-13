@@ -1,0 +1,115 @@
+﻿@{
+    var tenants = new List<dynamic>
+    {
+        new { Tenant = "Tenant A", BackupJob = "Daily Backup", Status = "Success", LastRun = "07/12/2024 03:00 AM" },
+        new { Tenant = "Tenant B", BackupJob = "Weekly Backup", Status = "Failed", LastRun = "07/11/2024 02:00 AM" },
+        new { Tenant = "Tenant C", BackupJob = "Monthly Backup", Status = "Success", LastRun = "07/01/2024 01:00 AM" },
+        new { Tenant = "Tenant D", BackupJob = "Daily Backup", Status = "In Progress", LastRun = "07/12/2024 04:00 AM" },
+        new { Tenant = "Tenant E", BackupJob = "Weekly Backup", Status = "Success", LastRun = "07/05/2024 03:30 AM" },
+        new { Tenant = "Tenant F", BackupJob = "Daily Backup", Status = "Success", LastRun = "07/12/2024 03:00 AM" },
+        new { Tenant = "Tenant G", BackupJob = "Weekly Backup", Status = "Failed", LastRun = "07/11/2024 02:00 AM" },
+        new { Tenant = "Tenant H", BackupJob = "Monthly Backup", Status = "Success", LastRun = "07/01/2024 01:00 AM" },
+        new { Tenant = "Tenant I", BackupJob = "Daily Backup", Status = "In Progress", LastRun = "07/12/2024 04:00 AM" },
+        new { Tenant = "Tenant J", BackupJob = "Weekly Backup", Status = "Success", LastRun = "07/05/2024 03:30 AM" }
+    };
+}
+
+<div class="border p-4 text-center border-light text-white" id="contentBox">
+    <p class="display-4">Partial View</p>
+    <p class="lead">Content here will expand the box.</p>
+    <!-- Example buttons -->
+    <div class="mb-3">
+        <button type="button" class="btn btn-primary">Primary Button</button>
+        <button type="button" class="btn btn-secondary">Secondary Button</button>
+        <button type="button" class="btn btn-success">Success Button</button>
+        <button type="button" class="btn btn-danger">Danger Button</button>
+    </div>
+    <!-- Example tables side by side -->
+    <div class="row">
+        @for (int j = 0; j < 2; j++)
+        {
+            <div class="col-md-6">
+                <table class="table table-dark table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tenant</th>
+                            <th scope="col">Backup Job</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Last Run</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tenant in tenants)
+                        {
+                            <tr>
+                                <td>@tenant.Tenant</td>
+                                <td>@tenant.BackupJob</td>
+                                <td>@tenant.Status</td>
+                                <td>@tenant.LastRun</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <!-- Example chart -->
+    <div class="mt-5">
+        <canvas id="exampleChart" width="400" height="200"></canvas>
+    </div>
+    <!-- More example content to show expansion -->
+    @{
+        for (int i = 0; i < 10; i++)
+        {
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla.</p>
+        }
+    }
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('exampleChart').getContext('2d');
+    var exampleChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Tenant A', 'Tenant B', 'Tenant C', 'Tenant D', 'Tenant E', 'Tenant F', 'Tenant G', 'Tenant H', 'Tenant I', 'Tenant J'],
+            datasets: [{
+                label: 'Backup Status',
+                data: [10, 5, 8, 6, 9, 7, 4, 8, 6, 9],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
