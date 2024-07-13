@@ -1,5 +1,6 @@
 ﻿using App.Models;
 using App.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
 using SharedComponents.RequestEntities;
@@ -26,14 +27,8 @@ namespace App.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
-
         [HttpPost]
-        public async Task<IActionResult> LoginAsync(LoginViewModel loginViewModel)
+        public async Task<IActionResult> IndexAsync(AuthViewModel loginViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -47,7 +42,9 @@ namespace App.Controllers
                 if (response != null)
                 {
                     HttpContext.Session.SetString("Username", loginViewModel.Username!);
-                    HttpContext.Session.SetString("Token", "tbd");
+                    HttpContext.Session.SetString("Token", response.Token);
+                    HttpContext.Session.SetString("RefreshToken", response.RefreshToken);
+                    HttpContext.Session.SetString("Expires", response.Expires.ToString());
                     TempData["LastActionMessage"] = $"(Auth) : Success";
                     return RedirectToAction("Index", "Home");
                 }

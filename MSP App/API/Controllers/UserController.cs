@@ -114,7 +114,7 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpGet("By-Id{id}")]
+        [HttpGet("By-Id/{id}")]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             if (ModelState.IsValid)

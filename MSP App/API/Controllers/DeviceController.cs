@@ -315,8 +315,9 @@ namespace API.Controllers
                             {
                                 return Ok(device);
                             }
+                            return BadRequest("An error occurred while updating the device status.");
                         }
-                        return Ok("Device refresh request sent successfully.");
+                        return BadRequest("An error occurred while retrieving the device status from the tenant server.");
                     }
                 }
                 return BadRequest("An error occurred while refreshing the device on the tenant server.");
