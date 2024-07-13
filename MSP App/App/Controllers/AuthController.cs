@@ -27,14 +27,8 @@ namespace App.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
-
         [HttpPost]
-        public async Task<IActionResult> LoginAsync(LoginViewModel loginViewModel)
+        public async Task<IActionResult> IndexAsync(AuthViewModel loginViewModel)
         {
             if (ModelState.IsValid)
             {

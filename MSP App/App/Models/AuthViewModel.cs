@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace App.Models
 {
-    public class LoginViewModel
+    public class AuthViewModel
     {
         [Required]
         [StringLength(100, ErrorMessage = "Username is too long.")]
