@@ -29,11 +29,5 @@ namespace App.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        [HttpGet]
-        public async Task<IActionResult> Summary()
-        {
-            return PartialView("_HomePartial");
-        }
     }
 }

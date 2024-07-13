@@ -16,7 +16,7 @@ namespace App.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            return PartialView();
         }
 
         [HttpGet]
