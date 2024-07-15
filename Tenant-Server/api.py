@@ -59,6 +59,7 @@ class API():
         url = 'http://127.0.0.1:5004/get_status'
 
         headers = {
+            "apikey":MySqlite.read_setting("apikey"),
             "Content-Type": "application/json"
         }
         try:
@@ -153,20 +154,23 @@ class API():
         Call the API from tenant server to post the missing heartbeat
         """
         MySqlite.write_log("INFO","API","Posting missing heartbeat","0",datetime.datetime.now())
-        url = 'http://127.0.0.1:6969/missing_heartbeat'
-        headers = {
-            "Content-Type": "application/json"
+        header ={
+            "Content-Type":"application/json",
+            "apikey":MySqlite.read_setting("apikey")
         }
-        data = {
-            "client_id": client_id,
-            "tenant_id": tenant_id
+        content = {
+            "client_id": int(client_id),
+            "uuid": MySqlite.get_client_uuid(client_id),
+            "status": 0# offline device status
+
         }
+
         try:
-            response = requests.post(url, headers=headers, json=data, timeout=40)
-            if response.status_code == 200:
-                return True
-            else:
-                return False
+            server_address = MySqlite.read_setting("msp_server_address")
+            msp_port = MySqlite.read_setting("msp-port")
+            protocol = r"https://"
+
+            response = requests.put(f"{protocol}{server_address}:{msp_port}/api/DataLink/Update-Device-Status", headers=header, json=content,timeout=5,verify=False)
         except Exception:
             return False
         Logger.debug_print("Posting missing heartbeat")
@@ -190,3 +194,12 @@ class API():
         Logger.debug_print("Getting update path")
         # call the API from tenant server to get the update path
         return "https://nexum.com/tenant_portal?update=1.27.4"
+
+    @staticmethod
+    def server_beat():
+        """
+        Call the API from tenant server to send the server beat
+        """
+        Logger.debug_print("Sending server beat")
+        # call the API from tenant server to send the server beat
+        return True

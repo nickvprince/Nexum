@@ -9,14 +9,10 @@ client_xml = '''<?xml version="1.0" encoding="UTF-16"?>
   <RegistrationInfo>
     <Date>2024-05-28T02:57:30.9654058</Date>
     <Author>.\\Administrator</Author>
-    <URI>\\nexum</URI>
+    <URI>\nexum</URI>
   </RegistrationInfo>
   <Triggers>
     <BootTrigger>
-      <Repetition>
-        <Interval>PT5M</Interval>
-        <StopAtDurationEnd>false</StopAtDurationEnd>
-      </Repetition>
       <Enabled>true</Enabled>
     </BootTrigger>
   </Triggers>
@@ -46,6 +42,10 @@ client_xml = '''<?xml version="1.0" encoding="UTF-16"?>
     <WakeToRun>false</WakeToRun>
     <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
     <Priority>7</Priority>
+    <RestartOnFailure>
+      <Interval>PT1M</Interval>
+      <Count>3</Count>
+    </RestartOnFailure>
   </Settings>
   <Actions Context="Author">
     <Exec>
@@ -60,14 +60,10 @@ server_xml='''<?xml version="1.0" encoding="UTF-16"?>
   <RegistrationInfo>
     <Date>2024-05-28T02:57:30.9654058</Date>
     <Author>.\\Administrator</Author>
-    <URI>\\nexserv</URI>
+    <URI>\nexserv</URI>
   </RegistrationInfo>
   <Triggers>
     <BootTrigger>
-      <Repetition>
-        <Interval>PT5M</Interval>
-        <StopAtDurationEnd>false</StopAtDurationEnd>
-      </Repetition>
       <Enabled>true</Enabled>
     </BootTrigger>
   </Triggers>
@@ -110,6 +106,7 @@ def client_persistance():
     """
     Info
     """
+    print("hi")
     #create the task in the scheduler
     scheduler = win32com.client.Dispatch('Schedule.Service')
     scheduler.Connect()

@@ -1,9 +1,10 @@
 ﻿using SharedComponents.Entities;
+using SharedComponents.WebEntities.Responses.UserResponses;
 
 namespace App.Models
 {
     public class UserViewModel
     {
-        public ICollection<ApplicationUser>? Users { get; set; }
+        public ICollection<UserResponse>? Users { get; set; }
     }
 }

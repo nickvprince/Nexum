@@ -23,7 +23,7 @@ from runjob import LOCAL_JOB
 from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
-import requests
+import subprocess
 
 
 # Global variables
@@ -31,24 +31,7 @@ def init():
     """
     Initializes the program
     """
-    MySqlite.write_client(0,"Danny-Server","127.0.0.1","5002","Online","AD-0F-4C-AF-DC")
-    MySqlite.write_client(1,"Danny-PC","192.168.1.50","5002","Online","AD-0F-4C-AF-DC")
     InitSql()
-    MySqlite.write_setting("client_secret", "01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
-    MySqlite.write_setting("TENANT_ID","1")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("POLLING_INTERVAL","10")
-    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5002")
-    MySqlite.write_setting("msp-port","7101")
-    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("heartbeat_interval","5")
-    MySqlite.write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
-    MySqlite.add_install_key("JBQDPYQ7310712631DHLSAU8AWY]")
-    MySqlite.add_install_key("LJA;HFLASBFOIASH[jfnW.FJPIH")
-    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
-    MySqlite.write_setting("version","1")
     global LOCAL_JOB
     LOCAL_JOB.load(0)
     Security.load_tenant_secret()
@@ -59,10 +42,27 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
+    # if program is running exit
+    """
+    MySqlite.write_setting("uuid","a14df31c-07fc-4d0b-9ddf-0f59b16db611") # add to installer
+    MySqlite.write_setting("msp_server_address","127.0.0.1") # installer
+    MySqlite.write_setting("msp-port","7101") # insaller
+    MySqlite.write_setting("CLIENT_ID","0") # installer
+    MySqlite.write_setting("apikey","fb1a0811-1637-4f4d-8da9-44243a37cd66")# 01ee3ece-7976-4cda-b4f4-00d5f68d1cbd
+    MySqlite.write_setting("msp_api","33c224ec-d1f0-4845-8964-6fac7ae231ae") # installer
+    MySqlite.write_setting("version","1.0.0") # installer
+    MySqlite.write_setting("versiontag","alpha") # installer
+     #installer
+    MySqlite.write_setting("job_status","NotStarted") # installer
+    MySqlite.write_setting("msp_server_address","127.0.0.1") # installer
+    MySqlite.write_setting("msp-port","7101") # installer
+    """
     init()
+    MySqlite.write_setting("Status","Online")
+
     clients = MySqlite.load_clients()
     l = Logger()
-    H = HeartBeat(Security.get_client_secret(), 10,clients)
+    _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
@@ -71,10 +71,9 @@ def main():
     i.run()
     # log a message
 
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    l.log("INFO", "Main", "Main has started", "000","main.py")
     f = FlaskServer()
     f.run()
 
 if __name__ == "__main__":
-
     main()

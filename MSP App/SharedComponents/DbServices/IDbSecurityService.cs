@@ -8,6 +8,6 @@ namespace SharedComponents.DbServices
 {
     public interface IDbSecurityService
     {
-        public Task<bool> ValidateAPIKey(string apikey);
+        public Task<bool> ValidateAPIKey(string? apikey);
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
@@ -15,7 +16,10 @@ namespace SharedComponents.Entities
         public string? Name { get; set; }
         [Required]
         public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        [JsonIgnore]
         public ICollection<ApplicationRolePermission>? RolePermissions { get; set; }
+        [JsonIgnore]
         public ICollection<ApplicationUserRole>? UserRoles { get; set; }
     }
 }

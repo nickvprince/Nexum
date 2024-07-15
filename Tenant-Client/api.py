@@ -48,17 +48,14 @@ class API():
         call the API from tenant server to get the percent complete of the job
         """
         # call 127.0.0.1:5004/get_status
-        CLIENT_SECRET = MySqlite.read_setting("client_secret")
+        apikey = MySqlite.read_setting("apikey")
         CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
-        temp = Security.sha256_string(CLIENT_SECRET)
-        temp = Security.add_salt_pepper(temp, MySqlite.read_setting("salt"), MySqlite.read_setting("pepper"), MySqlite.read_setting("salt2"))
-        temp = Security.encrypt_client_secret(temp)
 
         url = MySqlite.read_setting("service_address")+'/get_status'
 
         headers = {
             "Content-Type": "application/json",
-            "secret": str(temp),
+            "apikey": str(apikey),
             "id": str(CLIENT_ID)
         }
         try:
@@ -108,7 +105,7 @@ class API():
         """
         Call the API from tenant server to get the client id
         """
-        
+        return MySqlite.read_setting("CLIENT_ID")
 
         url = MySqlite.read_setting("server_address")+'/get_id'
         client_secret = MySqlite.read_setting("client_secret")

@@ -71,6 +71,7 @@ class HeartBeat:
                         print("Heartbeat missed for client:", client[1])
                 else:
                     print("No checkin found for client:", client[1])
-
+            # beat to MSP here
+            API.server_beat()
             time.sleep(self.interval)
             print(MY_CLIENTS)

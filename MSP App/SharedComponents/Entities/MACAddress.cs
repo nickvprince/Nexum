@@ -14,6 +14,7 @@ namespace SharedComponents.Entities
         [Required]
         public string? Address { get; set; }
         public int DeviceInfoId { get; set; }
+        [JsonIgnore]
         public DeviceInfo? DeviceInfo { get; set; }
     }
 }

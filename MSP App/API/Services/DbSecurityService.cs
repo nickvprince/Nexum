@@ -12,17 +12,23 @@ namespace API.Services
         {
             _appDbContext = appDbContext;
         }
-        public async Task<bool> ValidateAPIKey(string apikey)
+        public async Task<bool> ValidateAPIKey(string? apikey)
         {
-            if (apikey != null)
+            if (!string.IsNullOrEmpty(apikey))
             {
-                Tenant? tenant = await _appDbContext.Tenants
-                    .Where(t => t.ApiKey == apikey)
-                    .FirstOrDefaultAsync();
-
-                if (tenant != null)
+                try
                 {
-                    return true;
+                    Tenant? tenant = await _appDbContext.Tenants
+                        .Where(t => t.ApiKey == apikey)
+                        .FirstAsync();
+                    if (tenant != null)
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                    return false;
                 }
             }
             return false;
