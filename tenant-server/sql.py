@@ -21,17 +21,34 @@ import base64
 import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import requests
+import json
+import tempfile
 
 #pylint: disable=bare-except,line-too-long
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
-SETTINGS_PATH= os.path.join(current_dir, 
-    settingsDirectory+'\\settings.db') # path to the settings database
+settingsDirectory = os.path.join(os.getcwd(),"../settings") # directory for settings
+SETTINGS_PATH= os.path.join(
+    settingsDirectory+'/settings.db') # path to the settings database
 jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
+@staticmethod
+def convert_device_status():
+    """
+    Converts the status to a enum
+    """
+    status = MySqlite.read_setting("Status")
+    if status == "Online":
+        return 1
+    elif status == "Offline":
+        return 0
+    elif status == "ServiceOffline":
+        return 2
+    else:
+        return -1
 def create_db_file(directory,path):
     """
     create the database file if it does not exist and the folder for it
@@ -319,15 +336,27 @@ class MySqlite():
         conn.commit()
         conn.close()
     @staticmethod
+    def get_client_uuid(client_id):
+        """
+        Get the uuid of a client
+        """
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''SELECT uuid FROM clients WHERE id = ?''', (client_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0]
+    @staticmethod
     def write_setting(setting, value):
         """
         Write a setting to the database
         """
         result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                capture_output=True, text=True,check=True,shell=True)
+        capture_output=True, text=True,check=True,shell=True)
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
-        output = output[:24]
+        output = output[:32]
+
 
         value = encrypt_string(output,value)
 
@@ -342,6 +371,32 @@ class MySqlite():
                            (setting, value))
         conn.commit()
         conn.close()
+        if setting == "Status":
+            header ={
+                "Content-Type":"application/json",
+                "apikey":MySqlite.read_setting("apikey")
+            }
+            content = {
+                "client_id": MySqlite.read_setting("CLIENT_ID"),
+                "uuid": MySqlite.read_setting("uuid"),
+                "status": convert_device_status()
+
+            }
+
+            try:
+                server_address = MySqlite.read_setting("msp_server_address")
+                msp_port = MySqlite.read_setting("msp-port")
+                protocol = r"https://"
+
+                response = requests.put(f"{protocol}{server_address}:{msp_port}/api/DataLink/Update-Device-Status", headers=header, json=content,timeout=5,verify=False)
+                if response.status_code == 200:
+                    return 200
+            except Exception as e:
+                print(e)
+
+            else:
+                return 500
+
 
     @staticmethod
     def read_setting(setting):
@@ -358,7 +413,7 @@ class MySqlite():
                                     capture_output=True, text=True,check=True,shell=True) # enc with uuid
             output = result.stdout.strip()
             output = output.split('\n\n', 1)[-1]
-            output = output[:24]
+            output = output[:32]
             value = decrypt_string(output,value)
             return value.rstrip()
         except:
@@ -410,7 +465,7 @@ class MySqlite():
         conn.close()
 
     @staticmethod
-    def write_client(identification, name, address, port, status, mac):
+    def write_client(identification, name, address, port, status, mac, uuid):
         """
         Write a client to the database
         """
@@ -420,9 +475,9 @@ class MySqlite():
         existing_address = cursor.fetchone()
         if existing_address:
             return 500
-        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC)
-                    VALUES (?, ?, ?, ?, ?, ?)''',
-                    (identification, name, address, port, status, mac))
+        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC,uuid)
+                    VALUES (?, ?, ?, ?, ?, ?,?)''',
+                    (identification, name, address, port, status, mac,uuid))
         conn.commit()
         conn.close()
         MySqlite.write_heartbeat(identification, 5, datetime.datetime.now(), 3)
@@ -509,8 +564,9 @@ class InitSql():
             create_db_file(settingsDirectory,job_settingsFile)
             conn = sqlite3.connect(settingsDirectory+job_settingsFile)
             cursor = conn.cursor()
+            # drop table
             cursor.execute('''CREATE TABLE IF NOT EXISTS clients
-                            (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT)''')
+                            (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT, uuid TEXTS)''')
             # Close connection
             conn.commit()
             conn.close()

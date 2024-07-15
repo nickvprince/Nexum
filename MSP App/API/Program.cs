@@ -18,19 +18,18 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1-Server", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "Server API",
-        Version = "v1",
-        Description = "API definition for communication between the Tenant-Server and the web api."
-    });
     options.SwaggerDoc("v1-Web", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Web API",
         Version = "v1",
         Description = "API definition for communication between the web app and the web api."
     });
-
+    options.SwaggerDoc("v1-Server", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Server API",
+        Version = "v1",
+        Description = "API definition for communication between the Tenant-Server and the web api."
+    });
 });
 
 builder.Services.AddHttpClient("ServerClient");
@@ -45,6 +44,13 @@ builder.Services.AddScoped<DbSecurityService>();
 builder.Services.AddScoped<DbSoftwareService>();
 builder.Services.AddScoped<DbAlertService>();
 builder.Services.AddScoped<DbLogService>();
+builder.Services.AddScoped<DbRoleService>();
+builder.Services.AddScoped<DbPermissionService>();
+builder.Services.AddScoped<DbInstallationKeyService>();
+builder.Services.AddScoped<DbNASServerService>();
+builder.Services.AddScoped<DbBackupService>();
+builder.Services.AddScoped<DbJobService>();
+builder.Services.AddScoped<HTTPJobService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
@@ -60,8 +66,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1-Server/swagger.json", "Server API");
         options.SwaggerEndpoint("/swagger/v1-Web/swagger.json", "Web API");
+        options.SwaggerEndpoint("/swagger/v1-Server/swagger.json", "Server API");
         options.RoutePrefix = string.Empty;
     });
 }
@@ -79,4 +85,4 @@ using (var scope = scopeFactory.CreateScope())
     await AppDbContext.IntitalizeUserIdentities(scope.ServiceProvider);
 }
 
-app.Run();
+app.Run("https://0.0.0.0:7101");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
@@ -15,6 +16,7 @@ namespace SharedComponents.Entities
         public bool Acknowledged { get; set; }
         public bool IsDeleted { get; set; }
         public int DeviceId { get; set; }
+        [JsonIgnore]
         public Device? Device { get; set; }
     }
 

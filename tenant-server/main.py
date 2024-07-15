@@ -23,7 +23,7 @@ from runjob import LOCAL_JOB
 from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
-import requests
+import subprocess
 
 
 # Global variables
@@ -42,11 +42,24 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
-
+    # if program is running exit
+    """
+    MySqlite.write_setting("uuid","a14df31c-07fc-4d0b-9ddf-0f59b16db611") # add to installer
+    MySqlite.write_setting("msp_server_address","127.0.0.1") # installer
+    MySqlite.write_setting("msp-port","7101") # insaller
+    MySqlite.write_setting("CLIENT_ID","0") # installer
+    MySqlite.write_setting("apikey","fb1a0811-1637-4f4d-8da9-44243a37cd66")# 01ee3ece-7976-4cda-b4f4-00d5f68d1cbd
+    MySqlite.write_setting("msp_api","33c224ec-d1f0-4845-8964-6fac7ae231ae") # installer
+    MySqlite.write_setting("version","1.0.0") # installer
+    MySqlite.write_setting("versiontag","alpha") # installer
+     #installer
+    MySqlite.write_setting("job_status","NotStarted") # installer
+    MySqlite.write_setting("msp_server_address","127.0.0.1") # installer
+    MySqlite.write_setting("msp-port","7101") # installer
+    """
     init()
-    MySqlite.write_setting("apikey","01ee3ece-7976-4cda-b4f4-00d5f68d1cbd")
-    MySqlite.write_setting("msp_api","a109ef4c-b611-4aff-ac26-07b86a7161aa")
-    MySqlite.write_setting("version","alpha 1.0.0")
+    MySqlite.write_setting("Status","Online")
+
     clients = MySqlite.load_clients()
     l = Logger()
     _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
@@ -58,8 +71,7 @@ def main():
     i.run()
     # log a message
 
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
-    MySqlite.write_setting("Status","running")
+    l.log("INFO", "Main", "Main has started", "000","main.py")
     f = FlaskServer()
     f.run()
 

@@ -18,15 +18,14 @@ namespace API.Services
             {
                 try
                 {
-                    // Add the software to the context
                     await _appDbContext.SoftwareFiles.AddAsync(softwareFile);
-
-                    // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
-
-                    return await _appDbContext.SoftwareFiles
-                        .Where(s => s.Id == softwareFile.Id)
-                        .FirstOrDefaultAsync();
+                    if (result > 0)
+                    {
+                        return await _appDbContext.SoftwareFiles
+                            .Where(s => s.Id == softwareFile.Id)
+                            .FirstAsync();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -38,39 +37,79 @@ namespace API.Services
 
         public async Task<SoftwareFile?> GetAsync(int id)
         {
-            return await _appDbContext.SoftwareFiles
-                .Where(s => s.Id == id)
-                .FirstOrDefaultAsync();
+            try 
+            {
+                return await _appDbContext.SoftwareFiles
+                    .Where(s => s.Id == id)
+                    .FirstAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the software: {ex.Message}");
+            }
+            return null;
         }
 
         public async Task<SoftwareFile?> GetLatestNexumAsync()
         {
-            return await _appDbContext.SoftwareFiles
-                .Where(s => s.FileType == SoftwareFileType.Nexum)
-                .OrderByDescending(s => s.Version)
-                .FirstOrDefaultAsync();
+            try
+            {
+                return await _appDbContext.SoftwareFiles
+                    .Where(s => s.FileType == SoftwareFileType.Nexum)
+                    .OrderByDescending(s => s.Version)
+                    .FirstAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the latest software: {ex.Message}");
+            }
+            return null;
         }
 
         public async Task<SoftwareFile?> GetLatestNexumServerAsync()
         {
-            return await _appDbContext.SoftwareFiles
-                .Where(s => s.FileType == SoftwareFileType.NexumServer)
-                .OrderByDescending(s => s.Version)
-                .FirstOrDefaultAsync();
+            try
+            {
+                return await _appDbContext.SoftwareFiles
+                    .Where(s => s.FileType == SoftwareFileType.NexumServer)
+                    .OrderByDescending(s => s.Version)
+                    .FirstAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the latest software: {ex.Message}");
+            }
+            return null;
         }
 
         public async Task<SoftwareFile?> GetLatestNexumServiceAsync()
         {
-            return await _appDbContext.SoftwareFiles
-                .Where(s => s.FileType == SoftwareFileType.NexumService)
-                .OrderByDescending(s => s.Version)
-                .FirstOrDefaultAsync();
+            try
+            {
+                return await _appDbContext.SoftwareFiles
+                    .Where(s => s.FileType == SoftwareFileType.NexumService)
+                    .OrderByDescending(s => s.Version)
+                    .FirstAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the latest software: {ex.Message}");
+            }
+            return null;
         }
-        public async Task<ICollection<SoftwareFile>> GetAllAsync()
+        public async Task<ICollection<SoftwareFile>?> GetAllAsync()
         {
-            return await _appDbContext.SoftwareFiles
-                .OrderByDescending(s => s.Version)
-                .ToListAsync();
+            try
+            {
+                return await _appDbContext.SoftwareFiles
+                    .OrderByDescending(s => s.Version)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all software: {ex.Message}");
+            }
+            return null;
         }
     }
 }

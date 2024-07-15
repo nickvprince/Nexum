@@ -7,8 +7,441 @@
 	},
 	"item": [
 		{
-			"name": "Tenant-Server Requests",
+			"name": "Server API",
 			"item": [
+				{
+					"name": "DataLink/Register (Server)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"type\": 0,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"ApiKey\": \"KeyHere\",\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Register (Client)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": {{clientClientId}},\r\n    \"uuid\": \"{{clientUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"installationkey\": \"{{clientInstallationKey}}\",\r\n    \"type\": 1,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Verify (Server)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"installationkey\": \"{{serverInstallationKey}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Verify (Client)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{clientClientId}},\r\n    \"uuid\": \"{{clientUuid}}\",\r\n    \"installationkey\": \"{{clientInstallationKey}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Alert",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"severity\": 3,\r\n    \"message\": \"Heartbeat missed\",\r\n    \"time\": \"2024-06-20T08:33:09.203Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Alert",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Alert"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Log",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"filename\": \"something.py\",\r\n    \"function\": \"getAsync()\",\r\n    \"message\": \"Device X has gone offline\",\r\n    \"code\": 10,\r\n    \"time\": \"2024-06-20T08:33:09.203Z\",\r\n    \"type\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Log",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Log"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Backup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"filename\": \"backup1\",\r\n    \"Path\": \"../../backup1.vdhk\",\r\n    \"Date\": \"2024-06-20T08:33:09.203Z\",\r\n    \"BackupServerId\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Backup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Backup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device (Server)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device (Client)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": {{clientClientId}},\r\n    \"uuid\": \"{{clientUuid}}\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Device-Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Device-Status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Device-Status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Job-Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1,\r\n    \"progress\": 20\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Job-Status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Job-Status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Update-Job-Status (No Progress)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"client_id\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"status\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Update-Job-Status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Update-Job-Status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DataLink/Urls",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/DataLink/Urls",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DataLink",
+								"Urls"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "DataLink/Check-For-Updates",
 					"protocolProfileBehavior": {
@@ -120,323 +553,1354 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "DataLink/Urls",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apiKey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Urls",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Urls"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Register (Server)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-Backup-Server\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5001,\r\n    \"installationkey\": \"266854d1-f48d-43bf-a8a5-c6404912d9f9\",\r\n    \"type\": 0,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Register (Client)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-PC\",\r\n    \"client_id\": 1,\r\n    \"uuid\": \"11111111-1032-4210-8051-F1G54F435A34\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"installationkey\": \"9964fe94-965f-4d25-a5ce-4e67fde5c2fa\",\r\n    \"type\": 1,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Verify",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"installationkey\": \"266854d1-f48d-43bf-a8a5-c6404912d9f9\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Verify",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Verify"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Update",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Danny-Server\",\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"ipaddress\": \"192.168.0.124\",\r\n    \"port\": 5000,\r\n    \"macaddresses\": [\r\n        {\r\n            \"address\": \"30:F6:EF:2E:B3:55\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        },\r\n        {\r\n            \"address\": \"04:BF:1B:90:26:A1\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Update",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Update"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Update-Status",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"status\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Update-Status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Update-Status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Alert",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"severity\": 4,\r\n    \"message\": \"Heartbeat missed\",\r\n    \"time\": \"2024-06-20T08:33:09.203Z\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Alert",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Alert"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "DataLink/Log",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{apiKey}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"client_id\": 0,\r\n    \"uuid\": \"4C4C9988-0032-4210-8051-F1G54F435A33\",\r\n    \"filename\": \"something.py\",\r\n    \"function\": \"getAsync()\",\r\n    \"message\": \"Device X has gone offline\",\r\n    \"code\": 10,\r\n    \"time\": \"2024-06-20T08:33:09.203Z\",\r\n    \"type\": 0\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/DataLink/Log",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"DataLink",
-								"Log"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
 		{
-			"name": "Web Requests",
+			"name": "Web API",
 			"item": [
 				{
-					"name": "/Tenant",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"TestingBank\",\r\n    \"tenantInfo\": {\r\n        \"name\": \"Bank Contact\",\r\n        \"email\": \"contact@testingbank.com\",\r\n        \"phone\": \"111-111-111\",\r\n        \"address\": \"234 testing road\",\r\n        \"city\": \"Waterloo\",\r\n        \"state\": \"Ontario\",\r\n        \"zip\": \"A1B 2C3\",\r\n        \"country\": \"Canada\"\r\n    }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+					"name": "Tenant Requests",
+					"item": [
+						{
+							"name": "Tenant",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"TestingBank\",\r\n    \"contactname\": \"Bank Contact\",\r\n    \"contactemail\": \"contact@testingbank.com\",\r\n    \"contactphone\": \"111-111-111\",\r\n    \"address\": \"234 testing road\",\r\n    \"city\": \"Waterloo\",\r\n    \"state\": \"Ontario\",\r\n    \"zip\": \"A1B 2C3\",\r\n    \"country\": \"Canada\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://localhost:7101/api/Tenant",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "7101",
+									"path": [
+										"api",
+										"Tenant"
+									]
 								}
-							}
+							},
+							"response": []
 						},
-						"url": {
-							"raw": "https://localhost:7101/api/Tenant",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7101",
-							"path": [
-								"api",
-								"Tenant"
-							]
+						{
+							"name": "Tenant",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{tenantId}},\r\n    \"name\": \"Bank Tester\",\r\n    \"contactname\": \"Bank--Contact\",\r\n    \"contactemail\": \"contact@testingbank.com\",\r\n    \"contactphone\": \"999-999-999\",\r\n    \"address\": \"994 hunting road\",\r\n    \"city\": \"Waterloo\",\r\n    \"state\": \"Ontario\",\r\n    \"zip\": \"A1B 2C3\",\r\n    \"country\": \"Canada\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://localhost:7101/api/Tenant",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "7101",
+									"path": [
+										"api",
+										"Tenant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Tenant/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:7101/api/Tenant/{{tenantId}}",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "7101",
+									"path": [
+										"api",
+										"Tenant",
+										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Tenant",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:7101/api/Tenant",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "7101",
+									"path": [
+										"api",
+										"Tenant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Tenant/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:7101/api/Tenant/{{tenantId}}",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "7101",
+									"path": [
+										"api",
+										"Tenant",
+										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Tenant/{id}/Rich",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:7101/api/Tenant/{{tenantId}}/Rich",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "7101",
+									"path": [
+										"api",
+										"Tenant",
+										"{{tenantId}}",
+										"Rich"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
-					"name": "/Tenant/Create-Installation-Key",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/Tenant/Create-Installation-Key/4",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"Tenant",
-								"Create-Installation-Key",
-								"4"
-							]
+					"name": "InstallationKey Requests",
+					"item": [
+						{
+							"name": "InstallationKey",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tenantid\": {{tenantId}},\r\n    \"type\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/InstallationKey",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"InstallationKey"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "InstallationKey",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tenantid\": {{tenantId}},\r\n    \"isactive\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/InstallationKey",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"InstallationKey"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "InstallationKey/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/InstallationKey/{{installationKeyId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"InstallationKey",
+										"{{installationKeyId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "InstallationKey",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/InstallationKey",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"InstallationKey"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "InstallationKey/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/InstallationKey/{{installationKeyId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"InstallationKey",
+										"{{installationKeyId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "InstallationKey/By-Tenant/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/InstallationKey/By-Tenant/{{tenantId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"InstallationKey",
+										"By-Tenant",
+										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
+				},
+				{
+					"name": "NASServer Requests",
+					"item": [
+						{
+							"name": "NASServer",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"NAS1\",\r\n    \"path\": \"/smb/../../\",\r\n    \"nasUsername\": \"testnas\",\r\n    \"nasPassword\": \"nas123\",\r\n    \"tenantId\": {{tenantId}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/NASServer",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"NASServer"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Device Requests",
+					"item": [
+						{
+							"name": "Device (Server)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tenantId\": {{tenantId}},\r\n    \"name\": \"DannyServer 2.0\",\r\n    \"clientId\": {{serverClientId}},\r\n    \"uuid\": \"{{serverUuid}}\",\r\n    \"ipAddress\": \"10.0.0.1\",\r\n    \"port\": 0,\r\n    \"type\": 0,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"macAddresses\": [\r\n        \"30:F6:EF:2E:B3:55\",\r\n        \"10:F6:EF:2E:B3:99\",\r\n        \"40:F6:EF:2E:B2:5A\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device (Client)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tenantId\": {{tenantId}},\r\n    \"name\": \"DannyPC 2.0\",\r\n    \"clientId\": {{clientClientId}},\r\n    \"uuid\": \"{{clientUuid}}\",\r\n    \"ipAddress\": \"10.0.0.1\",\r\n    \"port\": 0,\r\n    \"type\": 1,\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"macAddresses\": [\r\n        \"30:F6:EF:2E:B3:55\",\r\n        \"10:F6:EF:2E:B3:99\",\r\n        \"40:F6:EF:2E:B2:5A\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device (Server)",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{deviceId}},\r\n    \"nickname\": \"Dan\",\r\n    \"name\": \"DannyServer 3.0\",\r\n    \"ipAddress\": \"10.0.0.1\",\r\n    \"port\": 0,\r\n    \"type\": 0,\r\n    \"ApiBaseUrl\": \"{{serverApiBaseUrl}}\",\r\n    \"ApiBasePort\": {{serverApiBasePort}},\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"macAddresses\": [\r\n        \"30:F6:EF:2E:B3:55\",\r\n        \"10:F6:EF:2E:B3:99\",\r\n        \"40:F6:EF:2E:B2:5A\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device (Client)",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{deviceId}},\r\n    \"nickname\": \"Dan\",\r\n    \"name\": \"DannyPC 3.0\",\r\n    \"ipAddress\": \"10.0.0.1\",\r\n    \"port\": 0,\r\n    \"type\": 1,\r\n    \"installationkey\": \"{{serverInstallationKey}}\",\r\n    \"macAddresses\": [\r\n        \"30:F6:EF:2E:B3:55\",\r\n        \"10:F6:EF:2E:B3:99\",\r\n        \"40:F6:EF:2E:B2:5A\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device/Status",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{deviceId}},\r\n    \"status\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device/Status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device",
+										"Status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{deviceId}},\r\n    \"status\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device/{{deviceId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device",
+										"{{deviceId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Device",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device/{id}",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{deviceId}},\r\n    \"status\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device/{{deviceId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device",
+										"{{deviceId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Device/By-Tenant/{id}",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{deviceId}},\r\n    \"status\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Device/By-Tenant/{{tenantId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Device",
+										"By-Tenant",
+										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Alert Requests",
+					"item": [
+						{
+							"name": "Alert",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"deviceId\": {{deviceId}},\r\n    \"severity\": 0,\r\n    \"message\": \"Something has occured\",\r\n    \"time\": \"2024-07-01T03:23:49.175Z\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert/Acknowledge/{id}",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert/Acknowledge/{{alertId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert",
+										"Acknowledge",
+										"{{alertId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": 1,\r\n    \"severity\": 0,\r\n    \"message\": \"Something has occured\",\r\n    \"time\": \"2024-07-01T03:23:49.175Z\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert/{{alertId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert",
+										"{{alertId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert/{{alertId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert",
+										"{{alertId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert/By-Device/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert/By-Device/{{deviceId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert",
+										"By-Device",
+										"{{deviceId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Alert/By-Tenant/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Alert/By-Tenant/{{tenantId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Alert",
+										"By-Tenant",
+										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Log Requests",
+					"item": [
+						{
+							"name": "Log",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"deviceId\": {{deviceId}},\r\n  \"filename\": \"Test.py\",\r\n  \"function\": \"test()\",\r\n  \"message\": \"Testing a device log\",\r\n  \"code\": 0,\r\n  \"stack_Trace\": \"Delete this line if you arent including trace.\", \r\n  \"time\": \"2024-07-01T15:50:00.671Z\",\r\n  \"type\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Log",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log (no stack trace)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"deviceId\": {{deviceId}},\r\n  \"filename\": \"Test.py\",\r\n  \"function\": \"test()\",\r\n  \"message\": \"Testing a device log\",\r\n  \"code\": 0,\r\n  \"time\": \"2024-07-01T15:50:00.671Z\",\r\n  \"type\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Log",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log/Acknowledge/{id}",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Log/Acknowledge/{{logId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log",
+										"Acknowledge",
+										"{{logId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": 1,\r\n  \"filename\": \"TestEdit.py\",\r\n  \"function\": \"testEdit()\",\r\n  \"message\": \"Testing an Edit device log\",\r\n  \"code\": 10,\r\n  \"stack_Trace\": \"Delete this line if you arent including trace.\", \r\n  \"time\": \"2024-07-01T15:50:00.671Z\",\r\n  \"type\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Log",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Log/{{logId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log",
+										"{{logId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Log",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Log/{{logId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log",
+										"{{logId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log/By-Device/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Log/By-Device/{{deviceId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log",
+										"By-Device",
+										"{{deviceId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log/By-Tenant/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Log/By-Tenant/{{tenantId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Log",
+										"By-Tenant",
+										"{{tenantId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Permission Requests",
+					"item": [
+						{
+							"name": "Permission",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"Test Tenant\",\r\n    \"description\":\"Test a tenant\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Permission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Permission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Permission",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": {{permissionId}},\r\n    \"name\":\"Test Tenant\",\r\n    \"description\":\"Test a tenant\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Permission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Permission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Permission/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Permission/{{permissionId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Permission",
+										"{{permissionId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Permission",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Permission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Permission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Permission/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Permission/{{permissionId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Permission",
+										"{{permissionId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Role Requests",
+					"item": [
+						{
+							"name": "Role",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Test role\",\r\n    \"description\": \"This is a test role\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Role",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/Assign",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"userId\": \"{{userId}}\",\r\n  \"roleId\": \"{{roleId}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/Assign",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"Assign"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/Assign-Permission",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"roleId\": \"{{roleId}}\",\r\n  \"permissionId\": {{permissionId}},\r\n  \"tenantId\": {{tenantId}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/Assign-Permission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"Assign-Permission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{roleId}}\",\r\n    \"name\": \"Test role\",\r\n    \"description\": \"This is a test edited role\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Role",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/{{roleId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"{{roleId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/Unassign",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"userId\": \"{{userId}}\",\r\n  \"roleId\": \"{{roleId}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/Unassign",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"Unassign"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/Unassign-Permission",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"roleId\": \"{{roleId}}\",\r\n  \"permissionId\": {{permissionId}},\r\n  \"tenantId\": {{tenantId}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/Unassign-Permission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"Unassign-Permission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Role",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/{{roleId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"{{roleId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/By-User/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/By-User/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"By-User",
+										"{{userId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/UserRole/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/UserRole/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"UserRole",
+										"{{userId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Role/Permission/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Role/Permission/{{roleId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Role",
+										"Permission",
+										"{{roleId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
@@ -464,12 +1928,90 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "",
+			"value": "https://localhost:7101",
 			"type": "string"
 		},
 		{
 			"key": "apiKey",
-			"value": "",
+			"value": "e255a931-426a-4dab-a72a-f541613d2707",
+			"type": "string"
+		},
+		{
+			"key": "tenantId",
+			"value": "4"
+		},
+		{
+			"key": "installationKeyId",
+			"value": "1"
+		},
+		{
+			"key": "serverInstallationKey",
+			"value": "65247b9a-c206-4798-a824-7fd562074869",
+			"type": "string"
+		},
+		{
+			"key": "clientInstallationKey",
+			"value": "519a2f9f-c677-4d9b-b422-8d3c680eaf41",
+			"type": "string"
+		},
+		{
+			"key": "serverUuid",
+			"value": "4C4C9988-0032-4210-8051-F1G54F435A33",
+			"type": "string"
+		},
+		{
+			"key": "clientUuid",
+			"value": "11111111-1032-4210-8051-F1G54F435A34",
+			"type": "string"
+		},
+		{
+			"key": "deviceId",
+			"value": "3",
+			"type": "string"
+		},
+		{
+			"key": "alertId",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"key": "logId",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"key": "permissionId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "clientClientId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "serverClientId",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "serverApiBasePort",
+			"value": "1111",
+			"type": "string"
+		},
+		{
+			"key": "serverApiBaseUrl",
+			"value": "https://localhost",
+			"type": "string"
+		},
+		{
+			"key": "roleId",
+			"value": "66777fa1-52bb-44c9-8c35-bb802c3ca367",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "5158ff32-d3de-4184-a59b-f93a251073d0",
 			"type": "string"
 		}
 	]

@@ -221,7 +221,7 @@ def get_uuid():
                     capture_output=True, text=True,check=True,shell=True) # enc with uuid
     output = output.stdout.strip()
     output = output.split('\n\n', 1)[-1]
-    output = output[:24]
+    output = output[:32]
     return output
 @staticmethod
 def write_setting(setting, value):
@@ -541,7 +541,7 @@ def install_nexserv_file(curl_route:str,apikey:str):
     write_log("INFO", "Install server", "Installing nexserv.exe from server starting",
             0, get_time())
 
-    request = requests.request("GET", f"{curl_route}",
+    request = requests.request("GET", f"{SERVER_PROTOCOL}{curl_route}",
             timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
             verify=SSL_CHECK)
 
@@ -675,6 +675,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_setting("version","1.0.0")
     write_setting("msp-port","7101")
     write_setting("POLLING_INTERVAL","10")
+    write_setting("uuid",get_uuid())
+    write_setting("versiontag","alpha")
+    write_setting("job_status","NotStarted")
     try:
         # get uuid
         output = get_uuid()
@@ -700,10 +703,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # initial registration request
         request = requests.request("GET",
                 f"{CLIENT_PROTOCOL}{backupserver}/{CLIENT_REGISTRATION_PATH}",
-                timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
+                timeout=120, headers={"Content-Type": "application/json","apikey":apikey},
                 json=payload, verify=SSL_CHECK)
 
-        # send a beat to the server --                                                                                                              Do I need?
         identification = request.headers.get('clientid')
         msp_api = request.headers.get('msp_api')
         write_setting("CLIENT_ID",identification)
@@ -735,9 +737,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
                     verify=SSL_CHECK)
 
             request = request.json()
-            service_url=request["nexumServiceUrl"]
-            server_url=request["nexumUrl"]
-            portal_url=request["portalUrl"]
+            service_url=CLIENT_PROTOCOL+backupserver+"/nexumservice"
+            server_url=CLIENT_PROTOCOL+backupserver+"/nexum"
+            portal_url=str("https://")+request["portalUrlLocal"]
             write_setting("TENANT_PORTAL_URL",portal_url)
             write_log("INFO","Install Server", f"service:{service_url} server:{server_url}",
                     0,get_time())
@@ -882,7 +884,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     server_address = backupserver.split(":")[0]
     server_port = backupserver.split(":")[1]
     write_setting("CLIENT_ID",str(0))
-    write_setting("server_address",server_address)
+    write_setting("msp_server_address",server_address)
     write_setting("server_port",server_port)
     write_setting("service_address","127.0.0.1:5004")
     write_setting("Status","Installing")
@@ -890,10 +892,13 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_setting("version","1.0.0")
     write_setting("msp-port","7101")
     write_setting("POLLING_INTERVAL","10")
+    write_setting("uuid",get_uuid())
+    write_setting("versiontag","alpha")
+    write_setting("job_status","NotStarted")
     # create GUID
     msp_api = uuid.uuid4()
     ip = get('https://api.ipify.org',timeout=10).content.decode('utf8')
-    write_setting("msp_api",msp_api)
+    write_setting("msp_api",str(msp_api))
     try:
 
         output = get_uuid()
@@ -906,7 +911,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             "ipaddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":0,
-            "apikey":msp_api,
+            "apikey":str(msp_api),
             "macaddresses":[
                 {
                 "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
@@ -943,9 +948,9 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
                     timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                     verify=SSL_CHECK)
             request = request.json()
-            service_url=request["nexumServiceUrl"]
-            server_url=request["nexumServerUrl"]
-            portal_url=request["portalUrl"]
+            service_url=str("https://")+request["nexumServiceUrlLocal"]
+            server_url=request["nexumServerUrlLocal"]
+            portal_url=str("https://")+request["portalUrlLocal"]
             write_setting("TENANT_PORTAL_URL",portal_url)
             write_log("INFO","Install Server", f"service:{service_url} server:{server_url}",
                     0,get_time())
@@ -999,18 +1004,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
 
         # notify server that the installation is complete
         notify_server(backupserver,0,apikey,output,key)
-        conn = sqlite3.connect(SETTINGS_PATH)
-        cursor = conn.cursor()
-        cursor.execute('''SELECT Address FROM clients WHERE Address = ?''', (socket.gethostbyname(socket.gethostname())))
-        existing_address = cursor.fetchone()
-        if existing_address:
-            return 500
-        cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC)
-                    VALUES (?, ?, ?, ?, ?, ?)''',
-                    (0, socket.gethostname(), (socket.gethostbyname(socket.gethostname()), PORT, "Installed", ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
-                            for ele in range(0,8*6,8)][::-1]))))
-        conn.commit()
-        conn.close()
+
 
         #incorrect secret
     else:
@@ -1191,6 +1185,7 @@ def main():
 
     #TESTING Area
     t = tk.Tk()
+
     main_window(t)
 
 

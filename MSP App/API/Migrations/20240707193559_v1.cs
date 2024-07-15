@@ -12,6 +12,20 @@ namespace API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ApplicationRoles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationRoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -32,6 +46,8 @@ namespace API.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -67,19 +83,6 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SoftwareFiles",
                 columns: table => new
                 {
@@ -103,6 +106,9 @@ namespace API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApiKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApiBaseUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApiBasePort = table.Column<int>(type: "int", nullable: true),
+                    ApiKeyServer = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -127,6 +133,31 @@ namespace API.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserRoles_ApplicationRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "ApplicationRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -217,40 +248,15 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_UserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Devices",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsVerified = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -271,13 +277,37 @@ namespace API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TenantId = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InstallationKeys", x => x.Id);
                     table.ForeignKey(
                         name: "FK_InstallationKeys_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NASServers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BackupServerId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TenantId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NASServers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_NASServers_Tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenants",
                         principalColumn: "Id",
@@ -296,15 +326,15 @@ namespace API.Migrations
                 {
                     table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
                     table.ForeignKey(
-                        name: "FK_RolePermissions_Permissions_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permissions",
+                        name: "FK_RolePermissions_ApplicationRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "ApplicationRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RolePermissions_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
+                        name: "FK_RolePermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -343,7 +373,7 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Alerts",
+                name: "DeviceAlerts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -357,9 +387,9 @@ namespace API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Alerts", x => x.Id);
+                    table.PrimaryKey("PK_DeviceAlerts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Alerts_Devices_DeviceId",
+                        name: "FK_DeviceAlerts_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
                         principalColumn: "Id",
@@ -372,6 +402,7 @@ namespace API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Nickname = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ClientId = table.Column<int>(type: "int", nullable: false),
                     Uuid = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -392,7 +423,30 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Logs",
+                name: "DeviceJobs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    JobId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Progress = table.Column<int>(type: "int", nullable: true),
+                    DeviceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceJobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobs_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceLogs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -404,16 +458,48 @@ namespace API.Migrations
                     Stack_Trace = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Time = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Acknowledged = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DeviceId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Logs", x => x.Id);
+                    table.PrimaryKey("PK_DeviceLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Logs_Devices_DeviceId",
+                        name: "FK_DeviceLogs_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceBackups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Filename = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Client_Id = table.Column<int>(type: "int", nullable: false),
+                    Uuid = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    NASServerId = table.Column<int>(type: "int", nullable: false),
+                    DeviceId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceBackups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceBackups_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_DeviceBackups_NASServers_NASServerId",
+                        column: x => x.NASServerId,
+                        principalTable: "NASServers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -438,10 +524,63 @@ namespace API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "DeviceJobInfos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BackupServerId = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UpdateInterval = table.Column<int>(type: "int", nullable: false),
+                    retryCount = table.Column<int>(type: "int", nullable: false),
+                    Sampling = table.Column<bool>(type: "bit", nullable: false),
+                    Retention = table.Column<int>(type: "int", nullable: false),
+                    DeviceJobId = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EndTime = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceJobInfos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobInfos_DeviceJobs_DeviceJobId",
+                        column: x => x.DeviceJobId,
+                        principalTable: "DeviceJobs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceJobSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Sunday = table.Column<bool>(type: "bit", nullable: false),
+                    Monday = table.Column<bool>(type: "bit", nullable: false),
+                    Tuesday = table.Column<bool>(type: "bit", nullable: false),
+                    Wednesday = table.Column<bool>(type: "bit", nullable: false),
+                    Thursday = table.Column<bool>(type: "bit", nullable: false),
+                    Friday = table.Column<bool>(type: "bit", nullable: false),
+                    Saturday = table.Column<bool>(type: "bit", nullable: false),
+                    DeviceJobInfoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceJobSchedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeviceJobSchedules_DeviceJobInfos_DeviceJobInfoId",
+                        column: x => x.DeviceJobInfoId,
+                        principalTable: "DeviceJobInfos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_Alerts_DeviceId",
-                table: "Alerts",
-                column: "DeviceId");
+                name: "IX_ApplicationUserRoles_RoleId",
+                table: "ApplicationUserRoles",
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -483,10 +622,47 @@ namespace API.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DeviceAlerts_DeviceId",
+                table: "DeviceAlerts",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceBackups_DeviceId",
+                table: "DeviceBackups",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceBackups_NASServerId",
+                table: "DeviceBackups",
+                column: "NASServerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DeviceInfos_DeviceId",
                 table: "DeviceInfos",
                 column: "DeviceId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobInfos_DeviceJobId",
+                table: "DeviceJobInfos",
+                column: "DeviceJobId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobs_DeviceId",
+                table: "DeviceJobs",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceJobSchedules_DeviceJobInfoId",
+                table: "DeviceJobSchedules",
+                column: "DeviceJobInfoId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceLogs_DeviceId",
+                table: "DeviceLogs",
+                column: "DeviceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Devices_TenantId",
@@ -499,14 +675,14 @@ namespace API.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Logs_DeviceId",
-                table: "Logs",
-                column: "DeviceId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MACAddresses_DeviceInfoId",
                 table: "MACAddresses",
                 column: "DeviceInfoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NASServers_TenantId",
+                table: "NASServers",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
@@ -523,18 +699,13 @@ namespace API.Migrations
                 table: "TenantInfos",
                 column: "TenantId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_RoleId",
-                table: "UserRoles",
-                column: "RoleId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Alerts");
+                name: "ApplicationUserRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -552,10 +723,19 @@ namespace API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "InstallationKeys");
+                name: "DeviceAlerts");
 
             migrationBuilder.DropTable(
-                name: "Logs");
+                name: "DeviceBackups");
+
+            migrationBuilder.DropTable(
+                name: "DeviceJobSchedules");
+
+            migrationBuilder.DropTable(
+                name: "DeviceLogs");
+
+            migrationBuilder.DropTable(
+                name: "InstallationKeys");
 
             migrationBuilder.DropTable(
                 name: "MACAddresses");
@@ -570,22 +750,28 @@ namespace API.Migrations
                 name: "TenantInfos");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "DeviceInfos");
-
-            migrationBuilder.DropTable(
-                name: "Permissions");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "NASServers");
+
+            migrationBuilder.DropTable(
+                name: "DeviceJobInfos");
+
+            migrationBuilder.DropTable(
+                name: "DeviceInfos");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationRoles");
+
+            migrationBuilder.DropTable(
+                name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "DeviceJobs");
 
             migrationBuilder.DropTable(
                 name: "Devices");

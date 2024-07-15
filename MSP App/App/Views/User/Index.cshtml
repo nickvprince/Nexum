@@ -11,9 +11,10 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Name</th>
+            <th>Username</th>
+            <th>FirstName</th>
+            <th>LastName</th>
             <th>Email</th>
-            <th>PasswordHash</th>
             <th></th>
         </tr>
     </thead>
@@ -22,8 +23,9 @@
         {
             <tr>
                 <td>@user.UserName</td>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
                 <td>@user.Email</td>
-                <td>@user.PasswordHash.Substring(0,15)</td>
                 <td>
                     <a asp-action="Edit">Edit</a> |
                     <a asp-action="Permissions">Permissions</a> |

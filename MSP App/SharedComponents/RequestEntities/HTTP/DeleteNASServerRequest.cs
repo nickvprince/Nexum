@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedComponents.RequestEntities
+namespace SharedComponents.RequestEntities.HTTP
 {
-    public class GetUserRequest
+    public class DeleteNASServerRequest
     {
-        public string Username { get; set; }
+        public int Id { get; set; }
     }
 }

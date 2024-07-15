@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
+using SharedComponents.WebEntities.Requests.LogRequests;
 using System.Text;
 
 namespace App.Services
@@ -19,12 +20,42 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceLog?> CreateAsync(DeviceLog log)
+        public async Task<DeviceLog?> CreateAsync(LogCreateRequest request)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(log), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DeviceLog>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<DeviceLog?> UpdateAsync(LogUpdateRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DeviceLog>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<DeviceLog?> AcknowledgeAsync(int id)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(""), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"Acknowledge/{id}", content);
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<DeviceLog>(responseData);
             }
@@ -68,6 +99,35 @@ namespace App.Services
             try
             {
                 var response = await _httpClient.GetAsync("");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<DeviceLog>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ICollection<DeviceLog>?> GetAllByDeviceIdAsync(int deviceId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"By-Device/{deviceId}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<DeviceLog>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            
+            }
+        }
+
+        public async Task<ICollection<DeviceLog>?> GetAllByTenantIdAsync(int tenantId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"By-Tenant/{tenantId}");
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ICollection<DeviceLog>>(responseData);
             }

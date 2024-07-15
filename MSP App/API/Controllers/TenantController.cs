@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
+using SharedComponents.WebEntities.Requests.TenantRequests;
 
 namespace API.Controllers
 {
@@ -19,90 +20,129 @@ namespace API.Controllers
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> CreateAsync([FromBody] Tenant tenant)
+        public async Task<IActionResult> CreateAsync([FromBody] TenantCreateRequest request)
         {
-            Tenant? newTenant = await _dbTenantService.CreateAsync(tenant);
-            if (newTenant != null)
+            if (ModelState.IsValid)
             {
-                return Ok(newTenant);
+                Tenant? tenant = new Tenant
+                {
+                    Name = request.Name,
+                    TenantInfo = new TenantInfo
+                    {
+                        Name = request.ContactName,
+                        Email = request.ContactEmail,
+                        Phone = request.ContactPhone,
+                        Address = request.Address,
+                        City = request.City,
+                        State = request.State,
+                        Zip = request.Zip,
+                        Country = request.Country
+                    }
+                };
+                tenant = await _dbTenantService.CreateAsync(tenant);
+                if (tenant != null)
+                {
+                    return Ok(tenant);
+                }
+                return BadRequest("An error occurred while creating the tenant.");
             }
-            return BadRequest("An error occurred while creating the tenant.");
+            return BadRequest("Invalid request.");
         }
 
         [HttpPut("")]
-        public async Task<IActionResult> UpdateAsync([FromBody] Tenant tenant)
+        public async Task<IActionResult> UpdateAsync([FromBody] TenantUpdateRequest request)
         {
-            Tenant? updatedTenant = await _dbTenantService.UpdateAsync(tenant);
-            if (updatedTenant != null)
+            if (ModelState.IsValid)
             {
-                return Ok(updatedTenant);
+                Tenant? tenant = await _dbTenantService.GetAsync(request.Id);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
+                if(tenant.TenantInfo == null)
+                {
+                    return NotFound("TenantInfo not found.");
+                }
+                tenant.Name = request.Name;
+                tenant.TenantInfo.Name = request.ContactName;
+                tenant.TenantInfo.Email = request.ContactEmail;
+                tenant.TenantInfo.Phone = request.ContactPhone;
+                tenant.TenantInfo.Address = request.Address;
+                tenant.TenantInfo.City = request.City;
+                tenant.TenantInfo.State = request.State;
+                tenant.TenantInfo.Zip = request.Zip;
+                tenant.TenantInfo.Country = request.Country;
+                tenant = await _dbTenantService.UpdateAsync(tenant);
+                if (tenant != null)
+                {
+                    return Ok(tenant);
+                }
+                return BadRequest("An error occurred while updating the tenant.");
             }
-            return BadRequest("An error occurred while updating the tenant.");
+            return BadRequest("Invalid request.");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            if(await _dbTenantService.DeleteAsync(id))
+            if (ModelState.IsValid)
             {
-                return Ok($"Tenant deleted successfully.");
+                if (await _dbTenantService.DeleteAsync(id))
+                {
+                    return Ok($"Tenant deleted successfully.");
 
+                }
+                return NotFound("Tenant not found.");
             }
-            return NotFound("Tenant not found.");
+            return BadRequest("Invalid request.");
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            Tenant? tenant = await _dbTenantService.GetAsync(id);
-            if (tenant != null)
+            if (ModelState.IsValid)
             {
-                return Ok(tenant);
+                Tenant? tenant = await _dbTenantService.GetAsync(id);
+                if (tenant != null)
+                {
+                    return Ok(tenant);
+                }
+                return NotFound("Tenant not found.");
             }
-            return NotFound("Tenant not found.");
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("{id}/Rich")]
+        public async Task<IActionResult> GetRichAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                Tenant? tenant = await _dbTenantService.GetRichAsync(id);
+                if (tenant != null)
+                {
+                    return Ok(tenant);
+                }
+                return NotFound("Tenant not found.");
+            }
+            return BadRequest("Invalid request.");
         }
 
         [HttpGet("")]
         public async Task<IActionResult> GetAllAsync()
         {
-            ICollection<Tenant> tenants = await _dbTenantService.GetAllAsync();
-            if (tenants.Any())
+            if (ModelState.IsValid)
             {
-                return Ok(tenants);
+                ICollection<Tenant>? tenants = await _dbTenantService.GetAllAsync();
+                if (tenants != null)
+                {
+                    if (tenants.Any())
+                    {
+                        return Ok(tenants);
+                    }
+                }
+                return NotFound("No tenants found.");
             }
-            return NotFound("No tenants found.");
-        }
-
-        [HttpPost("Create-Installation-Key/{tenantId}")]
-        public async Task<IActionResult> CreateInstallationKeyAsync(int tenantId)
-        {
-            InstallationKey? newInstallationKey = await _dbTenantService.CreateInstallationKeyAsync(tenantId);
-            if (newInstallationKey != null)
-            {
-                return Ok(newInstallationKey);
-            }
-            return BadRequest("An error occurred while creating the installation key.");
-        }
-
-        [HttpPut("Update-Installation-Key")]
-        public async Task<IActionResult> UpdateInstallationKeyAsync([FromBody] InstallationKey installationKey)
-        {
-            InstallationKey? updatedInstallationKey = await _dbTenantService.UpdateInstallationKeyAsync(installationKey);
-            if (updatedInstallationKey != null)
-            {
-                return Ok(updatedInstallationKey);
-            }
-            return BadRequest("An error occurred while updating the installation key.");
-        }
-        [HttpDelete("Delete-Installation-Key/{id}")]
-        public async Task<IActionResult> DeleteInstallationKeyAsync(string? installationKey)
-        {
-            if (await _dbTenantService.DeleteInstallationKeyAsync(installationKey))
-            {
-                return Ok($"Installation key deleted successfully.");
-
-            }
-            return NotFound("Installation key not found.");
+            return BadRequest("Invalid request.");
         }
     }
 }

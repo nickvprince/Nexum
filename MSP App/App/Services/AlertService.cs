@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SharedComponents.Entities;
 using SharedComponents.Services;
+using SharedComponents.WebEntities.Requests.AlertRequests;
 using System.Text;
 
 namespace App.Services
@@ -19,11 +20,11 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceAlert?> CreateAsync(DeviceAlert alert)
+        public async Task<DeviceAlert?> CreateAsync(AlertCreateRequest request)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(alert), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("", content);
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
@@ -34,12 +35,27 @@ namespace App.Services
             }
         }
 
-        public async Task<DeviceAlert?> EditAsync(DeviceAlert alert)
+        public async Task<DeviceAlert?> UpdateAsync(AlertUpdateRequest request)
         {
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(alert), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PutAsync("", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<DeviceAlert?> AcknowledgeAsync(int id)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(""), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"Acknowledge/{id}", content);
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<DeviceAlert>(responseData);
             }
@@ -83,6 +99,35 @@ namespace App.Services
             try
             {
                 var response = await _httpClient.GetAsync("");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<DeviceAlert>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ICollection<DeviceAlert>?> GetAllByDeviceIdAsync(int deviceId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"By-Device/{deviceId}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<DeviceAlert>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            
+            }
+        }
+
+        public async Task<ICollection<DeviceAlert>?> GetAllByTenantIdAsync(int tenantId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"By-Tenant/{tenantId}");
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ICollection<DeviceAlert>>(responseData);
             }

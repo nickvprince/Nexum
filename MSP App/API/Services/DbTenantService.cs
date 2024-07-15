@@ -26,11 +26,13 @@ namespace API.Services
 
                     // Save changes to the database
                     var result = await _appDbContext.SaveChangesAsync();
-
-                    return await _appDbContext.Tenants
-                        .Where(t => t.Id == tenant.Id)
-                        .Include(t => t.TenantInfo)
-                        .FirstOrDefaultAsync();
+                    if (result > 0)
+                    {
+                        return await _appDbContext.Tenants
+                            .Where(t => t.Id == tenant.Id)
+                            .Include(t => t.TenantInfo)
+                            .FirstAsync();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -46,17 +48,21 @@ namespace API.Services
             {
                 try
                 {
-                    var existingTenant = await _appDbContext.Tenants.FindAsync(tenant.Id);
+                    var existingTenant = await _appDbContext.Tenants
+                        .Where(t => t.Id == tenant.Id)
+                        .FirstAsync();
                     if (existingTenant != null)
                     {
                         _appDbContext.Entry(existingTenant).CurrentValues.SetValues(tenant);
 
                         var result = await _appDbContext.SaveChangesAsync();
-
-                        return await _appDbContext.Tenants
-                            .Where(t => t.Id == tenant.Id)
-                            .Include(t => t.TenantInfo)
-                            .FirstOrDefaultAsync();
+                        if (result >= 0)
+                        {
+                            return await _appDbContext.Tenants
+                                .Where(t => t.Id == tenant.Id)
+                                .Include(t => t.TenantInfo)
+                                .FirstAsync();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -71,13 +77,17 @@ namespace API.Services
         {
             try
             {
-                var tenant = await _appDbContext.Tenants.Where(t => t.Id == id).FirstOrDefaultAsync();
+                var tenant = await _appDbContext.Tenants
+                    .Where(t => t.Id == id)
+                    .FirstAsync();
                 if (tenant != null)
                 {
                     _appDbContext.Tenants.Remove(tenant);
                     var result = await _appDbContext.SaveChangesAsync();
-
-                    return true;
+                    if (result > 0)
+                    {
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -86,126 +96,91 @@ namespace API.Services
             }
             return false;
         }
-
+        
         public async Task<Tenant?> GetAsync(int id)
         {
-            return await _appDbContext.Tenants
-                .Where(t => t.Id == id)
-                .Include(t => t.TenantInfo)
-                .Include(t => t.InstallationKeys)
-                .Include(t => t.Devices)
-                    .ThenInclude(d => d.DeviceInfo)
-                        .ThenInclude(di => di.MACAddresses)
-                .FirstOrDefaultAsync();
+            try
+            {
+                var tenant = await _appDbContext.Tenants
+                    .Where(t => t.Id == id)
+                    .Include(t => t.TenantInfo)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the tenant: {ex.Message}");
+            }
+            return null;
+        }
+        
+        public async Task<Tenant?> GetRichAsync(int id)
+        {
+            try
+            {
+                var tenant =  await _appDbContext.Tenants
+                    .Where(t => t.Id == id)
+                    .Include(t => t.TenantInfo)
+                    .Include(t => t.InstallationKeys)
+                    .Include(t => t.Devices!)
+                        .ThenInclude(d => d.DeviceInfo!)
+                            .ThenInclude(di => di.MACAddresses)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting the tenant: {ex.Message}");
+            }
+            return null;
         }
 
         public async Task<Tenant?> GetByApiKeyAsync(string? apikey)
         {
-            return await _appDbContext.Tenants
-                .Where(t => t.ApiKey == apikey)
-                .Include(t => t.TenantInfo)
-                .Include(t => t.InstallationKeys)
-                .Include(t => t.Devices)
-                    .ThenInclude(d => d.DeviceInfo)
-                        .ThenInclude(di => di.MACAddresses)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<ICollection<Tenant>> GetAllAsync()
-        {
-            return await _appDbContext.Tenants
-                .Include(t => t.TenantInfo)
-                .Include(t => t.InstallationKeys)
-                .Include(t => t.Devices)
-                    .ThenInclude(d => d.DeviceInfo)
-                        .ThenInclude(di => di.MACAddresses)
-                .ToListAsync();
-        }
-
-        public async Task<InstallationKey?> CreateInstallationKeyAsync(int tenantId)
-        {
-            var installationKey = new InstallationKey
-            {
-                Key = Guid.NewGuid().ToString(),
-                TenantId = tenantId,
-                IsActive = true
-            };
             try
             {
-                await _appDbContext.InstallationKeys.AddAsync(installationKey);
-                var result = await _appDbContext.SaveChangesAsync();
-
-                return await _appDbContext.InstallationKeys
-                    .Where(i => i.Id == installationKey.Id)
-                    .FirstOrDefaultAsync();
+                var tenant = await _appDbContext.Tenants
+                    .Where(t => t.ApiKey == apikey)
+                    .Include(t => t.TenantInfo)
+                    .FirstAsync();
+                if (tenant != null)
+                {
+                    return tenant;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while creating the installation key: {ex.Message}");
+                Console.WriteLine($"An error occurred while getting the tenant: {ex.Message}");
             }
             return null;
         }
-
-        public async Task<InstallationKey?> UpdateInstallationKeyAsync(InstallationKey? installationkey)
+        
+        public async Task<ICollection<Tenant>?> GetAllAsync()
         {
-            if (installationkey != null)
+            try
             {
-                try
+                var tenants = await _appDbContext.Tenants
+                    .Include(t => t.TenantInfo)
+                    .ToListAsync();
+                if (tenants != null)
                 {
-                    var existingInstallationKey = await _appDbContext.InstallationKeys
-                        .Where(i => i.Key == installationkey.Key)
-                        .FirstOrDefaultAsync();
-                       
-                    if (existingInstallationKey != null)
+                    if (tenants.Any())
                     {
-                        _appDbContext.Entry(existingInstallationKey).CurrentValues.SetValues(installationkey);
-
-                        var result = await _appDbContext.SaveChangesAsync();
-
-                        return await _appDbContext.InstallationKeys
-                            .Where(i => i.Key == installationkey.Key)
-                            .FirstOrDefaultAsync();
+                        return tenants;
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An error occurred while updating the installation key: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all tenants: {ex.Message}");
             }
             return null;
-        }
-
-        public async Task<bool> DeleteInstallationKeyAsync(string? installationkey)
-        {
-            if (installationkey != null)
-            {
-                try
-                {
-                    var existingInstallationKey = await _appDbContext.InstallationKeys
-                        .Where(i => i.Key == installationkey)
-                        .FirstOrDefaultAsync();
-                    if (existingInstallationKey != null)
-                    {
-                        existingInstallationKey.IsActive = false;
-                        _appDbContext.Entry(existingInstallationKey).State = EntityState.Modified;
-                        var result = await _appDbContext.SaveChangesAsync();
-
-                        return true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An error occurred while deleting the installation key: {ex.Message}");
-                }
-            }
-            return false;
-        }
-
-        public async Task<InstallationKey?> GetInstallationKeyAsync(string? installationkey)
-        {
-            return await _appDbContext.InstallationKeys
-                .Where(i => i.Key == installationkey)
-                .FirstOrDefaultAsync();
         }
     }
 }

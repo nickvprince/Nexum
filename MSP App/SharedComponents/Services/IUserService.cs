@@ -1,4 +1,6 @@
 ﻿using SharedComponents.Entities;
+using SharedComponents.WebEntities.Requests.UserRequests;
+using SharedComponents.WebEntities.Responses.UserResponses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +11,11 @@ namespace SharedComponents.Services
 {
     public interface IUserService
     {
-        public Task<bool> CreateAsync(ApplicationUser user);
-        public Task<bool> EditAsync(ApplicationUser user);
-        public Task<bool> DeleteAsync(string username);
-        public Task<ApplicationUser?> GetAsync(string username);
-        public Task<ICollection<ApplicationUser>?> GetAllAsync();
+        public Task<UserCreateResponse?> CreateAsync(UserCreateRequest request);
+        public Task<UserUpdateResponse?> UpdateAsync(UserUpdateRequest request);
+        public Task<bool> DeleteAsync(string id);
+        public Task<UserResponse?> GetByIdAsync(string username);
+        public Task<UserResponse?> GetByUserNameAsync(string username);
+        public Task<ICollection<UserResponse>?> GetAllAsync();
     }
 }

@@ -64,6 +64,7 @@ class Job():
         """
         Saves the job to the database
         """
+        MySqlite.write_log("INFO","JOB","Saving Job",0,"")
         conn1 = sqlite3.connect(settingsDirectory+job_settingsFile)
         cursor1 = conn1.cursor()
         cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention, lastJob, notifyEmail, heartbeatInterval,path,username,password)'
