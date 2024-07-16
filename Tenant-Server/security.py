@@ -123,11 +123,11 @@ class Security():
         try:
             return decrypted_string.decode('utf-8')
         except UnicodeDecodeError:
-            l.log("ERROR", "decrypt_string", "Decryption failed", "1004", time.asctime())
+            l.log("ERROR", "decrypt_string", "Decryption failed", "1004", "security.py")
             return "Decryption failed"
         except:
             l.log("ERROR", "decrypt_string", "General Error decrypting string",
-            "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m","security.py"))
             return "Decryption failed"
 
     # add salt, pepper, and salt2 to the string
@@ -186,7 +186,7 @@ class Security():
         except ValueError:
             l = Logger()
             l.log("ERROR", "decrypt_client_secret", "Decryption failed",
-            "1004", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "1004","security.py")
             return "Decryption failed"
         except:
             return ""

@@ -52,8 +52,8 @@ class IconManager():
             percent = IconManager.get_percent()
             version = IconManager.get_version()
             menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
-            l.log("INFO", "change_status", "Status changed to "+str(status) + ":"+str(percent)+
-                  ":"+str(version), "0", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            l.log("INFO", "IconManager.change_status", "Status changed to "+str(status) + ":"+str(percent)+
+                  ":"+str(version), "0","IconManager.py")
             self.update_menu(menu)
 
     # stop the tray icon

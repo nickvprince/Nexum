@@ -15,7 +15,8 @@
 # pylint: disable= import-error, unused-argument,line-too-long
 import conf
 import jobsettings
-from sql import settingsDirectory, jobFile, configFile, job_settingsFile, sqlite3
+from sql import settingsDirectory, jobFile, configFile, job_settingsFile, sqlite3,MySqlite
+import datetime
 
 
 class Job():
@@ -28,8 +29,8 @@ class Job():
     id =  None
     title = None
     created = None
-    config = conf.Configuration(0,"","")
-    settings = jobsettings.JobSettings()
+    config:conf = conf.Configuration(0,"","")
+    settings:jobsettings = jobsettings.JobSettings()
 
     # pylint: disable=missing-function-docstring
     # Getters and setters
@@ -63,10 +64,11 @@ class Job():
         """
         Saves the job to the database
         """
+        MySqlite.write_log("INFO","JOB","Saving Job",0,"")
         conn1 = sqlite3.connect(settingsDirectory+job_settingsFile)
         cursor1 = conn1.cursor()
-        cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention, lastJob, notifyEmail, heartbeatInterval)'
-                        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (self.settings.get_id(), self.settings.get_schedule(), self.settings.get_start_time(), self.settings.get_stop_time(), self.settings.get_retry_count(), self.settings.get_sampling(), self.settings.get_retention(), self.settings.get_last_job(), self.settings.get_notify_email(), self.settings.get_heartbeat_interval()))
+        cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention, lastJob, notifyEmail, heartbeatInterval,path,username,password)'
+                        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)', (self.settings.get_id(), self.settings.get_schedule(), self.settings.get_start_time(), self.settings.get_stop_time(), self.settings.get_retry_count(), self.settings.get_sampling(), self.settings.get_retention(), self.settings.get_last_job(), self.settings.get_notify_email(), self.settings.get_heartbeat_interval(),self.settings.get_backup_path(),self.settings.get_user(),self.settings.get_password()))
         conn1.commit()
         conn1.close()
         conn2 = sqlite3.connect(settingsDirectory+configFile)
@@ -85,29 +87,37 @@ class Job():
         """
         Loads the job from the database
         """
+        try:
+            conn = sqlite3.connect(settingsDirectory+jobFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
+            info = cursor.fetchone()
+            self.set_id(info[0])
+            self.set_title(info[1])
+            self.set_created(info[2])
+            conn.close()
+        except Exception as e:
+            MySqlite.write_log("ERROR","JOB","Error Loading Job - "+str(e),500,datetime.datetime.now())
 
-        conn = sqlite3.connect(settingsDirectory+jobFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
-        info = cursor.fetchone()
-        self.set_id(info[0])
-        self.set_title(info[1])
-        self.set_created(info[2])
-        conn.close()
+        try:
+            conn = sqlite3.connect(settingsDirectory+configFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM config WHERE ID = ?', ("0"))
+            my_config = cursor.fetchone()
+            conn.close()
+        except Exception as e:
+            MySqlite.write_log("ERROR","JOB","Error Loading Config - "+str(e),500,datetime.datetime.now())
 
-        conn = sqlite3.connect(settingsDirectory+configFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM config WHERE ID = ?', (self.get_id(),))
-        my_config = cursor.fetchone()
-        conn.close()
-
-        conn = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job_settings WHERE ID = ?', (self.get_id(),))
-        my_settings = cursor.fetchone()
-        conn.close()
-        self.set_config(my_config)
-        self.set_settings(my_settings)
+        try:
+            conn = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM job_settings WHERE ID = ?', ("0"))
+            my_settings = cursor.fetchone()
+            conn.close()
+            self.set_config(my_config)
+            self.set_settings(my_settings)
+        except Exception as e:
+            MySqlite.write_log("ERROR","JOB","Error Loading Job Settings - "+str(e),500,datetime.datetime.now())
 
     def delete(self):
         """ 
