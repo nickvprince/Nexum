@@ -94,7 +94,7 @@ URLS_ROUTE_LOCAL="urls"
 OS_FILE_PATH = os.path.join("C:\\", "Program Files", "Nexum")
 IMAGE_PATH = '../Data/Nexum.png'
 BEAT_PATH = "beat"
-UNINSTALL_PATH = "uninstall"
+UNINSTALL_PATH = "api/DataLink/Uninstall"
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working director
 # setting should be in %temp%/settings/settings.db such as C:\Users\teche\AppData\Local\Temp\settings
 SETTINGS_PATH = os.path.join(tempfile.gettempdir(),"/settings","/settings.db") # path to the settings database
@@ -345,146 +345,193 @@ def completed(window:tk.Tk,message:str,state:str):
     back_button.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
     new_window.mainloop()
 
+def uninstall_from_device(window:tk.Tk):
+    not_installed_indentifiers:int = 0 # increases as parts are removed
+    identifiers_count:int =0 # total number of identifiers
+
+    identifiers_count += 1
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY, 0, winreg.KEY_ALL_ACCESS)
+        winreg.DeleteValue(key, TITLE)
+        not_installed_indentifiers += 1
+
+        write_log("INFO", "Uninstall", "Run key deleted", 0, get_time())
+    except FileNotFoundError:
+
+        not_installed_indentifiers += 1
+    except Exception as e:
+        completed(window,"","uninstall failed deleting run key")
+        write_log("ERROR", "Uninstall", "Run key could not be deleted : " + str(e),
+                    1106, get_time())
+        
+ # remove app key
+    identifiers_count += 1
+    try:
+        title_preappend = "\\Nexum"
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                APP_PATH_KEY + title_preappend, 0, winreg.KEY_ALL_ACCESS)
+        subkey_count = winreg.QueryInfoKey(key)[0]
+        for i in range(subkey_count):
+            subkey_name = winreg.EnumKey(key, 0)
+            winreg.DeleteKey(key, subkey_name)
+        winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY + title_preappend)
+        not_installed_indentifiers += 1
+
+        write_log("INFO", "Uninstall", "App key deleted", 0, get_time())
+    except FileNotFoundError:
+        not_installed_indentifiers += 1
+
+    except Exception as e:
+        completed(window,"","uninstall failed deleting app key")
+        write_log("ERROR", "Uninstall", "App key could not be deleted : " + e,
+                    1105, get_time())
+        
+    identifiers_count += 1
+    try:
+        subprocess.Popen(['sc', 'stop', 'nexumservice'],shell=True)
+        subprocess.Popen(['sc', 'delete', 'nexumservice'],shell=True)
+
+        not_installed_indentifiers += 1
+    except:
+
+        write_log("ERROR", "Uninstall", "Service could not be deleted", 0, get_time())
+
+    identifiers_count += 1
+    if os.path.exists(OS_FILE_PATH):
+
+        try:
+
+            subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
+            
+            subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
+
+            breakcount:int = 0
+            time.sleep(1) # time to stop the processes retry 5 times until timeout
+            shutil.rmtree(OS_FILE_PATH)
+            while os.path.exists(OS_FILE_PATH):
+
+                time.sleep(1)
+                breakcount += 1
+                if breakcount > 5:
+                    break
+                shutil.rmtree(OS_FILE_PATH)
+
+            not_installed_indentifiers += 1
+            write_log("INFO", "Uninstall", "Nexum folder deleted", 0, get_time())
+        except Exception as e:
+            write_log("ERROR", "Uninstall", "Nexum folder could not be deleted : " + e,
+                        1111, get_time())
+        else:
+
+            write_log("INFO", "Uninstall", "Nexum folder does not exist", 0, get_time())
+            not_installed_indentifiers += 1
+        
+    
+            # delete scheduled tasks nexum and nexserv
+    identifiers_count += 1
+    del_count:int=0
+    try:
+        os.system('schtasks /delete /tn nexum /f')
+
+        del_count += 1
+    except Exception as e:
+        write_log("ERROR", "Uninstall", "Scheduled task nexum could not be deleted",000, get_time())
+    try:
+        os.system('schtasks /delete /tn nexserv /f')
+        del_count += 1
+    except Exception as e:
+        write_log("ERROR", "Uninstall", "Scheduled task nexserv could not be deleted",000, get_time())
+
+    if del_count == 2:
+        write_log("Error", "Uninstall", "Scheduled tasks both deleted, should only be one",
+                    0, get_time())
+        not_installed_indentifiers += 1
+
+    elif del_count == 1:
+        write_log("INFO", "Uninstall", "Scheduled task deleted", 0, get_time())
+        not_installed_indentifiers += 1
+        not_installed_indentifiers += 1
+    else:
+        completed(window,"","uninstall failed deleting scheduled tasks")
+        write_log("Error", "Uninstall", "No tasks deleted", 0, get_time())
+
+    identifiers_count += 1
+        # remove startup keys
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                        STARTUP_APPROVED_KEY,
+                        0, winreg.KEY_ALL_ACCESS)
+        winreg.DeleteValue(key,TITLE)
+        not_installed_indentifiers += 1
+
+        write_log("INFO", "Uninstall", "Startup key deleted", 0, get_time())
+    except FileNotFoundError:
+
+        not_installed_indentifiers += 1
+    except Exception as e:
+        write_log("ERROR", "Uninstall", "Startup key could not be deleted : " + e,
+                    1104, get_time())
+
+    uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
+    write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
+                0, get_time())
+    completed(window,"","uninstall completed")
+
+def uninstall_client(key:str,window:tk.Tk):
+    #reach out to local server for permission
+    headers = {
+        "Content-Type": "application/json",
+        "apikey": read_setting("apikey")
+    }
+    content = {
+        "key": key,
+        "uuid": read_setting("uuid"),
+        "client_id": read_setting("CLIENT_ID")
+    }
+    try:
+        response = requests.post(f"{CLIENT_PROTOCOL}{read_setting('server_address')}:{read_setting('server_port')}/uninstall",
+                                headers=headers, json=content, timeout=TIMEOUT, verify=SSL_CHECK)
+        if response.status_code == 200:
+            write_log("INFO", "Uninstall", "Uninstall request sent", 0, get_time())
+            uninstall_from_device(window)
+
+        else:
+            write_log("ERROR", "Uninstall", "Uninstall request failed", 1115, get_time())
+    except Exception as e:
+        write_log("ERROR", "Uninstall", f"Could not connect to server {e}", 1100, get_time())
+    completed(window,"","uninstall failed fatel error")
 def uninstall_program(key:str,window:tk.Tk):
     """
     The main loop to uninstall the program including registry, server, files, and task
     """
-
-    not_installed_indentifiers:int = 0 # increases as parts are removed
-    identifiers_count:int =0 # total number of identifiers
-
-    # remove from server
-    identifiers_count += 1
-    if uninstall_from_server(read_setting("server_address")+":"+read_setting("server_port"),
-                            key) == 200:
-        not_installed_indentifiers += 1
-
-        # remove run keys
-        identifiers_count += 1
-        try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY, 0, winreg.KEY_ALL_ACCESS)
-            winreg.DeleteValue(key, TITLE)
-            not_installed_indentifiers += 1
-            write_log("INFO", "Uninstall", "Run key deleted", 0, get_time())
-        except FileNotFoundError:
-            not_installed_indentifiers += 1
-        except Exception as e:
-            write_log("ERROR", "Uninstall", "Run key could not be deleted : " + str(e),
-                    1106, get_time())
-
-
-        # remove app key
-        identifiers_count += 1
-        try:
-            title_preappend = "\\Nexum"
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                APP_PATH_KEY + title_preappend, 0, winreg.KEY_ALL_ACCESS)
-            subkey_count = winreg.QueryInfoKey(key)[0]
-            for i in range(subkey_count):
-                subkey_name = winreg.EnumKey(key, 0)
-                winreg.DeleteKey(key, subkey_name)
-            winreg.DeleteKey(winreg.HKEY_LOCAL_MACHINE, APP_PATH_KEY + title_preappend)
-            not_installed_indentifiers += 1
-            write_log("INFO", "Uninstall", "App key deleted", 0, get_time())
-        except FileNotFoundError:
-            not_installed_indentifiers += 1
-        except Exception as e:
-            write_log("ERROR", "Uninstall", "App key could not be deleted : " + e,
-                    1105, get_time())
-
-        # remove service
-        try:
-            subprocess.Popen(['sc', 'stop', 'nexumservice'],shell=True)
-            subprocess.Popen(['sc', 'delete', 'nexumservice'],shell=True)
-        except:
-            write_log("ERROR", "Uninstall", "Service could not be deleted", 0, get_time())
-
-        identifiers_count += 1
-        if os.path.exists(OS_FILE_PATH):
-
-            try:
-                subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
-                subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
-
-                breakcount:int = 0
-                time.sleep(1) # time to stop the processes retry 5 times until timeout
-                shutil.rmtree(OS_FILE_PATH)
-                while os.path.exists(OS_FILE_PATH):
-                    time.sleep(1)
-                    breakcount += 1
-                    if breakcount > 5:
-                        break
-                    shutil.rmtree(OS_FILE_PATH)
-
-                not_installed_indentifiers += 1
-                write_log("INFO", "Uninstall", "Nexum folder deleted", 0, get_time())
-            except Exception as e:
-                write_log("ERROR", "Uninstall", "Nexum folder could not be deleted : " + e,
-                        1111, get_time())
-        else:
-            write_log("INFO", "Uninstall", "Nexum folder does not exist", 0, get_time())
-            not_installed_indentifiers += 1
-
-        # delete scheduled tasks nexum and nexserv
-        del_count:int=0
-        try:
-            os.system('schtasks /delete /tn nexum /f')
-        except:
-            del_count += 1
-        try:
-            os.system('schtasks /delete /tn nexserv /f')
-        except:
-            del_count += 1
-
-        if del_count == 2:
-            write_log("Error", "Uninstall", "Scheduled tasks both deleted, should only be one",
-                    0, get_time())
-        elif del_count == 1:
-            write_log("INFO", "Uninstall", "Scheduled task deleted", 0, get_time())
-            not_installed_indentifiers += 1
-        else:
-            write_log("Error", "Uninstall", "No tasks deleted", 0, get_time())
-
-        identifiers_count += 1
-        # remove startup keys
-        try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                        STARTUP_APPROVED_KEY,
-                        0, winreg.KEY_ALL_ACCESS)
-            winreg.DeleteValue(key,TITLE)
-            not_installed_indentifiers += 1
-            write_log("INFO", "Uninstall", "Startup key deleted", 0, get_time())
-        except FileNotFoundError:
-            not_installed_indentifiers += 1
-        except Exception as e:
-            write_log("ERROR", "Uninstall", "Startup key could not be deleted : " + e,
-                    1104, get_time())
-
-        uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
-        write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
-                0, get_time())
-
-
-        # delete scheduled tasks nexum and nexserv
-        identifiers_count += 1
-        try:
-            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexum', '/f'],shell=True)
-            not_installed_indentifiers += 1
-        except:
-            write_log("ERROR", "Uninstall", "Scheduled task nexum could not be deleted",
-                    0, get_time())
-        try:
-            subprocess.Popen(['schtasks', '/delete', '/tn', 'nexserv', '/f'],shell=True)
-            not_installed_indentifiers += 1
-        except:
-            write_log("ERROR", "Uninstall", "Scheduled task nexserv could not be deleted",
-                    0, get_time())
-
-
-        # Completed Window
-        completed(window,"","uninstall completed")
+    if read_setting("type") == "client":
+        uninstall_client(key,window)
     else:
-        write_log("ERROR", "Uninstall", "Could not uninstall from server", 1115, get_time())
+        headers = {
+        "Content-Type": "application/json",
+        "apikey": read_setting("apikey")
+        }
+        content = {
+        "uninstallationKey": key,
+        "uuid": read_setting("uuid"),
+        "client_Id": read_setting("CLIENT_ID")
+        }
+        try:
+            response = requests.post(f"{SERVER_PROTOCOL}{read_setting('msp_server_address')}:{read_setting('msp-port')}/{UNINSTALL_PATH}",
+                                headers=headers, json=content, timeout=TIMEOUT, verify=SSL_CHECK)
+            if response.status_code == 200:
+                write_log("INFO", "Uninstall", "Uninstall request sent", 0, get_time())
+                # post to msp to check install key
+
+
+            else:
+                write_log("ERROR", "Uninstall", "Uninstall request failed", 1115, get_time())
+        except Exception as e:
+            write_log("ERROR", "Uninstall", f"Could not connect to server {e}", 1100, get_time())
+        uninstall_from_device(window)
+
+
+
 
 def uninstall(window:tk.Tk):
     """
@@ -666,7 +713,6 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_log("INFO", "Install Client", "Install Client Background Started", 0, get_time())
     server_address = backupserver.split(":")[0]
     server_port = backupserver.split(":")[1]
-    print("starting install")
     write_setting("server_address",server_address)
     write_setting("server_port",server_port)
     write_setting("service_address","127.0.0.1:5004")
@@ -678,6 +724,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_setting("uuid",get_uuid())
     write_setting("versiontag","alpha")
     write_setting("job_status","NotStarted")
+    write_setting("type","client")
     try:
         # get uuid
         output = get_uuid()
@@ -685,8 +732,8 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # send information to local server
         payload = {
             "name":socket.gethostname(),
-            "uuid":output,
-            "ipaddress":socket.gethostbyname(socket.gethostname()),
+            "uuid":output[0:31],
+            "ipaddress":"192.168.50.13",#socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":1,
             "macaddresses":[
@@ -699,7 +746,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             "installationKey":key
         }
 
-        print(f"{CLIENT_PROTOCOL}{backupserver}/{CLIENT_REGISTRATION_PATH}",)
+
         # initial registration request
         request = requests.request("GET",
                 f"{CLIENT_PROTOCOL}{backupserver}/{CLIENT_REGISTRATION_PATH}",
@@ -725,9 +772,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # Create a folder C:\Program Files\Nexum
         try:
             os.mkdir(OS_FILE_PATH)
-            print("Nexum folder created")
+
         except:
-            print("Nexum folder already exists or could not be created")
+            write_log("ERROR", "Install Client", "Could not create Nexum folder", 1111, get_time())
 
 
         # get urls
@@ -895,6 +942,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     write_setting("uuid",get_uuid())
     write_setting("versiontag","alpha")
     write_setting("job_status","NotStarted")
+    write_setting("type","server")
     # create GUID
     msp_api = uuid.uuid4()
     ip = get('https://api.ipify.org',timeout=10).content.decode('utf8')
@@ -1184,11 +1232,8 @@ def main():
 
 
     #TESTING Area
-    t = tk.Tk()
 
-    main_window(t)
-
-
+    
 
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])

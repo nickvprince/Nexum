@@ -564,19 +564,19 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, 0) == 200:
             try:
                 logger.log("INFO", "nexum", "Getting URLS",0,"flaskserver.py")
-                requestsecond = requests.request("GET", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/{"urls"}",
+                url=(f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/{"api/DataLink/Urls"}")
+                requestsecond = requests.request("GET", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/{"api/DataLink/Urls"}",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
 
                 requestsecond = requestsecond.json()
 
-                server_url=request["nexumUrl"]
-
-                requestsecond = requests.request("GET", f"{server_url}",
+                server_url=requestsecond["nexumUrlLocal"]
+                requestsecond = requests.request("GET", f"https://{server_url}",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
                 logger.log("INFO", "nexum", "Got Nexum File.. Relaying",0,"flaskserver.py")
-                return request
+                return make_response(requestsecond.content,requestsecond.status_code)
 
 
             except Exception as e:
@@ -1155,7 +1155,7 @@ class FlaskServer():
             "name":socket.gethostname(),
             "uuid":uid,
             "client_Id":identification,
-            "ipaddress":socket.gethostbyname(socket.gethostname()),
+            "ipaddress":ip,
             "port":port,
             "type":type,
             "macaddresses":[
@@ -1195,20 +1195,36 @@ class FlaskServer():
         the client is sent a 200 ok response and the msp is notified --INTERNAL-- AND --EXTERNAL--
         """
         # change this to check with msp for uninstall ###########################################
-        secret = request.headers.get('clientSecret')
-        key = request.headers.get('key')
+        secret = request.headers.get('apikey')
+        key = request.json.get('key','')
+
+        uuid = request.json.get('uuid', '')
+        client_id = request.json.get('client_id', '')
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
-            if key == MySqlite.read_setting("Master-Uninstall"):
-                body = request.get_json()
-                identification = body.get('clientid', '')
-                if MySqlite.get_last_checkin(identification) == None:
-                    return make_response("403 Rejected - Client does not exist", 403)
-                MySqlite.delete_client(identification)
-                return make_response("200 ok", 200)
-            else:
-                logger.log("ERROR", "uninstall", "Key does not match",1201, "flaskserver.py")
-                return make_response("403 Rejected", 403)
+            headers = {
+            "Content-Type": "application/json",
+            "apikey": secret
+            }
+            content = {
+            "uninstallationKey": key,
+            "uuid": uuid,
+            "client_Id": client_id
+            }
+            try:
+                response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Uninstall",
+                                        headers=headers, json=content, timeout=15, verify=False)
+                if response.status_code == 200:
+                    return make_response(response.content, response.status_code)
+                else:
+                    logger.log("ERROR", "uninstall", f"Failed to connect to MSP: {response.status_code}", response.status_code, "flaskserver.py")
+                    return make_response(response.content, response.status_code)
+
+            except Exception as e:
+                
+
+                logger.log("ERROR", "uninstall", f"Failed to connect to MSP: {e}", 500, "flaskserver.py")
+                return make_response("Failed to contact MSP", 500)
         else:
             logger.log("ERROR", "uninstall", "Access Denied",405,"flaskserver.py")
             return make_response("401 Access Denied", 401)

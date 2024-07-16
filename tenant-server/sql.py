@@ -27,7 +27,7 @@ import tempfile
 
 #pylint: disable=bare-except,line-too-long
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
-settingsDirectory = os.path.join(os.getcwd(),"../settings") # directory for settings
+settingsDirectory = os.path.join(__file__.rsplit("sql.py",1)[0],"../settings") # directory for settings
 SETTINGS_PATH= os.path.join(
     settingsDirectory+'/settings.db') # path to the settings database
 jobFile=os.path.join('/settings.db')
@@ -359,7 +359,6 @@ class MySqlite():
 
 
         value = encrypt_string(output,value)
-
         conn = sqlite3.connect(SETTINGS_PATH)
         cursor = conn.cursor()
         cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
@@ -565,6 +564,7 @@ class InitSql():
             conn = sqlite3.connect(settingsDirectory+job_settingsFile)
             cursor = conn.cursor()
             # drop table
+            #cursor.execute('''DROP TABLE IF EXISTS clients''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS clients
                             (id TEXT, Name TEXT, Address TEXT, Port TEXT, Status TEXT, MAC TEXT, uuid TEXTS)''')
             # Close connection

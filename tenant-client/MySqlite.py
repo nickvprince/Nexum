@@ -138,7 +138,7 @@ class MySqlite():
                         capture_output=True, text=True,check=True,shell=True) # Use UUID to encrypt the data
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
-        output = output[:24]
+        output = output[:32]
 
         value = encrypt_string(output,value)
 
@@ -170,7 +170,7 @@ class MySqlite():
                                     capture_output=True, text=True,check=True,shell=True) # enc with uuid
             output = result.stdout.strip()
             output = output.split('\n\n', 1)[-1]
-            output = output[:24]
+            output = output[:32]
             value = decrypt_string(output,value)
             return value.rstrip()
         except:
