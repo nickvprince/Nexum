@@ -210,7 +210,7 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
-        [HttpDelete("Unassign")]
+        [HttpPost("Unassign")]
         public async Task<IActionResult> UnassignAsync([FromBody] RoleUnassignRequest request)
         {
             if (ModelState.IsValid)
@@ -293,7 +293,7 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
-        [HttpDelete("Unassign-Permission")]
+        [HttpPost("Unassign-Permission")]
         public async Task<IActionResult> UnassignPermissionAsync([FromBody] RoleUnassignPermissionRequest request)
         {
             if (ModelState.IsValid)

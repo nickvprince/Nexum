@@ -70,8 +70,7 @@ namespace API.Services
             {
                 if (await InitiallizeHttpClient(tenantId))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                    var response = await _httpClient.PostAsync($"delete_smb", content);
+                    var response = await _httpClient.DeleteAsync($"delete_smb/{request.Id}");
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
                     return true;

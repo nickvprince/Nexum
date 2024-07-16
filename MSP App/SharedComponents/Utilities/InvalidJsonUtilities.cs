@@ -59,7 +59,6 @@ namespace SharedComponents.Utilities
                 }
             }
             writer.WriteEndObject();
-            serializer.Serialize(writer, job);
         }
         public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {

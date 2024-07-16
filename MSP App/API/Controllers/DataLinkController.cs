@@ -81,8 +81,8 @@ namespace API.Controllers
                 }
                 UrlResponse response = new UrlResponse
                 {
-                    PortalUrl = webUrl + "/Account/login",
-                    PortalUrlLocal = webUrlLocal + "/Account/login",
+                    PortalUrl = webUrl + "/Auth/login",
+                    PortalUrlLocal = webUrlLocal + "/Auth/login",
                     NexumUrl = apiUrl + "/Software/Nexum",
                     NexumUrlLocal = apiUrlLocal + "/Software/Nexum",
                     NexumServerUrl = apiUrl + "/Software/NexumServer",
@@ -187,15 +187,16 @@ namespace API.Controllers
                     {
                         return Unauthorized("Invalid Installation Key Type.");
                     }
-                    if (devices != null)
+                    if (devices == null)
                     {
-                        Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
-                        if (server != null)
+                        return BadRequest("Server device not found.");
+                    }
+                    Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
+                    if (server != null)
+                    {
+                        if (!server.IsVerified)
                         {
-                            if (!server.IsVerified)
-                            {
-                                return BadRequest("Server not verified.");
-                            }
+                            return BadRequest("Server not verified.");
                         }
                     }
                 }

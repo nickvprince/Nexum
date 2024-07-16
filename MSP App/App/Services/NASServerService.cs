@@ -106,5 +106,19 @@ namespace App.Services
                 return null;
             }
         }
+
+        public async Task<ICollection<NASServer>?> GetAllByDeviceIdAsync(int deviceId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"By-Device/{deviceId}");
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ICollection<NASServer>>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }

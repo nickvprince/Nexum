@@ -75,7 +75,7 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
-        [HttpPost("Acknowledge/{id}")]
+        [HttpPost("{id}/Acknowledge")]
         public async Task<IActionResult> AcknowledgeAsync(int id)
         {
             if (ModelState.IsValid)

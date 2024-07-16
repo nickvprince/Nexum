@@ -30,15 +30,18 @@ builder.Services.AddAuthorization(options =>
 //builder.Services.AddRazorPages();
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<TenantService>();
-builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<AlertService>();
-builder.Services.AddScoped<LogService>();
-builder.Services.AddScoped<RoleService>();
-builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<BackupService>();
+builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<InstallationKeyService>();
+builder.Services.AddScoped<JobService>();
+builder.Services.AddScoped<LogService>();
+builder.Services.AddScoped<NASServerService>();
+builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<TenantService>();
+builder.Services.AddScoped<UserService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,7 +64,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
 //app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);

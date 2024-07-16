@@ -136,5 +136,79 @@ namespace App.Services
             }
         }
 
+        public async Task<bool> StartAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{id}/Start", null);
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> PauseAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{id}/Pause", null);
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> ResumeAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{id}/Resume", null);
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> StopAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{id}/Stop", null);
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RefreshAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{id}/Refresh", null);
+                var responseData = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

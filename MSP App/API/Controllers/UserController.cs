@@ -22,7 +22,7 @@ namespace API.Controllers
             _dbUserService = dbUserService;
         }
 
-        [HttpPost("Create")]
+        [HttpPost("")]
         public async Task<IActionResult> CreateAsync([FromBody] UserCreateRequest request)
         {
             if (ModelState.IsValid)
@@ -59,7 +59,7 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpPut("Update")]
+        [HttpPut("")]
         public async Task<IActionResult> UpdateAsync([FromBody] UserUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -96,7 +96,7 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpDelete("Delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             if (ModelState.IsValid)
@@ -114,7 +114,7 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpGet("By-Id{id}")]
+        [HttpGet("By-Id/{id}")]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             if (ModelState.IsValid)
