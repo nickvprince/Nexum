@@ -32,6 +32,8 @@ from requests import get
 import socket
 import uuid
 import base64
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
 CLIENT_REGISTRATION_PATH = "api/DataLink/Register"
 RUN_JOB_OBJECT = None
 CLIENTS = ()
@@ -41,6 +43,35 @@ URLS_ROUTE="api/DataLink/Urls"
 PORT=5002
 HOST = '0.0.0.0'
 
+def decrypt_string(apikey,msp_api, string):
+    """
+    Decrypt a string with AES-256 bit decryption
+    """
+    password = ""
+    index:int=0
+    for i in msp_api:
+        password += i
+        password+=apikey[index]
+        index+=1
+    password = password[:32]
+    # Pad the password to be 16 bytes long
+    password_hashed = str(password).ljust(16).encode('utf-8')
+
+    # Create a new AES cipher with the password as the key
+    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+
+    # Decode the string from base64
+    decoded_string = base64.b64decode(string)
+
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    try:
+        return decrypted_string.decode('utf-8').rstrip("\x0b")
+    except UnicodeDecodeError:
+        return "Decryption failed"
+    except:
+        return "Decryption failed"
 @staticmethod
 def convert_job_status():
     """
@@ -490,13 +521,13 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == str(0):
                 logger.log("INFO", "modify_job", "Modifying job",0,"flaskserver.py")
-                recieved_job = data.get("0", '')
+
                 # recieve settings as json
-                recieved_settings = recieved_job.get('settings', '')
+                recieved_settings = data.get('settings', '')
 
                 job_to_save = Job()
                 job_to_save.set_id(0)
-                job_to_save.set_title(recieved_job.get('title', ''))
+                job_to_save.set_title(data.get('title', ''))
                 settings = JobSettings()
                 settings.set_id(0)
                 settings.set_schedule(recieved_settings.get('schedule', ''))
@@ -508,11 +539,16 @@ class FlaskServer():
                 settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
                 settings.set_retry_count(recieved_settings.get('retryCount', ''))
                 settings.set_retention(recieved_settings.get('retention', ''))
-                settings.backup_path=recieved_settings.get('path', '')
+
                 config = Configuration(0, 0, apikey)
-                config.address = recieved_settings.get('path', '')
-                settings.set_username(recieved_settings.get('user', ''))
-                settings.set_password(recieved_settings.get('password', ''))
+                
+                #update to use the smb share id provided instead of user password path from the request
+                server_id = recieved_settings.get('backupServerId', '')
+                server = MySqlite.get_backup_server(server_id)
+                settings.backup_path=(server[1])
+                config.address = (server[1])
+                settings.set_username(server[2])
+                settings.set_password(server[3])
 
                 job_to_save.set_settings(settings)
                 job_to_save.set_config(config)
@@ -600,19 +636,19 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             try:
                 logger.log("INFO", "nexumservice", "Getting URLS",0,"flaskserver.py")
-                request = requests.request("GET", f"{"http://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("server_port")}/{"urls"}",
+                request = requests.request("GET", f"{"http://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/api/DataLink/Urls",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
 
                 request = request.json()
 
-                service_url=request["nexumServiceUrl"]
+                service_url=request["nexumServiceUrlLocal"]
 
-                request = requests.request("GET", f"{service_url}",
+                request = requests.request("GET", f"https://{service_url}",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
                 logger.log("INFO", "nexumservice", "Got Nexum Service File.. Relaying",0,"flaskserver.py")
-                return request
+                return make_response(request.content,request.status_code)
 
 
             except Exception as e:
@@ -1045,6 +1081,7 @@ class FlaskServer():
         name = data.get('name', '')
         path = data.get('path', '')
         password = data.get('password', '')
+        password=decrypt_string(MySqlite.read_setting("apikey"),MySqlite.read_setting("msp_api"),password)
         username = data.get('username', '')
         identification = data.get('CLIENT_ID', '')
         path = os.path.normpath(path)
