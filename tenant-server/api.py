@@ -29,14 +29,7 @@ class API():
     Relationship: NONE
     """
 
-    @staticmethod
-    def get_tenant_portal_url():
-        """
-        Gets the tenant portal URL from the tenant server device
-        """
-        Logger.debug_print("Getting tenant portal url")
-        # call the API from tenant server to get the tenant portal URL
-        return "https://nexum.com/tenant_portal"
+
     @staticmethod
     def get_status():
         """
@@ -122,22 +115,6 @@ class API():
         Logger.debug_print("Getting client id")
         # call the API from tenant server to get the client id
         return 1
-    @staticmethod
-    def get_tenant_id():
-        """
-        Call the API from tenant server to get the tenant id
-        """
-        Logger.debug_print("Getting tenant id")
-        # call the API from tenant server to get the tenant id
-        return 1
-    @staticmethod
-    def get_download_key():
-        """
-        call the API from tenant server to get the download key
-        """
-        Logger.debug_print("Getting download key")
-        # call the API from tenant server to get the download key
-        return "1234"
 
     @staticmethod
     def send_success_install(client_id,tenant_id,client_secret):

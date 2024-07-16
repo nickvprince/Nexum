@@ -44,8 +44,9 @@ def main():
     Main method of the program for testing and starting the program
     """
     # if program is running exit
-    MySqlite.write_setting("msp_api","a109ef4c-b611-4aff-ac26-07b86a7161aa")
-    MySqlite.write_setting("apikey","922ef041-a5ef-4473-90c8-46038b052a28")
+    l = Logger()
+  
+    
     """
     MySqlite.write_setting("uuid","a14df31c-07fc-4d0b-9ddf-0f59b16db611") # add to installer
     MySqlite.write_setting("msp_server_address","127.0.0.1") # installer
