@@ -200,6 +200,17 @@ class API():
         """
         Call the API from tenant server to send the server beat
         """
+        #post to http://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}Server_Beat
+        try:
+            header ={
+                "Content-Type":"application/json",
+                "apikey":MySqlite.read_setting("apikey")
+            }
+
+            response = requests.post("http://127.0.0.1:6969/server_beat", headers=header, json={},timeout=5,verify=False)
+            print(response.status_code)
+        except Exception:
+            return False
         Logger.debug_print("Sending server beat")
         # call the API from tenant server to send the server beat
         return True

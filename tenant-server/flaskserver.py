@@ -27,6 +27,7 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
+from api import API
 
 from requests import get
 import socket
@@ -731,9 +732,33 @@ class FlaskServer():
         identification = data.get('client_id', '')
         logger=Logger()
         if FlaskServer.auth(apikey, logger, identification) == 200:
-            pass
-        return "200 OK"
-    
+            if identification == str(0):
+                API.server_beat()
+                return make_response("200 OK", 200)
+            else:
+                for client in CLIENTS:
+                    if client[0] == identification:
+                        url = f"http://{client[2]}:{client[3]}/force_checkin"
+                        try:
+                            logger.log("INFO", "force_checkin", f"Forcing checkin from {url}",0,"flaskserver.py")
+                            response=requests.post(url, headers={"apikey":apikey,"Content-Type": "application/json"},json={},timeout=10,verify=False)
+                            return make_response(response.content,response.status_code)
+                        except requests.exceptions.ConnectTimeout :
+                            logger.log("ERROR", "force_checkin.relay.force_checkin", f"Timeout connecting to {client[0]}",
+                            "500", "flaskserver.py")
+                            code=402
+                            msg=f"Timeout connecting to {client[0]}"
+                        except requests.exceptions.ConnectionError:
+                            logger.log("ERROR", "force_checkin.relay.force_checkin", f"Error connecting to {client[0]}",
+                            "500", "flaskserver.py")
+                            code=402
+                            msg=f"Error connecting to {client[0]}"
+                        except Exception as e:
+                            logger.log("ERROR", "force_checkin.relay.force_checkin", "Internal server error"+ str(e),500,"flaskserver.py")
+                            msg = "Internal server error"
+                            code = 500
+                return make_response("Client not found", 403)
+        make_response("Internal server error", 500)
 
     @website.route('/restore', methods=['POST'], )
     @staticmethod

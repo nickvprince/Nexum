@@ -2,7 +2,7 @@ from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/missing_heartbeat', methods=['post'])
+@app.route('/server_beat', methods=['post'])
 def hello():
     print("Missing heartbeat")
     return "Missing heartbeat"
