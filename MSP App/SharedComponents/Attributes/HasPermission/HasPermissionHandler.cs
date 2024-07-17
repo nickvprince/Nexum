@@ -1,16 +1,16 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 
-namespace API.Attributes.Handlers
+namespace API.Attributes.HasPermission
 {
     public class HasPermissionHandler : AuthorizationHandler<HasPermissionRequirement>
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly DbRoleService _dbRoleService;
+        private readonly IDbRoleService _dbRoleService;
 
-        public HasPermissionHandler(UserManager<ApplicationUser> userManager, DbRoleService dbRoleService)
+        public HasPermissionHandler(UserManager<ApplicationUser> userManager, IDbRoleService dbRoleService)
         {
             _userManager = userManager;
             _dbRoleService = dbRoleService;
@@ -28,10 +28,11 @@ namespace API.Attributes.Handlers
                 return;
             }
 
-            var userRoles = await _dbRoleService.GetAllUserRolesByUserIdAsync(user.Id);
-            var permission = userRoles
-                .SelectMany(r => r.Role.RolePermissions)
-                .Select(rp => rp.Permission.Name == requirement.Permission)
+            var roles = await _dbRoleService.GetAllByUserIdAsync(user.Id);
+            var permission = roles
+                .SelectMany(r => r.RolePermissions)
+                .Where(rp => rp.Permission.Name == requirement.Permission)
+                .Select(rp => rp.Permission.Name)
                 .ToList();
             if (permission == null)
             {

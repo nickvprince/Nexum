@@ -1,10 +1,14 @@
 ﻿using API.Attributes;
+using API.Attributes.HasPermission;
 using API.Services;
+using API.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
+using SharedComponents.JWTToken.Services;
 using SharedComponents.WebEntities.Requests.AlertRequests;
 
 namespace API.Controllers
@@ -16,16 +20,18 @@ namespace API.Controllers
     {
         private readonly IDbAlertService _dbAlertService;
         private readonly IDbDeviceService _dbDeviceService;
+        private readonly IAuthService _authService;
 
-        public AlertController(IDbAlertService dbAlertService, IDbDeviceService dbDeviceService)
+        public AlertController(IDbAlertService dbAlertService, IDbDeviceService dbDeviceService,
+            IAuthService authService)
         {
             _dbAlertService = dbAlertService;
             _dbDeviceService = dbDeviceService;
+            _authService = authService;
         }
 
         [HttpPost("")]
-        [Authorize]
-        [HasPermission("POST:/api/Alert")]
+        [HasPermission("Alert.Create.Permission")]
         public async Task<IActionResult> CreateAsync([FromBody] AlertCreateRequest request)
         {
             if(ModelState.IsValid)
@@ -35,6 +41,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                }
+                // --- End of authentication check ---
                 DeviceAlert? alert = new DeviceAlert
                 {
                     DeviceId = request.DeviceId,
@@ -55,6 +67,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Alert.Update.Permission")]
         public async Task<IActionResult> UpdateAsync([FromBody] AlertUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -64,6 +77,17 @@ namespace API.Controllers
                 {
                     return NotFound("Alert not found.");
                 }
+                Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                }
+                // --- End of authentication check ---
                 if (alert.IsDeleted)
                 {
                     return BadRequest("Alert is deleted.");
@@ -79,8 +103,8 @@ namespace API.Controllers
             }
             return BadRequest("Invalid Request.");
         }
-
         [HttpPost("{id}/Acknowledge")]
+        [HasPermission("Alert.Acknowledge.Permission")]
         public async Task<IActionResult> AcknowledgeAsync(int id)
         {
             if (ModelState.IsValid)
@@ -90,6 +114,17 @@ namespace API.Controllers
                 {
                     return NotFound("Alert not found.");
                 }
+                Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                }
+                // --- End of authentication check ---
                 if (alert.IsDeleted)
                 {
                     return BadRequest("Alert is deleted.");
@@ -110,10 +145,27 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Alert.Delete.Permission")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                DeviceAlert? alert = await _dbAlertService.GetAsync(id);
+                if (alert == null)
+                {
+                    return NotFound("Alert not found.");
+                }
+                Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                }
+                // --- End of authentication check ---
                 if (await _dbAlertService.DeleteAsync(id))
                 {
                     return Ok($"Alert deleted successfully.");
@@ -124,6 +176,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Alert.Get.Permission")]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -131,6 +184,17 @@ namespace API.Controllers
                 DeviceAlert? alert = await _dbAlertService.GetAsync(id);
                 if (alert != null)
                 {
+                    Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                    if (device == null)
+                    {
+                        return NotFound("Device not found.");
+                    }
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                    {
+                        return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    }
+                    // --- End of authentication check ---
                     return Ok(alert);
                 }
                 return NotFound("Alert not found.");
@@ -139,11 +203,26 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Alert.Get.Permission")]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllAsync();
+                foreach (var alert in alerts)
+                {
+                    Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                    if (device == null)
+                    {
+                        return NotFound("Device not found.");
+                    }
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                    {
+                        return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    }
+                    // --- End of authentication check ---
+                }
                 if (alerts != null)
                 {
                     if (alerts.Any())
@@ -157,10 +236,22 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
+        [HasPermission("Alert.Get-By-Device.Permission")]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
             {
+                Device? device = await _dbDeviceService.GetAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllByDeviceIdAsync(deviceId);
                 if (alerts != null)
                 {
@@ -175,10 +266,17 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("Alert.Get-By-Tenant.Permission")]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllByTenantIdAsync(tenantId);
                 if (alerts != null)
                 {

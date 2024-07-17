@@ -116,5 +116,14 @@ namespace SharedComponents.Utilities
             password += "!";
             return password;
         }
+
+        public static string? PadKey(string key, int length)
+        {
+            if (key.Length >= length)
+            {
+                return key.Substring(0, length);
+            }
+            return key.PadRight(length, '0');
+        }
     }
 }

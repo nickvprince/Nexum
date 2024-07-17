@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using API.Attributes.HasPermission;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 
@@ -7,9 +8,9 @@ namespace SharedComponents.Utilities
 {
     public class ControllerUtilities
     {
-        public static ICollection<(string HttpMethod, string Route)> GetAllRoutes(params Type[] excludedControllers)
+        public static ICollection<(string HttpMethod, string Route, string Permission)> GetAllRoutes(params Type[] excludedControllers)
         {
-            var routeList = new List<(string HttpMethod, string Route)>();
+            var routeList = new List<(string HttpMethod, string Route, string Permission)>();
             var assemblyContainingControllers = Assembly.GetCallingAssembly();
 
             var controllerTypes = assemblyContainingControllers.GetTypes()
@@ -28,13 +29,12 @@ namespace SharedComponents.Utilities
                     routeList.AddRange(httpMethodRoutes);
                 }
             }
-
             return routeList.Distinct().ToList();
         }
 
-        public static (string HttpMethod, string Route) GetRouteFromCallingMethod()
+        public static (string HttpMethod, string Route, string Permission) GetRouteFromCallingMethod()
         {
-            var callingMethod = GetCallingMethod();
+            var callingMethod = GetCallingMethod() as MethodInfo;
 
             var controllerType = callingMethod.DeclaringType;
             var baseRoute = GetBaseRoute(controllerType);
@@ -48,9 +48,12 @@ namespace SharedComponents.Utilities
                 var methodRoute = attr.Template ?? string.Empty;
                 methodRoute = methodRoute.Replace("[controller]", controllerType.Name.Replace("Controller", string.Empty));
                 var fullRoute = CombineRoutes(baseRoute, methodRoute);
-                var httpMethod = attr.HttpMethods.FirstOrDefault() ?? "GET"; // Default to GET if not specified
-
-                return (httpMethod, fullRoute);
+                var httpMethod = attr.HttpMethods.FirstOrDefault() ?? "???";
+                var permission = GetPermissionAttribute(callingMethod);
+                if (!string.IsNullOrEmpty(permission))
+                {
+                    return (httpMethod, fullRoute, permission);
+                }
             }
 
             throw new InvalidOperationException("No HTTP method attributes found on the calling method.");
@@ -63,9 +66,9 @@ namespace SharedComponents.Utilities
             return baseRoute.Replace("[controller]", controllerName);
         }
 
-        private static IEnumerable<(string HttpMethod, string Route)> GetHttpMethodRoutes(Type controllerType, MethodInfo method, string baseRoute)
+        private static IEnumerable<(string HttpMethod, string Route, string Permission)> GetHttpMethodRoutes(Type controllerType, MethodInfo method, string baseRoute)
         {
-            var routeList = new List<(string HttpMethod, string Route)>();
+            var routeList = new List<(string HttpMethod, string Route, string Permission)>();
             var controllerName = controllerType.Name.Replace("Controller", string.Empty);
 
             var httpMethodAttributes = method.GetCustomAttributes()
@@ -77,11 +80,13 @@ namespace SharedComponents.Utilities
                 var methodRoute = attr.Template ?? string.Empty;
                 methodRoute = methodRoute.Replace("[controller]", controllerName);
                 var fullRoute = CombineRoutes(baseRoute, methodRoute);
-                var httpMethod = attr.HttpMethods.FirstOrDefault() ?? "???"; // Default to GET if not specified
-
-                routeList.Add((httpMethod, fullRoute));
+                var httpMethod = attr.HttpMethods.FirstOrDefault() ?? "???";
+                var permission = GetPermissionAttribute(method);
+                if (!string.IsNullOrEmpty(permission))
+                {
+                    routeList.Add((httpMethod, fullRoute, permission));
+                }
             }
-
             return routeList;
         }
 
@@ -101,12 +106,10 @@ namespace SharedComponents.Utilities
                     break;
                 }
             }
-
             if (callingMethod == null)
             {
                 throw new InvalidOperationException("Could not identify the calling method.");
             }
-
             return callingMethod;
         }
 
@@ -116,6 +119,13 @@ namespace SharedComponents.Utilities
             if (string.IsNullOrWhiteSpace(methodRoute)) return baseRoute;
 
             return $"{baseRoute}/{methodRoute}".Trim('/');
+        }
+
+        private static string GetPermissionAttribute(MethodInfo method)
+        {
+            var permissionAttribute = method.GetCustomAttributes(typeof(HasPermissionAttribute), false)
+                                            .FirstOrDefault() as HasPermissionAttribute;
+            return permissionAttribute?.Permission ?? string.Empty;
         }
     }
 }

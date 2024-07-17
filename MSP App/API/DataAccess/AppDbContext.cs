@@ -66,6 +66,8 @@ namespace API.DataAccess
         }
 
         public DbSet<ApplicationRole> ApplicationRoles { get; set; }
+        public DbSet<ApplicationRolePermission> ApplicationRolePermissions { get; set; }
+        public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<TenantInfo> TenantInfos { get; set; }
@@ -79,8 +81,6 @@ namespace API.DataAccess
         public DbSet<DeviceJobSchedule> DeviceJobSchedules { get; set; }
         public DbSet<DeviceBackup> DeviceBackups { get; set; }
         public DbSet<InstallationKey> InstallationKeys { get; set; }
-        public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
-        public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
         public DbSet<SoftwareFile> SoftwareFiles { get; set; }
         public DbSet<NASServer> NASServers { get; set; }
 
@@ -218,7 +218,7 @@ namespace API.DataAccess
 
             // Configure many-to-many relationship between ApplicationRole and Permission
             modelBuilder.Entity<ApplicationRolePermission>()
-                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+                .HasKey(rp => new { rp.RoleId, rp.PermissionId, rp.TenantId });
 
             modelBuilder.Entity<ApplicationRolePermission>()
                 .HasOne(rp => rp.Role)
@@ -325,16 +325,12 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Permissions
-
-                // Get all routes
-                // Get the assembly containing the API controllers
-                var excludedControllers = new Type[] { typeof(DataLinkController) };
-                var routes = ControllerUtilities.GetAllRoutes(excludedControllers);
+                var routePermissionList = ControllerUtilities.GetAllRoutes();
                 // Add Permissions for each route
                 var permissions = new List<Permission>();
-                foreach (var (httpMethod, route) in routes)
+                foreach (var (httpMethod, route, permissionName) in routePermissionList)
                 {
-                    var permission = new Permission { Name = $"{httpMethod} {route}", Description = $"Permission for {httpMethod} {route}" };
+                    var permission = new Permission { Name = $"{permissionName}", Description = $"Permission for {permissionName} - {httpMethod} {route}" };
                     permissions.Add(permission);
                     context.Permissions.Add(permission);
                 }
@@ -349,18 +345,26 @@ namespace API.DataAccess
 
                 // Add UserRoles
                 var userRole1 = new ApplicationUserRole { RoleId = role1.Id, UserId = adminUserId, IsActive = true };
-                var userRole2 = new ApplicationUserRole { RoleId = role2.Id, UserId = adminUserId, IsActive = true };
-                var userRole3 = new ApplicationUserRole { RoleId = role2.Id, UserId = normalUserId, IsActive = true };
+                var userRole2 = new ApplicationUserRole { RoleId = role2.Id, UserId = normalUserId, IsActive = true };
 
-                context.ApplicationUserRoles.AddRange(userRole1, userRole2, userRole3);
+                context.ApplicationUserRoles.AddRange(userRole1, userRole2);
                 context.SaveChanges();
 
                 // Add RolePermissions
-                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permissions.ElementAt(0).Id, TenantId = tenant1.Id };
-                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
+                var tenants = context.Tenants.ToList();
+                foreach (var tenant in tenants)
+                {
+                    foreach (var permission in permissions)
+                    {
+                        var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id, TenantId = tenant.Id };
+                        context.ApplicationRolePermissions.Add(rolePermission);
+                    }
+                }
+                
+                var rolePermission2 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
                 var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(2).Id, TenantId = tenant3.Id };
 
-                context.RolePermissions.AddRange(rolePermission1, rolePermission2, rolePermission3);
+                context.ApplicationRolePermissions.AddRange(rolePermission2, rolePermission3);
                 context.SaveChanges();
 
                 // Add SoftwareFiles

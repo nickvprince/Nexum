@@ -6,7 +6,6 @@ using SharedComponents.Entities;
 using SharedComponents.JWTToken.Services;
 using SharedComponents.WebEntities.Requests.AuthRequests;
 using SharedComponents.WebEntities.Responses.AuthResponses;
-using SharedComponents.WebRequestEntities;
 
 namespace API.Controllers
 {
@@ -65,7 +64,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                var username = await _jwtService.GetUsernameFromExpiredToken(request.Token);
+                var username = await _jwtService.GetUsernameFromTokenAsync(request.Token);
                 var user = await _userManager.FindByNameAsync(username);
                 if (user == null)
                 {

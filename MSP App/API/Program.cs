@@ -1,4 +1,4 @@
-using API.Attributes.Handlers;
+using API.Attributes.HasPermission;
 using API.DataAccess;
 using API.Services;
 using API.Services.Interfaces;
@@ -11,6 +11,7 @@ using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.JWTToken.Entities;
 using SharedComponents.JWTToken.Services;
+using SharedComponents.Utilities;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,14 +64,12 @@ builder.Services.AddScoped<IHTTPJobService, HTTPJobService>();
 builder.Services.AddScoped<IHTTPDeviceService, HTTPDeviceService>();
 builder.Services.AddScoped<IHTTPNASServerService, HTTPNASServerService>();
 builder.Services.AddScoped<IJWTService, JWTService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddScoped<IAuthorizationHandler, HasPermissionHandler>();
+builder.Services.AddTransient<IAuthorizationHandler, HasPermissionHandler>();
+builder.Services.AddTransient<IAuthorizationPolicyProvider, HasPermissionPolicyProvider>();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("HasPermission", policy =>
-        policy.Requirements.Add(new HasPermissionRequirement("")));
-});
+builder.Services.AddAuthorization();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
@@ -80,7 +79,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
-var key = Encoding.ASCII.GetBytes(jwtSettings.SecretKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -94,12 +92,12 @@ builder.Services.AddAuthentication(options =>
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidateAudience = true,
         ValidAudience = jwtSettings.Audience,
+        ValidIssuer = jwtSettings.Issuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(jwtSettings.SecretKey, 32))),
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };

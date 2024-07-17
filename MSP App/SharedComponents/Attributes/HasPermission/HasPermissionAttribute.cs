@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace API.Attributes
+namespace API.Attributes.HasPermission
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public class HasPermissionAttribute : AuthorizeAttribute
     {
-        public HasPermissionAttribute(string permission) : base("HasPermission")
+        public HasPermissionAttribute(string permission) : base($"HasPermission:{permission}")
         {
             Permission = permission;
         }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SharedComponents.JWTToken.Entities;
+using SharedComponents.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,45 +22,28 @@ namespace SharedComponents.JWTToken.Services
             _jwtSettings = config.GetSection("JWTSettings").Get<JWTSettings>();
         }
 
-        public async Task<string> PadKey(string key, int length)
-        {
-            if (key.Length >= length)
-            {
-                return await Task.Run(() => key.Substring(0, length));
-            }
-            return await Task.Run(() => key.PadRight(length, '0'));
-        }
-
         public JWTSettings JWTSettings => _jwtSettings ?? throw new NullReferenceException("JWTSettings is null");
 
-        public async Task<string> GenerateTokenAsync(string userId, string userName, List<string> roles)
+        public async Task<string> GenerateTokenAsync(string userId, string userName, ICollection<string> roles)
         {
             var tokenHandler = new JsonWebTokenHandler();
-            var key = Encoding.ASCII.GetBytes(await PadKey(_jwtSettings.SecretKey, 32));
+            var key = Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(_jwtSettings.SecretKey, 32));
 
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.UniqueName, userName),
+                new Claim("roles", string.Join(",", roles))
             };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Claims = new Dictionary<string, object>()
+                Claims = claims.ToDictionary(claim => claim.Type, claim => (object)claim.Value),
+                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-            foreach (var claim in claims)
-            {
-                tokenDescriptor.Claims[claim.Type] = claim.Value;
-            }
-            tokenDescriptor.Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes);
-            tokenDescriptor.Issuer = _jwtSettings.Issuer;
-            tokenDescriptor.Audience = _jwtSettings.Audience;
-            tokenDescriptor.SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
 
             return await Task.Run(() => tokenHandler.CreateToken(tokenDescriptor));
         }
@@ -88,19 +72,32 @@ namespace SharedComponents.JWTToken.Services
             return await Task.Run(() => jsonToken.Claims.ToDictionary(c => c.Type, c => c.Value));
         }
 
-        public async Task<string> GetUsernameFromExpiredToken(string token)
+        public async Task<ICollection<string>> GetRolesFromTokenAsync(string token)
         {
             var tokenHandler = new JsonWebTokenHandler();
-            var key = Encoding.ASCII.GetBytes(await PadKey(_jwtSettings.SecretKey, 32));
+            var jsonToken = tokenHandler.ReadJsonWebToken(token);
+
+            var rolesClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "roles")?.Value;
+            if (rolesClaim != null)
+            {
+                return await Task.Run(() => rolesClaim.Split(',').ToList());
+            }
+            return new List<string>();
+        }
+
+        public async Task<string> GetUsernameFromTokenAsync(string token)
+        {
+            var tokenHandler = new JsonWebTokenHandler();
+            var key = Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(_jwtSettings.SecretKey, 32));
 
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = _jwtSettings.Issuer,
-                ValidateAudience = true,
                 ValidAudience = _jwtSettings.Audience,
+                ValidIssuer = _jwtSettings.Issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = true,
+                ValidateIssuer = true,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
@@ -111,6 +108,32 @@ namespace SharedComponents.JWTToken.Services
             }
             var claimsPrincipal = validationResult.ClaimsIdentity;
             var usernameClaim = claimsPrincipal?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName);
+            return await Task.Run(() => usernameClaim?.Value!);
+        }
+
+        public async Task<string> GetUserIdFromTokenAsync(string token)
+        {
+            var tokenHandler = new JsonWebTokenHandler();
+            var key = Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(_jwtSettings.SecretKey, 32));
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidAudience = _jwtSettings.Audience,
+                ValidIssuer = _jwtSettings.Issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+            var validationResult = await tokenHandler.ValidateTokenAsync(token, tokenValidationParameters);
+            if (!validationResult.IsValid)
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+            var claimsPrincipal = validationResult.ClaimsIdentity;
+            var usernameClaim = claimsPrincipal?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
             return await Task.Run(() => usernameClaim?.Value!);
         }
     }

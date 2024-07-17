@@ -113,7 +113,10 @@ namespace API.Services
         {
             try
             {
-                var roles = await _appDbContext.ApplicationRoles.ToListAsync();
+                var roles = await _appDbContext.ApplicationRoles
+                    .Include(r => r!.RolePermissions!)
+                        .ThenInclude(rp => rp.Permission)
+                    .ToListAsync();
                 if (roles != null)
                 {
                     if (roles.Any())
@@ -136,6 +139,8 @@ namespace API.Services
                 var userRoles = await _appDbContext.ApplicationUserRoles
                     .Where(ur => ur.UserId == userId)
                     .Include(u => u.Role)
+                        .ThenInclude(r => r!.RolePermissions!)
+                            .ThenInclude(rp => rp.Permission)
                     .ToListAsync();
                 if (userRoles != null)
                 {
@@ -163,6 +168,9 @@ namespace API.Services
             {
                 var userRoles = await _appDbContext.ApplicationUserRoles
                     .Where(ur => ur.UserId == userId)
+                    .Include(u => u.Role)
+                        .ThenInclude(r => r!.RolePermissions!)
+                            .ThenInclude(rp => rp.Permission)
                     .ToListAsync();
                 if (userRoles != null)
                 {
@@ -183,8 +191,9 @@ namespace API.Services
         {
             try
             {
-                var rolePermissions = await _appDbContext.RolePermissions
+                var rolePermissions = await _appDbContext.ApplicationRolePermissions
                     .Where(rp => rp.RoleId == roleId)
+                    .Include(r => r.Permission)
                     .ToListAsync();
                 if (rolePermissions != null)
                 {
@@ -250,7 +259,7 @@ namespace API.Services
             {
                 if (rolePermission != null)
                 {
-                    await _appDbContext.RolePermissions.AddAsync(rolePermission);
+                    await _appDbContext.ApplicationRolePermissions.AddAsync(rolePermission);
                     var result = await _appDbContext.SaveChangesAsync();
                     if (result > 0)
                     {
@@ -271,7 +280,7 @@ namespace API.Services
             {
                 if (rolePermission != null)
                 {
-                    _appDbContext.RolePermissions.Remove(rolePermission);
+                    _appDbContext.ApplicationRolePermissions.Remove(rolePermission);
                     var result = await _appDbContext.SaveChangesAsync();
                     if (result > 0)
                     {
