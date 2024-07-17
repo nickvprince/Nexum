@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using API.Controllers;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SharedComponents.Entities;
+using SharedComponents.Utilities;
 using System.Net.Mail;
+using System.Reflection;
 
 namespace API.DataAccess
 {
@@ -322,11 +325,19 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Permissions
-                var permission1 = new Permission { Name = "View Tenant", Description = "Can view tenant" };
-                var permission2 = new Permission { Name = "Edit Tenant", Description = "Can edit tenant" };
-                var permission3 = new Permission { Name = "Delete Tenant", Description = "Can delete tenant" };
 
-                context.Permissions.AddRange(permission1, permission2, permission3);
+                // Get all routes
+                // Get the assembly containing the API controllers
+                var excludedControllers = new Type[] { typeof(DataLinkController) };
+                var routes = ControllerUtilities.GetAllRoutes(excludedControllers);
+                // Add Permissions for each route
+                var permissions = new List<Permission>();
+                foreach (var (httpMethod, route) in routes)
+                {
+                    var permission = new Permission { Name = $"{httpMethod} {route}", Description = $"Permission for {httpMethod} {route}" };
+                    permissions.Add(permission);
+                    context.Permissions.Add(permission);
+                }
                 context.SaveChanges();
 
                 // Add ApplicationRole
@@ -345,9 +356,9 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add RolePermissions
-                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission1.Id, TenantId = tenant1.Id };
-                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission2.Id, TenantId = tenant2.Id };
-                var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permission3.Id, TenantId = tenant3.Id };
+                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permissions.ElementAt(0).Id, TenantId = tenant1.Id };
+                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
+                var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(2).Id, TenantId = tenant3.Id };
 
                 context.RolePermissions.AddRange(rolePermission1, rolePermission2, rolePermission3);
                 context.SaveChanges();
