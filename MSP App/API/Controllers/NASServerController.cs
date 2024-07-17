@@ -1,6 +1,8 @@
 ﻿using API.Services;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.RequestEntities.HTTP;
 using SharedComponents.ResponseEntities.HTTP;
@@ -14,12 +16,13 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class NASServerController : ControllerBase
     {
-        private readonly DbNASServerService _dbNASServerService;
-        private readonly DbJobService _dbJobService;
-        private readonly DbTenantService _dbTenantService;
-        private readonly HTTPNASServerService _httpNASServerService;
+        private readonly IDbNASServerService _dbNASServerService;
+        private readonly IDbJobService _dbJobService;
+        private readonly IDbTenantService _dbTenantService;
+        private readonly IHTTPNASServerService _httpNASServerService;
 
-        public NASServerController(DbNASServerService dbNASServerService, DbJobService dbJobService, DbTenantService dbTenantService, HTTPNASServerService httpNASServerService)
+        public NASServerController(IDbNASServerService dbNASServerService, IDbJobService dbJobService,
+            IDbTenantService dbTenantService, IHTTPNASServerService httpNASServerService)
         {
             _dbNASServerService = dbNASServerService;
             _dbJobService = dbJobService;

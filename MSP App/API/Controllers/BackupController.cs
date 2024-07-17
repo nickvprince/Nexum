@@ -3,6 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.BackupRequests;
 
@@ -13,11 +14,11 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class BackupController : ControllerBase
     {
-        private readonly DbBackupService _dbBackupService;
-        private readonly DbDeviceService _dbDeviceService;
-        private readonly DbNASServerService _dbNASServerService;
+        private readonly IDbBackupService _dbBackupService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IDbNASServerService _dbNASServerService;
 
-        public BackupController(DbBackupService dbBackupService, DbDeviceService dbDeviceService, DbNASServerService dbNASServerService)
+        public BackupController(IDbBackupService dbBackupService, IDbDeviceService dbDeviceService, IDbNASServerService dbNASServerService)
         {
             _dbBackupService = dbBackupService;
             _dbDeviceService = dbDeviceService;

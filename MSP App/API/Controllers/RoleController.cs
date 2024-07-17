@@ -2,6 +2,7 @@
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.RoleRequests;
 
@@ -12,13 +13,13 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class RoleController : ControllerBase
     {
-        private readonly DbRoleService _dbRoleService;
-        private readonly DbUserService _dbUserService;
-        private readonly DbPermissionService _dbPermissionService;
-        private readonly DbTenantService _dbTenantService;
+        private readonly IDbRoleService _dbRoleService;
+        private readonly IDbUserService _dbUserService;
+        private readonly IDbPermissionService _dbPermissionService;
+        private readonly IDbTenantService _dbTenantService;
 
-        public RoleController(DbRoleService dbRoleService, DbUserService dbUserService, 
-            DbPermissionService dbPermissionService, DbTenantService dbTenantService)
+        public RoleController(IDbRoleService dbRoleService, IDbUserService dbUserService,
+            IDbPermissionService dbPermissionService, IDbTenantService dbTenantService)
         {
             _dbRoleService = dbRoleService;
             _dbUserService = dbUserService;

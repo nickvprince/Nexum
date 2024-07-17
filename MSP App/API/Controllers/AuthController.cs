@@ -1,6 +1,7 @@
 ﻿using API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.JWTToken.Services;
 using SharedComponents.WebEntities.Requests.AuthRequests;
@@ -17,10 +18,10 @@ namespace API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJWTService _jwtService;
-        private readonly DbRoleService _dbRoleService;
+        private readonly IDbRoleService _dbRoleService;
 
         public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager,
-            IJWTService jwtService, DbRoleService dbRoleService)
+            IJWTService jwtService, IDbRoleService dbRoleService)
         {
             _signInManager = signInManager;
             _userManager = userManager;

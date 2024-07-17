@@ -1,6 +1,8 @@
 ﻿using API.Services;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.JobRequests;
 
@@ -11,13 +13,13 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class JobController : ControllerBase
     {
-        private readonly DbJobService _dbJobService;
-        private readonly HTTPJobService _httpJobService;
-        private readonly DbDeviceService _dbDeviceService;
-        private readonly DbNASServerService _dbNASServerService;
+        private readonly IDbJobService _dbJobService;
+        private readonly IHTTPJobService _httpJobService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IDbNASServerService _dbNASServerService;
 
-        public JobController(DbJobService dbJobService, HTTPJobService httpJobService, 
-            DbDeviceService dbDeviceService, DbNASServerService dbNASServerService)
+        public JobController(IDbJobService dbJobService, IHTTPJobService httpJobService, 
+            IDbDeviceService dbDeviceService, IDbNASServerService dbNASServerService)
         {
             _dbJobService = dbJobService;
             _httpJobService = httpJobService;

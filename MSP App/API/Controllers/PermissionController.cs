@@ -1,6 +1,7 @@
 ﻿using API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.PermissionRequests;
 
@@ -11,9 +12,9 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class PermissionController : ControllerBase
     {
-        private readonly DbPermissionService _dbPermissionService;
+        private readonly IDbPermissionService _dbPermissionService;
 
-        public PermissionController(DbPermissionService dbPermissionService)
+        public PermissionController(IDbPermissionService dbPermissionService)
         {
             _dbPermissionService = dbPermissionService;
         }

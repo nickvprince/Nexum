@@ -12,9 +12,9 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class TenantController : ControllerBase
     {
-        private readonly DbTenantService _dbTenantService;
+        private readonly IDbTenantService _dbTenantService;
 
-        public TenantController(DbTenantService dbTenantService)
+        public TenantController(IDbTenantService dbTenantService)
         {
             _dbTenantService = dbTenantService;
         }

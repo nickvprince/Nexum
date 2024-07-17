@@ -15,23 +15,23 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Server")]
     public class DataLinkController : ControllerBase
     {
-        private readonly DbTenantService _dbTenantService;
-        private readonly DbDeviceService _dbDeviceService;
-        private readonly DbSecurityService _dbSecurityService;
-        private readonly DbSoftwareService _dbSoftwareService;
-        private readonly DbAlertService _dbAlertService;
-        private readonly DbLogService _dbLogService;
-        private readonly DbInstallationKeyService _dbInstallationKeyService;
-        private readonly DbJobService _dbJobService;
-        private readonly DbBackupService _dbBackupService;
-        private readonly DbNASServerService _dbNASServerService;
+        private readonly IDbTenantService _dbTenantService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IDbSecurityService _dbSecurityService;
+        private readonly IDbSoftwareService _dbSoftwareService;
+        private readonly IDbAlertService _dbAlertService;
+        private readonly IDbLogService _dbLogService;
+        private readonly IDbInstallationKeyService _dbInstallationKeyService;
+        private readonly IDbJobService _dbJobService;
+        private readonly IDbBackupService _dbBackupService;
+        private readonly IDbNASServerService _dbNASServerService;
         private readonly IConfiguration _config;
 
-        public DataLinkController(DbTenantService dbTenantService, DbDeviceService dbDeviceService, 
-            DbSecurityService dbSecurityService, DbSoftwareService dbSoftwareService, 
-            DbAlertService dbAlertService, DbLogService dbLogService,
-            DbInstallationKeyService dbInstallationKeyService, DbJobService dbJobService,
-            DbBackupService dbBackupService, DbNASServerService dbNASServerService,
+        public DataLinkController(IDbTenantService dbTenantService, IDbDeviceService dbDeviceService, 
+            IDbSecurityService dbSecurityService, IDbSoftwareService dbSoftwareService, 
+            IDbAlertService dbAlertService, IDbLogService dbLogService,
+            IDbInstallationKeyService dbInstallationKeyService, IDbJobService dbJobService,
+            IDbBackupService dbBackupService, IDbNASServerService dbNASServerService,
             IConfiguration config)
         {
             _dbTenantService = dbTenantService;

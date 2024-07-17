@@ -16,9 +16,9 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class UserController : ControllerBase
     {
-        private readonly DbUserService _dbUserService;
+        private readonly IDbUserService _dbUserService;
 
-        public UserController(DbUserService dbUserService)
+        public UserController(IDbUserService dbUserService)
         {
             _dbUserService = dbUserService;
         }

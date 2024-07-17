@@ -11,12 +11,12 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Server")]
     public class SoftwareController : ControllerBase
     {
-        private readonly DbSoftwareService _dbSoftwareService;
-        private readonly DbSecurityService _dbSecurityService;
+        private readonly IDbSoftwareService _dbSoftwareService;
+        private readonly IDbSecurityService _dbSecurityService;
         private readonly IConfiguration _config;
         private readonly string _softwareFolder;
 
-        public SoftwareController(DbSoftwareService dbSoftwareService, DbSecurityService dbSecurityService, IConfiguration config)
+        public SoftwareController(IDbSoftwareService dbSoftwareService, IDbSecurityService dbSecurityService, IConfiguration config)
         {
             _dbSoftwareService = dbSoftwareService;
             _dbSecurityService = dbSecurityService;

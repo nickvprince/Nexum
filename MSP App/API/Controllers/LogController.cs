@@ -1,6 +1,7 @@
 ﻿using API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.LogRequests;
 
@@ -11,10 +12,10 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class LogController : ControllerBase
     {
-        private readonly DbLogService _dbLogService;
-        private readonly DbDeviceService _dbDeviceService;
+        private readonly IDbLogService _dbLogService;
+        private readonly IDbDeviceService _dbDeviceService;
 
-        public LogController(DbLogService dbLogService, DbDeviceService dbDeviceService)
+        public LogController(IDbLogService dbLogService, IDbDeviceService dbDeviceService)
         {
             _dbLogService = dbLogService;
             _dbDeviceService = dbDeviceService;

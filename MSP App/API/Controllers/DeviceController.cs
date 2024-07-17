@@ -1,4 +1,5 @@
 ﻿using API.Services;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
@@ -13,13 +14,13 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class DeviceController : ControllerBase
     {
-        private readonly DbDeviceService _dbDeviceService;
-        private readonly DbTenantService _dbTenantService;
-        private readonly DbInstallationKeyService _dbInstallationKeyService;
-        private readonly HTTPDeviceService _httpDeviceService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IDbTenantService _dbTenantService;
+        private readonly IDbInstallationKeyService _dbInstallationKeyService;
+        private readonly IHTTPDeviceService _httpDeviceService;
 
-        public DeviceController(DbDeviceService dbDeviceService, DbTenantService dbTenantService,
-            DbInstallationKeyService dbInstallationKeyService, HTTPDeviceService httpDeviceService)
+        public DeviceController(IDbDeviceService dbDeviceService, IDbTenantService dbTenantService,
+            IDbInstallationKeyService dbInstallationKeyService, IHTTPDeviceService httpDeviceService)
         {
             _dbDeviceService = dbDeviceService;
             _dbTenantService = dbTenantService;

@@ -3,6 +3,7 @@ using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.AlertRequests;
 
@@ -13,10 +14,10 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class AlertController : ControllerBase
     {
-        private readonly DbAlertService _dbAlertService;
-        private readonly DbDeviceService _dbDeviceService;
+        private readonly IDbAlertService _dbAlertService;
+        private readonly IDbDeviceService _dbDeviceService;
 
-        public AlertController(DbAlertService dbAlertService, DbDeviceService dbDeviceService)
+        public AlertController(IDbAlertService dbAlertService, IDbDeviceService dbDeviceService)
         {
             _dbAlertService = dbAlertService;
             _dbDeviceService = dbDeviceService;

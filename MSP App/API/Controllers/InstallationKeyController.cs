@@ -2,6 +2,7 @@
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
 
@@ -12,10 +13,10 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class InstallationKeyController : ControllerBase
     {
-        private readonly DbInstallationKeyService _dbInstallationKeyService;
-        private readonly DbTenantService _dbTenantService;
+        private readonly IDbInstallationKeyService _dbInstallationKeyService;
+        private readonly IDbTenantService _dbTenantService;
 
-        public InstallationKeyController(DbInstallationKeyService dbInstallationKeyService, DbTenantService dbTenantService)
+        public InstallationKeyController(IDbInstallationKeyService dbInstallationKeyService, IDbTenantService dbTenantService)
         {
             _dbInstallationKeyService = dbInstallationKeyService;
             _dbTenantService = dbTenantService;
