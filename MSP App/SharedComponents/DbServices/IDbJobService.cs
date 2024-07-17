@@ -16,5 +16,6 @@ namespace SharedComponents.DbServices
         public Task<ICollection<DeviceJob>?> GetAllAsync();
         public Task<ICollection<DeviceJob>?> GetAllByDeviceIdAsync(int deviceId);
         public Task<ICollection<DeviceJob>?> GetAllByTenantIdAsync(int tenantId);
+        public Task<ICollection<DeviceJob>?> GetAllByBackupServerIdAsync(int tenantId, int backupServerId);
     }
 }
