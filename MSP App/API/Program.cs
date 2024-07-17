@@ -1,8 +1,15 @@
+using API.Attributes.Handlers;
 using API.DataAccess;
 using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SharedComponents.Entities;
+using SharedComponents.JWTToken.Entities;
+using SharedComponents.JWTToken.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,12 +60,48 @@ builder.Services.AddScoped<DbJobService>();
 builder.Services.AddScoped<HTTPJobService>();
 builder.Services.AddScoped<HTTPDeviceService>();
 builder.Services.AddScoped<HTTPNASServerService>();
+builder.Services.AddScoped<IJWTService, JWTService>();
+
+builder.Services.AddScoped<IAuthorizationHandler, HasPermissionHandler>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("HasPermission", policy =>
+        policy.Requirements.Add(new HasPermissionRequirement("")));
+});
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireDigit = true;
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+// Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
+var key = Encoding.ASCII.GetBytes(jwtSettings.SecretKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 var app = builder.Build();
 
@@ -76,6 +119,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

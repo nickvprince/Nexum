@@ -1,4 +1,6 @@
-﻿using API.Services;
+﻿using API.Attributes;
+using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
@@ -21,6 +23,8 @@ namespace API.Controllers
         }
 
         [HttpPost("")]
+        [Authorize]
+        [HasPermission("POST:/api/Alert")]
         public async Task<IActionResult> CreateAsync([FromBody] AlertCreateRequest request)
         {
             if(ModelState.IsValid)
