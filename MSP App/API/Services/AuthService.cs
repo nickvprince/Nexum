@@ -46,5 +46,10 @@ namespace API.Services
             }
             return false;
         }
+
+        public Task<ICollection<int>> GetUserAccessibleTenantsAsync(string token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

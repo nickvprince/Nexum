@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.JWTToken.Services;
+using SharedComponents.Results;
 using SharedComponents.WebEntities.Requests.AlertRequests;
 
 namespace API.Controllers
@@ -44,7 +45,7 @@ namespace API.Controllers
                 // Authentication check using roles + permissions
                 if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
                 {
-                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                 }
                 // --- End of authentication check ---
                 DeviceAlert? alert = new DeviceAlert
@@ -85,7 +86,7 @@ namespace API.Controllers
                 // Authentication check using roles + permissions
                 if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
                 {
-                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                 }
                 // --- End of authentication check ---
                 if (alert.IsDeleted)
@@ -122,7 +123,7 @@ namespace API.Controllers
                 // Authentication check using roles + permissions
                 if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
                 {
-                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                 }
                 // --- End of authentication check ---
                 if (alert.IsDeleted)
@@ -163,7 +164,7 @@ namespace API.Controllers
                 // Authentication check using roles + permissions
                 if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
                 {
-                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                 }
                 // --- End of authentication check ---
                 if (await _dbAlertService.DeleteAsync(id))
@@ -192,7 +193,7 @@ namespace API.Controllers
                     // Authentication check using roles + permissions
                     if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
                     {
-                        return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                     }
                     // --- End of authentication check ---
                     return Ok(alert);
@@ -203,25 +204,20 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Alert.Get.Permission")]
+        [HasPermission("Alert.GetAll.Permission")]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllAsync();
-                foreach (var alert in alerts)
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
                 {
-                    Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
-                    if (device == null)
-                    {
-                        return NotFound("Device not found.");
-                    }
-                    // Authentication check using roles + permissions
-                    if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
-                    {
-                        return Forbid(JwtBearerDefaults.AuthenticationScheme);
-                    }
-                    // --- End of authentication check ---
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<DeviceAlert>? alerts = new List<DeviceAlert>();
+                foreach (var tenantId in tenantIds)
+                {
+                    alerts.AddRange(await _dbAlertService.GetAllByTenantIdAsync(tenantId));
                 }
                 if (alerts != null)
                 {
@@ -249,7 +245,7 @@ namespace API.Controllers
                 // Authentication check using roles + permissions
                 if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
                 {
-                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                 }
                 // --- End of authentication check ---
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllByDeviceIdAsync(deviceId);
@@ -274,7 +270,7 @@ namespace API.Controllers
                 // Authentication check using roles + permissions
                 if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), tenantId))
                 {
-                    return Forbid(JwtBearerDefaults.AuthenticationScheme);
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                 }
                 // --- End of authentication check ---
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllByTenantIdAsync(tenantId);
