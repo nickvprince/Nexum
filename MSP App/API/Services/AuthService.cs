@@ -3,6 +3,7 @@ using API.DataAccess;
 using API.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
+using SharedComponents.Entities;
 using SharedComponents.JWTToken.Services;
 using System.Reflection;
 
@@ -31,13 +32,13 @@ namespace API.Services
 
                 if (roles != null)
                 {
-                    var permission = roles
+                    var permissions = roles
                         .SelectMany(r => r.RolePermissions)
                         .Where(rp => rp.Permission.Name == permissionName && rp.TenantId == tenantId)
                         .ToList();
-                    if (permission != null)
+                    if (permissions != null)
                     {
-                        if (permission.Any())
+                        if (permissions.Any())
                         {
                             return true;
                         }
@@ -47,9 +48,25 @@ namespace API.Services
             return false;
         }
 
-        public Task<ICollection<int>> GetUserAccessibleTenantsAsync(string token)
+        public async Task<ICollection<int>?> GetUserAccessibleTenantsAsync(string token)
         {
-            throw new NotImplementedException();
+            var userId = await _jwtService.GetUserIdFromTokenAsync(token.Replace("Bearer ", ""));
+            var roles = await _dbRoleService.GetAllByUserIdAsync(userId);
+            if (roles != null)
+            {
+                var tenantIds = roles
+                    .SelectMany(r => r.RolePermissions)
+                    .Select(rp => rp.TenantId)
+                    .ToList();
+                if (tenantIds != null)
+                {
+                    if (tenantIds.Any())
+                    {
+                        return tenantIds;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

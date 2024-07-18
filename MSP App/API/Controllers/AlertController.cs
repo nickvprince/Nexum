@@ -223,7 +223,7 @@ namespace API.Controllers
                 {
                     if (alerts.Any())
                     {
-                        return Ok(alerts);
+                        return Ok(alerts.Distinct());
                     }
                 }
                 return NotFound("No alerts found.");
