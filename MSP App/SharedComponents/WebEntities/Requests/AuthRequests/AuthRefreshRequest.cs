@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SharedComponents.WebEntities.Requests.AuthRequests
 {
-    public class AuthTokenRefreshRequest
+    public class AuthRefreshRequest
     {
         public string? Token { get; set; }
         public string? RefreshToken { get; set; }

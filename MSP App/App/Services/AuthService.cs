@@ -38,5 +38,20 @@ namespace App.Services
                 return null;
             }
         }
+
+        public async Task<AuthLoginResponse?> RefreshAsync(AuthRefreshRequest request)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync("Refresh", content);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<AuthLoginResponse>(responseData);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }

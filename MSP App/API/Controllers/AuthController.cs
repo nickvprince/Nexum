@@ -60,7 +60,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Refresh")]
-        public async Task<IActionResult> Refresh([FromBody] AuthTokenRefreshRequest request)
+        public async Task<IActionResult> Refresh([FromBody] AuthRefreshRequest request)
         {
             if (ModelState.IsValid)
             {

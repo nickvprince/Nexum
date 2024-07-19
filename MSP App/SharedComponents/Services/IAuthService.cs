@@ -12,5 +12,6 @@ namespace SharedComponents.Services
     public interface IAuthService
     {
         public Task<AuthLoginResponse?> LoginAsync(AuthLoginRequest request);
+        public Task<AuthLoginResponse?> RefreshAsync(AuthRefreshRequest request);
     }
 }
