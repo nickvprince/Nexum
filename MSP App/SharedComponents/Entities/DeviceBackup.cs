@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace SharedComponents.Entities
 {
     public class DeviceBackup
@@ -12,7 +11,7 @@ namespace SharedComponents.Entities
         public string? Uuid { get; set; }
         public int TenantId { get; set; }
         public int NASServerId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public NASServer? NASServer { get; set; }
     }
 }

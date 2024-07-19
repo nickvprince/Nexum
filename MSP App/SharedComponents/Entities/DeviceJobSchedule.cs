@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -15,7 +14,7 @@ namespace SharedComponents.Entities
         public bool Saturday { get; set; }
         [Required]
         public int DeviceJobInfoId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public DeviceJobInfo? DeviceJobInfo { get; set; }
     }
 }

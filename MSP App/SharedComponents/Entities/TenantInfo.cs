@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace SharedComponents.Entities
 {
     public class TenantInfo
@@ -14,7 +13,7 @@ namespace SharedComponents.Entities
         public string? Zip { get; set; }
         public string? Country { get; set; }
         public int TenantId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Tenant? Tenant { get; set; }
     }
 }

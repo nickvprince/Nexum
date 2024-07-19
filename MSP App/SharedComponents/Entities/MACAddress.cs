@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -9,7 +8,7 @@ namespace SharedComponents.Entities
         [Required]
         public string? Address { get; set; }
         public int DeviceInfoId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public DeviceInfo? DeviceInfo { get; set; }
     }
 }

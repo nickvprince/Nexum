@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace SharedComponents.Entities
 {
     public class DeviceAlert
@@ -11,7 +10,7 @@ namespace SharedComponents.Entities
         public bool Acknowledged { get; set; }
         public bool IsDeleted { get; set; }
         public int DeviceId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Device? Device { get; set; }
     }
 

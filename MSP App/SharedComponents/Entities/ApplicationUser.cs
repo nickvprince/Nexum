@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
 
 namespace SharedComponents.Entities
 {
@@ -11,7 +10,7 @@ namespace SharedComponents.Entities
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
         public int? TenantId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public ICollection<ApplicationUserRole>? UserRoles { get; set; }
     }
 

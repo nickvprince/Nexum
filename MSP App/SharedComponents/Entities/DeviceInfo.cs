@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -21,7 +20,7 @@ namespace SharedComponents.Entities
         [Required]
         public ICollection<MACAddress>? MACAddresses { get; set; }
         public int DeviceId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Device? Device { get; set; }
     }
     public enum DeviceType

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -17,7 +16,7 @@ namespace SharedComponents.Entities
         public ICollection<DeviceBackup>? Backups { get; set; }
         [Required]
         public int TenantId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Tenant? Tenant { get; set; }
     }
 

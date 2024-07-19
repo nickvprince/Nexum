@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -13,7 +12,7 @@ namespace SharedComponents.Entities
         public int? Progress { get; set; }
         [Required]
         public int? DeviceId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Device? Device { get; set; }
     }
 

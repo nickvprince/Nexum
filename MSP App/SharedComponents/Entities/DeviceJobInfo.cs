@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -17,7 +16,7 @@ namespace SharedComponents.Entities
         public int Retention { get; set; }
         [Required]
         public int DeviceJobId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public DeviceJob? DeviceJob { get; set; }
 
         // Public accessor for StartTime that only handles hours and minutes

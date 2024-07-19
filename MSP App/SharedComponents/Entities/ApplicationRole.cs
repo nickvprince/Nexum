@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 
 namespace SharedComponents.Entities
 {
@@ -11,9 +10,9 @@ namespace SharedComponents.Entities
         [Required]
         public string? Description { get; set; }
         public bool IsActive { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public ICollection<ApplicationRolePermission>? RolePermissions { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public ICollection<ApplicationUserRole>? UserRoles { get; set; }
     }
 }

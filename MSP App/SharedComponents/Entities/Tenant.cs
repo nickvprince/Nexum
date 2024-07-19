@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedComponents.Entities
 {
@@ -16,7 +15,7 @@ namespace SharedComponents.Entities
         public bool IsActive { get; set; }
         public ICollection<InstallationKey>? InstallationKeys { get; set; }
         public ICollection<Device>? Devices { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public ICollection<ApplicationRolePermission>? RolePermissions { get; set; }
         public ICollection<NASServer>? NASServers { get; set; }
     }

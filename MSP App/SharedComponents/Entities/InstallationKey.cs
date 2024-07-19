@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace SharedComponents.Entities
 {
     public class InstallationKey
@@ -10,7 +9,7 @@ namespace SharedComponents.Entities
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public int TenantId { get; set; }
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Tenant? Tenant { get; set; }
     }
 

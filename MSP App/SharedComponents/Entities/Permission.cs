@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace SharedComponents.Entities
 {
     public class Permission
@@ -7,7 +6,14 @@ namespace SharedComponents.Entities
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
-        [JsonIgnore]
+        public PermissionType Type { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public ICollection<ApplicationRolePermission>? RolePermissions { get; set; }
+    }
+
+    public enum PermissionType
+    {
+        System,
+        Tenant
     }
 }
