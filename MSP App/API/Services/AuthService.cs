@@ -48,7 +48,7 @@ namespace API.Services
             return false;
         }
 
-        public async Task<ICollection<int>?> GetUserAccessibleTenantsAsync(string token)
+        public async Task<IEnumerable<int?>?> GetUserAccessibleTenantsAsync(string token)
         {
             var userId = await _jwtService.GetUserIdFromTokenAsync(token.Replace("Bearer ", ""));
             var roles = await _dbRoleService.GetAllByUserIdAsync(userId);
@@ -62,7 +62,7 @@ namespace API.Services
                 {
                     if (tenantIds.Any())
                     {
-                        return tenantIds;
+                        return tenantIds.Distinct();
                     }
                 }
             }
