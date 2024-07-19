@@ -1,5 +1,5 @@
 ﻿using API.Attributes.HasPermission;
-﻿using API.Services;
+using API.Services;
 using API.Services.Interfaces;
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
@@ -106,6 +106,7 @@ namespace API.Controllers
                 {
                     return BadRequest("Installation key is deleted.");
                 }
+                installationKey.Type = request.Type.Value;
                 installationKey.IsActive = request.IsActive;
                 installationKey = await _dbInstallationKeyService.UpdateAsync(installationKey);
                 if (installationKey != null)
