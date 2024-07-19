@@ -3,14 +3,15 @@ using System.Reflection;
 using API.Attributes.HasPermission;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using SharedComponents.Entities;
 
 namespace SharedComponents.Utilities
 {
     public class ControllerUtilities
     {
-        public static ICollection<(string HttpMethod, string Route, string Permission)> GetAllRoutes(params Type[] excludedControllers)
+        public static ICollection<(string HttpMethod, string Route, string Permission, PermissionType Type)> GetAllRoutes(params Type[] excludedControllers)
         {
-            var routeList = new List<(string HttpMethod, string Route, string Permission)>();
+            var routeList = new List<(string HttpMethod, string Route, string Permission, PermissionType Type)>();
             var assemblyContainingControllers = Assembly.GetCallingAssembly();
 
             var controllerTypes = assemblyContainingControllers.GetTypes()
@@ -32,7 +33,7 @@ namespace SharedComponents.Utilities
             return routeList.Distinct().ToList();
         }
 
-        public static (string HttpMethod, string Route, string Permission) GetRouteFromCallingMethod()
+        public static (string HttpMethod, string Route, string Permission, PermissionType Type) GetRouteFromCallingMethod()
         {
             var callingMethod = GetCallingMethod() as MethodInfo;
 
@@ -49,13 +50,12 @@ namespace SharedComponents.Utilities
                 methodRoute = methodRoute.Replace("[controller]", controllerType.Name.Replace("Controller", string.Empty));
                 var fullRoute = CombineRoutes(baseRoute, methodRoute);
                 var httpMethod = attr.HttpMethods.FirstOrDefault() ?? "???";
-                var permission = GetPermissionAttribute(callingMethod);
+                var (permission, type) = GetPermissionAttribute(callingMethod);
                 if (!string.IsNullOrEmpty(permission))
                 {
-                    return (httpMethod, fullRoute, permission);
+                    return (httpMethod, fullRoute, permission, type);
                 }
             }
-
             throw new InvalidOperationException("No HTTP method attributes found on the calling method.");
         }
 
@@ -66,9 +66,9 @@ namespace SharedComponents.Utilities
             return baseRoute.Replace("[controller]", controllerName);
         }
 
-        private static IEnumerable<(string HttpMethod, string Route, string Permission)> GetHttpMethodRoutes(Type controllerType, MethodInfo method, string baseRoute)
+        private static IEnumerable<(string HttpMethod, string Route, string Permission, PermissionType Type)> GetHttpMethodRoutes(Type controllerType, MethodInfo method, string baseRoute)
         {
-            var routeList = new List<(string HttpMethod, string Route, string Permission)>();
+            var routeList = new List<(string HttpMethod, string Route, string Permission, PermissionType Type)>();
             var controllerName = controllerType.Name.Replace("Controller", string.Empty);
 
             var httpMethodAttributes = method.GetCustomAttributes()
@@ -81,10 +81,10 @@ namespace SharedComponents.Utilities
                 methodRoute = methodRoute.Replace("[controller]", controllerName);
                 var fullRoute = CombineRoutes(baseRoute, methodRoute);
                 var httpMethod = attr.HttpMethods.FirstOrDefault() ?? "???";
-                var permission = GetPermissionAttribute(method);
+                var (permission, type) = GetPermissionAttribute(method);
                 if (!string.IsNullOrEmpty(permission))
                 {
-                    routeList.Add((httpMethod, fullRoute, permission));
+                    routeList.Add((httpMethod, fullRoute, permission, type));
                 }
             }
             return routeList;
@@ -117,15 +117,13 @@ namespace SharedComponents.Utilities
         {
             if (string.IsNullOrWhiteSpace(baseRoute)) return methodRoute;
             if (string.IsNullOrWhiteSpace(methodRoute)) return baseRoute;
-
             return $"{baseRoute}/{methodRoute}".Trim('/');
         }
 
-        private static string GetPermissionAttribute(MethodInfo method)
+        private static (string Permission, PermissionType Type) GetPermissionAttribute(MethodInfo method)
         {
-            var permissionAttribute = method.GetCustomAttributes(typeof(HasPermissionAttribute), false)
-                                            .FirstOrDefault() as HasPermissionAttribute;
-            return permissionAttribute?.Permission ?? string.Empty;
+            var permissionAttribute = method.GetCustomAttributes(typeof(HasPermissionAttribute), false).FirstOrDefault() as HasPermissionAttribute;
+            return permissionAttribute != null ? (permissionAttribute.Permission, permissionAttribute.Type) : (string.Empty, default(PermissionType));
         }
     }
 }

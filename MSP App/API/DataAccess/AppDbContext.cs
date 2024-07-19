@@ -218,7 +218,21 @@ namespace API.DataAccess
 
             // Configure many-to-many relationship between ApplicationRole and Permission
             modelBuilder.Entity<ApplicationRolePermission>()
-                .HasKey(rp => new { rp.RoleId, rp.PermissionId, rp.TenantId });
+                .HasKey(rp => rp.Id);
+
+            modelBuilder.Entity<ApplicationRolePermission>()
+                .HasIndex(rp => new { rp.RoleId, rp.PermissionId, rp.TenantId })
+                .IsUnique();
+
+            // Unique index for non-tenant permissions
+            /*modelBuilder.Entity<ApplicationRolePermission>()
+                .HasIndex(rp => new { rp.RoleId, rp.PermissionId })
+                .IsUnique()
+                .HasFilter("[TenantId] IS NULL");*/
+
+            /*modelBuilder.Entity<ApplicationRolePermission>()
+                .Property(rp => rp.TenantId)
+                .IsRequired(false);*/
 
             modelBuilder.Entity<ApplicationRolePermission>()
                 .HasOne(rp => rp.Role)
@@ -257,6 +271,11 @@ namespace API.DataAccess
             // Configure the AccountType enum to be stored as a string
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.Type)
+                .HasConversion<string>();
+
+            // Configure the AccountType enum to be stored as a string
+            modelBuilder.Entity<Permission>()
+                .Property(p => p.Type)
                 .HasConversion<string>();
         }
         private static void SeedData(IServiceProvider serviceProvider, string adminUserId, string normalUserId)
@@ -325,12 +344,11 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Permissions
-                var routePermissionList = ControllerUtilities.GetAllRoutes();
-                // Add Permissions for each route
                 var permissions = new List<Permission>();
-                foreach (var (httpMethod, route, permissionName) in routePermissionList)
+                var routePermissionList = ControllerUtilities.GetAllRoutes();
+                foreach (var (httpMethod, route, permissionName, type) in routePermissionList)
                 {
-                    var permission = new Permission { Name = $"{permissionName}", Description = $"Permission for {permissionName} - {httpMethod} {route}" };
+                    var permission = new Permission { Name = $"{permissionName}", Description = $"{EnumUtilities.EnumToString(type)} permission for {httpMethod} {route}", Type = type };
                     permissions.Add(permission);
                     context.Permissions.Add(permission);
                 }
@@ -354,13 +372,22 @@ namespace API.DataAccess
                 var tenants = context.Tenants.ToList();
                 foreach (var tenant in tenants)
                 {
-                    foreach (var permission in permissions)
+                    foreach (var permission in permissions.Where(p => p.Type == PermissionType.Tenant))
                     {
                         var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id, TenantId = tenant.Id };
                         context.ApplicationRolePermissions.Add(rolePermission);
                     }
+                    context.SaveChanges();
                 }
-                
+
+                foreach (var permission in permissions.Where(p => p.Type == PermissionType.System))
+                {
+                    var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id };
+                    context.ApplicationRolePermissions.Add(rolePermission);
+                }
+
+                context.SaveChanges();
+
                 var rolePermission2 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
                 var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(2).Id, TenantId = tenant3.Id };
 
@@ -424,8 +451,8 @@ namespace API.DataAccess
                 // Add DeviceBackups
 
                 var backup1 = new DeviceBackup { Client_Id = deviceInfo1.ClientId, Uuid = deviceInfo1.Uuid, TenantId = tenant1.Id, Filename = "Backup 1.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas1.Id };
-                var backup2 = new DeviceBackup { Client_Id = deviceInfo2.ClientId, Uuid = deviceInfo2.Uuid, TenantId = tenant1.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
-                var backup3 = new DeviceBackup { Client_Id = deviceInfo3.ClientId, Uuid = deviceInfo3.Uuid, TenantId = tenant1.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
+                var backup2 = new DeviceBackup { Client_Id = deviceInfo2.ClientId, Uuid = deviceInfo2.Uuid, TenantId = tenant2.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
+                var backup3 = new DeviceBackup { Client_Id = deviceInfo3.ClientId, Uuid = deviceInfo3.Uuid, TenantId = tenant3.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
 
                 context.DeviceBackups.AddRange(backup1, backup2, backup3);
                 context.SaveChanges();

@@ -1,8 +1,12 @@
-﻿using API.Services;
+﻿using API.Attributes.HasPermission;
+using API.Services;
+using API.Services.Interfaces;
+using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
+using SharedComponents.Results;
 using SharedComponents.WebEntities.Requests.TenantRequests;
 
 namespace API.Controllers
@@ -13,13 +17,16 @@ namespace API.Controllers
     public class TenantController : ControllerBase
     {
         private readonly IDbTenantService _dbTenantService;
+        private readonly IAuthService _authService;
 
-        public TenantController(IDbTenantService dbTenantService)
+        public TenantController(IDbTenantService dbTenantService, IAuthService authService)
         {
             _dbTenantService = dbTenantService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("Tenant.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromBody] TenantCreateRequest request)
         {
             if (ModelState.IsValid)
@@ -50,16 +57,23 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Tenant.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] TenantUpdateRequest request)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<TenantController>(Request.Headers["Authorization"].ToString(), request.Id))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 Tenant? tenant = await _dbTenantService.GetAsync(request.Id);
                 if (tenant == null)
                 {
                     return NotFound("Tenant not found.");
                 }
-                if(tenant.TenantInfo == null)
+                if (tenant.TenantInfo == null)
                 {
                     return NotFound("TenantInfo not found.");
                 }
@@ -83,10 +97,22 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Tenant.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<TenantController>(Request.Headers["Authorization"].ToString(), id))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
+                Tenant? tenant = await _dbTenantService.GetAsync(id);
+                if (tenant == null)
+                {
+                    return NotFound("Tenant not found.");
+                }
                 if (await _dbTenantService.DeleteAsync(id))
                 {
                     return Ok($"Tenant deleted successfully.");
@@ -98,10 +124,17 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<TenantController>(Request.Headers["Authorization"].ToString(), id))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 Tenant? tenant = await _dbTenantService.GetAsync(id);
                 if (tenant != null)
                 {
@@ -113,10 +146,17 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}/Rich")]
+        [HasPermission("Tenant.Get-Rich.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetRichAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<TenantController>(Request.Headers["Authorization"].ToString(), id))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 Tenant? tenant = await _dbTenantService.GetRichAsync(id);
                 if (tenant != null)
                 {
@@ -128,6 +168,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Tenant.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)

@@ -1,4 +1,5 @@
-﻿using API.Services;
+﻿using API.Attributes.HasPermission;
+using API.Services;
 using API.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using SharedComponents.DbServices;
 using SharedComponents.Entities;
 using SharedComponents.RequestEntities.HTTP;
 using SharedComponents.ResponseEntities.HTTP;
+using SharedComponents.Results;
 using SharedComponents.Utilities;
 using SharedComponents.WebEntities.Requests.NASServerRequests;
 
@@ -19,18 +21,24 @@ namespace API.Controllers
         private readonly IDbNASServerService _dbNASServerService;
         private readonly IDbJobService _dbJobService;
         private readonly IDbTenantService _dbTenantService;
+        private readonly IDbDeviceService _dbDeviceService;
         private readonly IHTTPNASServerService _httpNASServerService;
+        private readonly IAuthService _authService;
 
         public NASServerController(IDbNASServerService dbNASServerService, IDbJobService dbJobService,
-            IDbTenantService dbTenantService, IHTTPNASServerService httpNASServerService)
+            IDbTenantService dbTenantService, IDbDeviceService dbDeviceService,
+            IHTTPNASServerService httpNASServerService, IAuthService authService)
         {
             _dbNASServerService = dbNASServerService;
             _dbJobService = dbJobService;
             _dbTenantService = dbTenantService;
+            _dbDeviceService = dbDeviceService;
             _httpNASServerService = httpNASServerService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("NASServer.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] NASServerCreateRequest request)
         {
             if (ModelState.IsValid)
@@ -40,6 +48,12 @@ namespace API.Controllers
                 {
                     return NotFound("Tenant not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<NASServerController>(Request.Headers["Authorization"].ToString(), tenant.Id))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 NASServer? nasServer = new NASServer
                 {
                     Name = request.Name,
@@ -79,6 +93,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("NASServer.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] NASServerUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -88,6 +103,12 @@ namespace API.Controllers
                 {
                     return NotFound("NAS Server not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<NASServerController>(Request.Headers["Authorization"].ToString(), nasServer.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 Tenant? tenant = await _dbTenantService.GetAsync(nasServer.TenantId);
                 if (tenant == null)
                 {
@@ -120,6 +141,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("NASServer.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
@@ -129,6 +151,12 @@ namespace API.Controllers
                 {
                     return NotFound("NAS Server not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<NASServerController>(Request.Headers["Authorization"].ToString(), nasServer.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceJob>? jobs = await _dbJobService.GetAllByBackupServerIdAsync(nasServer.TenantId, nasServer.BackupServerId);
                 if (jobs != null) 
                 {
@@ -160,6 +188,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("NASServer.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -167,6 +196,12 @@ namespace API.Controllers
                 NASServer? nasServer = await _dbNASServerService.GetAsync(id);
                 if (nasServer != null)
                 {
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<NASServerController>(Request.Headers["Authorization"].ToString(), nasServer.TenantId))
+                    {
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                    }
+                    // --- End of authentication check ---
                     return Ok(nasServer);
                 }
                 return NotFound("NAS Server not found.");
@@ -175,16 +210,33 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("NASServer.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<NASServer>? nasServers = await _dbNASServerService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<NASServer>? nasServers = new List<NASServer>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenantNASServers = await _dbNASServerService.GetAllByTenantIdAsync((int)tenantId);
+                        if (tenantNASServers != null)
+                        {
+                            nasServers.AddRange(tenantNASServers);
+                        }
+                    }
+                }
                 if (nasServers != null)
                 {
                     if (nasServers.Any())
                     {
-                        return Ok(nasServers);
+                        return Ok(nasServers.Distinct());
                     }
                 }
                 return NotFound("No NAS Servers found.");
@@ -192,29 +244,23 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
-        [HttpGet("By-Tenant/{tenantId}")]
-        public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
-        {
-            if (ModelState.IsValid)
-            {
-                ICollection<NASServer>? nasServers = await _dbNASServerService.GetAllByTenantIdAsync(tenantId);
-                if (nasServers != null)
-                {
-                    if (nasServers.Any())
-                    {
-                        return Ok(nasServers);
-                    }
-                }
-                return NotFound("No NAS Servers found for the tenant.");
-            }
-            return BadRequest("Invalid request.");
-        }
-
         [HttpGet("By-Device/{deviceId}")]
+        [HasPermission("NASServer.Get-By-Device.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
             {
+                Device? device = await _dbDeviceService.GetAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<NASServerController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<NASServer>? nasServers = await _dbNASServerService.GetAllByDeviceIdAsync(deviceId);
                 if (nasServers != null)
                 {
@@ -224,6 +270,31 @@ namespace API.Controllers
                     }
                 }
                 return NotFound("No NAS Servers found for the device.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
+        [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("NASServer.Get-By-Tenant.Permission", PermissionType.Tenant)]
+        public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
+        {
+            if (ModelState.IsValid)
+            {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<NASServerController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
+                ICollection<NASServer>? nasServers = await _dbNASServerService.GetAllByTenantIdAsync(tenantId);
+                if (nasServers != null)
+                {
+                    if (nasServers.Any())
+                    {
+                        return Ok(nasServers);
+                    }
+                }
+                return NotFound("No NAS Servers found for the tenant.");
             }
             return BadRequest("Invalid request.");
         }

@@ -1,4 +1,5 @@
-﻿using API.Services;
+﻿using API.Attributes.HasPermission;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -24,11 +25,11 @@ namespace API.Controllers
         }
 
         [HttpPost("")]
+        [HasPermission("User.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromBody] UserCreateRequest request)
         {
             if (ModelState.IsValid)
             {
-                
                 ApplicationUser user = new ApplicationUser
                 {
                     UserName = request.UserName,
@@ -61,6 +62,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("User.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> UpdateAsync([FromBody] UserUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -98,6 +100,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("User.Delete.Permission", PermissionType.System)]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             if (ModelState.IsValid)
@@ -115,7 +118,36 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        [HttpGet("")]
+        [HasPermission("User.Get-All.Permission", PermissionType.System)]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                ICollection<ApplicationUser>? users = await _dbUserService.GetAllAsync();
+                if (users != null)
+                {
+                    if (users.Any())
+                    {
+                        ICollection<UserResponse> response = users.Select(u => new UserResponse
+                        {
+                            Id = u.Id,
+                            UserName = u.UserName,
+                            FirstName = u.FirstName,
+                            LastName = u.LastName,
+                            Email = u.Email,
+                            Type = u.Type
+                        }).ToList();
+                        return Ok(response);
+                    }
+                }
+                return NotFound("No users found.");
+            }
+            return BadRequest("Invalid request.");
+        }
+
         [HttpGet("By-Id/{id}")]
+        [HasPermission("User.Get-By-Id.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             if (ModelState.IsValid)
@@ -143,6 +175,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Username/{username}")]
+        [HasPermission("User.Get-By-Username.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByUserNameAsync(string username)
         {
             if (ModelState.IsValid)
@@ -165,34 +198,6 @@ namespace API.Controllers
                     }
                     return NotFound("User not found.");
                 }
-            }
-            return BadRequest("Invalid request.");
-        }
-
-        [Authorize()]
-        [HttpGet("")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            if (ModelState.IsValid)
-            {
-                ICollection<ApplicationUser>? users = await _dbUserService.GetAllAsync();
-                if (users != null)
-                {
-                    if (users.Any())
-                    {
-                        ICollection<UserResponse> response = users.Select(u => new UserResponse
-                        {
-                            Id = u.Id,
-                            UserName = u.UserName,
-                            FirstName = u.FirstName,
-                            LastName = u.LastName,
-                            Email = u.Email,
-                            Type = u.Type
-                        }).ToList();
-                        return Ok(response);
-                    }
-                }
-                return NotFound("No users found.");
             }
             return BadRequest("Invalid request.");
         }

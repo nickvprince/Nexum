@@ -1,10 +1,13 @@
-﻿using API.Services;
+﻿using API.Attributes.HasPermission;
+using API.Services;
+using API.Services.Interfaces;
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
+using SharedComponents.Results;
 using SharedComponents.WebEntities.Requests.BackupRequests;
 
 namespace API.Controllers
@@ -17,15 +20,19 @@ namespace API.Controllers
         private readonly IDbBackupService _dbBackupService;
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IDbNASServerService _dbNASServerService;
+        private readonly IAuthService _authService;
 
-        public BackupController(IDbBackupService dbBackupService, IDbDeviceService dbDeviceService, IDbNASServerService dbNASServerService)
+        public BackupController(IDbBackupService dbBackupService, IDbDeviceService dbDeviceService,
+            IDbNASServerService dbNASServerService, IAuthService authService)
         {
             _dbBackupService = dbBackupService;
             _dbDeviceService = dbDeviceService;
             _dbNASServerService = dbNASServerService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("Backup.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] BackupCreateRequest request)
         {
             if (ModelState.IsValid)
@@ -35,6 +42,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<BackupController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 NASServer? nasServer = await _dbNASServerService.GetAsync(request.NASServerId);
                 if (nasServer == null)
                 {
@@ -65,6 +78,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Backup.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] BackupUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -74,6 +88,12 @@ namespace API.Controllers
                 {
                     return NotFound("Backup not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<BackupController>(Request.Headers["Authorization"].ToString(), backup.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 backup.Filename = request.Name;
                 backup.Path = request.Path;
                 backup.Date = request.Date;
@@ -88,6 +108,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Backup.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
@@ -97,6 +118,12 @@ namespace API.Controllers
                 {
                     return NotFound("Backup not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<BackupController>(Request.Headers["Authorization"].ToString(), backup.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (await _dbBackupService.DeleteAsync(id))
                 {
                     return Ok("Backup deleted successfully.");
@@ -107,6 +134,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -114,6 +142,12 @@ namespace API.Controllers
                 DeviceBackup? backup = await _dbBackupService.GetAsync(id);
                 if (backup != null)
                 {
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<BackupController>(Request.Headers["Authorization"].ToString(), backup.TenantId))
+                    {
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                    }
+                    // --- End of authentication check ---
                     return Ok(backup);
                 }
                 return NotFound("Backup not found.");
@@ -122,16 +156,33 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Backup.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<DeviceBackup>? backups = await _dbBackupService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<DeviceBackup>? backups = new List<DeviceBackup>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenantBackups = await _dbBackupService.GetAllByTenantIdAsync((int)tenantId);
+                        if (tenantBackups != null)
+                        {
+                            backups.AddRange(tenantBackups);
+                        }
+                    }
+                }
                 if (backups != null)
                 {
                     if (backups.Any())
                     {
-                        return Ok(backups);
+                        return Ok(backups.Distinct());
                     }
                 }
                 return NotFound("No backups found.");
@@ -140,6 +191,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
+        [HasPermission("Backup.Get-By-Device.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
@@ -149,6 +201,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<BackupController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceBackup>? backups = await _dbBackupService.GetAllByClientIdAndUuidAsync(device.TenantId, device.DeviceInfo.ClientId, device.DeviceInfo.Uuid);
                 if (backups != null)
                 {
@@ -163,10 +221,17 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("Backup.Get-By-Tenant.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<BackupController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceBackup>? backups = await _dbBackupService.GetAllByTenantIdAsync(tenantId);
                 if (backups != null)
                 {

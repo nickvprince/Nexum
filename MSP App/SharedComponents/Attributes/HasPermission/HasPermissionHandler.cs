@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using SharedComponents.Attributes.HasPermission;
 using SharedComponents.DbServices;
 using SharedComponents.Entities;
 
@@ -19,40 +20,32 @@ namespace API.Attributes.HasPermission
         {
             if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {
+                context.Fail();
                 return;
             }
 
             var user = await _userManager.GetUserAsync(context.User);
             if (user == null)
             {
+                context.Fail();
                 return;
             }
 
             var roles = await _dbRoleService.GetAllByUserIdAsync(user.Id);
             var permission = roles
                 .SelectMany(r => r.RolePermissions)
-                .Where(rp => rp.Permission.Name == requirement.Permission)
+                .Where(rp => rp.Permission.Name == requirement.Permission && rp.Permission.Type == requirement.Type)
                 .Select(rp => rp.Permission.Name)
                 .ToList();
             if (permission == null)
             {
+                context.Fail();
                 return;
             }
             if (permission.Any())
             {
                 context.Succeed(requirement);
-                return;
             }
         }
-    }
-
-    public class HasPermissionRequirement : IAuthorizationRequirement
-    {
-        public HasPermissionRequirement(string permission)
-        {
-            Permission = permission;
-        }
-
-        public string Permission { get; }
     }
 }

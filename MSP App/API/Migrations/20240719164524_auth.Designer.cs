@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240712043603_v1")]
-    partial class v1
+    [Migration("20240719164524_auth")]
+    partial class auth
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,22 +181,32 @@ namespace API.Migrations
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationRolePermission", b =>
                 {
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TenantId")
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
-                    b.HasKey("RoleId", "PermissionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("PermissionId");
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("RolePermissions");
+                    b.HasIndex("RoleId", "PermissionId", "TenantId")
+                        .IsUnique()
+                        .HasFilter("[RoleId] IS NOT NULL AND [TenantId] IS NOT NULL");
+
+                    b.ToTable("ApplicationRolePermissions");
                 });
 
             modelBuilder.Entity("SharedComponents.Entities.ApplicationUser", b =>
@@ -246,6 +256,12 @@ namespace API.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -697,6 +713,10 @@ namespace API.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Permissions");
@@ -862,15 +882,12 @@ namespace API.Migrations
 
                     b.HasOne("SharedComponents.Entities.ApplicationRole", "Role")
                         .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleId");
 
                     b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
                         .WithMany("RolePermissions")
                         .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Permission");
 

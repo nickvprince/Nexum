@@ -1,4 +1,5 @@
-﻿using API.Services;
+﻿using API.Attributes.HasPermission;
+using API.Services;
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ namespace API.Controllers
         }
 
         [HttpPost("")]
+        [HasPermission("Role.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromBody] RoleCreateRequest request)
         {
             if (ModelState.IsValid)
@@ -48,6 +50,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Role.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> UpdateAsync([FromBody] RoleUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -70,6 +73,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Role.Delete.Permission", PermissionType.System)]
         public async Task<IActionResult> DeleteAsync(string? id)
         {
             if (ModelState.IsValid)
@@ -84,6 +88,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Role.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAsync(string? id)
         {
             if (ModelState.IsValid)
@@ -99,6 +104,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Role.Get-All.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -114,6 +120,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-User/{userId}")]
+        [HasPermission("Role.Get-By-User.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllByUserIdAsync(string? userId)
         {
             if (ModelState.IsValid)
@@ -134,6 +141,7 @@ namespace API.Controllers
         }
 
         [HttpGet("UserRole/{userId}")]
+        [HasPermission("UserRole.Get-By-Id.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllUserRolesByUserIdAsync(string? userId)
         {
             if (ModelState.IsValid)
@@ -154,6 +162,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Permission/{roleId}")]
+        [HasPermission("RolePermission.Get-By-Id.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllRolePermissionsByIdAsync(string? roleId)
         {
             if (ModelState.IsValid)
@@ -174,6 +183,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Assign")]
+        [HasPermission("Role.Assign.Permission", PermissionType.System)]
         public async Task<IActionResult> AssignAsync([FromBody] RoleAssignRequest request)
         {
             if (ModelState.IsValid)
@@ -212,6 +222,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Unassign")]
+        [HasPermission("Role.Unassign.Permission", PermissionType.System)]
         public async Task<IActionResult> UnassignAsync([FromBody] RoleUnassignRequest request)
         {
             if (ModelState.IsValid)
@@ -252,6 +263,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Assign-Permission")]
+        [HasPermission("Role.Assign-Permission.Permission", PermissionType.System)]
         public async Task<IActionResult> AssignPermissionAsync([FromBody] RoleAssignPermissionRequest request)
         {
             if (ModelState.IsValid)
@@ -295,6 +307,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Unassign-Permission")]
+        [HasPermission("Role.Unassign-Permission.Permission", PermissionType.System)]
         public async Task<IActionResult> UnassignPermissionAsync([FromBody] RoleUnassignPermissionRequest request)
         {
             if (ModelState.IsValid)

@@ -1,5 +1,6 @@
 using API.Attributes.HasPermission;
 using API.DataAccess;
+using API.Middleware;
 using API.Services;
 using API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -68,6 +69,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddTransient<IAuthorizationHandler, HasPermissionHandler>();
 builder.Services.AddTransient<IAuthorizationPolicyProvider, HasPermissionPolicyProvider>();
+
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
 
 builder.Services.AddAuthorization();
 

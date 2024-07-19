@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class v1 : Migration
+    public partial class auth : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,6 +47,8 @@ namespace API.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TenantId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -75,7 +77,8 @@ namespace API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -248,6 +251,38 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationRolePermissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PermissionId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationRolePermissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationRolePermissions_ApplicationRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "ApplicationRoles",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ApplicationRolePermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationRolePermissions_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Devices",
                 columns: table => new
                 {
@@ -308,37 +343,6 @@ namespace API.Migrations
                     table.PrimaryKey("PK_NASServers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_NASServers_Tenants_TenantId",
-                        column: x => x.TenantId,
-                        principalTable: "Tenants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RolePermissions",
-                columns: table => new
-                {
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_ApplicationRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "ApplicationRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Permissions_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permissions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RolePermissions_Tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenants",
                         principalColumn: "Id",
@@ -578,6 +582,23 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationRolePermissions_PermissionId",
+                table: "ApplicationRolePermissions",
+                column: "PermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationRolePermissions_RoleId_PermissionId_TenantId",
+                table: "ApplicationRolePermissions",
+                columns: new[] { "RoleId", "PermissionId", "TenantId" },
+                unique: true,
+                filter: "[RoleId] IS NOT NULL AND [TenantId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationRolePermissions_TenantId",
+                table: "ApplicationRolePermissions",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserRoles_RoleId",
                 table: "ApplicationUserRoles",
                 column: "RoleId");
@@ -685,16 +706,6 @@ namespace API.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_PermissionId",
-                table: "RolePermissions",
-                column: "PermissionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RolePermissions_TenantId",
-                table: "RolePermissions",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TenantInfos_TenantId",
                 table: "TenantInfos",
                 column: "TenantId",
@@ -704,6 +715,9 @@ namespace API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ApplicationRolePermissions");
+
             migrationBuilder.DropTable(
                 name: "ApplicationUserRoles");
 
@@ -741,13 +755,16 @@ namespace API.Migrations
                 name: "MACAddresses");
 
             migrationBuilder.DropTable(
-                name: "RolePermissions");
-
-            migrationBuilder.DropTable(
                 name: "SoftwareFiles");
 
             migrationBuilder.DropTable(
                 name: "TenantInfos");
+
+            migrationBuilder.DropTable(
+                name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -763,12 +780,6 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "DeviceInfos");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationRoles");
-
-            migrationBuilder.DropTable(
-                name: "Permissions");
 
             migrationBuilder.DropTable(
                 name: "DeviceJobs");

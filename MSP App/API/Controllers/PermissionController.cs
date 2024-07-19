@@ -1,4 +1,6 @@
-﻿using API.Services;
+﻿using API.Attributes.HasPermission;
+using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
@@ -76,6 +78,7 @@ namespace API.Controllers
         }*/
 
         [HttpGet("{id}")]
+        [HasPermission("Permission.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -91,6 +94,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Permission.Get-All.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)

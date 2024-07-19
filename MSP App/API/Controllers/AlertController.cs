@@ -32,7 +32,7 @@ namespace API.Controllers
         }
 
         [HttpPost("")]
-        [HasPermission("Alert.Create.Permission")]
+        [HasPermission("Alert.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] AlertCreateRequest request)
         {
             if(ModelState.IsValid)
@@ -68,7 +68,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
-        [HasPermission("Alert.Update.Permission")]
+        [HasPermission("Alert.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] AlertUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -105,7 +105,7 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
         [HttpPost("{id}/Acknowledge")]
-        [HasPermission("Alert.Acknowledge.Permission")]
+        [HasPermission("Alert.Acknowledge.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> AcknowledgeAsync(int id)
         {
             if (ModelState.IsValid)
@@ -146,7 +146,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [HasPermission("Alert.Delete.Permission")]
+        [HasPermission("Alert.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
@@ -177,7 +177,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        [HasPermission("Alert.Get.Permission")]
+        [HasPermission("Alert.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -204,7 +204,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Alert.GetAll.Permission")]
+        [HasPermission("Alert.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -217,7 +217,14 @@ namespace API.Controllers
                 List<DeviceAlert>? alerts = new List<DeviceAlert>();
                 foreach (var tenantId in tenantIds)
                 {
-                    alerts.AddRange(await _dbAlertService.GetAllByTenantIdAsync(tenantId));
+                    if (tenantId != null)
+                    {
+                        var tenantAlerts = await _dbAlertService.GetAllByTenantIdAsync((int)tenantId);
+                        if (tenantAlerts != null)
+                        {
+                            alerts.AddRange(tenantAlerts);
+                        }
+                    }
                 }
                 if (alerts != null)
                 {
@@ -232,7 +239,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
-        [HasPermission("Alert.Get-By-Device.Permission")]
+        [HasPermission("Alert.Get-By-Device.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
@@ -262,7 +269,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
-        [HasPermission("Alert.Get-By-Tenant.Permission")]
+        [HasPermission("Alert.Get-By-Tenant.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
