@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class InstallationKeyService : BaseService, IInstallationKeyService
     {
-        public InstallationKeyService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public InstallationKeyService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "InstallationKey/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("InstallationKey/");
         }
 
         public async Task<InstallationKey?> CreateAsync(InstallationKeyCreateRequest request)

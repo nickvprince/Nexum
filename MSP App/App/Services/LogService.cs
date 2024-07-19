@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class LogService : BaseService, ILogService
     {
-        public LogService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public LogService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Log/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Log/");
         }
 
         public async Task<DeviceLog?> CreateAsync(LogCreateRequest request)

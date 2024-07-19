@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class DeviceService : BaseService, IDeviceService
     {
-        public DeviceService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public DeviceService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Device/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Device/");
         }
 
         public async Task<Device?> CreateAsync(DeviceCreateRequest request)

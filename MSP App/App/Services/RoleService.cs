@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class RoleService : BaseService, IRoleService
     {
-        public RoleService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public RoleService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Role/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Role/");
         }
 
         public async Task<ApplicationRole?> CreateAsync(RoleCreateRequest request)

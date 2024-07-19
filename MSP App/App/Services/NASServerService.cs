@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class NASServerService : BaseService, INASServerService
     {
-        public NASServerService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public NASServerService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "NASServer/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("NASServer/");
         }
 
         public async Task<NASServer?> CreateAsync(NASServerCreateRequest request)

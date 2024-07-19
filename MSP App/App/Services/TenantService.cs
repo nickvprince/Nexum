@@ -9,16 +9,9 @@ namespace App.Services
 {
     public class TenantService : BaseService, ITenantService
     {
-        public TenantService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public TenantService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Tenant/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Tenant/");
         }
 
         public async Task<Tenant?> CreateAsync(TenantCreateRequest request)

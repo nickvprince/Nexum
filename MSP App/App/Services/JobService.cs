@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class JobService : BaseService, IJobService
     {
-        public JobService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public JobService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Job/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Job/");
         }
 
         public async Task<DeviceJob?> CreateAsync(JobCreateRequest request)

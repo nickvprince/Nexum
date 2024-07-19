@@ -11,16 +11,9 @@ namespace App.Services
 {
     public class UserService : BaseService, IUserService
     {
-        public UserService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public UserService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "User/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("User/");
         }
 
         public async Task<UserCreateResponse?> CreateAsync(UserCreateRequest request)

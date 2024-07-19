@@ -28,9 +28,9 @@ namespace App.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public async Task<IActionResult> LoginAsync()
         {
-            return View();
+            return await Task.FromResult(View());
         }
 
         [HttpPost]
@@ -58,8 +58,5 @@ namespace App.Controllers
             }
             return View(loginViewModel);
         }
-
-        
-
     }
 }

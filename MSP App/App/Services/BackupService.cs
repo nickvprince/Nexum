@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class BackupService : BaseService, IBackupService
     {
-        public BackupService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public BackupService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Backup/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Backup/");
         }
 
         public async Task<DeviceBackup?> CreateAsync(BackupCreateRequest request)

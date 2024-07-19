@@ -8,16 +8,9 @@ namespace App.Services
 {
     public class PermissionService : BaseService, IPermissionService
     {
-        public PermissionService(IConfiguration config, HttpClient httpClient) : base(config, httpClient)
+        public PermissionService(IConfiguration config, HttpClient httpClient, IHttpContextAccessor httpContextAccessor) : base(config, httpClient, httpContextAccessor)
         {
-            if (_httpClient.BaseAddress != null)
-            {
-                _httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "Permission/");
-            }
-            else
-            {
-                throw new InvalidOperationException("BaseAddress is not set.");
-            }
+            AppendBaseAddress("Permission/");
         }
         //Functions that can be added for debugging / future purposes (working code)
         /*
