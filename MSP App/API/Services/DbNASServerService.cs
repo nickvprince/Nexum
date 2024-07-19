@@ -176,17 +176,20 @@ namespace API.Services
                     .Where(d => d.Id == deviceId)
                     .FirstAsync();
                 var jobs = await _appDbContext.DeviceJobs
+                    .Include(j => j.Settings)
+                    .Include(j => j.Device)
                     .Where(j => j.DeviceId == deviceId)
                     .ToListAsync();
 
-                var nasServersFromBackups = _appDbContext.NASServers
-                    .Where(n => n.Backups.Any(b => b.Client_Id == device.DeviceInfo.ClientId && b.Uuid == device.DeviceInfo.Uuid));
-                var nasServersFromJobs = _appDbContext.NASServers
-                    .Where(n => jobs.Any(j => j.Settings.BackupServerId == n.BackupServerId));
-
-                var nasServers = await nasServersFromBackups
-                    .Union(nasServersFromJobs)
+                var nasServersFromBackups = await _appDbContext.NASServers
+                    .Where(n => n.Backups.Any(b => b.Client_Id == device.DeviceInfo.ClientId && b.Uuid == device.DeviceInfo.Uuid))
                     .ToListAsync();
+                var nasServersFromJobs = _appDbContext.NASServers
+                    .AsEnumerable()
+                    .Where(n => jobs.Any(j => j.Settings.BackupServerId == n.BackupServerId && n.TenantId == j.Device.TenantId))
+                    .ToList();
+
+                var nasServers = nasServersFromBackups.Union(nasServersFromJobs).ToList();
 
                 if (nasServers != null)
                 {
