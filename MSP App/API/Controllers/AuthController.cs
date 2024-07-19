@@ -1,4 +1,6 @@
 ﻿using API.Services;
+using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.DbServices;
@@ -90,6 +92,33 @@ namespace API.Controllers
                     Expires = DateTime.UtcNow.AddMinutes(_jwtService.JWTSettings.ExpiryMinutes)
                 };
                 return Ok(response);
+            }
+            return BadRequest("Invalid request. Please provide a valid token and refresh token.");
+        }
+
+        //does not invalidate the token after logging out, requires validation tracking and token blacklisting
+        [HttpPost("Logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            if(ModelState.IsValid)
+            {
+                if (User.Identity != null)
+                {
+                    if (!User.Identity.IsAuthenticated)
+                    {
+                        return Unauthorized("You are not logged in.");
+                    }
+                    ApplicationUser? user = await _userManager.FindByNameAsync(User.Identity.Name);
+                    if (user != null)
+                    {
+                        user.RefreshToken = null;
+                        user.RefreshTokenExpiryTime = DateTime.Now;
+                        await _userManager.UpdateAsync(user);
+                    }
+                    await _signInManager.SignOutAsync();
+                    return Ok("Logged out successfully.");
+                }
             }
             return BadRequest("Invalid request. Please provide a valid token and refresh token.");
         }
