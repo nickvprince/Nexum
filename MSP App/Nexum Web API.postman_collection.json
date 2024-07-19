@@ -920,7 +920,14 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											""
+											"// Parse the response JSON\r",
+											"var jsonData = pm.response.json();\r",
+											"\r",
+											"// Set the token as a collection variable\r",
+											"pm.collectionVariables.set(\"AuthToken\", jsonData.token);\r",
+											"\r",
+											"// Set the refreshToken as a collection variable\r",
+											"pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -938,6 +945,9 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "noauth"
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
@@ -965,7 +975,29 @@
 						},
 						{
 							"name": "Auth/Refresh",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the response JSON\r",
+											"var jsonData = pm.response.json();\r",
+											"\r",
+											"// Set the token as a collection variable\r",
+											"pm.collectionVariables.set(\"AuthToken\", jsonData.token);\r",
+											"\r",
+											"// Set the refreshToken as a collection variable\r",
+											"pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
+								"auth": {
+									"type": "noauth"
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
@@ -990,11 +1022,27 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Auth/Logout",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Auth/Logout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Auth",
+										"Logout"
+									]
+								}
+							},
+							"response": []
 						}
 					],
-					"auth": {
-						"type": "noauth"
-					},
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1012,14 +1060,7 @@
 								"type": "text/javascript",
 								"packages": {},
 								"exec": [
-									"// Parse the response JSON\r",
-									"var jsonData = pm.response.json();\r",
-									"\r",
-									"// Set the token as a collection variable\r",
-									"pm.collectionVariables.set(\"AuthToken\", jsonData.token);\r",
-									"\r",
-									"// Set the refreshToken as a collection variable\r",
-									"pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);"
+									""
 								]
 							}
 						}
