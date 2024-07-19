@@ -18,8 +18,8 @@ namespace API.Controllers
         {
             _dbPermissionService = dbPermissionService;
         }
-
-        [HttpPost("")]
+        //Functions that can be added for debugging / future purposes (working code)
+        /*[HttpPost("")]
         public async Task<IActionResult> CreateAsync([FromBody] PermissionCreateRequest request)
         {
             if(ModelState.IsValid)
@@ -73,7 +73,7 @@ namespace API.Controllers
                 return NotFound("Permission not found.");
             }
             return BadRequest("Invalid Request.");
-        }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)

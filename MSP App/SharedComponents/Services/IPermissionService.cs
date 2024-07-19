@@ -10,9 +10,10 @@ namespace SharedComponents.Services
 {
     public interface IPermissionService
     {
-        public Task<Permission?> CreateAsync(PermissionCreateRequest request);
+        //Functions that can be added for debugging / future purposes (working code)
+        /*public Task<Permission?> CreateAsync(PermissionCreateRequest request);
         public Task<Permission?> UpdateAsync(PermissionUpdateRequest request);
-        public Task<bool> DeleteAsync(int id);
+        public Task<bool> DeleteAsync(int id);*/
         public Task<Permission?> GetAsync(int id);
         public Task<ICollection<Permission>?> GetAllAsync();
     }

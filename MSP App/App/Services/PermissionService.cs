@@ -19,7 +19,8 @@ namespace App.Services
                 throw new InvalidOperationException("BaseAddress is not set.");
             }
         }
-
+        //Functions that can be added for debugging / future purposes (working code)
+        /*
         public async Task<Permission?> CreateAsync(PermissionCreateRequest request)
         {
             try
@@ -64,7 +65,7 @@ namespace App.Services
                 return false;
             }
         }
-
+        */
         public async Task<Permission?> GetAsync(int id)
         {
             try
