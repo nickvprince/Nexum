@@ -1,8 +1,10 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
-using SharedComponents.WebEntities.Requests.LogRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.LogRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -11,16 +13,19 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class LogController : ControllerBase
     {
-        private readonly DbLogService _dbLogService;
-        private readonly DbDeviceService _dbDeviceService;
+        private readonly IDbLogService _dbLogService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IAPIAuthService _authService;
 
-        public LogController(DbLogService dbLogService, DbDeviceService dbDeviceService)
+        public LogController(IDbLogService dbLogService, IDbDeviceService dbDeviceService, IAPIAuthService authService)
         {
             _dbLogService = dbLogService;
             _dbDeviceService = dbDeviceService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("Log.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] LogCreateRequest request)
         {
             if (ModelState.IsValid)
@@ -30,6 +35,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 DeviceLog? log = new DeviceLog
                 {
                     DeviceId = request.DeviceId,
@@ -51,6 +62,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Log.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] LogUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -60,6 +72,17 @@ namespace API.Controllers
                 {
                     return NotFound("Log not found.");
                 }
+                Device? device = await _dbDeviceService.GetAsync(log.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (log.IsDeleted)
                 {
                     return BadRequest("Log is deleted.");
@@ -81,6 +104,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Acknowledge")]
+        [HasPermission("Log.Acknowledge.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> AcknowledgeAsync(int id)
         {
             if (ModelState.IsValid)
@@ -90,6 +114,17 @@ namespace API.Controllers
                 {
                     return NotFound("Log not found.");
                 }
+                Device? device = await _dbDeviceService.GetAsync(log.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (log.IsDeleted)
                 {
                     return BadRequest("Log is deleted.");
@@ -110,10 +145,27 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Log.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                DeviceLog? log = await _dbLogService.GetAsync(id);
+                if (log == null)
+                {
+                    return NotFound("Log not found.");
+                }
+                Device? device = await _dbDeviceService.GetAsync(log.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (await _dbLogService.DeleteAsync(id))
                 {
                     return Ok($"Log deleted successfully.");
@@ -124,6 +176,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -131,6 +184,17 @@ namespace API.Controllers
                 DeviceLog? log = await _dbLogService.GetAsync(id);
                 if (log != null)
                 {
+                    Device? device = await _dbDeviceService.GetAsync(log.DeviceId);
+                    if (device == null)
+                    {
+                        return NotFound("Device not found.");
+                    }
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                    {
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                    }
+                    // --- End of authentication check ---
                     return Ok(log);
                 }
                 return NotFound("Log not found.");
@@ -139,14 +203,34 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Log.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<DeviceLog>? logs = await _dbLogService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<DeviceLog> logs = new List<DeviceLog>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenantLogs = await _dbLogService.GetAllByTenantIdAsync((int)tenantId);
+                        if(tenantLogs != null)
+                        {
+                            logs.AddRange(tenantLogs);
+                        }
+                    }
+                }
                 if (logs != null)
                 {
-                    return Ok(logs);
+                    if(logs.Any())
+                    {
+                        return Ok(logs);
+                    }
                 }
                 return NotFound("Logs not found.");
             }
@@ -154,10 +238,22 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
+        [HasPermission("Log.Get-By-Device.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
             {
+                Device? device = await _dbDeviceService.GetAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceLog>? logs = await _dbLogService.GetAllByDeviceIdAsync(deviceId);
                 if (logs != null)
                 {
@@ -172,10 +268,17 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("Log.Get-By-Tenant.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<LogController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceLog>? logs = await _dbLogService.GetAllByTenantIdAsync(tenantId);
                 if (logs != null)
                 {

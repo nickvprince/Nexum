@@ -1,9 +1,10 @@
-﻿using API.Services;
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
-using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.InstallationKeyRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -12,16 +13,19 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class InstallationKeyController : ControllerBase
     {
-        private readonly DbInstallationKeyService _dbInstallationKeyService;
-        private readonly DbTenantService _dbTenantService;
+        private readonly IDbInstallationKeyService _dbInstallationKeyService;
+        private readonly IDbTenantService _dbTenantService;
+        private readonly IAPIAuthService _authService;
 
-        public InstallationKeyController(DbInstallationKeyService dbInstallationKeyService, DbTenantService dbTenantService)
+        public InstallationKeyController(IDbInstallationKeyService dbInstallationKeyService, IDbTenantService dbTenantService, IAPIAuthService authService)
         {
             _dbInstallationKeyService = dbInstallationKeyService;
             _dbTenantService = dbTenantService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("InstallationKey.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] InstallationKeyCreateRequest request)
         {
             if( ModelState.IsValid)
@@ -31,7 +35,13 @@ namespace API.Controllers
                 {
                     return NotFound("Tenant not found.");
                 }
-                if(request.Type == null)
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<InstallationKeyController>(Request.Headers["Authorization"].ToString(), tenant.Id))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
+                if (request.Type == null)
                 {
                     return BadRequest("InstallationKey Type is required.");
                 }
@@ -61,6 +71,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("InstallationKey.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] InstallationKeyUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -70,10 +81,29 @@ namespace API.Controllers
                 {
                     return NotFound("Installation key not found.");
                 }
-                if(installationKey.IsDeleted)
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<InstallationKeyController>(Request.Headers["Authorization"].ToString(), installationKey.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
+                
+                if (request.Type == null)
+                {
+                    return BadRequest("InstallationKey Type is required.");
+                }
+                if (request.Type.HasValue)
+                {
+                    if (!Enum.IsDefined(typeof(InstallationKeyType), request.Type.Value))
+                    {
+                        return BadRequest("Invalid InstallationKey Type.");
+                    }
+                }
+                if (installationKey.IsDeleted)
                 {
                     return BadRequest("Installation key is deleted.");
                 }
+                installationKey.Type = request.Type.Value;
                 installationKey.IsActive = request.IsActive;
                 installationKey = await _dbInstallationKeyService.UpdateAsync(installationKey);
                 if (installationKey != null)
@@ -86,10 +116,22 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("InstallationKey.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                InstallationKey? installationKey = await _dbInstallationKeyService.GetAsync(id);
+                if (installationKey == null)
+                {
+                    return NotFound("Installation key not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<InstallationKeyController>(Request.Headers["Authorization"].ToString(), installationKey.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (await _dbInstallationKeyService.DeleteAsync(id))
                 {
                     return Ok($"Installation key deleted successfully.");
@@ -100,6 +142,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("InstallationKey.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -107,6 +150,12 @@ namespace API.Controllers
                 InstallationKey? installationKey = await _dbInstallationKeyService.GetAsync(id);
                 if (installationKey != null)
                 {
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<InstallationKeyController>(Request.Headers["Authorization"].ToString(), installationKey.TenantId))
+                    {
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                    }
+                    // --- End of authentication check ---
                     return Ok(installationKey);
                 }
                 return NotFound("Installation key not found.");
@@ -115,16 +164,33 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("InstallationKey.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<InstallationKey>? installationKeys = await _dbInstallationKeyService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<InstallationKey> installationKeys = new List<InstallationKey>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenantInstallationKeys = await _dbInstallationKeyService.GetAllByTenantIdAsync((int)tenantId);
+                        if (tenantInstallationKeys != null)
+                        {
+                            installationKeys.AddRange(tenantInstallationKeys);
+                        }
+                    }
+                }
                 if (installationKeys != null)
                 {
                     if (installationKeys.Any())
                     {
-                        return Ok(installationKeys);
+                        return Ok(installationKeys.Distinct());
                     }
                 }
                 return NotFound("Installation keys not found.");
@@ -133,10 +199,17 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("InstallationKey.Get-By-Tenant.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<InstallationKeyController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 Tenant? tenant = await _dbTenantService.GetAsync(tenantId);
                 if (tenant == null)
                 {

@@ -1,8 +1,7 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
-using SharedComponents.WebEntities.Requests.PermissionRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -11,14 +10,14 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class PermissionController : ControllerBase
     {
-        private readonly DbPermissionService _dbPermissionService;
+        private readonly IDbPermissionService _dbPermissionService;
 
-        public PermissionController(DbPermissionService dbPermissionService)
+        public PermissionController(IDbPermissionService dbPermissionService)
         {
             _dbPermissionService = dbPermissionService;
         }
-
-        [HttpPost("")]
+        //Functions that can be added for debugging / future purposes (working code)
+        /*[HttpPost("")]
         public async Task<IActionResult> CreateAsync([FromBody] PermissionCreateRequest request)
         {
             if(ModelState.IsValid)
@@ -72,9 +71,10 @@ namespace API.Controllers
                 return NotFound("Permission not found.");
             }
             return BadRequest("Invalid Request.");
-        }
+        }*/
 
         [HttpGet("{id}")]
+        [HasPermission("Permission.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -90,6 +90,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Permission.Get-All.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)

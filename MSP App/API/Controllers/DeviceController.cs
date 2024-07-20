@@ -1,10 +1,11 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.ResponseEntities;
-using SharedComponents.WebEntities.Requests.DeviceRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.DeviceRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
+using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -13,25 +14,35 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class DeviceController : ControllerBase
     {
-        private readonly DbDeviceService _dbDeviceService;
-        private readonly DbTenantService _dbTenantService;
-        private readonly DbInstallationKeyService _dbInstallationKeyService;
-        private readonly HTTPDeviceService _httpDeviceService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IDbTenantService _dbTenantService;
+        private readonly IDbInstallationKeyService _dbInstallationKeyService;
+        private readonly ITenantServerAPIDeviceService _httpDeviceService;
+        private readonly IAPIAuthService _authService;
 
-        public DeviceController(DbDeviceService dbDeviceService, DbTenantService dbTenantService,
-            DbInstallationKeyService dbInstallationKeyService, HTTPDeviceService httpDeviceService)
+        public DeviceController(IDbDeviceService dbDeviceService, IDbTenantService dbTenantService,
+            IDbInstallationKeyService dbInstallationKeyService, ITenantServerAPIDeviceService httpDeviceService,
+            IAPIAuthService authService)
         {
             _dbDeviceService = dbDeviceService;
             _dbTenantService = dbTenantService;
             _dbInstallationKeyService = dbInstallationKeyService;
             _httpDeviceService = httpDeviceService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("Device.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] DeviceCreateRequest request)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), request.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 Tenant? tenant = await _dbTenantService.GetAsync(request.TenantId);
                 if (tenant == null)
                 {
@@ -58,7 +69,7 @@ namespace API.Controllers
                     return Unauthorized("Inactive Installation Key.");
                 }
 
-                if(installationKey.Type != InstallationKeyType.Server || installationKey.Type != InstallationKeyType.Device)
+                if(installationKey.Type != InstallationKeyType.Server && installationKey.Type != InstallationKeyType.Device)
                 {
                     return Unauthorized("Invalid Installation Key Type.");
                 }
@@ -136,6 +147,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Device.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] DeviceUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -145,6 +157,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (device.DeviceInfo == null)
                 {
                     return NotFound("DeviceInfo not found.");
@@ -157,7 +175,10 @@ namespace API.Controllers
                         Device? server = devices.FirstOrDefault(d => d.DeviceInfo!.Type == DeviceType.Server);
                         if (server != null)
                         {
-                            return BadRequest("Server already registered.");
+                            if(server.Id != request.Id)
+                            {
+                                return BadRequest("Server already registered.");
+                            }
                         }
                     }
                 }
@@ -200,6 +221,7 @@ namespace API.Controllers
         }
 
         [HttpPut("Status")]
+        [HasPermission("Device.Update-Status.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateStatusAsync([FromBody] DeviceUpdateStatusRequest request)
         {
             if (ModelState.IsValid)
@@ -209,6 +231,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (device.DeviceInfo == null)
                 {
                     return NotFound("DeviceInfo not found.");
@@ -225,10 +253,22 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Device.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                Device? device = await _dbDeviceService.GetAsync(id);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (await _dbDeviceService.DeleteAsync(id))
                 {
                     return Ok($"Device deleted successfully.");
@@ -239,6 +279,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Device.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -246,6 +287,12 @@ namespace API.Controllers
                 Device? device = await _dbDeviceService.GetAsync(id);
                 if (device != null)
                 {
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                    {
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                    }
+                    // --- End of authentication check ---
                     return Ok(device);
                 }
                 return NotFound("Device not found.");
@@ -254,14 +301,34 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Device.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<Device>? devices = await _dbDeviceService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<Device> devices = new List<Device>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenantDevices = await _dbDeviceService.GetAllByTenantIdAsync((int)tenantId);
+                        if (tenantDevices != null)
+                        {
+                            devices.AddRange(tenantDevices);
+                        }
+                    }
+                }
                 if (devices != null)
                 {
-                    return Ok(devices);
+                    if (devices.Any())
+                    {
+                        return Ok(devices.Distinct());
+                    }
                 }
                 return NotFound("No devices found.");
             }
@@ -269,10 +336,17 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("Device.Get-By-Tenant.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(tenantId);
                 if (devices != null)
                 {
@@ -287,6 +361,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Refresh")]
+        [HasPermission("Device.Refresh.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> RefreshAsync(int id)
         {
             if (ModelState.IsValid)
@@ -296,6 +371,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<DeviceController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (device.DeviceInfo == null)
                 {
                     return NotFound("DeviceInfo not found.");

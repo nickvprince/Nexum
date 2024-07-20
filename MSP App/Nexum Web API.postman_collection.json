@@ -871,6 +871,38 @@
 							},
 							"response": []
 						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{AuthToken}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
 					]
 				}
 			]
@@ -878,6 +910,162 @@
 		{
 			"name": "Web API",
 			"item": [
+				{
+					"name": "Auth Requests",
+					"item": [
+						{
+							"name": "Auth/Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the response JSON\r",
+											"var jsonData = pm.response.json();\r",
+											"\r",
+											"// Set the token as a collection variable\r",
+											"pm.collectionVariables.set(\"AuthToken\", jsonData.token);\r",
+											"\r",
+											"// Set the refreshToken as a collection variable\r",
+											"pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Admin\",\r\n  \"password\": \"Admin123!\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Auth/Login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Auth",
+										"Login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Auth/Refresh",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the response JSON\r",
+											"var jsonData = pm.response.json();\r",
+											"\r",
+											"// Set the token as a collection variable\r",
+											"pm.collectionVariables.set(\"AuthToken\", jsonData.token);\r",
+											"\r",
+											"// Set the refreshToken as a collection variable\r",
+											"pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"token\": \"{{AuthToken}}\",\r\n  \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Auth/Refresh",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Auth",
+										"Refresh"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Auth/Logout",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Auth/Logout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Auth",
+										"Logout"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
 				{
 					"name": "Tenant Requests",
 					"item": [
@@ -896,12 +1084,10 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7101/api/Tenant",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/api/Tenant",
 									"host": [
-										"localhost"
+										"{{baseUrl}}"
 									],
-									"port": "7101",
 									"path": [
 										"api",
 										"Tenant"
@@ -925,12 +1111,10 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7101/api/Tenant",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/api/Tenant",
 									"host": [
-										"localhost"
+										"{{baseUrl}}"
 									],
-									"port": "7101",
 									"path": [
 										"api",
 										"Tenant"
@@ -945,12 +1129,10 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:7101/api/Tenant/{{tenantId}}",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/api/Tenant/{{tenantId}}",
 									"host": [
-										"localhost"
+										"{{baseUrl}}"
 									],
-									"port": "7101",
 									"path": [
 										"api",
 										"Tenant",
@@ -966,12 +1148,10 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:7101/api/Tenant",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/api/Tenant",
 									"host": [
-										"localhost"
+										"{{baseUrl}}"
 									],
-									"port": "7101",
 									"path": [
 										"api",
 										"Tenant"
@@ -986,12 +1166,10 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:7101/api/Tenant/{{tenantId}}",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/api/Tenant/{{tenantId}}",
 									"host": [
-										"localhost"
+										"{{baseUrl}}"
 									],
-									"port": "7101",
 									"path": [
 										"api",
 										"Tenant",
@@ -1035,7 +1213,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"tenantid\": {{tenantId}},\r\n    \"type\": 2\r\n}",
+									"raw": "{\r\n    \"tenantid\": {{tenantId}},\r\n    \"type\": 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1062,7 +1240,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"tenantid\": {{tenantId}},\r\n    \"isactive\": true\r\n}",
+									"raw": "{\r\n    \"Id\": {{installationKeyId}},\r\n    \"type\": 0,\r\n    \"isactive\": true\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1197,7 +1375,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"id\": 1,\r\n    \"name\": \"NAS1\",\r\n    \"path\": \"/smb/../../\",\r\n    \"nasUsername\": \"testnas\",\r\n    \"nasPassword\": \"nas123\"\r\n}",
+									"raw": "{\r\n    \"id\": {{nasServerId}},\r\n    \"name\": \"NAS1\",\r\n    \"path\": \"/smb/../../\",\r\n    \"nasUsername\": \"testnas\",\r\n    \"nasPassword\": \"nas123\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1853,7 +2031,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"id\": 1,\r\n  \"filename\": \"TestEdit.py\",\r\n  \"function\": \"testEdit()\",\r\n  \"message\": \"Testing an Edit device log\",\r\n  \"code\": 10,\r\n  \"stack_Trace\": \"Delete this line if you arent including trace.\", \r\n  \"time\": \"2024-07-01T15:50:00.671Z\",\r\n  \"type\": 3\r\n}",
+									"raw": "{\r\n  \"id\": {{logId}},\r\n  \"filename\": \"TestEdit.py\",\r\n  \"function\": \"testEdit()\",\r\n  \"message\": \"Testing an Edit device log\",\r\n  \"code\": 10,\r\n  \"stack_Trace\": \"Delete this line if you arent including trace.\", \r\n  \"time\": \"2024-07-01T15:50:00.671Z\",\r\n  \"type\": 3\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1975,7 +2153,7 @@
 					"name": "Permission Requests",
 					"item": [
 						{
-							"name": "Permission",
+							"name": "Permission (disabled)",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -2002,7 +2180,7 @@
 							"response": []
 						},
 						{
-							"name": "Permission",
+							"name": "Permission  (disabled)",
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -2029,7 +2207,7 @@
 							"response": []
 						},
 						{
-							"name": "Permission/{id}",
+							"name": "Permission/{id}  (disabled)",
 							"request": {
 								"method": "DELETE",
 								"header": [],
@@ -2484,26 +2662,6 @@
 							"response": []
 						},
 						{
-							"name": "Job/{id}/Refresh",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/Job/{{jobId}}/Refresh",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"Job",
-										"{{jobId}}",
-										"Refresh"
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Job",
 							"request": {
 								"method": "PUT",
@@ -2537,7 +2695,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"id\": 5,\r\n  \"status\": 1,\r\n  \"progress\": 0\r\n}",
+									"raw": "{\r\n  \"id\": {{jobId}},\r\n  \"status\": 1,\r\n  \"progress\": 0\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2653,6 +2811,48 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Job/{id}/Refresh",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Job/{{jobId}}/Refresh",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Job",
+										"{{jobId}}",
+										"Refresh"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
 						}
 					]
 				},
@@ -2754,6 +2954,25 @@
 									"path": [
 										"api",
 										"Backup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Backup/{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/Backup/{{backupId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Backup",
+										"{{backupId}}"
 									]
 								}
 							},
@@ -2865,7 +3084,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"userName\": \"{{username}}\",\r\n  \"firstName\": \"string\",\r\n  \"lastName\": \"string\",\r\n  \"email\": \"string\",\r\n  \"currentPassword\": \"Nexum482!\"\r\n}",
+									"raw": "{\r\n  \"userName\": \"{{username}}\",\r\n  \"firstName\": \"string\",\r\n  \"lastName\": \"string\",\r\n  \"email\": \"string\",\r\n  \"currentPassword\": \"Admin123!\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2963,43 +3182,45 @@
 							"response": []
 						}
 					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{AuthToken}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
 				},
 				{
-					"name": "Auth Requests",
-					"item": [
-						{
-							"name": "Auth/Login",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"username\": \"Admin\",\r\n  \"password\": \"Admin123!\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/Auth/Login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"Auth",
-										"Login"
-									]
-								}
-							},
-							"response": []
-						}
-					]
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		}
 	],
+	"auth": {
+		"type": "inherit"
+	},
 	"event": [
 		{
 			"listen": "prerequest",
@@ -3028,8 +3249,17 @@
 		},
 		{
 			"key": "apiKey",
-			"value": "193bb548-7609-42e7-8ec1-aa3abaa5370e",
+			"value": "33d07d95-b245-4839-b5a1-56fabd61e3a1",
 			"type": "string"
+		},
+		{
+			"key": "AuthToken",
+			"value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL25leHVtLmNvbSIsImlzcyI6Imh0dHBzOi8vbmV4dW0uY29tIiwiZXhwIjoxNzIxNDAzNTM3LCJzdWIiOiJiMzcxNjUyYS03MWEwLTQwOWItODA5NS1hOWRmNDI2MTgyNmYiLCJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZXMiOiI5YjI1MWZlYi0wNjI2LTQ0ZGItOWM2ZC1hNmM4MThjMGE0YTgiLCJpYXQiOjE3MjEzOTk5MzcsIm5iZiI6MTcyMTM5OTkzN30.K1F_QQCDggvlsuxGG81TfVpz3VHetYnRU8hve2IX5B8",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "F857U2H6qiUOeQSsuFfwypa0CzwFDiXQ19cRZYQ5J08="
 		},
 		{
 			"key": "tenantId",
@@ -3040,33 +3270,13 @@
 			"value": "1"
 		},
 		{
-			"key": "serverInstallationKey",
-			"value": "6b423ba8-25b0-4430-83b9-6d4de4d75b76",
-			"type": "string"
-		},
-		{
-			"key": "clientInstallationKey",
-			"value": "58640d37-83d2-42a6-8219-ca570783d5ee",
-			"type": "string"
-		},
-		{
-			"key": "serverUuid",
-			"value": "4C4C9988-0032-4210-8051-F1G54F435A33",
-			"type": "string"
-		},
-		{
-			"key": "clientUuid",
-			"value": "11111111-1032-4210-8051-F1G54F435A34",
-			"type": "string"
-		},
-		{
 			"key": "deviceId",
-			"value": "3",
+			"value": "2",
 			"type": "string"
 		},
 		{
 			"key": "alertId",
-			"value": "2",
+			"value": "1",
 			"type": "string"
 		},
 		{
@@ -3077,6 +3287,41 @@
 		{
 			"key": "permissionId",
 			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "jobId",
+			"value": "4",
+			"type": "string"
+		},
+		{
+			"key": "backupId",
+			"value": "3",
+			"type": "string"
+		},
+		{
+			"key": "nasServerId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "serverInstallationKey",
+			"value": "35e9eedb-c3a7-423b-8401-d7bef73b9cc0",
+			"type": "string"
+		},
+		{
+			"key": "clientInstallationKey",
+			"value": "289df3fa-2bfb-485d-a036-75e6ae1e4b68",
+			"type": "string"
+		},
+		{
+			"key": "serverUuid",
+			"value": "4C4C9988-0032-4210-8051-F1G54F435A33",
+			"type": "string"
+		},
+		{
+			"key": "clientUuid",
+			"value": "11111111-1032-4210-8051-F1G54F435A34",
 			"type": "string"
 		},
 		{
@@ -3101,32 +3346,17 @@
 		},
 		{
 			"key": "roleId",
-			"value": "e7a91ff0-780a-43e4-b583-0d8123f428a7",
+			"value": "3190f4c2-2b46-4541-a1f3-62179e3194e1",
 			"type": "string"
 		},
 		{
 			"key": "userId",
-			"value": "5158ff32-d3de-4184-a59b-f93a251073d0",
-			"type": "string"
-		},
-		{
-			"key": "nasServerId",
-			"value": "1",
-			"type": "string"
-		},
-		{
-			"key": "backupId",
-			"value": "8",
+			"value": "b371652a-71a0-409b-8095-a9df4261826f",
 			"type": "string"
 		},
 		{
 			"key": "username",
-			"value": "testUser",
-			"type": "string"
-		},
-		{
-			"key": "jobId",
-			"value": "4",
+			"value": "Admin",
 			"type": "string"
 		}
 	]

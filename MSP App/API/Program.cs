@@ -1,8 +1,22 @@
 using API.DataAccess;
-using API.Services;
+using API.Middleware;
+using API.Services.APIServices;
+using API.Services.DbServices;
+using API.Services.TenantServerAPIServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SharedComponents.Entities;
+using Microsoft.IdentityModel.Tokens;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.JWTToken.Entities;
+using SharedComponents.JWTToken.Services;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
+using SharedComponents.Services.TenantServerAPIServices.Interfaces;
+using SharedComponents.Utilities;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,28 +51,63 @@ builder.Services.AddHttpClient("ServerClient");
 // Add services to the container.
 var connStr = builder.Configuration.GetConnectionString("NexumAppDb");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connStr));
-builder.Services.AddScoped<DbUserService>();
-builder.Services.AddScoped<DbTenantService>();
-builder.Services.AddScoped<DbDeviceService>();
-builder.Services.AddScoped<DbSecurityService>();
-builder.Services.AddScoped<DbSoftwareService>();
-builder.Services.AddScoped<DbAlertService>();
-builder.Services.AddScoped<DbLogService>();
-builder.Services.AddScoped<DbRoleService>();
-builder.Services.AddScoped<DbPermissionService>();
-builder.Services.AddScoped<DbInstallationKeyService>();
-builder.Services.AddScoped<DbNASServerService>();
-builder.Services.AddScoped<DbBackupService>();
-builder.Services.AddScoped<DbJobService>();
-builder.Services.AddScoped<HTTPJobService>();
-builder.Services.AddScoped<HTTPDeviceService>();
-builder.Services.AddScoped<HTTPNASServerService>();
+builder.Services.AddScoped<IDbUserService, DbUserService>();
+builder.Services.AddScoped<IDbTenantService, DbTenantService>();
+builder.Services.AddScoped<IDbDeviceService, DbDeviceService>();
+builder.Services.AddScoped<IDbSecurityService, DbSecurityService>();
+builder.Services.AddScoped<IDbSoftwareService, DbSoftwareService>();
+builder.Services.AddScoped<IDbAlertService, DbAlertService>();
+builder.Services.AddScoped<IDbLogService, DbLogService>();
+builder.Services.AddScoped<IDbRoleService, DbRoleService>();
+builder.Services.AddScoped<IDbPermissionService, DbPermissionService>();
+builder.Services.AddScoped<IDbInstallationKeyService, DbInstallationKeyService>();
+builder.Services.AddScoped<IDbNASServerService, DbNASServerService>();
+builder.Services.AddScoped<IDbBackupService, DbBackupService>();
+builder.Services.AddScoped<IDbJobService, DbJobService>();
+builder.Services.AddScoped<ITenantServerAPIJobService, TenantServerAPIJobService>();
+builder.Services.AddScoped<ITenantServerAPIDeviceService, TenantServerAPIDeviceService>();
+builder.Services.AddScoped<ITenantServerAPINASServerService, TenantServerAPINASServerService>();
+builder.Services.AddScoped<IJWTService, JWTService>();
+builder.Services.AddScoped<IAPIAuthService, APIAuthService>();
+
+builder.Services.AddTransient<IAuthorizationHandler, HasPermissionHandler>();
+builder.Services.AddTransient<IAuthorizationPolicyProvider, HasPermissionPolicyProvider>();
+
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireDigit = true;
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+// Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidAudience = jwtSettings.Audience,
+        ValidIssuer = jwtSettings.Issuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(jwtSettings.SecretKey, 32))),
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 var app = builder.Build();
 
@@ -76,6 +125,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

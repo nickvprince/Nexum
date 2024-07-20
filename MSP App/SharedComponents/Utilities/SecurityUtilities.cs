@@ -1,11 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SharedComponents.Utilities
 {
@@ -115,6 +109,15 @@ namespace SharedComponents.Utilities
             }
             password += "!";
             return password;
+        }
+
+        public static string? PadKey(string key, int length)
+        {
+            if (key.Length >= length)
+            {
+                return key.Substring(0, length);
+            }
+            return key.PadRight(length, '0');
         }
     }
 }
