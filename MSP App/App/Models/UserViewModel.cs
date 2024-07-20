@@ -1,5 +1,4 @@
-﻿using SharedComponents.Entities;
-using SharedComponents.WebEntities.Responses.UserResponses;
+﻿using SharedComponents.Entities.WebEntities.Responses.UserResponses;
 
 namespace App.Models
 {

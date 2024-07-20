@@ -1,11 +1,8 @@
-﻿using API.Controllers;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SharedComponents.Entities;
+using SharedComponents.Entities.DbEntities;
 using SharedComponents.Utilities;
-using System.Net.Mail;
-using System.Reflection;
 
 namespace API.DataAccess
 {
@@ -66,6 +63,8 @@ namespace API.DataAccess
         }
 
         public DbSet<ApplicationRole> ApplicationRoles { get; set; }
+        public DbSet<ApplicationRolePermission> ApplicationRolePermissions { get; set; }
+        public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<TenantInfo> TenantInfos { get; set; }
@@ -79,8 +78,6 @@ namespace API.DataAccess
         public DbSet<DeviceJobSchedule> DeviceJobSchedules { get; set; }
         public DbSet<DeviceBackup> DeviceBackups { get; set; }
         public DbSet<InstallationKey> InstallationKeys { get; set; }
-        public DbSet<ApplicationRolePermission> RolePermissions { get; set; }
-        public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
         public DbSet<SoftwareFile> SoftwareFiles { get; set; }
         public DbSet<NASServer> NASServers { get; set; }
 
@@ -218,7 +215,21 @@ namespace API.DataAccess
 
             // Configure many-to-many relationship between ApplicationRole and Permission
             modelBuilder.Entity<ApplicationRolePermission>()
-                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+                .HasKey(rp => rp.Id);
+
+            modelBuilder.Entity<ApplicationRolePermission>()
+                .HasIndex(rp => new { rp.RoleId, rp.PermissionId, rp.TenantId })
+                .IsUnique();
+
+            // Unique index for non-tenant permissions
+            /*modelBuilder.Entity<ApplicationRolePermission>()
+                .HasIndex(rp => new { rp.RoleId, rp.PermissionId })
+                .IsUnique()
+                .HasFilter("[TenantId] IS NULL");*/
+
+            /*modelBuilder.Entity<ApplicationRolePermission>()
+                .Property(rp => rp.TenantId)
+                .IsRequired(false);*/
 
             modelBuilder.Entity<ApplicationRolePermission>()
                 .HasOne(rp => rp.Role)
@@ -257,6 +268,11 @@ namespace API.DataAccess
             // Configure the AccountType enum to be stored as a string
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.Type)
+                .HasConversion<string>();
+
+            // Configure the AccountType enum to be stored as a string
+            modelBuilder.Entity<Permission>()
+                .Property(p => p.Type)
                 .HasConversion<string>();
         }
         private static void SeedData(IServiceProvider serviceProvider, string adminUserId, string normalUserId)
@@ -325,16 +341,11 @@ namespace API.DataAccess
                 context.SaveChanges();
 
                 // Add Permissions
-
-                // Get all routes
-                // Get the assembly containing the API controllers
-                var excludedControllers = new Type[] { typeof(DataLinkController) };
-                var routes = ControllerUtilities.GetAllRoutes(excludedControllers);
-                // Add Permissions for each route
                 var permissions = new List<Permission>();
-                foreach (var (httpMethod, route) in routes)
+                var routePermissionList = ControllerUtilities.GetAllRoutes();
+                foreach (var (httpMethod, route, permissionName, type) in routePermissionList)
                 {
-                    var permission = new Permission { Name = $"{httpMethod} {route}", Description = $"Permission for {httpMethod} {route}" };
+                    var permission = new Permission { Name = $"{permissionName}", Description = $"{EnumUtilities.EnumToString(type)} permission for {httpMethod} {route}", Type = type };
                     permissions.Add(permission);
                     context.Permissions.Add(permission);
                 }
@@ -349,18 +360,35 @@ namespace API.DataAccess
 
                 // Add UserRoles
                 var userRole1 = new ApplicationUserRole { RoleId = role1.Id, UserId = adminUserId, IsActive = true };
-                var userRole2 = new ApplicationUserRole { RoleId = role2.Id, UserId = adminUserId, IsActive = true };
-                var userRole3 = new ApplicationUserRole { RoleId = role2.Id, UserId = normalUserId, IsActive = true };
+                var userRole2 = new ApplicationUserRole { RoleId = role2.Id, UserId = normalUserId, IsActive = true };
 
-                context.ApplicationUserRoles.AddRange(userRole1, userRole2, userRole3);
+                context.ApplicationUserRoles.AddRange(userRole1, userRole2);
                 context.SaveChanges();
 
                 // Add RolePermissions
-                var rolePermission1 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permissions.ElementAt(0).Id, TenantId = tenant1.Id };
-                var rolePermission2 = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
+                var tenants = context.Tenants.ToList();
+                foreach (var tenant in tenants)
+                {
+                    foreach (var permission in permissions.Where(p => p.Type == PermissionType.Tenant))
+                    {
+                        var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id, TenantId = tenant.Id };
+                        context.ApplicationRolePermissions.Add(rolePermission);
+                    }
+                    context.SaveChanges();
+                }
+
+                foreach (var permission in permissions.Where(p => p.Type == PermissionType.System))
+                {
+                    var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id };
+                    context.ApplicationRolePermissions.Add(rolePermission);
+                }
+
+                context.SaveChanges();
+
+                var rolePermission2 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
                 var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(2).Id, TenantId = tenant3.Id };
 
-                context.RolePermissions.AddRange(rolePermission1, rolePermission2, rolePermission3);
+                context.ApplicationRolePermissions.AddRange(rolePermission2, rolePermission3);
                 context.SaveChanges();
 
                 // Add SoftwareFiles
@@ -420,8 +448,8 @@ namespace API.DataAccess
                 // Add DeviceBackups
 
                 var backup1 = new DeviceBackup { Client_Id = deviceInfo1.ClientId, Uuid = deviceInfo1.Uuid, TenantId = tenant1.Id, Filename = "Backup 1.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas1.Id };
-                var backup2 = new DeviceBackup { Client_Id = deviceInfo2.ClientId, Uuid = deviceInfo2.Uuid, TenantId = tenant1.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
-                var backup3 = new DeviceBackup { Client_Id = deviceInfo3.ClientId, Uuid = deviceInfo3.Uuid, TenantId = tenant1.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
+                var backup2 = new DeviceBackup { Client_Id = deviceInfo2.ClientId, Uuid = deviceInfo2.Uuid, TenantId = tenant2.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
+                var backup3 = new DeviceBackup { Client_Id = deviceInfo3.ClientId, Uuid = deviceInfo3.Uuid, TenantId = tenant3.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
 
                 context.DeviceBackups.AddRange(backup1, backup2, backup3);
                 context.SaveChanges();

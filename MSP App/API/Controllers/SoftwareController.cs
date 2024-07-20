@@ -1,8 +1,7 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -11,12 +10,12 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Server")]
     public class SoftwareController : ControllerBase
     {
-        private readonly DbSoftwareService _dbSoftwareService;
-        private readonly DbSecurityService _dbSecurityService;
+        private readonly IDbSoftwareService _dbSoftwareService;
+        private readonly IDbSecurityService _dbSecurityService;
         private readonly IConfiguration _config;
         private readonly string _softwareFolder;
 
-        public SoftwareController(DbSoftwareService dbSoftwareService, DbSecurityService dbSecurityService, IConfiguration config)
+        public SoftwareController(IDbSoftwareService dbSoftwareService, IDbSecurityService dbSecurityService, IConfiguration config)
         {
             _dbSoftwareService = dbSoftwareService;
             _dbSecurityService = dbSecurityService;
@@ -25,6 +24,7 @@ namespace API.Controllers
         }
 
         [HttpPost("Create")]
+        [HasPermission("Software.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromForm] SoftwareFile softwareFile, [FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -57,7 +57,8 @@ namespace API.Controllers
             return BadRequest($"Failed to upload file.");
         }
 
-        [HttpGet("Version/{id}")]
+        [HttpGet("{id}")]
+        [HasPermission("Software.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAsync(int id)
         {
             SoftwareFile? softwareFile = await _dbSoftwareService.GetAsync(id);
@@ -66,6 +67,18 @@ namespace API.Controllers
                 return Ok(softwareFile);
             }
             return NotFound("Software file not found.");
+        }
+
+        [HttpGet("")]
+        [HasPermission("Software.Get-All.Permission", PermissionType.System)]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            ICollection<SoftwareFile> softwareFiles = await _dbSoftwareService.GetAllAsync();
+            if (softwareFiles != null)
+            {
+                return Ok(softwareFiles);
+            }
+            return NotFound("No software files found.");
         }
 
         [HttpGet("Latest-Nexum-Version")]
@@ -99,17 +112,6 @@ namespace API.Controllers
                 return Ok(softwareFile);
             }
             return NotFound("No Nexum Service software file found.");
-        }
-
-        [HttpGet("")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            ICollection<SoftwareFile> softwareFiles = await _dbSoftwareService.GetAllAsync();
-            if (softwareFiles != null)
-            {
-                return Ok(softwareFiles);
-            }
-            return NotFound("No software files found.");
         }
 
         [HttpGet("Nexum")]

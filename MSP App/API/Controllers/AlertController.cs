@@ -1,8 +1,10 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
-using SharedComponents.WebEntities.Requests.AlertRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.AlertRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -11,16 +13,20 @@ namespace API.Controllers
     [ApiExplorerSettings(GroupName = "v1-Web")]
     public class AlertController : ControllerBase
     {
-        private readonly DbAlertService _dbAlertService;
-        private readonly DbDeviceService _dbDeviceService;
+        private readonly IDbAlertService _dbAlertService;
+        private readonly IDbDeviceService _dbDeviceService;
+        private readonly IAPIAuthService _authService;
 
-        public AlertController(DbAlertService dbAlertService, DbDeviceService dbDeviceService)
+        public AlertController(IDbAlertService dbAlertService, IDbDeviceService dbDeviceService,
+            IAPIAuthService authService)
         {
             _dbAlertService = dbAlertService;
             _dbDeviceService = dbDeviceService;
+            _authService = authService;
         }
 
         [HttpPost("")]
+        [HasPermission("Alert.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] AlertCreateRequest request)
         {
             if(ModelState.IsValid)
@@ -30,6 +36,12 @@ namespace API.Controllers
                 {
                     return NotFound("Device not found.");
                 }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 DeviceAlert? alert = new DeviceAlert
                 {
                     DeviceId = request.DeviceId,
@@ -50,6 +62,7 @@ namespace API.Controllers
         }
 
         [HttpPut("")]
+        [HasPermission("Alert.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] AlertUpdateRequest request)
         {
             if (ModelState.IsValid)
@@ -59,6 +72,17 @@ namespace API.Controllers
                 {
                     return NotFound("Alert not found.");
                 }
+                Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (alert.IsDeleted)
                 {
                     return BadRequest("Alert is deleted.");
@@ -74,8 +98,8 @@ namespace API.Controllers
             }
             return BadRequest("Invalid Request.");
         }
-
         [HttpPost("{id}/Acknowledge")]
+        [HasPermission("Alert.Acknowledge.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> AcknowledgeAsync(int id)
         {
             if (ModelState.IsValid)
@@ -85,6 +109,17 @@ namespace API.Controllers
                 {
                     return NotFound("Alert not found.");
                 }
+                Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (alert.IsDeleted)
                 {
                     return BadRequest("Alert is deleted.");
@@ -105,10 +140,27 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission("Alert.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (ModelState.IsValid)
             {
+                DeviceAlert? alert = await _dbAlertService.GetAsync(id);
+                if (alert == null)
+                {
+                    return NotFound("Alert not found.");
+                }
+                Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 if (await _dbAlertService.DeleteAsync(id))
                 {
                     return Ok($"Alert deleted successfully.");
@@ -119,6 +171,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission("Alert.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
         {
             if (ModelState.IsValid)
@@ -126,6 +179,17 @@ namespace API.Controllers
                 DeviceAlert? alert = await _dbAlertService.GetAsync(id);
                 if (alert != null)
                 {
+                    Device? device = await _dbDeviceService.GetAsync(alert.DeviceId);
+                    if (device == null)
+                    {
+                        return NotFound("Device not found.");
+                    }
+                    // Authentication check using roles + permissions
+                    if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                    {
+                        return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                    }
+                    // --- End of authentication check ---
                     return Ok(alert);
                 }
                 return NotFound("Alert not found.");
@@ -134,16 +198,33 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
+        [HasPermission("Alert.Get-All.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<DeviceAlert>? alerts = new List<DeviceAlert>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenantAlerts = await _dbAlertService.GetAllByTenantIdAsync((int)tenantId);
+                        if (tenantAlerts != null)
+                        {
+                            alerts.AddRange(tenantAlerts);
+                        }
+                    }
+                }
                 if (alerts != null)
                 {
                     if (alerts.Any())
                     {
-                        return Ok(alerts);
+                        return Ok(alerts.Distinct());
                     }
                 }
                 return NotFound("No alerts found.");
@@ -152,10 +233,22 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
+        [HasPermission("Alert.Get-By-Device.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
             {
+                Device? device = await _dbDeviceService.GetAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound("Device not found.");
+                }
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), device.TenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllByDeviceIdAsync(deviceId);
                 if (alerts != null)
                 {
@@ -170,10 +263,17 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
+        [HasPermission("Alert.Get-By-Tenant.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
             {
+                // Authentication check using roles + permissions
+                if (!await _authService.UserHasPermissionAsync<AlertController>(Request.Headers["Authorization"].ToString(), tenantId))
+                {
+                    return new CustomForbidResult("User do not have access to this feature for the specified tenant");
+                }
+                // --- End of authentication check ---
                 ICollection<DeviceAlert>? alerts = await _dbAlertService.GetAllByTenantIdAsync(tenantId);
                 if (alerts != null)
                 {
