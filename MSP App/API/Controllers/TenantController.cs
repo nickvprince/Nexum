@@ -1,13 +1,10 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.TenantRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.TenantRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -17,9 +14,9 @@ namespace API.Controllers
     public class TenantController : ControllerBase
     {
         private readonly IDbTenantService _dbTenantService;
-        private readonly IAuthService _authService;
+        private readonly IAPIAuthService _authService;
 
-        public TenantController(IDbTenantService dbTenantService, IAuthService authService)
+        public TenantController(IDbTenantService dbTenantService, IAPIAuthService authService)
         {
             _dbTenantService = dbTenantService;
             _authService = authService;

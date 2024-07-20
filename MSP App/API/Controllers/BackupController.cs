@@ -1,14 +1,10 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.BackupRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.BackupRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -20,10 +16,10 @@ namespace API.Controllers
         private readonly IDbBackupService _dbBackupService;
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IDbNASServerService _dbNASServerService;
-        private readonly IAuthService _authService;
+        private readonly IAPIAuthService _authService;
 
         public BackupController(IDbBackupService dbBackupService, IDbDeviceService dbDeviceService,
-            IDbNASServerService dbNASServerService, IAuthService authService)
+            IDbNASServerService dbNASServerService, IAPIAuthService authService)
         {
             _dbBackupService = dbBackupService;
             _dbDeviceService = dbDeviceService;

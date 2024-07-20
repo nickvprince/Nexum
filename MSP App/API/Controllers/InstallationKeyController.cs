@@ -1,13 +1,10 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.InstallationKeyRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.InstallationKeyRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -18,9 +15,9 @@ namespace API.Controllers
     {
         private readonly IDbInstallationKeyService _dbInstallationKeyService;
         private readonly IDbTenantService _dbTenantService;
-        private readonly IAuthService _authService;
+        private readonly IAPIAuthService _authService;
 
-        public InstallationKeyController(IDbInstallationKeyService dbInstallationKeyService, IDbTenantService dbTenantService, IAuthService authService)
+        public InstallationKeyController(IDbInstallationKeyService dbInstallationKeyService, IDbTenantService dbTenantService, IAPIAuthService authService)
         {
             _dbInstallationKeyService = dbInstallationKeyService;
             _dbTenantService = dbTenantService;

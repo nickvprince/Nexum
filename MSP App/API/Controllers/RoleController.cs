@@ -1,11 +1,8 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.WebEntities.Requests.RoleRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.RoleRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {

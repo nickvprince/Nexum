@@ -1,15 +1,14 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.RequestEntities.HTTP;
-using SharedComponents.ResponseEntities.HTTP;
-using SharedComponents.Results;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.NASServerRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Services.DbServices.Interfaces;
 using SharedComponents.Utilities;
-using SharedComponents.WebEntities.Requests.NASServerRequests;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Entities.TenantServerHttpEntities.Requests;
+using SharedComponents.Entities.TenantServerHttpEntities.Responses;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -22,12 +21,12 @@ namespace API.Controllers
         private readonly IDbJobService _dbJobService;
         private readonly IDbTenantService _dbTenantService;
         private readonly IDbDeviceService _dbDeviceService;
-        private readonly IHTTPNASServerService _httpNASServerService;
-        private readonly IAuthService _authService;
+        private readonly ITenantServerAPINASServerService _httpNASServerService;
+        private readonly IAPIAuthService _authService;
 
         public NASServerController(IDbNASServerService dbNASServerService, IDbJobService dbJobService,
             IDbTenantService dbTenantService, IDbDeviceService dbDeviceService,
-            IHTTPNASServerService httpNASServerService, IAuthService authService)
+            ITenantServerAPINASServerService httpNASServerService, IAPIAuthService authService)
         {
             _dbNASServerService = dbNASServerService;
             _dbJobService = dbJobService;

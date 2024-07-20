@@ -1,24 +1,23 @@
 ﻿using App.Models;
-using App.Services;
 using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
+using SharedComponents.Services.APIRequestServices.Interfaces;
 
 namespace App.Controllers
 {
     public class TenantController : Controller
     {
-        private readonly TenantService _tenantService;
-        private readonly AlertService _alertService;
-        private readonly LogService _logService;
-        private readonly DeviceService _deviceService;
-        private readonly RoleService _roleService;
-        private readonly PermissionService _permissionService;
-        private readonly InstallationKeyService _installationKeyService;
+        private readonly IAPIRequestTenantService _tenantService;
+        private readonly IAPIRequestAlertService _alertService;
+        private readonly IAPIRequestLogService _logService;
+        private readonly IAPIRequestDeviceService _deviceService;
+        private readonly IAPIRequestRoleService _roleService;
+        private readonly IAPIRequestPermissionService _permissionService;
+        private readonly IAPIRequestInstallationKeyService _installationKeyService;
 
-        public TenantController(TenantService tenantService, AlertService alertService, 
-            LogService logService, InstallationKeyService installationKeyService, 
-            PermissionService permissionService, RoleService roleService,
-            DeviceService deviceService)
+        public TenantController(IAPIRequestTenantService tenantService, IAPIRequestAlertService alertService,
+            IAPIRequestLogService logService, IAPIRequestInstallationKeyService installationKeyService,
+            IAPIRequestPermissionService permissionService, IAPIRequestRoleService roleService,
+            IAPIRequestDeviceService deviceService)
         {
             _tenantService = tenantService;
             _alertService = alertService;

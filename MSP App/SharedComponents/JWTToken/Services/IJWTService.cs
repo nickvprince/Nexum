@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using SharedComponents.Entities;
-using SharedComponents.JWTToken.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SharedComponents.JWTToken.Entities;
 
 namespace SharedComponents.JWTToken.Services
 {
@@ -18,5 +11,6 @@ namespace SharedComponents.JWTToken.Services
         public Task<ICollection<string>> GetRolesFromTokenAsync(string token);
         public Task<string> GetUsernameFromTokenAsync(string token);
         public Task<string> GetUserIdFromTokenAsync(string token);
+        public Task<DateTime?> GetTokenExpiryInESTAsync(string token);
     }
 }

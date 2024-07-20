@@ -1,4 +1,4 @@
-﻿using SharedComponents.Entities;
+﻿using SharedComponents.Entities.DbEntities;
 
 namespace App.Models
 {

@@ -1,14 +1,11 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.ResponseEntities;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.DeviceRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.DeviceRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
+using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -20,12 +17,12 @@ namespace API.Controllers
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IDbTenantService _dbTenantService;
         private readonly IDbInstallationKeyService _dbInstallationKeyService;
-        private readonly IHTTPDeviceService _httpDeviceService;
-        private readonly IAuthService _authService;
+        private readonly ITenantServerAPIDeviceService _httpDeviceService;
+        private readonly IAPIAuthService _authService;
 
         public DeviceController(IDbDeviceService dbDeviceService, IDbTenantService dbTenantService,
-            IDbInstallationKeyService dbInstallationKeyService, IHTTPDeviceService httpDeviceService,
-            IAuthService authService)
+            IDbInstallationKeyService dbInstallationKeyService, ITenantServerAPIDeviceService httpDeviceService,
+            IAPIAuthService authService)
         {
             _dbDeviceService = dbDeviceService;
             _dbTenantService = dbTenantService;

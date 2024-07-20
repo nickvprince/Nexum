@@ -1,17 +1,20 @@
-using API.Attributes.HasPermission;
 using API.DataAccess;
 using API.Middleware;
-using API.Services;
-using API.Services.Interfaces;
+using API.Services.APIServices;
+using API.Services.DbServices;
+using API.Services.TenantServerAPIServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Handlers.Attributes.HasPermission;
 using SharedComponents.JWTToken.Entities;
 using SharedComponents.JWTToken.Services;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
+using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 using SharedComponents.Utilities;
 using System.Text;
 
@@ -61,11 +64,11 @@ builder.Services.AddScoped<IDbInstallationKeyService, DbInstallationKeyService>(
 builder.Services.AddScoped<IDbNASServerService, DbNASServerService>();
 builder.Services.AddScoped<IDbBackupService, DbBackupService>();
 builder.Services.AddScoped<IDbJobService, DbJobService>();
-builder.Services.AddScoped<IHTTPJobService, HTTPJobService>();
-builder.Services.AddScoped<IHTTPDeviceService, HTTPDeviceService>();
-builder.Services.AddScoped<IHTTPNASServerService, HTTPNASServerService>();
+builder.Services.AddScoped<ITenantServerAPIJobService, TenantServerAPIJobService>();
+builder.Services.AddScoped<ITenantServerAPIDeviceService, TenantServerAPIDeviceService>();
+builder.Services.AddScoped<ITenantServerAPINASServerService, TenantServerAPINASServerService>();
 builder.Services.AddScoped<IJWTService, JWTService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAPIAuthService, APIAuthService>();
 
 builder.Services.AddTransient<IAuthorizationHandler, HasPermissionHandler>();
 builder.Services.AddTransient<IAuthorizationPolicyProvider, HasPermissionPolicyProvider>();

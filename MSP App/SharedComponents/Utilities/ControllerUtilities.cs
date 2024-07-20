@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using API.Attributes.HasPermission;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
-using SharedComponents.Entities;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Handlers.Attributes.HasPermission;
 
 namespace SharedComponents.Utilities
 {
