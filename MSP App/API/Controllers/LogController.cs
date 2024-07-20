@@ -1,12 +1,10 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.LogRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.LogRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -17,9 +15,9 @@ namespace API.Controllers
     {
         private readonly IDbLogService _dbLogService;
         private readonly IDbDeviceService _dbDeviceService;
-        private readonly IAuthService _authService;
+        private readonly IAPIAuthService _authService;
 
-        public LogController(IDbLogService dbLogService, IDbDeviceService dbDeviceService, IAuthService authService)
+        public LogController(IDbLogService dbLogService, IDbDeviceService dbDeviceService, IAPIAuthService authService)
         {
             _dbLogService = dbLogService;
             _dbDeviceService = dbDeviceService;

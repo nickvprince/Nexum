@@ -1,25 +1,35 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SharedComponents.JWTToken.Entities;
 using SharedComponents.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SharedComponents.JWTToken.Services
 {
     public class JWTService : IJWTService
     {
         private readonly JWTSettings? _jwtSettings;
+        private readonly TokenValidationParameters _tokenValidationParameters;
 
         public JWTService(IConfiguration config)
         {
             _jwtSettings = config.GetSection("JWTSettings").Get<JWTSettings>();
+
+            var key = Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(_jwtSettings.SecretKey, 32));
+
+            _tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidAudience = _jwtSettings.Audience,
+                ValidIssuer = _jwtSettings.Issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
         }
 
         public JWTSettings JWTSettings => _jwtSettings ?? throw new NullReferenceException("JWTSettings is null");
@@ -39,7 +49,7 @@ namespace SharedComponents.JWTToken.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Claims = claims.ToDictionary(claim => claim.Type, claim => (object)claim.Value),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+                Expires = DateTimeUtilities.EstNow().AddMinutes(_jwtSettings.ExpiryMinutes),
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -88,20 +98,7 @@ namespace SharedComponents.JWTToken.Services
         public async Task<string> GetUsernameFromTokenAsync(string token)
         {
             var tokenHandler = new JsonWebTokenHandler();
-            var key = Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(_jwtSettings.SecretKey, 32));
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidAudience = _jwtSettings.Audience,
-                ValidIssuer = _jwtSettings.Issuer,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuerSigningKey = true,
-                ValidateAudience = true,
-                ValidateIssuer = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-            var validationResult = await tokenHandler.ValidateTokenAsync(token, tokenValidationParameters);
+            var validationResult = await tokenHandler.ValidateTokenAsync(token, _tokenValidationParameters);
             if (!validationResult.IsValid)
             {
                 throw new SecurityTokenException("Invalid token");
@@ -114,20 +111,7 @@ namespace SharedComponents.JWTToken.Services
         public async Task<string> GetUserIdFromTokenAsync(string token)
         {
             var tokenHandler = new JsonWebTokenHandler();
-            var key = Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(_jwtSettings.SecretKey, 32));
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidAudience = _jwtSettings.Audience,
-                ValidIssuer = _jwtSettings.Issuer,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuerSigningKey = true,
-                ValidateAudience = true,
-                ValidateIssuer = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-            var validationResult = await tokenHandler.ValidateTokenAsync(token, tokenValidationParameters);
+            var validationResult = await tokenHandler.ValidateTokenAsync(token, _tokenValidationParameters);
             if (!validationResult.IsValid)
             {
                 throw new SecurityTokenException("Invalid token");
@@ -135,6 +119,24 @@ namespace SharedComponents.JWTToken.Services
             var claimsPrincipal = validationResult.ClaimsIdentity;
             var usernameClaim = claimsPrincipal?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
             return await Task.Run(() => usernameClaim?.Value!);
+        }
+        public async Task<DateTime?> GetTokenExpiryInESTAsync(string token)
+        {
+            var tokenHandler = new JsonWebTokenHandler();
+            var validationResult = await tokenHandler.ValidateTokenAsync(token, _tokenValidationParameters);
+            if (!validationResult.IsValid)
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+            var claimsPrincipal = validationResult.ClaimsIdentity;
+            var expiryClaim = claimsPrincipal?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp);
+            if (expiryClaim != null)
+            {
+                var unixTimeSeconds = long.Parse(expiryClaim.Value);
+                var expiryDateUtc = DateTimeOffset.FromUnixTimeSeconds(unixTimeSeconds).DateTime;
+                return await Task.Run(() => DateTimeUtilities.ConvertToEst(expiryDateUtc));
+            }
+            return null;
         }
     }
 }

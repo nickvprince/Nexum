@@ -1,16 +1,10 @@
-﻿using API.Attributes;
-using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.JWTToken.Services;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.AlertRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.AlertRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -21,10 +15,10 @@ namespace API.Controllers
     {
         private readonly IDbAlertService _dbAlertService;
         private readonly IDbDeviceService _dbDeviceService;
-        private readonly IAuthService _authService;
+        private readonly IAPIAuthService _authService;
 
         public AlertController(IDbAlertService dbAlertService, IDbDeviceService dbDeviceService,
-            IAuthService authService)
+            IAPIAuthService authService)
         {
             _dbAlertService = dbAlertService;
             _dbDeviceService = dbDeviceService;

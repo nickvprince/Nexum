@@ -1,21 +1,20 @@
 ﻿using App.Models;
-using App.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
-using SharedComponents.RequestEntities;
-using SharedComponents.WebEntities.Requests.AuthRequests;
-using SharedComponents.WebEntities.Responses.AuthResponses;
-using SharedComponents.WebEntities.Responses.UserResponses;
+using System.Security.Claims;
+using SharedComponents.Services.APIRequestServices.Interfaces;
+using SharedComponents.Entities.WebEntities.Requests.AuthRequests;
+using SharedComponents.Entities.WebEntities.Responses.AuthResponses;
 
 namespace App.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly AuthService _authService;
-        private readonly UserService _userService;
+        private readonly IAPIRequestAuthService _authService;
+        private readonly IAPIRequestUserService _userService;
 
-        public AuthController(AuthService authService, UserService userService)
+        public AuthController(IAPIRequestAuthService authService, IAPIRequestUserService userService)
         {
             _authService = authService;
             _userService = userService;
@@ -30,6 +29,14 @@ namespace App.Controllers
         [HttpGet]
         public async Task<IActionResult> LoginAsync()
         {
+            var users = await _userService.GetAllAsync();
+            if(HttpContext.User.Identity != null)
+            {
+                if (HttpContext.User.Identity.IsAuthenticated)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
             return await Task.FromResult(View());
         }
 
@@ -47,10 +54,23 @@ namespace App.Controllers
                 AuthLoginResponse? response = await _authService.LoginAsync(request);
                 if (response != null)
                 {
-                    HttpContext.Session.SetString("Username", loginViewModel.Username!);
-                    HttpContext.Session.SetString("Token", response.Token);
-                    HttpContext.Session.SetString("RefreshToken", response.RefreshToken);
-                    HttpContext.Session.SetString("Expires", response.Expires.ToString());
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, loginViewModel.Username!),
+                        new Claim("Token", response.Token),
+                        new Claim("RefreshToken", response.RefreshToken),
+                        new Claim("Expires", response.Expires.ToString())
+                    };
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = response.Expires
+                    };
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+                    
                     TempData["LastActionMessage"] = $"(Auth) : Success";
                     return RedirectToAction("Index", "Home");
                 }

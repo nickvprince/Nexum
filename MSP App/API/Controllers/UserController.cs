@@ -1,14 +1,10 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.UserRequests;
+using SharedComponents.Entities.WebEntities.Responses.UserResponses;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Services.DbServices.Interfaces;
 using SharedComponents.Utilities;
-using SharedComponents.WebEntities.Requests.UserRequests;
-using SharedComponents.WebEntities.Responses.UserResponses;
 
 namespace API.Controllers
 {

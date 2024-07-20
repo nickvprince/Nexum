@@ -1,16 +1,15 @@
 ﻿using App.Models;
-using App.Services;
 using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities;
-using SharedComponents.WebEntities.Responses.UserResponses;
+using SharedComponents.Entities.WebEntities.Responses.UserResponses;
+using SharedComponents.Services.APIRequestServices.Interfaces;
 
 namespace App.Controllers
 {
     public class UserController : Controller
     {
-        private readonly UserService _userService;
+        private readonly IAPIRequestUserService _userService;
 
-        public UserController(UserService userService)
+        public UserController(IAPIRequestUserService userService)
         {
             _userService = userService;
         }

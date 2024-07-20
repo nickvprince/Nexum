@@ -1,4 +1,5 @@
 using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -14,11 +15,14 @@ namespace App.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
+        [Authorize]
         public IActionResult Privacy()
         {
             return View();

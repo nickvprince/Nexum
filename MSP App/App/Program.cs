@@ -1,5 +1,13 @@
 //using Microsoft.AspNetCore.Authentication.Negotiate;
-using App.Services;
+using App.Middleware;
+using App.Services.APIRequestServices;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using SharedComponents.JWTToken.Entities;
+using SharedComponents.Services.APIRequestServices.Interfaces;
+using SharedComponents.Utilities;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,18 +39,52 @@ builder.Services.AddAuthorization(options =>
 //builder.Services.AddRazorPages();
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-builder.Services.AddScoped<AlertService>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<BackupService>();
-builder.Services.AddScoped<DeviceService>();
-builder.Services.AddScoped<InstallationKeyService>();
-builder.Services.AddScoped<JobService>();
-builder.Services.AddScoped<LogService>();
-builder.Services.AddScoped<NASServerService>();
-builder.Services.AddScoped<PermissionService>();
-builder.Services.AddScoped<RoleService>();
-builder.Services.AddScoped<TenantService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IAPIRequestAlertService, APIRequestAlertService>();
+builder.Services.AddScoped<IAPIRequestAuthService, APIRequestAuthService>();
+builder.Services.AddScoped<IAPIRequestBackupService, APIRequestBackupService>();
+builder.Services.AddScoped<IAPIRequestDeviceService, APIRequestDeviceService>();
+builder.Services.AddScoped<IAPIRequestInstallationKeyService, APIRequestInstallationKeyService>();
+builder.Services.AddScoped<IAPIRequestJobService, APIRequestJobService>();
+builder.Services.AddScoped<IAPIRequestLogService, APIRequestLogService>();
+builder.Services.AddScoped<IAPIRequestNASServerService, APIRequestNASServerService>();
+builder.Services.AddScoped<IAPIRequestPermissionService, APIRequestPermissionService>();
+builder.Services.AddScoped<IAPIRequestRoleService, APIRequestRoleService>();
+builder.Services.AddScoped<IAPIRequestTenantService, APIRequestTenantService>();
+builder.Services.AddScoped<IAPIRequestUserService, APIRequestUserService>();
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.Cookie.Name = ".Nexum.AuthCookie";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+    options.SlidingExpiration = true;
+    options.LoginPath = "/Auth/Login";
+})
+.AddJwtBearer(options =>
+{
+    var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecurityUtilities.PadKey(jwtSettings.SecretKey, 32))),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -61,8 +103,11 @@ app.UseRouting();
 
 app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 //app.MapBlazorHub();
+
+app.UseMiddleware<CookieRefreshMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

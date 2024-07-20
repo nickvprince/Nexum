@@ -1,12 +1,11 @@
-﻿using API.Attributes.HasPermission;
-using API.Services;
-using API.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.Results;
-using SharedComponents.WebEntities.Requests.JobRequests;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.JobRequests;
+using SharedComponents.Handlers.Attributes.HasPermission;
+using SharedComponents.Handlers.Results;
+using SharedComponents.Services.APIServices.Interfaces;
+using SharedComponents.Services.DbServices.Interfaces;
+using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
@@ -16,14 +15,14 @@ namespace API.Controllers
     public class JobController : ControllerBase
     {
         private readonly IDbJobService _dbJobService;
-        private readonly IHTTPJobService _httpJobService;
+        private readonly ITenantServerAPIJobService _httpJobService;
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IDbNASServerService _dbNASServerService;
-        private readonly IAuthService _authService;
+        private readonly IAPIAuthService _authService;
 
-        public JobController(IDbJobService dbJobService, IHTTPJobService httpJobService, 
+        public JobController(IDbJobService dbJobService, ITenantServerAPIJobService httpJobService, 
             IDbDeviceService dbDeviceService, IDbNASServerService dbNASServerService,
-            IAuthService authService)
+            IAPIAuthService authService)
         {
             _dbJobService = dbJobService;
             _httpJobService = httpJobService;

@@ -1,11 +1,8 @@
-﻿using API.Controllers;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SharedComponents.Entities;
+using SharedComponents.Entities.DbEntities;
 using SharedComponents.Utilities;
-using System.Net.Mail;
-using System.Reflection;
 
 namespace API.DataAccess
 {

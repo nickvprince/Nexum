@@ -1,12 +1,9 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SharedComponents.DbServices;
-using SharedComponents.Entities;
-using SharedComponents.RequestEntities;
-using SharedComponents.ResponseEntities;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.TenantServerEntities.Requests;
+using SharedComponents.Entities.TenantServerEntities.Responses;
+using SharedComponents.Services.DbServices.Interfaces;
 using SharedComponents.Utilities;
-using System.Net;
 
 namespace API.Controllers
 {

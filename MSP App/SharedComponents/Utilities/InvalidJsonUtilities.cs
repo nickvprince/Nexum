@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SharedComponents.Entities;
+using SharedComponents.Entities.DbEntities;
 
 namespace SharedComponents.Utilities
 {

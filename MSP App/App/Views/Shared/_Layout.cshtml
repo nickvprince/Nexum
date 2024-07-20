@@ -30,6 +30,17 @@
                 </div>
             </div>
         </nav>
+        @{
+            var claims = AuthCookieUtilities.GetClaims(Context);
+        }
+        <h3>Cookie Claims</h3>
+        <ul>
+            @foreach (var (key, value) in claims)
+            {
+                <li>@key: @value</li>
+            }
+        </ul>
+        <h3>Session Claims</h3>
         @*for developement*@
         <ul>
             @foreach (var key in Context.Session.Keys)
