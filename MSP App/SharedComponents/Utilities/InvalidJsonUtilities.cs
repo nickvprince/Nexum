@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SharedComponents.Entities;
+using SharedComponents.Entities.DbEntities;
 
 namespace SharedComponents.Utilities
 {
@@ -52,7 +52,7 @@ namespace SharedComponents.Utilities
                     writer.WriteValue(job.Settings.UpdateInterval);
                     writer.WritePropertyName("retention");
                     writer.WriteValue(job.Settings.Retention);
-                    writer.WritePropertyName("backupServerId");
+                    writer.WritePropertyName("id");
                     writer.WriteValue(job.Settings.BackupServerId);
                     writer.WriteEndObject();
                     writer.WriteEndObject();
