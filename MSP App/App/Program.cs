@@ -12,7 +12,14 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+var mvcBuilder = builder.Services.AddControllersWithViews();
+
+if (builder.Environment.IsDevelopment())
+{
+    //disable hot reload and enable live editing
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
+
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient("BlazorClient", client =>
