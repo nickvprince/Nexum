@@ -24,13 +24,13 @@ namespace App.Controllers
         public async Task<IActionResult> IndexAsync()
         {
             var users = await _userService.GetAllAsync();
-            if(HttpContext.User.Identity != null)
+            /*if(HttpContext.User.Identity != null)
             {
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }
-            }
+            }*/
             return await Task.FromResult(View());
         }
 
@@ -66,6 +66,7 @@ namespace App.Controllers
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
                     
                     TempData["LastActionMessage"] = $"(Auth) : Success";
+                    HttpContext.Session.SetString("something", "testing");
                     return RedirectToAction("Index", "Dashboard");
                 }
                 TempData["ErrorMessage"] = $"(Auth) : Failed";
