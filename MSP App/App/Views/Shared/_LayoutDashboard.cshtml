@@ -16,7 +16,14 @@
         <partial name="_CookieSessionListPartial" /> @*for developement*@
         <partial name="_TempDataMessagePartial" />
         <div class="container-fluid p-0">
-            @RenderBody()
+            <div class="row gx-0">
+                <div class="col-1 p-0">
+                    <partial name="_DashboardSideNavPartial" />
+                </div>
+                <div class="col-11 p-0">
+                    @RenderBody()
+                </div>
+            </div>
         </div>
     </main>
     <footer>
