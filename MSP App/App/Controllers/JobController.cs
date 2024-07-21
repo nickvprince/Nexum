@@ -1,23 +1,18 @@
-﻿using App.Services;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SharedComponents.Entities;
-using SharedComponents.Entities.DbEntities;
-using SharedComponents.Services.APIRequestServices.Interfaces;
 
 namespace App.Controllers
 {
     [Authorize]
-    public class AlertController : Controller
+    public class JobController : Controller
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IAPIRequestAlertService _alertService;
 
-        public AlertController(IAPIRequestAlertService alertService, IHttpContextAccessor httpContextAccessor)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public JobController(IHttpContextAccessor httpContextAccessor)
         {
-            _alertService = alertService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -34,13 +29,6 @@ namespace App.Controllers
         public async Task<IActionResult> IndexAsync()
         {
             return await Task.FromResult(View());
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Table()
-        {
-            ICollection<DeviceAlert>? alerts = await _alertService.GetAllAsync();
-            return PartialView("_AlertTablePartial", alerts);
         }
     }
 }

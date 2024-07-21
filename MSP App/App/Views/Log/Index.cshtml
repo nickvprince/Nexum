@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Alerts";
+    ViewData["Title"] = "Logs";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
@@ -12,12 +12,13 @@
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: '/Alert/Table',
+                url: '/Log/Partial',
                 type: 'GET',
                 success: function (result) {
                     $('#contentBox').html(result);
                 },
                 error: function (xhr, status, error) {
+                    $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
                 }
             });
