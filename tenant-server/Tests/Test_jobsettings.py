@@ -19,7 +19,7 @@ class Testclient(unittest.TestCase):
         """
         # assert 1=1
         assert 1==1
-        
+
 
 if __name__ == '__main__':
     unittest.main()

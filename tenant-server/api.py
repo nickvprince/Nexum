@@ -54,7 +54,7 @@ class API():
         """
         MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
         return MySqlite.read_setting(STATUS)
-    
+
     @staticmethod
     def get_percent()->str:
         """
@@ -134,7 +134,7 @@ class API():
         try:
             server_address = MySqlite.read_setting(MSP_SERVER_ADDRESS)
             msp_port = MySqlite.read_setting(MSP_PORT)
-            
+
 
             _ = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=5,verify=False)
         except Exception:
@@ -151,10 +151,3 @@ class API():
         Logger.debug_print("Getting update available")
         # call the API from tenant server to get the update available
         return True
-
-    @staticmethod
-    def server_beat()->None:
-        """ 
-        was intended to ping server no longer needed
-        """
-        pass

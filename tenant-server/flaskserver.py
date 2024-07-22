@@ -588,7 +588,7 @@ class FlaskServer():
                 }
 
                 try:
-                    server_address = MySqlite.read_setting("MSP_SERVER_SETTING")
+                    server_address = MySqlite.read_setting(MSP_SERVER_SETTING)
                     msp_port = MySqlite.read_setting(MSP_PORT_SETTING)
 
                     response = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{UPDATE_DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=TIMEOUT,verify=VERIFY)
@@ -1017,10 +1017,10 @@ class FlaskServer():
                     }
 
                     try:
-                        server_address = MySqlite.read_setting("MSP_SERVER_SETTING")
+                        server_address = MySqlite.read_setting(MSP_SERVER_SETTING)
                         msp_port = MySqlite.read_setting(MSP_PORT_SETTING)
-
-                        _ = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{UPDATE_DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=TIMEOUT,verify=VERIFY)
+                        # not sending this should prevent Online status from overwriting ServiceOffline
+                        #_ = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{UPDATE_DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=TIMEOUT,verify=VERIFY)
                     except Exception:
                         return False
                     return "200 OK"
@@ -1128,6 +1128,36 @@ class FlaskServer():
             return make_response("401 Access Denied", 401)
         else:
             return make_response("500 Internal Server Error", 500)
+
+    @website.route('verify', methods=['GET'], )
+    @staticmethod
+    def verify():
+        """
+        Client can verify a successful install
+        """
+        # get client secret from header
+        apikey = request.headers.get(APIKEY)
+        logger=Logger()
+        auth = FlaskServer.auth(apikey, logger, MySqlite.read_setting("id"))
+        if auth == 200:
+            content = request.get_json()
+            client_id = content.get('client_id', '')
+            uuid = content.get('uuid', '')
+            installationKey = content.get('installationKey', '')
+            try:
+                payload = {
+                "client_Id":client_id,
+                "uuid":uuid,
+                "installationKey":installationKey
+                }
+
+                _ = requests.request("POST", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/verify", 
+                        timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
+                        json=payload, verify=False)
+            except Exception as e:
+                pass
+
+            
     # PUT ROUTES
     @website.route('/check-installer', methods=['GET'], )
     @staticmethod

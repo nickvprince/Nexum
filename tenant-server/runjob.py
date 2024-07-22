@@ -55,20 +55,24 @@ def decrypt_password(password:str):
     """
     Decrypts the password with AES-256 given the encryption key
     """
-    encryption_key=shuffle()
+    try:
+        encryption_key=shuffle()
 
-    # only take first 32 chars
-    encryption_key=encryption_key[:32]
+        # only take first 32 chars
+        encryption_key=encryption_key[:32]
 
-    cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
-    decryptor = cipher.decryptor()
-    # Decode the string from base64
-    decoded_string = base64.b64decode(password)
-    # Decrypt the string using AES
-    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
-    decrypted_string = str(decrypted_string.decode("utf-8"))
-    #rstrip \0b
-    decrypted_string = decrypted_string.rstrip("\x0b")
+        cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
+        decryptor = cipher.decryptor()
+        # Decode the string from base64
+        decoded_string = base64.b64decode(password)
+        # Decrypt the string using AES
+        decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+        decrypted_string = str(decrypted_string.decode("utf-8"))
+        #rstrip \0b
+        decrypted_string = decrypted_string.rstrip("\x0b")
+    except Exception as e:
+        Logger.debug_print("Error: "+str(e))
+        return ""
     return str(decrypted_string)
 class RunJob():
     """

@@ -23,7 +23,7 @@ from logger import Logger
 from api import API
 from helperfunctions import logs, tenant_portal,POLLING_INTERVAL
 from sql import current_dir
-image_path = os.path.join(current_dir, '../Data/n.png') # path to the icon image
+image_path = os.path.join(current_dir, 'n.png') # path to the icon image
 
 
 

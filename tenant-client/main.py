@@ -99,13 +99,6 @@ def main():
     init()
     # get client info
     get_client_info()
-    MySqlite.write_setting("uuid","ajfajfbaoejbaefbagbabgo")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("msp_api","773195a9-e346-406b-8633-328a7e1f7b33")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5002")
-    MySqlite.write_setting("Status","Online")
-    MySqlite.write_setting("apikey","7e634e33-a5b5-45a4-9af9-9f60bf91c7f6")
     
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),

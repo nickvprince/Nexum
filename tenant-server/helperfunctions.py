@@ -21,8 +21,6 @@
 
 import os
 import time
-import winreg
-import traceback
 import pandas as pd
 from api import API
 from logger import Logger
@@ -33,21 +31,28 @@ POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id
 TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
+APIKEY = ""
+UUID = ""
 
 # pylint: disable= bare-except
 # pylint: disable= global-statement
 def load():
     """
-    Load the client secret
+    Load the client information
     """
     global TENANT_ID
     global CLIENT_ID
     global TENANT_PORTAL_URL
     global POLLING_INTERVAL
+    global APIKEY
+    global UUID
+
     TENANT_ID = MySqlite.read_setting("TENANT_ID")
     CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
     TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
     POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
+    APIKEY = MySqlite.read_setting("apikey")
+    UUID = MySqlite.read_setting("uuid")
 
 def check_install_key(key, secret, server, port):
     """

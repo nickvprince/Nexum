@@ -342,6 +342,7 @@ class MySqlite():
                         VALUES (?,?, ?, ?, ?, ?)''',
             (identification, severity, subject, message, code, date))
             conn.commit()
+
             conn.close()
         except Exception as e:
             print(e)

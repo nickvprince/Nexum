@@ -77,7 +77,7 @@ class HeartBeat:
 
                         # if they havent checked in by the target time post a missing heartbeat
                         if current_time > target_time:
-                            API.post_missing_heartbeat(client[0],self.tenant_secret)
+                            API.post_missing_heartbeat(client[0])
                     else:
                         pass
                 time.sleep(DELAY)
