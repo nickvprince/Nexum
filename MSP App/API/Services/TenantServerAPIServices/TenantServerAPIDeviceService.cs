@@ -91,7 +91,7 @@ namespace API.Services.TenantServerAPIServices
             {
                 if (await InitiallizeHttpClient(tenantId))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(request, new InvalidJsonUtilities()), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("get_files", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
