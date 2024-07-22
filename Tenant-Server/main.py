@@ -12,18 +12,17 @@
 
 # pylint: disable= no-member,no-name-in-module, import-error,global-variable-not-assigned
 
-import socket
-import time
+
+import subprocess
 from iconmanager import IconManager, image_path
 from helperfunctions import logs, tenant_portal,load
 from logger import Logger
 from flaskserver import FlaskServer
 from sql import InitSql
 from runjob import LOCAL_JOB
-from security import Security
 from HeartBeat import HeartBeat
 from sql import MySqlite
-import subprocess
+
 
 
 # Global variables
@@ -34,7 +33,6 @@ def init():
     InitSql()
     global LOCAL_JOB
     LOCAL_JOB.load(0)
-    Security.load_tenant_secret()
     load()
     #start watchdog.exe
 
@@ -49,22 +47,31 @@ def main():
         count = processes.count("nexserv.exe") + processes.count("NexumServer.exe")
         if count >=3:
             return
-        
-    l = Logger()
+
+    # initialize databases, settings, and global variables
     init()
+
+    # set the status to online
     MySqlite.write_setting("Status","Online")
     clients = MySqlite.load_clients()
+
+    # logger
     l = Logger()
+
+    # heartbeat monitor
     _ = HeartBeat(MySqlite.read_setting("apikey"), 10,clients)
 
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
     IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Server",l)
+
     # run the icon
     i.run()
-    # log a message
 
+    # log a message
     l.log("INFO", "Main", "Main has started", "000","main.py")
+
+    # Start the server
     f = FlaskServer()
     f.run()
 

@@ -12,30 +12,35 @@
 #               1. HeartBeat - Controller
 
 """
-# pylint: disable= line-too-long,global-statement
+# pylint: disable= line-too-long,global-statement, bare-except
+import datetime
 import time
 import threading
 from sql import InitSql, MySqlite
 from api import API
-import datetime
 
 
-MY_CLIENTS = []
+DELAY = 5
+DEFAULT_CHECKIN = 15
+TIMEFORMAT = "%Y-%m-%d %H:%M:%S"
+
 class HeartBeat:
     """
     Heartbeat class containing the heartbeat logic
     """
     tenant_secret = None
     interval = None
-
+    my_clients = []
 
     def __init__(self,secret,interval,clients):
-        # open thread to check all checkins indefinitely
+
+        # Ensure DB Is setups
         InitSql.heartbeat()
-        global MY_CLIENTS
+        # set default info
         self.tenant_secret = secret
         self.interval = interval
-        MY_CLIENTS = clients
+        self.my_clients = clients
+        # start the daemon thread to check beats
         t1 = threading.Thread(target=self.check_all_checkins)
         t1.daemon = True
         t1.start()
@@ -46,32 +51,35 @@ class HeartBeat:
         --Thread Function--
         Checks all checkins from clients from the sqlite database
         """
-        global MY_CLIENTS
         while True:
-            print("Loading clients")
-            MY_CLIENTS=MySqlite.load_clients()
-            print("Checking all checkins")
-            for client in MY_CLIENTS:
-                accepted_time = self.interval * int(MySqlite.get_heartbeat_missed_tolerance(client[0]))
-                if int(accepted_time) <= 0 :
-                    accepted_time = 15
-                print("Client: ",client[1])
-                print("Cline ID: ",client[0])
-                print("Accepted Time: ",accepted_time)
-                last_checkin = MySqlite.get_last_checkin(client[0])
-                current_time = datetime.datetime.now()
-                if last_checkin:
-                    last_checkin_time = datetime.datetime.strptime(last_checkin.split('.')[0], "%Y-%m-%d %H:%M:%S")
-                    target_time = last_checkin_time + datetime.timedelta(seconds=int(accepted_time))
-                    print("Current time:", current_time)
-                    print("Last checkin:", last_checkin_time)
-                    print("Target time:", target_time)
-                    if current_time > target_time:
-                        API.post_missing_heartbeat(client[0],self.tenant_secret)
-                        print("Heartbeat missed for client:", client[1])
-                else:
-                    print("No checkin found for client:", client[1])
-            # beat to MSP here
-            API.server_beat()
-            time.sleep(self.interval)
-            print(MY_CLIENTS)
+            # try to prevent thread from crashing on an unknown failure
+            try:
+                # refresh clients from db
+                self.my_clients=MySqlite.load_clients()
+
+                # check all the clients have checked in
+                for client in self.my_clients:
+                    accepted_time = self.interval * int(MySqlite.get_heartbeat_missed_tolerance(client[0]))
+                    # if accepted time is not set default to 15 seconds
+                    if int(accepted_time) <= 0 :
+                        accepted_time = DEFAULT_CHECKIN
+                    # get last checkin and current time
+                    last_checkin = MySqlite.get_last_checkin(client[0])
+                    current_time = datetime.datetime.now()
+
+                    # if a previous checkin exists
+                    if last_checkin:
+                        # Parse as a proper time object
+                        last_checkin_time = datetime.datetime.strptime(last_checkin.split('.')[0], TIMEFORMAT)
+
+                        # set the time they were supposed to check in by
+                        target_time = last_checkin_time + datetime.timedelta(seconds=int(accepted_time))
+
+                        # if they havent checked in by the target time post a missing heartbeat
+                        if current_time > target_time:
+                            API.post_missing_heartbeat(client[0],self.tenant_secret)
+                    else:
+                        pass
+                time.sleep(DELAY)
+            except:
+                continue

@@ -12,11 +12,12 @@
 #               1. Job - Entity
 
 """
-# pylint: disable= import-error, unused-argument,line-too-long
+# pylint: disable= import-error, unused-argument,line-too-long,broad-except
+import datetime
 import conf
 import jobsettings
 from sql import settingsDirectory, jobFile, configFile, job_settingsFile, sqlite3,MySqlite
-import datetime
+
 
 
 class Job():
@@ -64,29 +65,31 @@ class Job():
         """
         Saves the job to the database
         """
-        
-        MySqlite.write_log("INFO","JOB","Saving Job",0,"")
-        conn1 = sqlite3.connect(settingsDirectory+job_settingsFile)
-        cursor1 = conn1.cursor()
-        cursor1.execute("DELETE FROM job_settings WHERE ID = '0'")
-        cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention, lastJob, notifyEmail, heartbeatInterval,path,username,password)'
-                        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)', (self.settings.get_id(), self.settings.get_schedule(), self.settings.get_start_time(), self.settings.get_stop_time(), self.settings.get_retry_count(), self.settings.get_sampling(), self.settings.get_retention(), self.settings.get_last_job(), self.settings.get_notify_email(), self.settings.get_heartbeat_interval(),self.settings.get_backup_path(),self.settings.get_user(),self.settings.get_password()))
-        conn1.commit()
-        conn1.close()
-        conn2 = sqlite3.connect(settingsDirectory+configFile)
-        cursor2 = conn2.cursor()
-        cursor2.execute("DELETE FROM config WHERE ID = '0'")
-        cursor2.execute('INSERT INTO config (ID, tenantSecret, Address)'
-                        'VALUES (?, ?, ?)', (self.config.get_id(), self.config.get_tenant_secret(), self.config.get_address()))
-        conn2.commit()
-        conn2.close()
-        conn = sqlite3.connect(settingsDirectory+jobFile)
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM job WHERE ID = '0'")
-        cursor.execute('INSERT INTO job (ID, Title, created, configID, settingsID)'
-                        'VALUES (?, ?, ?, ?, ?)', (self.get_id(), self.get_title(), self.get_created(), self.config.get_id(), self.settings.get_id()))
-        conn.commit()
-        conn.close()
+        try:
+            MySqlite.write_log("INFO","JOB","Saving Job",0,"")
+            conn1 = sqlite3.connect(settingsDirectory+job_settingsFile)
+            cursor1 = conn1.cursor()
+            cursor1.execute("DELETE FROM job_settings WHERE ID = '0'")
+            cursor1.execute('INSERT INTO job_settings (ID, schedule, startTime, stopTime, retryCount, sampling, retention, lastJob, notifyEmail, heartbeatInterval,path,username,password)'
+                            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)', (self.settings.get_id(), self.settings.get_schedule(), self.settings.get_start_time(), self.settings.get_stop_time(), self.settings.get_retry_count(), self.settings.get_sampling(), self.settings.get_retention(), self.settings.get_last_job(), self.settings.get_notify_email(), self.settings.get_heartbeat_interval(),self.settings.get_backup_path(),self.settings.get_user(),self.settings.get_password()))
+            conn1.commit()
+            conn1.close()
+            conn2 = sqlite3.connect(settingsDirectory+configFile)
+            cursor2 = conn2.cursor()
+            cursor2.execute("DELETE FROM config WHERE ID = '0'")
+            cursor2.execute('INSERT INTO config (ID, tenantSecret, Address)'
+                            'VALUES (?, ?, ?)', (self.config.get_id(), self.config.get_tenant_secret(), self.config.get_address()))
+            conn2.commit()
+            conn2.close()
+            conn = sqlite3.connect(settingsDirectory+jobFile)
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM job WHERE ID = '0'")
+            cursor.execute('INSERT INTO job (ID, Title, created, configID, settingsID)'
+                            'VALUES (?, ?, ?, ?, ?)', (self.get_id(), self.get_title(), self.get_created(), self.config.get_id(), self.settings.get_id()))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            pass
     def load(self,id_in):
         """
         Loads the job from the database

@@ -13,35 +13,30 @@
 
 """
 
-# pylint: disable= import-error, unused-argument
-import subprocess
-import time
-import threading
-import job
-import datetime
-from logger import Logger
-from jobsettings import JobSettings
-from flask import request
-import requests
+# pylint: disable= import-error, unused-argument,broad-except
 import json
 import base64
 import os
-from logger import Logger
-
-from sql import MySqlite
-
+import time
+import threading
+import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import requests
+import job
+from logger import Logger
+from sql import MySqlite
 # pylint: disable=line-too-long
 
 
 
 LOCAL_JOB:job = job.Job() # job assigned to this computer
 
-
-        
 @staticmethod
 def unpad(ct):
+    """
+    Unpads the string
+    """
     return ct[:-ct[-1]]
 @staticmethod
 def shuffle():
@@ -53,28 +48,28 @@ def shuffle():
     # for char in range mspapi-1 password = msp_api[i]+api[i+1]
     password = ""
     for i in range(len(msp)):
-       password+=msp[i]+api[i]
+        password+=msp[i]+api[i]
     return password
 @staticmethod
 def decrypt_password(password:str):
-        encryption_key=shuffle()
+    """
+    Decrypts the password with AES-256 given the encryption key
+    """
+    encryption_key=shuffle()
 
-        # only take first 32 chars
-        encryption_key=encryption_key[:32]
+    # only take first 32 chars
+    encryption_key=encryption_key[:32]
 
-        cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
-        decryptor = cipher.decryptor()
-        
-
-        # Decode the string from base64
-        decoded_string = base64.b64decode(password)
-        
-        # Decrypt the string using AES
-        decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
-        decrypted_string = str(decrypted_string.decode("utf-8"))
-        #rstrip \0b
-        decrypted_string = decrypted_string.rstrip("\x0b")
-        return str(decrypted_string)
+    cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+    # Decode the string from base64
+    decoded_string = base64.b64decode(password)
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    decrypted_string = str(decrypted_string.decode("utf-8"))
+    #rstrip \0b
+    decrypted_string = decrypted_string.rstrip("\x0b")
+    return str(decrypted_string)
 class RunJob():
     """
     Class to run the job assigned to this computer and manage the job
@@ -96,10 +91,12 @@ class RunJob():
         @param: self
         """
         while self.leave is False: # As long as the job is not terminated
-            GLOBAL = LOCAL_JOB
+            # the data is loaded through load rather then job =
+            #pylint: disable=global-variable-not-assigned
+            global LOCAL_JOB
+            #pylint: enable=global-variable-not-assigned
             LOCAL_JOB.load(0)
             self.logger.log("INFO","RunJob","Checking backup statuses","0","runjob.py")
-            
             if self.kill_job_var is True:
                 # stop the job
                 self.logger.log("INFO","RunJob","Killing job","0","runjob.py")
@@ -131,15 +128,12 @@ class RunJob():
                     Logger.debug_print("Error: "+str(e))
                 time.sleep(2)
                 #ensures the servce is online regardless of what happens or is supposed to happen
-             
                 # check response for what happened
                 self.job_running_var = False
                 # set job status to killed
-                
 
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
-                
                 self.job_pending = False # set job pending to false since it was just run
                 command='-backupTarget:'+LOCAL_JOB.get_settings()[10]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
                 self.logger.log("INFO","RunJob","Running job :" +str(command),"0","runjob.py")
@@ -184,11 +178,6 @@ class RunJob():
                     self.job_running_var = False # set job running to true
                 # check response for what happened
                 # set job status to running
-               
-
-
-                
-
             time.sleep(2)
             try:
                 headers = {

@@ -12,15 +12,34 @@
 #               1. API - Connector
 
 """
-# pylint: disable= import-error, unused-argument
-from logger import Logger
-from client import Client
+# pylint: disable= import-error, unused-argument, broad-except
+import re
 import datetime
 import requests
+from logger import Logger
+from client import Client
 from sql import MySqlite
-import re
-import requests
+
+#ROUTES
+DEVICE_STATUS_ROUTE = "/api/DataLink/Update-Device-Status"
+SERVICE_STATUS_ROUTE = "http://127.0.0.1:5004/get_status"
+
+#SETTINGS
+APIKEY = "apikey"
+CLIENT_ID = "CLIENT_ID"
+MSP_SERVER_ADDRESS = "msp_server_address"
+MSP_PORT = "msp-port"
+VERSION = "version"
+STATUS = "Status"
+
+# values
+MSP_PROTOCOL = "https://"
+
+
 client:Client = MySqlite.get_client(1)
+
+
+
 class API():
     """
     Class to interact with the API. Used for local API calls and 
@@ -28,23 +47,22 @@ class API():
     Type: Connector
     Relationship: NONE
     """
-
-
     @staticmethod
-    def get_status():
+    def get_status()->str:
         """
         Call the API from tenant server to get the status of the client
         """
         MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
-        return MySqlite.read_setting("Status")
+        return MySqlite.read_setting(STATUS)
+    
     @staticmethod
-    def get_percent():
+    def get_percent()->str:
         """
         call the API from tenant server to get the percent complete of the job
         """
         MySqlite.write_log("INFO","API","Getting percent","0",datetime.datetime.now())
 
-        url = 'http://127.0.0.1:5004/get_status'
+        url = SERVICE_STATUS_ROUTE
 
         headers = {
             "apikey":MySqlite.read_setting("apikey"),
@@ -55,16 +73,16 @@ class API():
             data = response.json()
             result = data["result"]
             if "copied" in result:
-                    # Find the copied (xxx%) in the result string
-                    match = re.search(r'copied \((\d+)%\)', result)
-                    if match:
-                        percent = int(match.group(1))
-                        return percent
-                    else:
-                        return "0%"
+                # Find the copied (xxx%) in the result string
+                match = re.search(r'copied \((\d+)%\)', result)
+                if match:
+                    percent = int(match.group(1))
+                    return percent
+                else:
+                    return "0%"
             else:
                                 # set job status to killed
-                new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
+                new_client = MySqlite.get_client(MySqlite.read_setting(CLIENT_ID))
                 new_client = list(new_client)
                 new_client.remove(new_client[4])
                 new_client.insert(4,"idle")
@@ -73,7 +91,7 @@ class API():
         except Exception:
             MySqlite.write_log("ERROR","API","Error getting percent","0",datetime.datetime.now())
             new_client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-            if new_client == None:
+            if new_client is None:
                 MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
                 return "0%"
             else:
@@ -83,52 +101,28 @@ class API():
                 MySqlite.update_client(new_client)
                 return "0%"
     @staticmethod
-    def get_version():
+    def get_version()->str:
         """
         Call the API from tenant server to get the version of the program
         """
         MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
-        version = MySqlite.read_setting("version")
-        if version == None:
+        version = MySqlite.read_setting(VERSION)
+        if version is None:
             MySqlite.write_log("ERROR","API","Version not found","0",datetime.datetime.now())
             return "n/a"
         else:
             return version
-    @staticmethod
-    def get_job():
-        """
-        Call the API from tenant server to get the job assigned to this computer
-        """
-        Logger.debug_print("Getting job")
-        # call the API from tenant server to get the job assigned to this computer
-        return "backup"
-    @staticmethod
-    def get_client_id():
-        """
-        Call the API from tenant server to get the client id
-        """
-        Logger.debug_print("Getting client id")
-        # call the API from tenant server to get the client id
-        return 1
+
 
     @staticmethod
-    def send_success_install(client_id,tenant_id,client_secret):
-        """
-        Call the API from tenant server to send the success install
-        """
-        Logger.debug_print("Sending success install")
-        # call the API from tenant server to send the success install
-        return True
-
-    @staticmethod
-    def post_missing_heartbeat(client_id,tenant_id):
+    def post_missing_heartbeat(client_id)->bool:
         """
         Call the API from tenant server to post the missing heartbeat
         """
         MySqlite.write_log("INFO","API","Posting missing heartbeat","0",datetime.datetime.now())
         header ={
             "Content-Type":"application/json",
-            "apikey":MySqlite.read_setting("apikey")
+            "apikey":MySqlite.read_setting(APIKEY),
         }
         content = {
             "client_id": int(client_id),
@@ -138,11 +132,11 @@ class API():
         }
 
         try:
-            server_address = MySqlite.read_setting("msp_server_address")
-            msp_port = MySqlite.read_setting("msp-port")
-            protocol = r"https://"
+            server_address = MySqlite.read_setting(MSP_SERVER_ADDRESS)
+            msp_port = MySqlite.read_setting(MSP_PORT)
+            
 
-            response = requests.put(f"{protocol}{server_address}:{msp_port}/api/DataLink/Update-Device-Status", headers=header, json=content,timeout=5,verify=False)
+            _ = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=5,verify=False)
         except Exception:
             return False
         Logger.debug_print("Posting missing heartbeat")
@@ -150,7 +144,7 @@ class API():
         return True
 
     @staticmethod
-    def get_update_available():
+    def get_update_available()->bool:
         """
         Call the API from tenant server to get the update available
         """
@@ -159,16 +153,7 @@ class API():
         return True
 
     @staticmethod
-    def get_update_path():
-        """
-        Call the API from tenant server to get the update path
-        """
-        Logger.debug_print("Getting update path")
-        # call the API from tenant server to get the update path
-        return "https://nexum.com/tenant_portal?update=1.27.4"
-
-    @staticmethod
-    def server_beat():
+    def server_beat()->None:
         """ 
         was intended to ping server no longer needed
         """
