@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240719164524_auth")]
+    [Migration("20240722082029_auth")]
     partial class auth
     {
         /// <inheritdoc />
@@ -158,7 +158,7 @@ namespace API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationRole", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -179,7 +179,7 @@ namespace API.Migrations
                     b.ToTable("ApplicationRoles");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationRolePermission", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationRolePermission", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,7 +209,7 @@ namespace API.Migrations
                     b.ToTable("ApplicationRolePermissions");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -293,7 +293,7 @@ namespace API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationUserRole", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationUserRole", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -311,7 +311,7 @@ namespace API.Migrations
                     b.ToTable("ApplicationUserRoles");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Device", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Device", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -338,7 +338,7 @@ namespace API.Migrations
                     b.ToTable("Devices");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceAlert", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceAlert", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -372,7 +372,7 @@ namespace API.Migrations
                     b.ToTable("DeviceAlerts");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceBackup", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceBackup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -413,7 +413,7 @@ namespace API.Migrations
                     b.ToTable("DeviceBackups");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -457,7 +457,7 @@ namespace API.Migrations
                     b.ToTable("DeviceInfos");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJob", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJob", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -489,7 +489,7 @@ namespace API.Migrations
                     b.ToTable("DeviceJobs");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJobInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJobInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -533,7 +533,7 @@ namespace API.Migrations
                     b.ToTable("DeviceJobInfos");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJobSchedule", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJobSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -573,7 +573,7 @@ namespace API.Migrations
                     b.ToTable("DeviceJobSchedules");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceLog", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -619,7 +619,7 @@ namespace API.Migrations
                     b.ToTable("DeviceLogs");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.InstallationKey", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.InstallationKey", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -650,7 +650,7 @@ namespace API.Migrations
                     b.ToTable("InstallationKeys");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.MACAddress", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.MACAddress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -672,7 +672,7 @@ namespace API.Migrations
                     b.ToTable("MACAddresses");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.NASServer", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.NASServer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -699,7 +699,7 @@ namespace API.Migrations
                     b.ToTable("NASServers");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Permission", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -722,7 +722,7 @@ namespace API.Migrations
                     b.ToTable("Permissions");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.SoftwareFile", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.SoftwareFile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -747,7 +747,7 @@ namespace API.Migrations
                     b.ToTable("SoftwareFiles");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Tenant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -778,7 +778,7 @@ namespace API.Migrations
                     b.ToTable("Tenants");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.TenantInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -832,7 +832,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.ApplicationUser", null)
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -841,7 +841,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.ApplicationUser", null)
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -856,7 +856,7 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedComponents.Entities.ApplicationUser", null)
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -865,26 +865,26 @@ namespace API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.ApplicationUser", null)
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationRolePermission", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationRolePermission", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Permission", "Permission")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedComponents.Entities.ApplicationRole", "Role")
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationRole", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId");
 
-                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Tenant", "Tenant")
                         .WithMany("RolePermissions")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -896,15 +896,15 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationUserRole", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationUserRole", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.ApplicationRole", "Role")
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationRole", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SharedComponents.Entities.ApplicationUser", "User")
+                    b.HasOne("SharedComponents.Entities.DbEntities.ApplicationUser", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -915,9 +915,9 @@ namespace API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Device", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Device", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Tenant", "Tenant")
                         .WithMany("Devices")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -926,9 +926,9 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceAlert", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceAlert", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Device", "Device")
                         .WithMany("Alerts")
                         .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -937,13 +937,13 @@ namespace API.Migrations
                     b.Navigation("Device");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceBackup", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceBackup", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Device", null)
+                    b.HasOne("SharedComponents.Entities.DbEntities.Device", null)
                         .WithMany("Backups")
                         .HasForeignKey("DeviceId");
 
-                    b.HasOne("SharedComponents.Entities.NASServer", "NASServer")
+                    b.HasOne("SharedComponents.Entities.DbEntities.NASServer", "NASServer")
                         .WithMany("Backups")
                         .HasForeignKey("NASServerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -952,20 +952,20 @@ namespace API.Migrations
                     b.Navigation("NASServer");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceInfo", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Device", "Device")
                         .WithOne("DeviceInfo")
-                        .HasForeignKey("SharedComponents.Entities.DeviceInfo", "DeviceId")
+                        .HasForeignKey("SharedComponents.Entities.DbEntities.DeviceInfo", "DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Device");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJob", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJob", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Device", "Device")
                         .WithMany("Jobs")
                         .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -974,31 +974,31 @@ namespace API.Migrations
                     b.Navigation("Device");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJobInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJobInfo", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.DeviceJob", "DeviceJob")
+                    b.HasOne("SharedComponents.Entities.DbEntities.DeviceJob", "DeviceJob")
                         .WithOne("Settings")
-                        .HasForeignKey("SharedComponents.Entities.DeviceJobInfo", "DeviceJobId")
+                        .HasForeignKey("SharedComponents.Entities.DbEntities.DeviceJobInfo", "DeviceJobId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DeviceJob");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJobSchedule", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJobSchedule", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.DeviceJobInfo", "DeviceJobInfo")
+                    b.HasOne("SharedComponents.Entities.DbEntities.DeviceJobInfo", "DeviceJobInfo")
                         .WithOne("Schedule")
-                        .HasForeignKey("SharedComponents.Entities.DeviceJobSchedule", "DeviceJobInfoId")
+                        .HasForeignKey("SharedComponents.Entities.DbEntities.DeviceJobSchedule", "DeviceJobInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DeviceJobInfo");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceLog", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceLog", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Device", "Device")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Device", "Device")
                         .WithMany("Logs")
                         .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1007,9 +1007,9 @@ namespace API.Migrations
                     b.Navigation("Device");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.InstallationKey", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.InstallationKey", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Tenant", "Tenant")
                         .WithMany("InstallationKeys")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1018,9 +1018,9 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.MACAddress", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.MACAddress", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.DeviceInfo", "DeviceInfo")
+                    b.HasOne("SharedComponents.Entities.DbEntities.DeviceInfo", "DeviceInfo")
                         .WithMany("MACAddresses")
                         .HasForeignKey("DeviceInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1029,9 +1029,9 @@ namespace API.Migrations
                     b.Navigation("DeviceInfo");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.NASServer", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.NASServer", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Tenant", "Tenant")
                         .WithMany("NASServers")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1040,30 +1040,30 @@ namespace API.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.TenantInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.TenantInfo", b =>
                 {
-                    b.HasOne("SharedComponents.Entities.Tenant", "Tenant")
+                    b.HasOne("SharedComponents.Entities.DbEntities.Tenant", "Tenant")
                         .WithOne("TenantInfo")
-                        .HasForeignKey("SharedComponents.Entities.TenantInfo", "TenantId")
+                        .HasForeignKey("SharedComponents.Entities.DbEntities.TenantInfo", "TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationRole", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationRole", b =>
                 {
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.ApplicationUser", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Device", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Device", b =>
                 {
                     b.Navigation("Alerts");
 
@@ -1077,32 +1077,32 @@ namespace API.Migrations
                     b.Navigation("Logs");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceInfo", b =>
                 {
                     b.Navigation("MACAddresses");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJob", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJob", b =>
                 {
                     b.Navigation("Settings");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.DeviceJobInfo", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.DeviceJobInfo", b =>
                 {
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.NASServer", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.NASServer", b =>
                 {
                     b.Navigation("Backups");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Permission", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
                 });
 
-            modelBuilder.Entity("SharedComponents.Entities.Tenant", b =>
+            modelBuilder.Entity("SharedComponents.Entities.DbEntities.Tenant", b =>
                 {
                     b.Navigation("Devices");
 

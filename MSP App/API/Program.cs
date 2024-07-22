@@ -70,8 +70,8 @@ builder.Services.AddScoped<ITenantServerAPINASServerService, TenantServerAPINASS
 builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<IAPIAuthService, APIAuthService>();
 
-builder.Services.AddTransient<IAuthorizationHandler, HasPermissionHandler>();
 builder.Services.AddTransient<IAuthorizationPolicyProvider, HasPermissionPolicyProvider>();
+builder.Services.AddTransient<IAuthorizationHandler, HasPermissionHandler>();
 
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
 
