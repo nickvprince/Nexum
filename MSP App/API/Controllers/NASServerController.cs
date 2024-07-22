@@ -66,8 +66,8 @@ namespace API.Controllers
                     {
                         Name = nasServer.Name,
                         Path = nasServer.Path,
-                        NASUsername = request.NASUsername,
-                        NASPassword = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(tenant.ApiKey, tenant.ApiKeyServer),request.NASPassword)
+                        Username = request.NASUsername,
+                        Password = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(tenant.ApiKey, tenant.ApiKeyServer),request.NASPassword)
                     };
                     CreateNASServerResponse? serverResponse = await _httpNASServerService.CreateAsync(tenant.Id, serverRequest);
                     if (serverResponse != null)
@@ -123,8 +123,8 @@ namespace API.Controllers
                         Id = nasServer.BackupServerId,
                         Name = nasServer.Name,
                         Path = nasServer.Path,
-                        NASUsername = request.NASUsername,
-                        NASPassword = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(tenant.ApiKey, tenant.ApiKeyServer), request.NASPassword)
+                        Username = request.NASUsername,
+                        Password = SecurityUtilities.Encrypt(SecurityUtilities.Shuffle(tenant.ApiKey, tenant.ApiKeyServer), request.NASPassword)
                     };
                     bool? serverResponse = await _httpNASServerService.UpdateAsync(nasServer.TenantId, serverRequest);
                     if (serverResponse == true)
