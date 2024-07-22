@@ -80,6 +80,17 @@ def init():
     LOCAL_JOB.load(0)
     Security.load_client_secret()
     load()
+@staticmethod
+def get_uuid():
+    """
+    Get the UUID of the computer
+    """
+    output=subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
+    output = output.stdout.strip()
+    output = output.split('\n\n', 1)[-1]
+    output = output[:32]
+    return output
 
 
 def main():
@@ -92,20 +103,27 @@ def main():
         count = processes.count("nexserv.exe") + processes.count("NexumServer.exe")
         if count >=3:
             return
-        
+       
     # create a Logger
     l = Logger()
     # init databases
     init()
     # get client info
     get_client_info()
-    MySqlite.write_setting("uuid","ajfajfbaoejbaefbagbabgo")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("msp_api","773195a9-e346-406b-8633-328a7e1f7b33")
-    MySqlite.write_setting("server_address","127.0.0.1")
+    MySqlite.write_setting("CLIENT_ID",str(2))
+    MySqlite.write_setting("server_address","192.168.50.12")
     MySqlite.write_setting("server_port","5002")
-    MySqlite.write_setting("Status","Online")
+    MySqlite.write_setting("service_address","127.0.0.1:5004")
     MySqlite.write_setting("apikey","7e634e33-a5b5-45a4-9af9-9f60bf91c7f6")
+    MySqlite.write_setting("version","1.0.0")
+    MySqlite.write_setting("msp-port","7101")
+    MySqlite.write_setting("POLLING_INTERVAL","10")
+    MySqlite.write_setting("uuid",get_uuid())
+    MySqlite.write_setting("versiontag","alpha")
+    MySqlite.write_setting("job_status","NotStarted")
+    MySqlite.write_setting("type","server")
+    MySqlite.write_setting("Status","Online")
+    MySqlite.write_setting("TENANT_PORTAL_URL","https://192.168.50.12:6969/auth/login")
     
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),

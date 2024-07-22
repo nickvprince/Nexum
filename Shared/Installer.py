@@ -1232,7 +1232,6 @@ def main():
         write_log("INFO", "MySqlite", "backup server table created", 200, time.localtime())
     except:
         write_log("ERROR", "MySqlite", "Backup servers table not created", 500, time.localtime())
-    write_setting("Master-Uninstall","LJA;HFLASBFOIASH[jfnW.FJPIH")
     # INITIALIZATION END
 
 

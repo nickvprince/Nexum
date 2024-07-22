@@ -22,6 +22,7 @@ from sql import InitSql
 from runjob import LOCAL_JOB
 from HeartBeat import HeartBeat
 from sql import MySqlite
+import sql
 
 
 
@@ -35,7 +36,6 @@ def init():
     LOCAL_JOB.load(0)
     load()
     #start watchdog.exe
-
 
 def main():
     """
@@ -76,4 +76,6 @@ def main():
     f.run()
 
 if __name__ == "__main__":
+    
+
     main()
