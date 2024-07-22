@@ -6,28 +6,25 @@ using System.Security.Claims;
 using SharedComponents.Services.APIRequestServices.Interfaces;
 using SharedComponents.Entities.WebEntities.Requests.AuthRequests;
 using SharedComponents.Entities.WebEntities.Responses.AuthResponses;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace App.Controllers
 {
     public class AuthController : Controller
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAPIRequestAuthService _authService;
         private readonly IAPIRequestUserService _userService;
 
-        public AuthController(IAPIRequestAuthService authService, IAPIRequestUserService userService)
+        public AuthController(IAPIRequestAuthService authService, IAPIRequestUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _authService = authService;
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> LoginAsync()
+        public async Task<IActionResult> IndexAsync()
         {
             var users = await _userService.GetAllAsync();
             if(HttpContext.User.Identity != null)
@@ -41,22 +38,21 @@ namespace App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginAsync(LoginViewModel loginViewModel)
+        public async Task<IActionResult> IndexAsync(AuthViewModel authViewModel)
         {
             if (ModelState.IsValid)
             {
                 AuthLoginRequest request = new AuthLoginRequest
                 {
-                    Username = loginViewModel.Username,
-                    Password = loginViewModel.Password
+                    Username = authViewModel.Username,
+                    Password = authViewModel.Password
                 };
-
                 AuthLoginResponse? response = await _authService.LoginAsync(request);
                 if (response != null)
                 {
                     var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, loginViewModel.Username!),
+                        new Claim(ClaimTypes.Name, authViewModel.Username!),
                         new Claim("Token", response.Token),
                         new Claim("RefreshToken", response.RefreshToken),
                         new Claim("Expires", response.Expires.ToString())
@@ -76,7 +72,7 @@ namespace App.Controllers
                 }
                 TempData["ErrorMessage"] = $"(Auth) : Failed";
             }
-            return View(loginViewModel);
+            return View(authViewModel);
         }
     }
 }

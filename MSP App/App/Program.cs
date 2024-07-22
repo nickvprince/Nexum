@@ -12,7 +12,14 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+var mvcBuilder = builder.Services.AddControllersWithViews();
+
+if (builder.Environment.IsDevelopment())
+{
+    //disable hot reload and enable live editing
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
+
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient("BlazorClient", client =>
@@ -111,7 +118,7 @@ app.UseMiddleware<CookieRefreshMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Auth}/{action=Login}/{id?}");
+    pattern: "{controller=Auth}/{action=Index}/{id?}");
 
 app.Run();
 //app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);

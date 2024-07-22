@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Alerts";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+}
+
+<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
+    <div id="contentBox" class="border text-center border-light text-white"></div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/Alert/Table',
+                type: 'GET',
+                success: function (result) {
+                    $('#contentBox').html(result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        });
+    </script>
+}

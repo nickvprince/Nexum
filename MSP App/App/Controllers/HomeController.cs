@@ -1,6 +1,7 @@
 using App.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
 
 namespace App.Controllers
@@ -8,24 +9,34 @@ namespace App.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            // Dynamically assign the return URL
+            if (HttpContext != null)
+            {
+                HttpContext.Session.SetString("ReturnUrl", HttpContext.Request.Path);
+            }
         }
 
         [HttpGet]
         [Authorize]
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
-            return View();
+            return await Task.FromResult(View());
         }
 
         [HttpGet]
-        [Authorize]
-        public IActionResult Privacy()
+        public async Task<IActionResult> PrivacyAsync()
         {
-            return View();
+            return await Task.FromResult(View());
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,0 +1,43 @@
+﻿@model ICollection<DeviceAlert>?
+
+<div class="table-responsive">
+    <table class="table table-striped m-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Severity</th>
+                <th>Message</th>
+                <th>Time</th>
+                <th>Device</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if( Model == null || Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="6">No alerts found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                foreach (var alert in Model)
+                {
+                    i++;
+                    <tr>
+                        <td class="text-nowrap">@i</td>
+                        <td class="text-nowrap">@alert.Severity</td>
+                        <td class="text-nowrap">@alert.Message</td>
+                        <td class="text-nowrap">@alert.Time</td>
+                        <td class="text-nowrap">@alert.DeviceId</td>
+                        <td class="text-nowrap">
+                            <a href="#">✔</a> |
+                            <a href="#">✘</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
