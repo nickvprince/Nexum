@@ -401,9 +401,9 @@ def uninstall_from_device(window:tk.Tk):
 
         try:
 
-            subprocess.call(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
+            subprocess.Popen(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
             
-            subprocess.call(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
+            subprocess.Popen(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
 
             breakcount:int = 0
             time.sleep(1) # time to stop the processes retry 5 times until timeout
@@ -733,14 +733,14 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         payload = {
             "name":socket.gethostname(),
             "uuid":output[0:31],
-            "ipaddress":"192.168.50.13",#socket.gethostbyname(socket.gethostname()),
+            "ipaddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":1,
             "macaddresses":[
                 {
                 "id":0,
                 "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
-                            for ele in range(0,8*6,8)][::-1])
+                            for ele in range(0,8*6,8)][::])
                 }
             ],
             "installationKey":key
@@ -848,6 +848,8 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # notify server that the installation is complete
         notify_server(backupserver,identification,apikey,output,key)
 
+        # start the program
+        subprocess.Popen([OS_FILE_PATH + "\\" + EXE_NEXUM_NAME],shell=True)
     #incorrect secret
     else:
         write_log("ERROR", "Install Client", "Incorrect Secret or key", 1101, get_time())
@@ -946,6 +948,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     # create GUID
     msp_api = uuid.uuid4()
     ip = get('https://api.ipify.org',timeout=10).content.decode('utf8')
+    ip = server_address # Use this for demo since its locally built
     write_setting("msp_api",str(msp_api))
     try:
 
@@ -1053,6 +1056,8 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # notify server that the installation is complete
         notify_server(backupserver,0,apikey,output,key)
 
+        # start the program
+        subprocess.Popen([OS_FILE_PATH + "\\" + EXE_SERVER_NAME],shell=True)
 
         #incorrect secret
     else:
@@ -1232,7 +1237,6 @@ def main():
 
 
     #TESTING Area
-
     
 
     if sys.argv[-1] != ASADMIN:

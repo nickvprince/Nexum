@@ -36,12 +36,7 @@ class API():
         Call the API from tenant server to get the status of the client
         """
         MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
-        client:Client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-        if client == None:
-            MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
-            return "not running"
-        else:
-            return client[4]
+        return MySqlite.read_setting("Status")
     @staticmethod
     def get_percent():
         """
@@ -174,20 +169,7 @@ class API():
 
     @staticmethod
     def server_beat():
+        """ 
+        was intended to ping server no longer needed
         """
-        Call the API from tenant server to send the server beat
-        """
-        #post to http://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}Server_Beat
-        try:
-            header ={
-                "Content-Type":"application/json",
-                "apikey":MySqlite.read_setting("apikey")
-            }
-
-            response = requests.post("http://127.0.0.1:6969/server_beat", headers=header, json={},timeout=5,verify=False)
-            print(response.status_code)
-        except Exception:
-            return False
-        Logger.debug_print("Sending server beat")
-        # call the API from tenant server to send the server beat
-        return True
+        pass

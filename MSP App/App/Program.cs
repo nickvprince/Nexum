@@ -66,5 +66,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
-app.Run();
+app.Run("https://0.0.0.0:6969");
 //app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);

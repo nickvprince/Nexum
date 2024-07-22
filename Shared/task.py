@@ -8,11 +8,16 @@ client_xml = '''<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
     <Date>2024-05-28T02:57:30.9654058</Date>
-    <Author>.\\Administrator</Author>
+    <Author>.\Administrator</Author>
     <URI>\nexum</URI>
   </RegistrationInfo>
   <Triggers>
     <BootTrigger>
+      <Repetition>
+        <Interval>PT5M</Interval>
+        <Duration>P1D</Duration>
+        <StopAtDurationEnd>false</StopAtDurationEnd>
+      </Repetition>
       <Enabled>true</Enabled>
     </BootTrigger>
   </Triggers>
@@ -49,7 +54,7 @@ client_xml = '''<?xml version="1.0" encoding="UTF-16"?>
   </Settings>
   <Actions Context="Author">
     <Exec>
-      <Command>"c:\\program files\\nexum\\nexum.exe"</Command>
+      <Command>"c:\program files\nexum\nexum.exe"</Command>
       <Arguments>-interactive</Arguments>
     </Exec>
   </Actions>
@@ -59,11 +64,15 @@ server_xml='''<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
     <Date>2024-05-28T02:57:30.9654058</Date>
-    <Author>.\\Administrator</Author>
-    <URI>\nexserv</URI>
+    <Author>.\Administrator</Author>
+    <URI>\\nexum</URI>
   </RegistrationInfo>
   <Triggers>
     <BootTrigger>
+      <Repetition>
+        <Interval>PT5M</Interval>
+        <StopAtDurationEnd>false</StopAtDurationEnd>
+      </Repetition>
       <Enabled>true</Enabled>
     </BootTrigger>
   </Triggers>
@@ -96,7 +105,7 @@ server_xml='''<?xml version="1.0" encoding="UTF-16"?>
   </Settings>
   <Actions Context="Author">
     <Exec>
-      <Command>"c:\\program files\\nexum\\nexserv.exe"</Command>
+      <Command>"c:\\program files\\nexum\\nexum.exe"</Command>
       <Arguments>-interactive</Arguments>
     </Exec>
   </Actions>

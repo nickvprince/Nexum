@@ -44,35 +44,7 @@ URLS_ROUTE="api/DataLink/Urls"
 PORT=5002
 HOST = '0.0.0.0'
 
-def decrypt_string(apikey,msp_api, string):
-    """
-    Decrypt a string with AES-256 bit decryption
-    """
-    password = ""
-    index:int=0
-    for i in msp_api:
-        password += i
-        password+=apikey[index]
-        index+=1
-    password = password[:32]
-    # Pad the password to be 16 bytes long
-    password_hashed = str(password).ljust(16).encode('utf-8')
 
-    # Create a new AES cipher with the password as the key
-    cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
-    decryptor = cipher.decryptor()
-
-    # Decode the string from base64
-    decoded_string = base64.b64decode(string)
-
-    # Decrypt the string using AES
-    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
-    try:
-        return decrypted_string.decode('utf-8').rstrip("\x0b")
-    except UnicodeDecodeError:
-        return "Decryption failed"
-    except:
-        return "Decryption failed"
 @staticmethod
 def convert_job_status():
     """
@@ -237,7 +209,7 @@ class FlaskServer():
         client_id = data.get('client_id', '')
         code = 0
         msg = ""
-        global CLIENTS 
+        global CLIENTS
         CLIENTS = MySqlite.load_clients()
         if FlaskServer.auth(recieved_client_secret, logger, client_id) == 405:
             logger.log("ERROR", "get_files", "Access Denied",401,"flaskserver.py")
@@ -315,7 +287,8 @@ class FlaskServer():
                     url = f"http://{i[2]}:{i[3]}/start_job"
                     try:
                         logger.log("INFO", "start_job", f"Starting job on {i[0]}",0,"flaskserver.py")
-                        return requests.put(url,data={},headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
+                        response = requests.put(url,data={},headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
+                        return make_response(response.content,response.status_code)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job.relay.start_job", f"Timeout connecting to {i[0]}",
                         "500", "flaskserver.py")
@@ -565,6 +538,10 @@ class FlaskServer():
                         url = f"http://{i[2]}:{i[3]}/modify_job"
                         try:
                             content = request.get_json()
+                            server = MySqlite.get_backup_server(content.get('backupServerId', ''))
+                            content['backup_path'] = server[1]
+                            content['username'] = server[2]
+                            content['password'] = server[3]
                             logger.log("INFO", "modify_job", f"Modifying job on {url}",0,"flaskserver.py")
                             response=requests.request("POST", url, json=content, headers={"Content-Type":"application/json","apikey":MySqlite.read_setting("apikey")},timeout=10)
                             return make_response("", response.status_code)
@@ -587,7 +564,45 @@ class FlaskServer():
             return "401 Access Denied"
         else:
             return "500 Internal Server Error"
+    @website.route('/log', methods=['POST'], )
+    @staticmethod
+    def log():
+        """
+        Logs a message
+        """
+        logger=Logger()
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
 
+        identification = data.get('client_id', '')
+
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            if data.get('function','') == 'status':
+                header ={
+                "Content-Type":"application/json",
+                "apikey":MySqlite.read_setting("apikey")
+                }
+                content = {
+                    "client_id": int(identification),
+                    "uuid": str(data.get('uuid','')),
+                    "status": int(data.get('code',''))
+                }
+
+                try:
+                    server_address = MySqlite.read_setting("msp_server_address")
+                    msp_port = MySqlite.read_setting("msp-port")
+                    protocol = r"https://"
+
+                    response = requests.put(f"{protocol}{server_address}:{msp_port}/api/DataLink/Update-Device-Status", headers=header, json=content,timeout=5,verify=False)
+                    return make_response(response.content,response.status_code)
+                except Exception:
+                    logger.log("ERROR","log", "Failed to post status","1009","flaskserver.py")
+                    
+            else:
+                logger.log(data.get('severity', ''), data.get('function', ''), data.get('message', ''), data.get('code', ''), data.get('file', ''), data.get('alert', 'False'))
+                return "200 OK"
+        return make_response("401 Access Denied", 401)
     @website.route('/nexum', methods=['GET'], )
     @staticmethod
     def nexum():
@@ -1106,7 +1121,6 @@ class FlaskServer():
         name = data.get('name', '')
         path = data.get('path', '')
         password = data.get('password', '')
-        password=decrypt_string(MySqlite.read_setting("apikey"),MySqlite.read_setting("msp_api"),password)
         username = data.get('username', '')
         identification = data.get('CLIENT_ID', '')
         path = os.path.normpath(path)

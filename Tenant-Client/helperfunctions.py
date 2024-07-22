@@ -88,10 +88,10 @@ def get_client_info():
         conn.close()
     except FileNotFoundError:
         logger.log("ERROR", "get_client_info", "Settings file not found",
-        "1003", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1003", "helperfunctions.py")
     except:
         logger.log("ERROR", "get_client_info", "General Error getting settings",
-        "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1002", "helperfunctions.py")
 
     # Append each setting and value to a dictionary
     for row in settings_df.iterrows():
@@ -107,11 +107,11 @@ def get_client_info():
     except KeyError:
         CLIENT_ID = -1
         logger.log("ERROR", "get_client_info", "CLIENT_ID not found in settings",
-        "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1001", "helperfunctions.py")
     except:
         CLIENT_ID = -1
         logger.log("ERROR", "get_client_info", "General Error getting CLIENT_ID from settings",
-        "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1002", "helperfunctions.py")
 
     # get tenant ID
     try:
@@ -120,11 +120,11 @@ def get_client_info():
     except KeyError:
         TENANT_ID = -1
         logger.log("ERROR", "get_client_info", "TENANT_ID not found in settings",
-        "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1001", "helperfunctions.py")
     except:
         TENANT_ID = -1
         logger.log("ERROR", "get_client_info", "General Error getting TENANT_ID from settings",
-        "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1002", "helperfunctions.py")
 
     # Get tenant portal
     try:
@@ -134,12 +134,12 @@ def get_client_info():
     except KeyError:
         TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
         logger.log("ERROR", "get_client_info", "TENANT_PORTAL_URL not found in settings",
-        "1001", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1001", "helperfunctions.py")
     except:
         TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
         logger.log("ERROR", "get_client_info",
         "General Error getting TENANT_PORTAL_URL from settings",
-        "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1002", "helperfunctions.py")
 
     API.get_job()
 
@@ -199,10 +199,10 @@ def logs():
         logs_df.to_csv(file_path, index=False)
     except FileNotFoundError:
         logger.log("ERROR", "logs", "Log file not found",
-        "1003", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1003", "helperfunctions.py")
     except:
         logger.log("ERROR", "logs", "General Error getting logs",
-        "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+        "1002", "helperfunctions.py")
 
 def tenant_portal():
     """
