@@ -177,6 +177,9 @@ class MySqlite():
             content = {
                 "severity": "INFO",
                 "function":"status",
+                "message":"",
+                "time":"9/24/2024",
+                "filename":"",
                 "code":convert_device_status(),
                 "uuid": MySqlite.read_setting("uuid"),
                 "client_id": MySqlite.read_setting("CLIENT_ID"),
