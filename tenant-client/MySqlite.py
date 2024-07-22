@@ -21,6 +21,8 @@ import subprocess
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import requests
+
 ENCODING = 'utf-8'
 # pah directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
@@ -35,7 +37,20 @@ configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logpath = os.path.join('/log.db') # path to the log database
 
-
+@staticmethod
+def convert_device_status():
+    """
+    Converts the status to a enum
+    """
+    status = MySqlite.read_setting("Status")
+    if status == "Online":
+        return 1
+    elif status == "Offline":
+        return 0
+    elif status == "ServiceOffline":
+        return 2
+    else:
+        return -1
 
 # encrypt a string using AES
 @staticmethod
@@ -138,7 +153,7 @@ class MySqlite():
                         capture_output=True, text=True,check=True,shell=True) # Use UUID to encrypt the data
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
-        output = output[:24]
+        output = output[:32]
 
         value = encrypt_string(output,value)
 
@@ -153,6 +168,23 @@ class MySqlite():
                             (setting, value))
         conn.commit()
         conn.close()
+
+        if setting == "Status":
+            headers = {
+                "apikey": MySqlite.read_setting("apikey"),
+                "Content-Type": "application/json"
+            }
+            content = {
+                "severity": "INFO",
+                "function":"status",
+                "code":convert_device_status(),
+                "uuid": MySqlite.read_setting("uuid"),
+                "client_id": MySqlite.read_setting("CLIENT_ID"),
+            }
+            try:
+                response = requests.post(f"http://{MySqlite.read_setting('server_address')}:{MySqlite.read_setting('server_port')}/log", headers=headers, json=content,timeout=5)
+            except Exception as e:
+                MySqlite.write_log("ERROR", "API", "Error sending status", "0", "9/7/2024")
 
     @staticmethod
     def read_setting(setting):
@@ -170,7 +202,7 @@ class MySqlite():
                                     capture_output=True, text=True,check=True,shell=True) # enc with uuid
             output = result.stdout.strip()
             output = output.split('\n\n', 1)[-1]
-            output = output[:24]
+            output = output[:32]
             value = decrypt_string(output,value)
             return value.rstrip()
         except:

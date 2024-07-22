@@ -64,6 +64,7 @@ from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 from HeartBeat import HeartBeat
+import subprocess
 
 # Global variables
 
@@ -85,30 +86,39 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
-    MySqlite.write_setting("CLIENT_ID", "1")
-    MySqlite.write_setting("heartbeat_interval", "5")
-    
-    MySqlite.write_setting("server_address", "127.0.0.1")
-    MySqlite.write_setting("server_port", "5002")
+    processes = str(subprocess.check_output("tasklist", shell=True))
+    # if nexserv.exe is running exit
+    if len(processes) > 0:
+        count = processes.count("nexserv.exe") + processes.count("NexumServer.exe")
+        if count >=3:
+            return
+        
     # create a Logger
     l = Logger()
     # init databases
     init()
     # get client info
     get_client_info()
+    MySqlite.write_setting("uuid","ajfajfbaoejbaefbagbabgo")
+    MySqlite.write_setting("CLIENT_ID","1")
+    MySqlite.write_setting("msp_api","773195a9-e346-406b-8633-328a7e1f7b33")
+    MySqlite.write_setting("server_address","127.0.0.1")
+    MySqlite.write_setting("server_port","5002")
+    MySqlite.write_setting("Status","Online")
+    MySqlite.write_setting("apikey","7e634e33-a5b5-45a4-9af9-9f60bf91c7f6")
+    
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
     IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
     # run the icon
     i.run()
     # log a messageo
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
+    l.log("INFO", "Main_client", "Main has started", "000", "main.py")
 
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
     h = HeartBeat()
-    MySqlite.write_setting("Status","running")
     FlaskServer()
 
 

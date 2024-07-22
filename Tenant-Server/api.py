@@ -29,26 +29,14 @@ class API():
     Relationship: NONE
     """
 
-    @staticmethod
-    def get_tenant_portal_url():
-        """
-        Gets the tenant portal URL from the tenant server device
-        """
-        Logger.debug_print("Getting tenant portal url")
-        # call the API from tenant server to get the tenant portal URL
-        return "https://nexum.com/tenant_portal"
+
     @staticmethod
     def get_status():
         """
         Call the API from tenant server to get the status of the client
         """
         MySqlite.write_log("INFO","API","Getting status","0",datetime.datetime.now())
-        client:Client = MySqlite.get_client(MySqlite.read_setting("CLIENT_ID"))
-        if client == None:
-            MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
-            return "not running"
-        else:
-            return client[4]
+        return MySqlite.read_setting("Status")
     @staticmethod
     def get_percent():
         """
@@ -122,22 +110,6 @@ class API():
         Logger.debug_print("Getting client id")
         # call the API from tenant server to get the client id
         return 1
-    @staticmethod
-    def get_tenant_id():
-        """
-        Call the API from tenant server to get the tenant id
-        """
-        Logger.debug_print("Getting tenant id")
-        # call the API from tenant server to get the tenant id
-        return 1
-    @staticmethod
-    def get_download_key():
-        """
-        call the API from tenant server to get the download key
-        """
-        Logger.debug_print("Getting download key")
-        # call the API from tenant server to get the download key
-        return "1234"
 
     @staticmethod
     def send_success_install(client_id,tenant_id,client_secret):
@@ -197,9 +169,7 @@ class API():
 
     @staticmethod
     def server_beat():
+        """ 
+        was intended to ping server no longer needed
         """
-        Call the API from tenant server to send the server beat
-        """
-        Logger.debug_print("Sending server beat")
-        # call the API from tenant server to send the server beat
-        return True
+        pass

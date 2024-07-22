@@ -51,6 +51,9 @@ builder.Services.AddScoped<DbNASServerService>();
 builder.Services.AddScoped<DbBackupService>();
 builder.Services.AddScoped<DbJobService>();
 builder.Services.AddScoped<HTTPJobService>();
+builder.Services.AddScoped<HTTPDeviceService>();
+builder.Services.AddScoped<HTTPNASServerService>();
+
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;

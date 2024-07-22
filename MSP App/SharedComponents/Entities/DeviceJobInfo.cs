@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharedComponents.Entities
 {
@@ -36,10 +31,6 @@ namespace SharedComponents.Entities
                     _startTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
                                               parsedTime.Hour, parsedTime.Minute, 0);
                 }
-                else
-                {
-                    throw new ArgumentException("Invalid time format. Please use HH:mm.");
-                }
             }
         }
 
@@ -53,10 +44,6 @@ namespace SharedComponents.Entities
                 {
                     _endTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
                                             parsedTime.Hour, parsedTime.Minute, 0);
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid time format. Please use HH:mm.");
                 }
             }
         }

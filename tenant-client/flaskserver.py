@@ -88,7 +88,7 @@ class FlaskServer():
             return 200
         else:
             logger.log("ERROR", "get_files", "Access denied",
-            "405", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "405", "flaskserver.py")
             return 405
         return 500
 
@@ -132,25 +132,25 @@ class FlaskServer():
         # check if the path exists
         elif not os.path.exists(path):
             logger.log("ERROR", "get_files", "Path not found",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", "flaskserver.py")
             code=404
             msg="Incorrect path"
         # check if the path is a directory
         elif not os.path.isdir(path):
             logger.log("ERROR", "get_files", "Path is not a directory",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", "flaskserver.py")
             code=404
             msg="Path is not a directory"
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
             logger.log("ERROR", "get_files", "Path is not accessible",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", "flaskserver.py")
             code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
             logger.log("ERROR", "get_files", "Path is empty",
-            "404", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+            "404", "flaskserver.py")
             code=404
             msg="Path is empty"
         # get the files and directories in the path
@@ -160,12 +160,12 @@ class FlaskServer():
                 files = os.listdir(path)
             except PermissionError:
                 logger.log("ERROR", "get_files", "Permission error",
-                "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                "1005", "flaskserver.py")
                 code = 401
                 msg = "Access Denied"
             except:
                 logger.log("ERROR", "get_files", "General Error getting files",
-                "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
+                "1002","flaskserver.py")
                 code= 500
                 msg = "Internal server error"
         else:
@@ -306,7 +306,7 @@ class FlaskServer():
             msg = "Access Denied"
         RUN_JOB_OBJECT.trigger_job()
         if code==0:
-            return "200 OK"
+            return make_response("200 OK", 200)
         else:
             return make_response(msg, code)
 
@@ -488,4 +488,4 @@ class FlaskServer():
         self.website.run()
     def __init__(self):
         Logger.debug_print("flask server started")
-        self.website.run(port=5001)
+        self.website.run(port=5001,host='0.0.0.0')

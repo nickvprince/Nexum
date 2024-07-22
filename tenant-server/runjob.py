@@ -18,12 +18,14 @@ import subprocess
 import time
 import threading
 import job
+import datetime
 from logger import Logger
 from jobsettings import JobSettings
 from flask import request
 import requests
 import json
 import base64
+import os
 from logger import Logger
 
 from sql import MySqlite
@@ -94,6 +96,8 @@ class RunJob():
         @param: self
         """
         while self.leave is False: # As long as the job is not terminated
+            GLOBAL = LOCAL_JOB
+            LOCAL_JOB.load(0)
             self.logger.log("INFO","RunJob","Checking backup statuses","0","runjob.py")
             
             if self.kill_job_var is True:
@@ -125,7 +129,7 @@ class RunJob():
                     MySqlite.write_setting("job_status","NotStarted")
                     MySqlite.write_setting("Status","ServiceOffline")
                     Logger.debug_print("Error: "+str(e))
-                time.sleep(5)
+                time.sleep(2)
                 #ensures the servce is online regardless of what happens or is supposed to happen
              
                 # check response for what happened
@@ -185,7 +189,7 @@ class RunJob():
 
                 
 
-            time.sleep(5)
+            time.sleep(2)
             try:
                 headers = {
                     "apikey": MySqlite.read_setting("apikey"),
@@ -203,32 +207,38 @@ class RunJob():
                 if LOCAL_JOB.get_settings()[2] is None or LOCAL_JOB.get_settings()[3] is None:
                     LOCAL_JOB.get_settings().start_time = ""
                     LOCAL_JOB.get_settings().stop_time = ""
-                if (LOCAL_JOB.get_settings()[2] < time.asctime()) and (LOCAL_JOB.get_settings()[3] > time.asctime()):
-                    # check if backup allowed to run today
-                    Logger.debug_print("Job Triggered by time")
-                    command='-backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
-                    self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","runjob.py")
-                    url = 'http://127.0.0.1:5004/start_job_service'
-                    body = {
-                        "start_job_commands": str(command)
-                    }
-                    headers = {
-                        "apikey": MySqlite.read_setting("apikey"),
-                        "Content-Type": "application/json"
-                    }
-                    try:
-                        response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
-                        MySqlite.write_setting("job_status","InProgress")
-                    except TimeoutError:
-                        self.logger.log("ERROR","RunJob","Timeout Error","0","runjob.py")
-                        MySqlite.write_setting("job_status","NotStarted")
-                        MySqlite.write_setting("Status","ServiceOffline")
-                    except Exception as e:
-                        self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
-                        Logger.debug_print("Error: "+str(e))
+                if (LOCAL_JOB.get_settings()[2] < str(datetime.datetime.now().time())) and (LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time())):
 
-                    # set job status to running
-                    self.job_running_var = True
+                    schedule = LOCAL_JOB.get_settings()[1]
+                    today = datetime.datetime.now().weekday()
+                    if schedule[today] == "1":
+                        # check if backup allowed to run today
+                        Logger.debug_print("Job Triggered by time")
+                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
+                        self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","runjob.py")
+                        url = 'http://127.0.0.1:5004/start_job_service'
+                        body = {
+                            "start_job_commands": str(command)
+                        }
+                        headers = {
+                            "apikey": MySqlite.read_setting("apikey"),
+                            "Content-Type": "application/json"
+                        }
+                        try:
+                            response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
+                            MySqlite.write_setting("job_status","InProgress")
+                        except TimeoutError:
+                            self.logger.log("ERROR","RunJob","Timeout Error","0","runjob.py")
+                            MySqlite.write_setting("job_status","NotStarted")
+                            MySqlite.write_setting("Status","ServiceOffline")
+                        except Exception as e:
+                            self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
+                            Logger.debug_print("Error: "+str(e))
+
+                        # set job status to running
+                        self.job_running_var = True
+                    else:
+                        pass
             else:
                 pass
 

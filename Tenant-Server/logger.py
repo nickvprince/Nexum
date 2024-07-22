@@ -50,10 +50,8 @@ class Logger():
         #ensure log files are ready
         InitSql.log_files()
 
-
-
     # log a message to the database
-    def log(self, severity, Function, message, code,filename):
+    def log(self, severity, Function, message, code,filename,alert=False,identifier=MySqlite.read_setting("CLIENT_ID")):
         """
         Information
         """
@@ -64,20 +62,41 @@ class Logger():
             "apikey": MySqlite.read_setting("apikey"),
         }
         content = {
-            "client_id": MySqlite.read_setting("CLIENT_ID"),
-            "uuid": MySqlite.read_setting("uuid"),
-            "type": convert_type(severity),
-            "Function": Function,
+            "client_id": identifier,
+            "severity": severity,
+            "function": Function,
             "message": message,
+            "uuid": MySqlite.read_setting("uuid"),
             "code": code,
             "time": date,
-            "filename": filename
+            "filename": filename,
+            "alert": alert
         }
         try:
             response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Log", headers=header, json=content,timeout=5,verify=False)
             print(response.status_code)
         except Exception as e:
             print(e)
+        
+
+        if alert is True:
+            # post to https://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}/api/DataLink/Alert
+            header ={
+                "Content-Type": "application/json",
+                "apikey": MySqlite.read_setting("apikey"),
+            }
+            content = {
+                "client_id": MySqlite.read_setting("CLIENT_ID"),
+                "uuid": MySqlite.read_setting("uuid"),
+                "type": convert_type(severity),
+                "message": message,
+                "time": date,
+            }
+            try:
+                response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Alert", headers=header, json=content,timeout=5,verify=False)
+                print(response.status_code)
+            except Exception as e:
+                print(e)
         MySqlite.write_log(severity, Function, message, code, date)
     @staticmethod
     def debug_print(message):

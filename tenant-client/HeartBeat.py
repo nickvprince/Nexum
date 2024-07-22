@@ -55,7 +55,7 @@ class HeartBeat:
                 Logger.debug_print("Error: Failed to send heartbeat")
         except:
             logger = Logger()
-            logger.log("High","HeartBeat","Failed to send heartbeat to server","1006",time.time())
+            logger.log("High","HeartBeat","Failed to send heartbeat to server","1006","heartbeat.py")
 
 
 

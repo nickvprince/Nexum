@@ -55,7 +55,7 @@ namespace App.Services
             try
             {
                 var content = new StringContent(JsonConvert.SerializeObject(""), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"Acknowledge/{id}", content);
+                var response = await _httpClient.PostAsync($"{id}/Acknowledge", content);
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<DeviceLog>(responseData);
             }

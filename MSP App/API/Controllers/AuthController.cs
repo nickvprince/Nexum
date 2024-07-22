@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities;
+using SharedComponents.WebEntities.Requests.AuthRequests;
+using SharedComponents.WebEntities.Responses.AuthResponses;
 using SharedComponents.WebRequestEntities;
 
 namespace API.Controllers
@@ -20,26 +22,30 @@ namespace API.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest  loginRequest)
+        public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request)
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(loginRequest.Username, loginRequest.Password, false, false);
+                var result = await _signInManager.PasswordSignInAsync(request.Username, request.Password, false, false);
 
                 if (result.Succeeded)
                 {
-                    ApplicationUser? user = await _userManager.FindByNameAsync(loginRequest.Username);
+                    //ApplicationUser? user = await _userManager.FindByNameAsync(request.Username);
 
-                    var response = new
+                    AuthLoginResponse response = new AuthLoginResponse
                     {
-                        data = user,
-                        message = $"'{loginRequest.Username}' - Login Successful."
+                        /*Token = TokenUtilities.GenerateToken(user),
+                        RefreshToken = TokenUtilities.GenerateRefreshToken(user),
+                        Expires = TokenUtilities.GetTokenExpiration()*/
+                        Token = request.Username + " - Token",
+                        RefreshToken = request.Username + " - RefreshToken",
+                        Expires = DateTime.Now.AddDays(1)
                     };
                     return Ok(response);
                 }
-                return Unauthorized(new { Message = $"Login failed for user '{loginRequest.Username}'. Please try again." });
+                return Unauthorized($"Login failed for user '{request.Username}'. Please try again.");
             }
-            return BadRequest(new { Message = $"Login failed. Please fill out the username and password and try again." });
+            return BadRequest($"Login failed. Please fill out the username and password and try again.");
         }
     }
 }

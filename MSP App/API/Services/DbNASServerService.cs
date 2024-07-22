@@ -107,7 +107,7 @@ namespace API.Services
             return null;
         }
 
-        public async Task<NASServer?> GetByBackupServerIdAsync(int backupServerId, int tenantId)
+        public async Task<NASServer?> GetByBackupServerIdAsync(int tenantId,int backupServerId)
         {
             try
             {
@@ -168,5 +168,36 @@ namespace API.Services
             return null;
         }
 
+        public async Task<ICollection<NASServer>?> GetAllByDeviceIdAsync(int deviceId)
+        {
+            try
+            {
+                var device = await _appDbContext.Devices
+                    .Where(d => d.Id == deviceId)
+                    .FirstAsync();
+                var jobs = await _appDbContext.DeviceJobs
+                    .Where(j => j.DeviceId == deviceId)
+                    .ToListAsync();
+
+                var nasServersFromBackups = _appDbContext.NASServers
+                    .Where(n => n.Backups.Any(b => b.Client_Id == device.DeviceInfo.ClientId && b.Uuid == device.DeviceInfo.Uuid));
+                var nasServersFromJobs = _appDbContext.NASServers
+                    .Where(n => jobs.Any(j => j.Settings.BackupServerId == n.BackupServerId));
+
+                var nasServers = await nasServersFromBackups
+                    .Union(nasServersFromJobs)
+                    .ToListAsync();
+
+                if (nasServers != null)
+                {
+                    return nasServers;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting all NAS Servers by Device ID: {ex.Message}");
+            }
+            return null;
+        }
     }
 }

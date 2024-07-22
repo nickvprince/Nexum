@@ -27,11 +27,14 @@ from jobsettings import JobSettings
 from conf import Configuration
 from sql import InitSql, MySqlite
 from HeartBeat import MY_CLIENTS
+from api import API
 
 from requests import get
 import socket
 import uuid
 import base64
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
 CLIENT_REGISTRATION_PATH = "api/DataLink/Register"
 RUN_JOB_OBJECT = None
 CLIENTS = ()
@@ -40,6 +43,7 @@ MASTER_UNINSTALL_KEY = "LJA;HFLASBFOIASH[jfnW.FJPIH"
 URLS_ROUTE="api/DataLink/Urls"
 PORT=5002
 HOST = '0.0.0.0'
+
 
 @staticmethod
 def convert_job_status():
@@ -205,7 +209,7 @@ class FlaskServer():
         client_id = data.get('client_id', '')
         code = 0
         msg = ""
-        global CLIENTS 
+        global CLIENTS
         CLIENTS = MySqlite.load_clients()
         if FlaskServer.auth(recieved_client_secret, logger, client_id) == 405:
             logger.log("ERROR", "get_files", "Access Denied",401,"flaskserver.py")
@@ -283,7 +287,8 @@ class FlaskServer():
                     url = f"http://{i[2]}:{i[3]}/start_job"
                     try:
                         logger.log("INFO", "start_job", f"Starting job on {i[0]}",0,"flaskserver.py")
-                        return requests.put(url,data={},headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
+                        response = requests.put(url,data={},headers={"apikey":MySqlite.read_setting("apikey")},timeout=10)
+                        return make_response(response.content,response.status_code)
                     except requests.exceptions.ConnectTimeout :
                         logger.log("ERROR", "start_job.relay.start_job", f"Timeout connecting to {i[0]}",
                         "500", "flaskserver.py")
@@ -490,13 +495,13 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == str(0):
                 logger.log("INFO", "modify_job", "Modifying job",0,"flaskserver.py")
-                recieved_job = data.get("0", '')
+
                 # recieve settings as json
-                recieved_settings = recieved_job.get('settings', '')
+                recieved_settings = data.get('settings', '')
 
                 job_to_save = Job()
                 job_to_save.set_id(0)
-                job_to_save.set_title(recieved_job.get('title', ''))
+                job_to_save.set_title(data.get('title', ''))
                 settings = JobSettings()
                 settings.set_id(0)
                 settings.set_schedule(recieved_settings.get('schedule', ''))
@@ -508,11 +513,16 @@ class FlaskServer():
                 settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
                 settings.set_retry_count(recieved_settings.get('retryCount', ''))
                 settings.set_retention(recieved_settings.get('retention', ''))
-                settings.backup_path=recieved_settings.get('path', '')
+
                 config = Configuration(0, 0, apikey)
-                config.address = recieved_settings.get('path', '')
-                settings.set_username(recieved_settings.get('user', ''))
-                settings.set_password(recieved_settings.get('password', ''))
+                
+                #update to use the smb share id provided instead of user password path from the request
+                server_id = recieved_settings.get('backupServerId', '')
+                server = MySqlite.get_backup_server(server_id)
+                settings.backup_path=(server[1])
+                config.address = (server[1])
+                settings.set_username(server[2])
+                settings.set_password(server[3])
 
                 job_to_save.set_settings(settings)
                 job_to_save.set_config(config)
@@ -528,6 +538,10 @@ class FlaskServer():
                         url = f"http://{i[2]}:{i[3]}/modify_job"
                         try:
                             content = request.get_json()
+                            server = MySqlite.get_backup_server(content.get('backupServerId', ''))
+                            content['backup_path'] = server[1]
+                            content['username'] = server[2]
+                            content['password'] = server[3]
                             logger.log("INFO", "modify_job", f"Modifying job on {url}",0,"flaskserver.py")
                             response=requests.request("POST", url, json=content, headers={"Content-Type":"application/json","apikey":MySqlite.read_setting("apikey")},timeout=10)
                             return make_response("", response.status_code)
@@ -550,7 +564,45 @@ class FlaskServer():
             return "401 Access Denied"
         else:
             return "500 Internal Server Error"
+    @website.route('/log', methods=['POST'], )
+    @staticmethod
+    def log():
+        """
+        Logs a message
+        """
+        logger=Logger()
+        data = request.get_json()
+        # get client secret from header
+        apikey = request.headers.get('apikey')
 
+        identification = data.get('client_id', '')
+
+        if FlaskServer.auth(apikey, logger, identification) == 200:
+            if data.get('function','') == 'status':
+                header ={
+                "Content-Type":"application/json",
+                "apikey":MySqlite.read_setting("apikey")
+                }
+                content = {
+                    "client_id": int(identification),
+                    "uuid": str(data.get('uuid','')),
+                    "status": int(data.get('code',''))
+                }
+
+                try:
+                    server_address = MySqlite.read_setting("msp_server_address")
+                    msp_port = MySqlite.read_setting("msp-port")
+                    protocol = r"https://"
+
+                    response = requests.put(f"{protocol}{server_address}:{msp_port}/api/DataLink/Update-Device-Status", headers=header, json=content,timeout=5,verify=False)
+                    return make_response(response.content,response.status_code)
+                except Exception:
+                    logger.log("ERROR","log", "Failed to post status","1009","flaskserver.py")
+                    
+            else:
+                logger.log(data.get('severity', ''), data.get('function', ''), data.get('message', ''), data.get('code', ''), data.get('file', ''), data.get('alert', 'False'))
+                return "200 OK"
+        return make_response("401 Access Denied", 401)
     @website.route('/nexum', methods=['GET'], )
     @staticmethod
     def nexum():
@@ -564,19 +616,19 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, 0) == 200:
             try:
                 logger.log("INFO", "nexum", "Getting URLS",0,"flaskserver.py")
-                requestsecond = requests.request("GET", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/{"urls"}",
+                url=(f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/{"api/DataLink/Urls"}")
+                requestsecond = requests.request("GET", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/{"api/DataLink/Urls"}",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
 
                 requestsecond = requestsecond.json()
 
-                server_url=request["nexumUrl"]
-
-                requestsecond = requests.request("GET", f"{server_url}",
+                server_url=requestsecond["nexumUrlLocal"]
+                requestsecond = requests.request("GET", f"https://{server_url}",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
                 logger.log("INFO", "nexum", "Got Nexum File.. Relaying",0,"flaskserver.py")
-                return request
+                return make_response(requestsecond.content,requestsecond.status_code)
 
 
             except Exception as e:
@@ -600,19 +652,19 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             try:
                 logger.log("INFO", "nexumservice", "Getting URLS",0,"flaskserver.py")
-                request = requests.request("GET", f"{"http://"}{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("server_port")}/{"urls"}",
+                request = requests.request("GET", f"{"http://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/api/DataLink/Urls",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
 
                 request = request.json()
 
-                service_url=request["nexumServiceUrl"]
+                service_url=request["nexumServiceUrlLocal"]
 
-                request = requests.request("GET", f"{service_url}",
+                request = requests.request("GET", f"https://{service_url}",
                         timeout=10, headers={"Content-Type": "application/json","apikey":MySqlite.read_setting("apikey")},
                         verify=False)
                 logger.log("INFO", "nexumservice", "Got Nexum Service File.. Relaying",0,"flaskserver.py")
-                return request
+                return make_response(request.content,request.status_code)
 
 
             except Exception as e:
@@ -695,9 +747,33 @@ class FlaskServer():
         identification = data.get('client_id', '')
         logger=Logger()
         if FlaskServer.auth(apikey, logger, identification) == 200:
-            pass
-        return "200 OK"
-    
+            if identification == str(0):
+                API.server_beat()
+                return make_response("200 OK", 200)
+            else:
+                for client in CLIENTS:
+                    if client[0] == identification:
+                        url = f"http://{client[2]}:{client[3]}/force_checkin"
+                        try:
+                            logger.log("INFO", "force_checkin", f"Forcing checkin from {url}",0,"flaskserver.py")
+                            response=requests.post(url, headers={"apikey":apikey,"Content-Type": "application/json"},json={},timeout=10,verify=False)
+                            return make_response(response.content,response.status_code)
+                        except requests.exceptions.ConnectTimeout :
+                            logger.log("ERROR", "force_checkin.relay.force_checkin", f"Timeout connecting to {client[0]}",
+                            "500", "flaskserver.py")
+                            code=402
+                            msg=f"Timeout connecting to {client[0]}"
+                        except requests.exceptions.ConnectionError:
+                            logger.log("ERROR", "force_checkin.relay.force_checkin", f"Error connecting to {client[0]}",
+                            "500", "flaskserver.py")
+                            code=402
+                            msg=f"Error connecting to {client[0]}"
+                        except Exception as e:
+                            logger.log("ERROR", "force_checkin.relay.force_checkin", "Internal server error"+ str(e),500,"flaskserver.py")
+                            msg = "Internal server error"
+                            code = 500
+                return make_response("Client not found", 403)
+        make_response("Internal server error", 500)
 
     @website.route('/restore', methods=['POST'], )
     @staticmethod
@@ -1155,7 +1231,7 @@ class FlaskServer():
             "name":socket.gethostname(),
             "uuid":uid,
             "client_Id":identification,
-            "ipaddress":socket.gethostbyname(socket.gethostname()),
+            "ipaddress":ip,
             "port":port,
             "type":type,
             "macaddresses":[
@@ -1195,20 +1271,36 @@ class FlaskServer():
         the client is sent a 200 ok response and the msp is notified --INTERNAL-- AND --EXTERNAL--
         """
         # change this to check with msp for uninstall ###########################################
-        secret = request.headers.get('clientSecret')
-        key = request.headers.get('key')
+        secret = request.headers.get('apikey')
+        key = request.json.get('key','')
+
+        uuid = request.json.get('uuid', '')
+        client_id = request.json.get('client_id', '')
         logger = Logger()
         if FlaskServer.auth(secret, logger, 0) == 200:
-            if key == MySqlite.read_setting("Master-Uninstall"):
-                body = request.get_json()
-                identification = body.get('clientid', '')
-                if MySqlite.get_last_checkin(identification) == None:
-                    return make_response("403 Rejected - Client does not exist", 403)
-                MySqlite.delete_client(identification)
-                return make_response("200 ok", 200)
-            else:
-                logger.log("ERROR", "uninstall", "Key does not match",1201, "flaskserver.py")
-                return make_response("403 Rejected", 403)
+            headers = {
+            "Content-Type": "application/json",
+            "apikey": secret
+            }
+            content = {
+            "uninstallationKey": key,
+            "uuid": uuid,
+            "client_Id": client_id
+            }
+            try:
+                response = requests.post(f"https://{MySqlite.read_setting('msp_server_address')}:{MySqlite.read_setting('msp-port')}/api/DataLink/Uninstall",
+                                        headers=headers, json=content, timeout=15, verify=False)
+                if response.status_code == 200:
+                    return make_response(response.content, response.status_code)
+                else:
+                    logger.log("ERROR", "uninstall", f"Failed to connect to MSP: {response.status_code}", response.status_code, "flaskserver.py")
+                    return make_response(response.content, response.status_code)
+
+            except Exception as e:
+                
+
+                logger.log("ERROR", "uninstall", f"Failed to connect to MSP: {e}", 500, "flaskserver.py")
+                return make_response("Failed to contact MSP", 500)
         else:
             logger.log("ERROR", "uninstall", "Access Denied",405,"flaskserver.py")
             return make_response("401 Access Denied", 401)
