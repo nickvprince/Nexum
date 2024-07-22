@@ -1,0 +1,15 @@
+﻿<div class="container-fluid text-white" style="word-wrap: break-word; word-break: break-all;">
+    @{
+        var claims = AuthCookieUtilities.GetClaims(Context);
+    }
+    <h5>Cookie Claims</h5>
+    @foreach (var (key, value) in claims)
+    {
+        <p class="lh-1">@key: @value</p>
+    }
+    <h5>Session Claims</h5>
+    @foreach (var key in Context.Session.Keys)
+    {
+        <p class="lh-1">@key: @Context.Session.GetString(key)</p>
+    }
+</div>

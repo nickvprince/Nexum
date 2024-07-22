@@ -4,78 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - App</title>
-    <link rel="stylesheet" href="~/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/App.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-dark-subtle">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-secondary-subtle border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">App</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <p class="nav navbar-text">Hello, @User.Identity?.Name!</p>
-                </div>
-            </div>
-        </nav>
-        @{
-            var claims = AuthCookieUtilities.GetClaims(Context);
-        }
-        <h3>Cookie Claims</h3>
-        <ul>
-            @foreach (var (key, value) in claims)
-            {
-                <li>@key: @value</li>
-            }
-        </ul>
-        <h3>Session Claims</h3>
-        @*for developement*@
-        <ul>
-            @foreach (var key in Context.Session.Keys)
-            {
-                <li>@key: @Context.Session.GetString(key)</li>
-            }
-        </ul>
+<body class="bg-dark bg-gradient">
+    <header class="mb-1">
+        <partial name="_NavBarPartial" />
     </header>
-    <div class="bg-secondary-subtle">
-        <main role="main" class="pb-3 my-auto">
-            @if (TempData.ContainsKey("LastActionMessage"))
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["LastActionMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
-            @if (TempData.ContainsKey("ErrorMessage"))
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    @TempData["ErrorMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
+    <main role="main">
+        <partial name="_CookieSessionListPartial" /> @*for developement*@
+        <partial name="_TempDataMessagePartial" />
+        <div class="container-fluid p-0">
             @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted bg-secondary-subtle">
-        <div class="container">
-            &copy; 2024 - App - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </main>
+    <footer>
+        <div class="text-light text-end text-nowrap me-5">
+            &copy; 2024 Nexum Inc. <a asp-area="" asp-controller="Home" asp-action="Privacy" style="color:inherit;">Privacy</a>.
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @* <script src="_framework/blazor.server.js"></script> *@
     @await RenderSectionAsync("Scripts", required: false)

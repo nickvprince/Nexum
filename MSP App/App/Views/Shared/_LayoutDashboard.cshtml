@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - App</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="bg-dark bg-gradient">
+    <header class="mb-1">
+        <partial name="_NavBarPartial" />
+    </header>
+    <main role="main">
+        <partial name="_CookieSessionListPartial" /> @*for developement*@
+        <partial name="_TempDataMessagePartial" />
+        <div class="container-fluid p-0">
+            <div class="row gx-0">
+                <div class="col-1 p-0">
+                    <partial name="_DashboardSideNavPartial" />
+                </div>
+                <div class="col-11 p-0">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="text-light text-end text-nowrap me-5">
+            &copy; 2024 Nexum Inc. <a asp-area="" asp-controller="Home" asp-action="Privacy" style="color:inherit;">Privacy</a>.
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @* <script src="_framework/blazor.server.js"></script> *@
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -6,18 +6,21 @@ using System.Security.Claims;
 using SharedComponents.Services.APIRequestServices.Interfaces;
 using SharedComponents.Entities.WebEntities.Requests.AuthRequests;
 using SharedComponents.Entities.WebEntities.Responses.AuthResponses;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace App.Controllers
 {
     public class AuthController : Controller
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAPIRequestAuthService _authService;
         private readonly IAPIRequestUserService _userService;
 
-        public AuthController(IAPIRequestAuthService authService, IAPIRequestUserService userService)
+        public AuthController(IAPIRequestAuthService authService, IAPIRequestUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _authService = authService;
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
@@ -28,7 +31,7 @@ namespace App.Controllers
             {
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
-                    return RedirectToAction("Index", "Dashboard");
+                    return RedirectToAction("Index", "Home");
                 }
             }
             return await Task.FromResult(View());
@@ -44,7 +47,6 @@ namespace App.Controllers
                     Username = authViewModel.Username,
                     Password = authViewModel.Password
                 };
-
                 AuthLoginResponse? response = await _authService.LoginAsync(request);
                 if (response != null)
                 {
@@ -66,7 +68,7 @@ namespace App.Controllers
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
                     
                     TempData["LastActionMessage"] = $"(Auth) : Success";
-                    return RedirectToAction("Index", "Dashboard");
+                    return RedirectToAction("Index", "Home");
                 }
                 TempData["ErrorMessage"] = $"(Auth) : Failed";
             }
