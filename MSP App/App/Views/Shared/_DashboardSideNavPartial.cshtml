@@ -1,4 +1,4 @@
-﻿<nav id="sideNav" class="nav flex-xxl-column d-flex align-items-center justify-content-between flex-nowrap">
+﻿<nav id="sideNav" class="nav flex-xxl-column d-flex align-items-center flex-nowrap">
     <a class="nav-link text-center" asp-controller="Home" role="button" style="color:white;">
         <i class="bi bi-house-door d-flex justify-content-center"></i>
         <p class="m-0 dashboard-nav-text">Home</p>
@@ -24,14 +24,42 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         function updateSideNavClasses() {
-            var sideNav = document.getElementById('sideNav');
-            if (window.innerWidth < 1400) { // breakpoint for Bootstrap
-                sideNav.classList.remove('justify-content-between', 'dashboard-nav-left');
-                sideNav.classList.add('justify-content-center', 'dashboard-nav-top');
-            } else {
-                sideNav.classList.remove('justify-content-center', 'dashboard-nav-top');
-                sideNav.classList.add('justify-content-between', 'dashboard-nav-left');
-            }
+            var sideNavs = document.querySelectorAll('#sideNav');
+            sideNavs.forEach(function (sideNav) {
+                var navLinks = sideNav.getElementsByTagName('a');
+
+                if (window.innerWidth < 1400) { // breakpoint for Bootstrap
+                    sideNav.classList.remove('justify-content-between', 'dashboard-nav-left');
+                    sideNav.classList.add('justify-content-center', 'dashboard-nav-top');
+                    for (var i = 0; i < navLinks.length; i++) {
+                        if(i == 0) {
+                            navLinks[i].classList.remove('mb-auto', 'mt-5');
+                            navLinks[i].classList.add('my-auto', 'ms-5');
+                        }
+                        if (i == navLinks.length - 1) {
+                            navLinks[i].classList.remove('mt-auto', 'mb-5');
+                            navLinks[i].classList.add('my-auto', 'me-5');
+                        }
+                        navLinks[i].classList.remove('my-auto');
+                        navLinks[i].classList.add('mx-auto');
+                    }
+                } else {
+                    sideNav.classList.remove('justify-content-center', 'dashboard-nav-top');
+                    sideNav.classList.add('justify-content-between', 'dashboard-nav-left');
+                    for (var i = 0; i < navLinks.length; i++) {
+                        if (i == 0) {
+                            navLinks[i].classList.remove('my-auto', 'ms-5');
+                            navLinks[i].classList.add('mb-auto', 'mt-5');
+                        }
+                        if (i == navLinks.length - 1) {
+                            navLinks[i].classList.remove('my-auto', 'me-5');
+                            navLinks[i].classList.add('mt-auto', 'mb-5');
+                        }
+                        navLinks[i].classList.remove('mx-auto');
+                        navLinks[i].classList.add('my-auto');
+                    }
+                }
+            });
         }
 
         // Run the function on load
