@@ -164,7 +164,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("InstallationKey.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("InstallationKey.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -199,7 +199,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
-        [HasPermission("InstallationKey.Get-By-Tenant.Permission", PermissionType.Tenant)]
+        [HasPermission("InstallationKey.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)

@@ -70,7 +70,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Software.Get-All.Permission", PermissionType.System)]
+        [HasPermission("Software.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             ICollection<SoftwareFile> softwareFiles = await _dbSoftwareService.GetAllAsync();
@@ -82,6 +82,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Latest-Nexum-Version")]
+        [HasPermission("Software.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetLatestNexumAsync()
         {
             SoftwareFile? softwareFile = await _dbSoftwareService.GetLatestNexumAsync();
@@ -93,6 +94,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Latest-Nexum-Server-Version")]
+        [HasPermission("Software.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetLatestNexumServerAsync()
         {
             SoftwareFile? softwareFile = await _dbSoftwareService.GetLatestNexumServerAsync();
@@ -104,6 +106,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Latest-Nexum-Service-Version")]
+        [HasPermission("Software.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetLatestNexumServiceAsync()
         {
             SoftwareFile? softwareFile = await _dbSoftwareService.GetLatestNexumServiceAsync();

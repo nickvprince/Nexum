@@ -104,7 +104,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Acknowledge")]
-        [HasPermission("Log.Acknowledge.Permission", PermissionType.Tenant)]
+        [HasPermission("Log.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> AcknowledgeAsync(int id)
         {
             if (ModelState.IsValid)
@@ -203,7 +203,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Log.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -238,7 +238,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
-        [HasPermission("Log.Get-By-Device.Permission", PermissionType.Tenant)]
+        [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
@@ -268,7 +268,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
-        [HasPermission("Log.Get-By-Tenant.Permission", PermissionType.Tenant)]
+        [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)

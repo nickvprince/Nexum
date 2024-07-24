@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using API.Services.DbServices;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using SharedComponents.Entities.DbEntities;
 using SharedComponents.Entities.WebEntities.Requests.TenantRequests;
 using SharedComponents.Handlers.Attributes.HasPermission;
 using SharedComponents.Handlers.Results;
+using SharedComponents.JWTToken.Services;
 using SharedComponents.Services.APIServices.Interfaces;
 using SharedComponents.Services.DbServices.Interfaces;
 
@@ -14,12 +17,20 @@ namespace API.Controllers
     public class TenantController : ControllerBase
     {
         private readonly IDbTenantService _dbTenantService;
+        private readonly IDbRoleService _dbRoleService;
+        private readonly IDbPermissionService _dbPermissionService;
         private readonly IAPIAuthService _authService;
+        private readonly IJWTService _jwtService;
 
-        public TenantController(IDbTenantService dbTenantService, IAPIAuthService authService)
+        public TenantController(IDbTenantService dbTenantService, IDbRoleService dbRoleService,
+            IDbPermissionService dbPermissionService, IAPIAuthService authService,
+            IJWTService jwtService)
         {
             _dbTenantService = dbTenantService;
+            _dbRoleService = dbRoleService;
+            _dbPermissionService = dbPermissionService;
             _authService = authService;
+            _jwtService = jwtService;
         }
 
         [HttpPost("")]
@@ -46,7 +57,58 @@ namespace API.Controllers
                 tenant = await _dbTenantService.CreateAsync(tenant);
                 if (tenant != null)
                 {
-                    return Ok(tenant);
+                    ApplicationRole? adminRole = await _dbRoleService.CreateAsync(new ApplicationRole
+                    {
+                        Name = $"Tenant Admin - {tenant.Name}",
+                        Description = $"Admin Role for the tenant: {tenant.Name}",
+                        IsActive = true,
+                    });
+                    ApplicationRole? tenantRole = await _dbRoleService.CreateAsync(new ApplicationRole
+                    {
+                        Name = $"Tenant Viewer - {tenant.Name}",
+                        Description = $"Tenant role for viewing information for the tenant: {tenant.Name}",
+                        IsActive = true,
+                    });
+                    if (adminRole != null && tenantRole != null)
+                    {
+                        ICollection<Permission>? permissions = await _dbPermissionService.GetAllAsync();
+                        if (permissions != null)
+                        {
+                            foreach (Permission permission in permissions.Where(p => p.Type == PermissionType.Tenant))
+                            {
+                                if (!await _dbRoleService.AssignPermissionAsync(new ApplicationRolePermission
+                                {
+                                    RoleId = adminRole.Id,
+                                    PermissionId = permission.Id,
+                                    TenantId = tenant.Id
+                                }))
+                                {
+                                    return BadRequest("Error assigning permissions to the admin role.");
+                                }
+                            }
+                            foreach (Permission permission in permissions.Where(p => p.Type == PermissionType.Tenant && p.Name.Contains("Get")))
+                            {
+                                if (!await _dbRoleService.AssignPermissionAsync(new ApplicationRolePermission
+                                {
+                                    RoleId = tenantRole.Id,
+                                    PermissionId = permission.Id,
+                                    TenantId = tenant.Id
+                                }))
+                                {
+                                    return BadRequest("Error assigning permissions to the tenant role.");
+                                }
+                            }
+                            if (!await _dbRoleService.AssignAsync(new ApplicationUserRole
+                            {
+                                RoleId = adminRole.Id,
+                                UserId = await _jwtService.GetUserIdFromTokenAsync(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""))
+                            }))
+                            {
+                                return BadRequest("Error assigning role to the user.");
+                            }
+                            return Ok(tenant);
+                        }
+                    }
                 }
                 return BadRequest("An error occurred while creating the tenant.");
             }
@@ -143,7 +205,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}/Rich")]
-        [HasPermission("Tenant.Get-Rich.Permission", PermissionType.Tenant)]
+        [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetRichAsync(int id)
         {
             if (ModelState.IsValid)
@@ -165,12 +227,28 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Tenant.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
             {
-                ICollection<Tenant>? tenants = await _dbTenantService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<Tenant>? tenants = new List<Tenant>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenant = await _dbTenantService.GetAsync((int)tenantId);
+                        if (tenant != null)
+                        {
+                            tenants.Add(tenant);
+                        }
+                    }
+                }
                 if (tenants != null)
                 {
                     if (tenants.Any())
