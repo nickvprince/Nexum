@@ -221,7 +221,7 @@ namespace API.Controllers
         }
 
         [HttpPut("Status")]
-        [HasPermission("Device.Update-Status.Permission", PermissionType.Tenant)]
+        [HasPermission("Device.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateStatusAsync([FromBody] DeviceUpdateStatusRequest request)
         {
             if (ModelState.IsValid)
@@ -301,7 +301,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Device.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("Device.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -336,7 +336,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
-        [HasPermission("Device.Get-By-Tenant.Permission", PermissionType.Tenant)]
+        [HasPermission("Device.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
@@ -361,7 +361,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Refresh")]
-        [HasPermission("Device.Refresh.Permission", PermissionType.Tenant)]
+        [HasPermission("Device.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> RefreshAsync(int id)
         {
             if (ModelState.IsValid)

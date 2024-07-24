@@ -115,7 +115,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("User.Get-All.Permission", PermissionType.System)]
+        [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -143,7 +143,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Id/{id}")]
-        [HasPermission("User.Get-By-Id.Permission", PermissionType.System)]
+        [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             if (ModelState.IsValid)
@@ -171,7 +171,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Username/{username}")]
-        [HasPermission("User.Get-By-Username.Permission", PermissionType.System)]
+        [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByUserNameAsync(string username)
         {
             if (ModelState.IsValid)

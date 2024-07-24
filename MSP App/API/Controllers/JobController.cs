@@ -175,7 +175,7 @@ namespace API.Controllers
         }
 
         [HttpPut("Status")]
-        [HasPermission("Job.Update-Status.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateStatusAsync([FromBody] JobUpdateStatusRequest request)
         {
             if (ModelState.IsValid)
@@ -277,7 +277,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Job.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -312,7 +312,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
-        [HasPermission("Job.Get-By-Device.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
@@ -342,7 +342,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
-        [HasPermission("Job.Get-By-Tenant.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)
@@ -367,7 +367,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Start")]
-        [HasPermission("Job.Start.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> StartAsync(int id)
         {
             if (ModelState.IsValid)
@@ -401,7 +401,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Pause")]
-        [HasPermission("Job.Pause.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> PauseAsync(int id)
         {
             if (ModelState.IsValid)
@@ -435,7 +435,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Resume")]
-        [HasPermission("Job.Resume.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> ResumeAsync(int id)
         {
             if (ModelState.IsValid)
@@ -469,7 +469,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Stop")]
-        [HasPermission("Job.Stop.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> StopAsync(int id)
         {
             if (ModelState.IsValid)
@@ -503,7 +503,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/Refresh")]
-        [HasPermission("Job.Refresh.Permission", PermissionType.Tenant)]
+        [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> RefreshAsync(int id)
         {
             if (ModelState.IsValid)

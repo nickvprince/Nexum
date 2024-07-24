@@ -90,7 +90,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Permission.Get-All.Permission", PermissionType.System)]
+        [HasPermission("Permission.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)

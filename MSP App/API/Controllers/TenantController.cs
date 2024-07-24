@@ -143,7 +143,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}/Rich")]
-        [HasPermission("Tenant.Get-Rich.Permission", PermissionType.Tenant)]
+        [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetRichAsync(int id)
         {
             if (ModelState.IsValid)
@@ -165,7 +165,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Tenant.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
