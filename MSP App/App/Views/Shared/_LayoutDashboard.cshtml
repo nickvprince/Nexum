@@ -14,7 +14,6 @@
     </header>
     <main role="main">
         @*<partial name="_CookieSessionListPartial" /> @*for developement*@
-        <partial name="_TempDataMessagePartial" />
         <div class="container-fluid p-0">
             <div class="row gx-0">
                 <div class="col-xxl-1 p-0 d-none d-xxl-block" style="overflow-y: auto; overflow-x: hidden;">
@@ -24,6 +23,7 @@
                     <div class="d-xxl-none mb-1" style="overflow-x: auto; overflow-y: hidden;">
                         <partial name="_DashboardSideNavPartial" />
                     </div>
+                    <partial name="_TempDataMessagePartial" />
                     @RenderBody()
                 </div>
             </div>
