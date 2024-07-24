@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.IdentityModel.Tokens;
 using System.Net;
 
 namespace API.Middleware
@@ -30,7 +31,16 @@ namespace API.Middleware
                 await context.Response.WriteAsync($"{message}");
                 return;
             }
-            await _defaultHandler.HandleAsync(next, context, policy, authorizeResult);
+
+            try
+            {
+                await _defaultHandler.HandleAsync(next, context, policy, authorizeResult);
+            }
+            catch (SecurityTokenException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                await context.Response.WriteAsync($"Token validation failed: {ex.Message}");
+            }
         }
     }
 }

@@ -152,7 +152,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("Backup.Get-All.Permission", PermissionType.Tenant)]
+        [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -187,7 +187,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Device/{deviceId}")]
-        [HasPermission("Backup.Get-By-Device.Permission", PermissionType.Tenant)]
+        [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
         {
             if (ModelState.IsValid)
@@ -217,7 +217,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Tenant/{tenantId}")]
-        [HasPermission("Backup.Get-By-Tenant.Permission", PermissionType.Tenant)]
+        [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
         {
             if (ModelState.IsValid)

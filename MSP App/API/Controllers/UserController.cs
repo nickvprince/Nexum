@@ -5,6 +5,7 @@ using SharedComponents.Entities.WebEntities.Responses.UserResponses;
 using SharedComponents.Handlers.Attributes.HasPermission;
 using SharedComponents.Services.DbServices.Interfaces;
 using SharedComponents.Utilities;
+using System.Data;
 
 namespace API.Controllers
 {
@@ -14,10 +15,15 @@ namespace API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IDbUserService _dbUserService;
+        private readonly IDbRoleService _dbRoleService;
+        private readonly IDbTenantService _dbTenantService;
 
-        public UserController(IDbUserService dbUserService)
+        public UserController(IDbUserService dbUserService, IDbRoleService dbRoleService,
+            IDbTenantService dbTenantService)
         {
             _dbUserService = dbUserService;
+            _dbRoleService = dbRoleService;
+            _dbTenantService = dbTenantService;
         }
 
         [HttpPost("")]
@@ -26,6 +32,7 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
+                Tenant? tenant = null;
                 ApplicationUser user = new ApplicationUser
                 {
                     UserName = request.UserName,
@@ -39,12 +46,34 @@ namespace API.Controllers
                 }
                 else
                 {
+                    tenant = await _dbTenantService.GetAsync((int)request.TenantId);
+                    if (tenant == null)
+                    {
+                        return NotFound("Tenant not found.");
+                    }
                     user.Type = AccountType.Tenant;
-                    user.TenantId = request.TenantId;
+                    user.TenantId = tenant.Id;
+                    
                 }
                 string? defaultPassword = SecurityUtilities.GenerateDefaultRandomPassword();
                 if (await _dbUserService.CreateAsync(user, defaultPassword))
                 {
+                    if(user.Type == AccountType.Tenant)
+                    {
+                        ICollection<ApplicationRole> roles = await _dbRoleService.GetAllAsync();
+                        ApplicationRole tenantViewerRole = roles.FirstOrDefault(r => r.Name != null && r.Name.Contains($"Tenant Viewer - {tenant.Name}"));
+                        if (tenantViewerRole != null)
+                        {
+                            if (!await _dbRoleService.AssignAsync(new ApplicationUserRole
+                            {
+                                UserId = user.Id,
+                                RoleId = tenantViewerRole.Id
+                            }))
+                            {
+                                return BadRequest("An error occurred while assigning the role.");
+                            }
+                        }
+                    }
                     UserCreateResponse response = new UserCreateResponse
                     {
                         UserName = user.UserName,
@@ -115,7 +144,7 @@ namespace API.Controllers
         }
 
         [HttpGet("")]
-        [HasPermission("User.Get-All.Permission", PermissionType.System)]
+        [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
         {
             if (ModelState.IsValid)
@@ -143,7 +172,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Id/{id}")]
-        [HasPermission("User.Get-By-Id.Permission", PermissionType.System)]
+        [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByIdAsync(string id)
         {
             if (ModelState.IsValid)
@@ -171,7 +200,7 @@ namespace API.Controllers
         }
 
         [HttpGet("By-Username/{username}")]
-        [HasPermission("User.Get-By-Username.Permission", PermissionType.System)]
+        [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByUserNameAsync(string username)
         {
             if (ModelState.IsValid)

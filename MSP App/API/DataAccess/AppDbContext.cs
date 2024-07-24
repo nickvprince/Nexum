@@ -291,6 +291,8 @@ namespace API.DataAccess
                 context.Tenants.AddRange(tenant1, tenant2, tenant3);
                 context.SaveChanges();
 
+                var tenants = context.Tenants.ToList();
+
                 // Add TenantInfos with the correct TenantId
                 var tenantInfo1 = new TenantInfo { Name = "Dave Seagel", Email = "dseagel@td.com", Phone = "123-456-7890", TenantId = tenant1.Id, Address = "123 Laurelwood dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "A1B 2C3" };
                 var tenantInfo2 = new TenantInfo { Name = "John Doe", Email = "jdoe@rbc.com", Phone = "098-765-4321", TenantId = tenant2.Id, Address = "213 destiny dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "2C3 A1B" };
@@ -343,7 +345,9 @@ namespace API.DataAccess
                 // Add Permissions
                 var permissions = new List<Permission>();
                 var routePermissionList = ControllerUtilities.GetAllRoutes();
-                foreach (var (httpMethod, route, permissionName, type) in routePermissionList)
+                routePermissionList = routePermissionList.DistinctBy(r => r.Permission).ToList();
+
+                foreach (var (httpMethod, route, permissionName, type) in routePermissionList.Where(rpl => rpl.Type == PermissionType.Tenant))
                 {
                     var permission = new Permission { Name = $"{permissionName}", Description = $"{EnumUtilities.EnumToString(type)} permission for {httpMethod} {route}", Type = type };
                     permissions.Add(permission);
@@ -351,32 +355,52 @@ namespace API.DataAccess
                 }
                 context.SaveChanges();
 
-                // Add ApplicationRole
-                var role1 = new ApplicationRole { Name = "AdminRole", Description = "Role for admins", IsActive = true };
-                var role2 = new ApplicationRole { Name = "UserRole", Description = "Role for users", IsActive = true };
+                foreach (var (httpMethod, route, permissionName, type) in routePermissionList.Where(rpl => rpl.Type == PermissionType.System))
+                {
+                    var permission = new Permission { Name = $"{permissionName}", Description = $"{EnumUtilities.EnumToString(type)} permission for {httpMethod} {route}", Type = type };
+                    permissions.Add(permission);
+                    context.Permissions.Add(permission);
+                }
 
-                context.ApplicationRoles.AddRange(role1, role2);
                 context.SaveChanges();
+
+                // Add ApplicationRole
+                var role1 = new ApplicationRole { Name = $"System Admin", Description = "Role for system admin", IsActive = true };
+                context.ApplicationRoles.Add(role1);
+                context.SaveChanges();
+
+                foreach (var tenant in tenants)
+                {
+                    var roleTA = new ApplicationRole { Name = $"Tenant Admin - {tenant.Name}", Description = $"Admin Role for the tenant: {tenant.Name}", IsActive = true };
+                    var roleTV = new ApplicationRole { Name = $"Tenant Viewer - {tenant.Name}", Description = $"Tenant role for viewing information for the tenant: {tenant.Name}", IsActive = true };
+                    
+                    context.ApplicationRoles.AddRange(roleTA, roleTV);
+                }
+
+                context.SaveChanges();
+                var roles = context.ApplicationRoles.ToList();
 
                 // Add UserRoles
                 var userRole1 = new ApplicationUserRole { RoleId = role1.Id, UserId = adminUserId, IsActive = true };
-                var userRole2 = new ApplicationUserRole { RoleId = role2.Id, UserId = normalUserId, IsActive = true };
+                context.ApplicationUserRoles.Add(userRole1);
+                context.SaveChanges();
 
-                context.ApplicationUserRoles.AddRange(userRole1, userRole2);
+                foreach (var role in roles.Where(r => r.Name.Contains("Tenant Admin")).ToList())
+                {
+                    var userRole = new ApplicationUserRole { RoleId = role.Id, UserId = adminUserId, IsActive = true };
+                    context.ApplicationUserRoles.Add(userRole);
+                }
+                context.SaveChanges();
+                foreach (var role in roles.Where(r => r.Name.Contains("Tenant Viewer")).ToList())
+                {
+                    var userRole = new ApplicationUserRole { RoleId = role.Id, UserId = normalUserId, IsActive = true };
+                    context.ApplicationUserRoles.Add(userRole);
+                }
+
                 context.SaveChanges();
 
                 // Add RolePermissions
-                var tenants = context.Tenants.ToList();
-                foreach (var tenant in tenants)
-                {
-                    foreach (var permission in permissions.Where(p => p.Type == PermissionType.Tenant))
-                    {
-                        var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id, TenantId = tenant.Id };
-                        context.ApplicationRolePermissions.Add(rolePermission);
-                    }
-                    context.SaveChanges();
-                }
-
+                
                 foreach (var permission in permissions.Where(p => p.Type == PermissionType.System))
                 {
                     var rolePermission = new ApplicationRolePermission { RoleId = role1.Id, PermissionId = permission.Id };
@@ -384,11 +408,22 @@ namespace API.DataAccess
                 }
 
                 context.SaveChanges();
-
-                var rolePermission2 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(1).Id, TenantId = tenant2.Id };
-                var rolePermission3 = new ApplicationRolePermission { RoleId = role2.Id, PermissionId = permissions.ElementAt(2).Id, TenantId = tenant3.Id };
-
-                context.ApplicationRolePermissions.AddRange(rolePermission2, rolePermission3);
+                
+                foreach (var tenant in tenants)
+                {
+                    var currRoleTA = roles.FirstOrDefault(r => r.Name.Contains($"Tenant Admin - {tenant.Name}"));
+                    foreach (var permission in permissions.Where(p => p.Type == PermissionType.Tenant))
+                    {
+                        var rolePermission = new ApplicationRolePermission { RoleId = currRoleTA.Id, PermissionId = permission.Id, TenantId = tenant.Id };
+                        context.ApplicationRolePermissions.Add(rolePermission);
+                    }
+                    var currRoleTV = roles.FirstOrDefault(r => r.Name.Contains($"Tenant Viewer - {tenant.Name}"));
+                    foreach (var permission in permissions.Where(p => p.Type == PermissionType.Tenant && p.Name.Contains("Get")))
+                    {
+                        var rolePermission = new ApplicationRolePermission { RoleId = currRoleTV.Id, PermissionId = permission.Id, TenantId = tenant.Id };
+                        context.ApplicationRolePermissions.Add(rolePermission);
+                    }
+                }
                 context.SaveChanges();
 
                 // Add SoftwareFiles
