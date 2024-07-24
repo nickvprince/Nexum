@@ -170,7 +170,23 @@ namespace API.Controllers
         {
             if (ModelState.IsValid)
             {
-                ICollection<Tenant>? tenants = await _dbTenantService.GetAllAsync();
+                var tenantIds = await _authService.GetUserAccessibleTenantsAsync(Request.Headers["Authorization"].ToString());
+                if (tenantIds == null)
+                {
+                    return new CustomForbidResult("User does not have any tenant permissions");
+                }
+                List<Tenant>? tenants = new List<Tenant>();
+                foreach (var tenantId in tenantIds)
+                {
+                    if (tenantId != null)
+                    {
+                        var tenant = await _dbTenantService.GetAsync((int)tenantId);
+                        if (tenant != null)
+                        {
+                            tenants.Add(tenant);
+                        }
+                    }
+                }
                 if (tenants != null)
                 {
                     if (tenants.Any())
