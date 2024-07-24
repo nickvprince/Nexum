@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a17885cd-14f2-4fee-82e0-47d7ab234dda",
+		"_postman_id": "aceccc80-c986-4cb2-ba0f-e203f4868bc1",
 		"name": "Nexum Web API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "26488212"
@@ -1185,12 +1185,10 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:7101/api/Tenant/{{tenantId}}/Rich",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/api/Tenant/{{tenantId}}/Rich",
 									"host": [
-										"localhost"
+										"{{baseUrl}}"
 									],
-									"port": "7101",
 									"path": [
 										"api",
 										"Tenant",
