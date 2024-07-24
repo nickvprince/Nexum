@@ -28,19 +28,31 @@ h4 {
     font-size: clamp(20px, 2.5vw, 65px);
 }
 
-p {
-    font-size: clamp(1vw, 1.5vw, 1.5vw);
-}
-
-i {
-    font-size: clamp(0vh, 5vw, 5vw);
-}
-
 hr {
     margin-top: 0px;
     margin-bottom: 10px;
 }
 
+i {
+    font-size: calc((8vh + 3vw + 3vh + 8vw)/3);
+}
+
 .no-dropdown-arrow::after {
     display: none;
+}
+
+.dashboard-nav-left {
+    height: 90vh;
+    max-width: 10vw;
+    position: sticky;
+}
+
+.dashboard-nav-top {
+    height: auto;
+    max-width: 100%;
+    position: relative;
+}
+
+.dashboard-nav-text {
+    font-size: clamp(0rem, 1rem, 1rem);
 }

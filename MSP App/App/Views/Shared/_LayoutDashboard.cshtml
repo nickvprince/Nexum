@@ -17,10 +17,13 @@
         <partial name="_TempDataMessagePartial" />
         <div class="container-fluid p-0">
             <div class="row gx-0">
-                <div class="col-1 p-0">
+                <div class="col-xxl-1 p-0 d-none d-xxl-block" style="overflow-y: auto;">
                     <partial name="_DashboardSideNavPartial" />
                 </div>
-                <div class="col-11 p-0">
+                <div class="col-12 col-xxl-11 p-0">
+                    <div class="d-xxl-none mb-1" style="overflow-x: auto;">
+                        <partial name="_DashboardSideNavPartial" />
+                    </div>
                     @RenderBody()
                 </div>
             </div>

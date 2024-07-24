@@ -1,26 +1,43 @@
-﻿<nav id="sideNav" class="nav flex-column d-flex align-items-center justify-content-center" style="top: auto; height: 90vh; overflow-y: auto; position: sticky;">
-    <a class="nav-link text-center p-0" asp-controller="Home" role="button" style="color:white;">
+﻿<nav id="sideNav" class="nav flex-xxl-column d-flex align-items-center justify-content-between flex-nowrap">
+    <a class="nav-link text-center" asp-controller="Home" role="button" style="color:white;">
         <i class="bi bi-house-door d-flex justify-content-center"></i>
-        <p class="m-0">Home</p>
+        <p class="m-0 dashboard-nav-text">Home</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Job" role="button" style="color:white;">
+    <a class="nav-link text-center" asp-controller="Job" role="button" style="color:white;">
         <i class="bi bi-calendar-check d-flex justify-content-center"></i>
-        <p class="m-0">Jobs</p>
+        <p class="m-0 dashboard-nav-text">Jobs</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Storage" role="button" style="color:white;">
+    <a class="nav-link text-center" asp-controller="Storage" role="button" style="color:white;">
         <i class="bi bi-server d-flex justify-content-center"></i>
-        <p class="m-0">Storage</p>
+        <p class="m-0 dashboard-nav-text">Storage</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Alert" role="button" style="color:white;">
+    <a class="nav-link text-center" asp-controller="Alert" role="button" style="color:white;">
         <i class="bi bi-exclamation-triangle d-flex justify-content-center"></i>
-        <p class="m-0">Alerts</p>
+        <p class="m-0 dashboard-nav-text">Alerts</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Log" role="button" style="color:white;">
+    <a class="nav-link text-center" asp-controller="Log" role="button" style="color:white;">
         <i class="bi bi-file-earmark-text d-flex justify-content-center"></i>
-        <p class="m-0">Logs</p>
+        <p class="m-0 dashboard-nav-text">Logs</p>
     </a>
 </nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateSideNavClasses() {
+            var sideNav = document.getElementById('sideNav');
+            if (window.innerWidth < 1400) { // breakpoint for Bootstrap
+                sideNav.classList.remove('justify-content-between', 'dashboard-nav-left');
+                sideNav.classList.add('justify-content-center', 'dashboard-nav-top');
+            } else {
+                sideNav.classList.remove('justify-content-center', 'dashboard-nav-top');
+                sideNav.classList.add('justify-content-between', 'dashboard-nav-left');
+            }
+        }
+
+        // Run the function on load
+        updateSideNavClasses();
+
+        // Add event listener for window resize
+        window.addEventListener('resize', updateSideNavClasses);
+    });
+</script>

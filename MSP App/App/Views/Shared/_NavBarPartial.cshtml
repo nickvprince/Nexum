@@ -1,16 +1,16 @@
 ﻿<nav id="topNavbar" class="navbar bg-dark py-0">
-    <div class="container-fluid bg-dark" style="max-height: 10vh; overflow:hidden">
+    <div class="container-fluid bg-dark" style="overflow-x:auto">
         <a class="text-center p-0" asp-controller="Home" asp-action="Index" role="button" style="color:white;">
-            <div class="d-flex justify-content-center">
-                <img src="~/images/NexumLong.png" alt="Nexum Logo" style="max-width: 210px;" />
+            <div class="d-flex justify-content-center py-1">
+                <img src="~/images/NexumLong.png" alt="Nexum Logo" style="min-width: 6vw; max-width: 12vw;" />
             </div>
         </a>
         <h4 class="text-white">@ViewData["Title"]</h4>
         <div class="dropdown">
-            <button id="navDropdownMenuButton" class="btn btn-dark d-flex no-dropdown-arrow" data-bs-toggle="dropdown">
-                <i class="bi bi-gear" style="font-size: 2rem;"></i>
+            <button id="navDropdownMenuButton" class="btn btn-dark d-flex no-dropdown-arrow p-0" data-bs-toggle="dropdown">
+                <i class="bi bi-gear" style="font-size: 3.25vw;"></i>
             </button>
-            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-dark dropdown-menu-end" style="display: none; position: fixed; top: 10vh; right: 1vw;">
                 <li><a class="dropdown-item" href="#">@(User.Identity?.Name ?? "Settings")</a></li>
                 <li><a class="dropdown-item" href="#">Admin Panel</a></li>
                 <li><a class="dropdown-item" href="#">Logout</a></li>
@@ -18,3 +18,10 @@
         </div>
     </div>
 </nav>
+
+<script>
+    document.getElementById('navDropdownMenuButton').addEventListener('click', function () {
+        var dropdownMenu = document.getElementById('navDropdownMenu');
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>
