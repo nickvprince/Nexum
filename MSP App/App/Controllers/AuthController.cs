@@ -7,6 +7,7 @@ using SharedComponents.Services.APIRequestServices.Interfaces;
 using SharedComponents.Entities.WebEntities.Requests.AuthRequests;
 using SharedComponents.Entities.WebEntities.Responses.AuthResponses;
 using Microsoft.AspNetCore.Mvc.Filters;
+using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
@@ -24,7 +25,7 @@ namespace App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> IndexAsync(string? returnUrl = null)
         {
             var users = await _userService.GetAllAsync();
             if(HttpContext.User.Identity != null)
@@ -34,11 +35,15 @@ namespace App.Controllers
                     return RedirectToAction("Index", "Home");
                 }
             }
+            if(returnUrl != null)
+            {
+                HttpContext.Session.SetString("ReturnUrl", URLUtilities.CapitalizeFirstLetterAfterSlashes(returnUrl));
+            }
             return await Task.FromResult(View());
         }
 
         [HttpPost]
-        public async Task<IActionResult> IndexAsync(AuthViewModel authViewModel)
+        public async Task<IActionResult> IndexAsync(AuthViewModel authViewModel, string? returnUrl = null)
         {
             if (ModelState.IsValid)
             {
@@ -68,7 +73,15 @@ namespace App.Controllers
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
                     
                     TempData["LastActionMessage"] = $"(Auth) : Success";
-                    return RedirectToAction("Index", "Home");
+
+                    if (Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 TempData["ErrorMessage"] = $"(Auth) : Failed";
             }

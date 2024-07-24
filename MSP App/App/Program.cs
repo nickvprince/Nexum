@@ -3,6 +3,7 @@ using App.Middleware;
 using App.Services.APIRequestServices;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using SharedComponents.JWTToken.Entities;
 using SharedComponents.Services.APIRequestServices.Interfaces;
@@ -59,6 +60,8 @@ builder.Services.AddScoped<IAPIRequestRoleService, APIRequestRoleService>();
 builder.Services.AddScoped<IAPIRequestTenantService, APIRequestTenantService>();
 builder.Services.AddScoped<IAPIRequestUserService, APIRequestUserService>();
 
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AppAuthorizationMiddlewareResultHandler>();
+
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -74,6 +77,7 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
     options.SlidingExpiration = true;
     options.LoginPath = "/Auth/Login";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
 })
 .AddJwtBearer(options =>
 {
