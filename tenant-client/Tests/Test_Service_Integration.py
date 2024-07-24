@@ -1,4 +1,7 @@
 import unittest
+import os
+import sys
+sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 class serviceTests(unittest.TestCase):

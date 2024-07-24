@@ -13,9 +13,9 @@
 
 """
 # pylint: disable= import-error, unused-argument
+import sqlite3
 import conf
 import jobsettings
-import sqlite3
 from InitSql import settingsDirectory
 from InitSql import job_settingsFile
 from InitSql import configFile

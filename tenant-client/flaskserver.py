@@ -15,9 +15,7 @@
 # pylint: disable= import-error, global-statement,unused-argument
 
 import os
-import time
 from flask import Flask, request,make_response
-from security import Security, CLIENT_SECRET
 from logger import Logger
 from job import Job
 from jobsettings import JobSettings
@@ -25,6 +23,27 @@ from conf import Configuration
 from MySqlite import MySqlite
 from api import API
 RUN_JOB_OBJECT = None
+
+
+
+
+# SETTINGS
+API_KEY_SETTING = "apikey"
+MSP_API_SETTING = "msp_api"
+JOB_STATUS_SETTING = "job_status"
+STATUS_SETTING = "Status"
+CLIENT_ID_SETTING = "CLIENT_ID"
+
+# NETWORK
+HOST = "0.0.0.0"
+PORT = 5001
+
+# GENERAL
+RX_API_KEY = "apikey"
+FILE_NAME = "flaskserver.py"
+RX_CLIENT_ID = "client_id"
+RX_PATH = "path"
+
 
 
 
@@ -50,7 +69,7 @@ def convert_device_status():
     """
     Converts the status to a enum
     """
-    status = MySqlite.read_setting("Status")
+    status = MySqlite.read_setting(STATUS_SETTING)
     if status == "Online":
         return 1
     elif status == "Offline":
@@ -82,13 +101,13 @@ class FlaskServer():
         Authenticates server requests
         """
 
-        apikey = MySqlite.read_setting("apikey")
+        apikey = MySqlite.read_setting(API_KEY_SETTING)
         msp_api = MySqlite.read_setting("msp_api")
         if str(apikey) == str(recieved_client_secret) or str(recieved_client_secret) == str(msp_api):
             return 200
         else:
             logger.log("ERROR", "get_files", "Access denied",
-            "405", "flaskserver.py")
+            "405", FILE_NAME)
             return 405
         return 500
 
@@ -118,11 +137,11 @@ class FlaskServer():
         # get the json body
         data = request.get_json()
         # get the path from the json body
-        path = data.get('path', '')
+        path = data.get(RX_PATH, '')
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
         # get the ID from the json body
-        identification = data.get('client_id', '')
+        identification = data.get(RX_CLIENT_ID, '')
         code = 0
         msg = ""
         if FlaskServer.auth(recieved_client_secret, logger, identification) == 405:
@@ -132,25 +151,25 @@ class FlaskServer():
         # check if the path exists
         elif not os.path.exists(path):
             logger.log("ERROR", "get_files", "Path not found",
-            "404", "flaskserver.py")
+            "404", FILE_NAME)
             code=404
             msg="Incorrect path"
         # check if the path is a directory
         elif not os.path.isdir(path):
             logger.log("ERROR", "get_files", "Path is not a directory",
-            "404", "flaskserver.py")
+            "404", FILE_NAME)
             code=404
             msg="Path is not a directory"
         # check if the path is accessible
         elif not os.access(path, os.R_OK):
             logger.log("ERROR", "get_files", "Path is not accessible",
-            "404", "flaskserver.py")
+            "404", FILE_NAME)
             code=404
             msg="Path is not accessible"
         # check if the path is empty
         elif not os.listdir(path):
             logger.log("ERROR", "get_files", "Path is empty",
-            "404", "flaskserver.py")
+            "404", FILE_NAME)
             code=404
             msg="Path is empty"
         # get the files and directories in the path
@@ -160,12 +179,12 @@ class FlaskServer():
                 files = os.listdir(path)
             except PermissionError:
                 logger.log("ERROR", "get_files", "Permission error",
-                "1005", "flaskserver.py")
+                "1005", FILE_NAME)
                 code = 401
                 msg = "Access Denied"
             except:
                 logger.log("ERROR", "get_files", "General Error getting files",
-                "1002","flaskserver.py")
+                "1002",FILE_NAME)
                 code= 500
                 msg = "Internal server error"
         else:
@@ -183,13 +202,14 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        if FlaskServer.auth(recieved_client_secret, logger,
+                        MySqlite.read_setting(CLIENT_ID_SETTING)) == 405:
             return make_response("401 Access Denied", 401)
-        elif FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 200:
+        elif FlaskServer.auth(recieved_client_secret, logger,
+                        MySqlite.read_setting(CLIENT_ID_SETTING)) == 200:
             # get job info and send back
             return make_response("200 OK", 200)
         else:
@@ -203,10 +223,10 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -223,11 +243,11 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret,
+                                logger, MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -238,7 +258,7 @@ class FlaskServer():
             return make_response (content,200)
         else:
             return make_response("500 Internal Server Error", 500)
-        
+
     @website.route('/get_job_status', methods=['POST'], )
     @staticmethod
     def get_job_status():
@@ -247,11 +267,11 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -262,7 +282,7 @@ class FlaskServer():
             return make_response (content,200)
         else:
             return make_response("500 Internal Server Error", 500)
-        
+
     @website.route('/get_version', methods=['GET'], )
     @staticmethod
     def get_version():
@@ -271,11 +291,11 @@ class FlaskServer():
         """
         logger=Logger()
         # get the json body
-        data = request.get_json()
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -284,7 +304,7 @@ class FlaskServer():
             return make_response ("200 OK", 200,{"version":version})
         else:
             return make_response("500 Internal Server Error", 500)
-        
+
 # -------------------------------------- GET ROUTES ------------------------------------------------
 
 # -------------------------------------- PUT ROUTES ------------------------------------------------
@@ -297,11 +317,12 @@ class FlaskServer():
         logger=Logger()
 
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        if FlaskServer.auth(recieved_client_secret, logger,
+                        MySqlite.read_setting(CLIENT_ID_SETTING)) == 405:
             code = 401
             msg = "Access Denied"
         RUN_JOB_OBJECT.trigger_job()
@@ -318,11 +339,12 @@ class FlaskServer():
         """
         logger=Logger()
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
         # get the ID from the json body
         code = 0
         msg = ""
-        if FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID")) == 405:
+        if FlaskServer.auth(recieved_client_secret, logger,
+                        MySqlite.read_setting(CLIENT_ID_SETTING)) == 405:
             code = 401
             msg = "Access Denied"
         RUN_JOB_OBJECT.stop_job()
@@ -341,9 +363,10 @@ class FlaskServer():
         # get the json body
 
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -362,9 +385,10 @@ class FlaskServer():
         # get the json body
 
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -383,9 +407,10 @@ class FlaskServer():
         # get the json body
 
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
@@ -407,13 +432,13 @@ class FlaskServer():
         # get the json body
 
         # get the clientSecret from the json body
-        recieved_client_secret = request.headers.get('apikey', '')
+        recieved_client_secret = request.headers.get(RX_API_KEY, '')
 
-        authcode= FlaskServer.auth(recieved_client_secret, logger, MySqlite.read_setting("CLIENT_ID"))
+        authcode= FlaskServer.auth(recieved_client_secret, logger,
+                                MySqlite.read_setting(CLIENT_ID_SETTING))
         if authcode == 405:
             return make_response("401 Access Denied", 401)
         elif authcode == 200:
-            pass # restore files
             return make_response ("200 OK", 200)
         else:
             return make_response("500 Internal Server Error", 500)
@@ -431,17 +456,17 @@ class FlaskServer():
         logger=Logger()
         data = request.get_json()
         # get client secret from header
-        secret = request.headers.get('apikey')
+        secret = request.headers.get(RX_API_KEY)
 
 
-        if FlaskServer.auth(secret, logger, MySqlite.read_setting("CLIENT_ID")) == 200:
+        if FlaskServer.auth(secret, logger, MySqlite.read_setting(CLIENT_ID_SETTING)) == 200:
             recieved_job = data.get("0", '')
             # recieve settings as json
             recieved_settings = recieved_job.get('settings', '')
 
 
             job_to_save = Job()
-            job_to_save.set_id(MySqlite.read_setting("CLIENT_ID"))
+            job_to_save.set_id(MySqlite.read_setting(CLIENT_ID_SETTING))
             job_to_save.set_title(recieved_job.get('title', ''))
 
             # create a settings object
@@ -473,7 +498,7 @@ class FlaskServer():
                 job_to_save.save()
                 RUN_JOB_OBJECT.set_job(job_to_save)
                 return "200 OK"
-            except Exception as e :
+            except Exception:
                 return make_response("Job exists",200)
         elif FlaskServer.auth(secret, logger, id) == 405:
             return "401 Access Denied"
@@ -488,4 +513,4 @@ class FlaskServer():
         self.website.run()
     def __init__(self):
         Logger.debug_print("flask server started")
-        self.website.run(port=5001,host='0.0.0.0')
+        self.website.run(port=PORT,host=HOST)

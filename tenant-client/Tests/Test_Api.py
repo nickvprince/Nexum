@@ -1,4 +1,7 @@
 import unittest
+import os
+import sys
+sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from api import API
 from job import Job
 import jobsettings
@@ -102,3 +105,6 @@ class TestAPI(unittest.TestCase):
     def test_send_success_install(self):
         expected_status = True
         self.assertEqual(API.send_success_install(MySqlite.read_setting("CLIENT_ID"),0,0), expected_status)
+
+if __name__ == '__main__':
+    unittest.main()

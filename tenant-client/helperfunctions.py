@@ -20,50 +20,43 @@
 # pylint: disable= import-error, global-statement,unused-argument
 
 import os
-import time
 import pandas as pd
-from security import CLIENT_SECRET
 from api import API
 from logger import Logger
 from InitSql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH
 from MySqlite import MySqlite
+
+
+#SETTINGS
+CLIENT_ID_SETTING = "CLIENT_ID"
+TENANT_PORTAL_URL_SETTING = "TENANT_PORTAL_URL"
+POLLING_INTERVAL_SETTING = "POLLING_INTERVAL"
+
+#GENERAL 
 POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
-TENANT_ID = -1 # tenant id
-TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
+FILENAME = "helperfunctions.py" # name of the log file
+DEFAULT_PORTAL_URL = "https://nexum.com/tenant_portal"
 
+#ROUTES
+TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
+DOWNLOAD_PATH = f"C:\\Users\\{os.getlogin()}\\Downloads\\nexumlog.csv"
 # pylint: disable= bare-except
 # pylint: disable= global-statement
 
-def get_uuid():
 
-    """
-    Get the UUID of the computer
-    """
-    # get the UUID of the computer
-    return "1234-567"
 
 def load():
     """
     Load the client secret
     """
-    global TENANT_ID
     global CLIENT_ID
     global TENANT_PORTAL_URL
     global POLLING_INTERVAL
-    TENANT_ID = MySqlite.read_setting("TENANT_ID")
-    CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
-    TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
-    POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
+    CLIENT_ID = MySqlite.read_setting(CLIENT_ID_SETTING)
+    TENANT_PORTAL_URL = MySqlite.read_setting(TENANT_PORTAL_URL_SETTING)
+    POLLING_INTERVAL = MySqlite.read_setting(POLLING_INTERVAL_SETTING)
     # add global variables from all other modules
-
-def check_install_key(key, secret, server, port):
-    """
-    Check the install key with the server to see 
-    if the install is valid
-    """
-    # check the install key
-    return True
 
 
 def get_client_info():
@@ -71,10 +64,8 @@ def get_client_info():
     Used to pull information from database and pull remaining information from the server
     """
     global CLIENT_ID
-    global TENANT_ID
     global TENANT_PORTAL_URL
     client_id_set = False
-    tenant_id_set = False
     tenant_portal_url_set = False
     settings_dict = {}
     logger = Logger()
@@ -88,10 +79,10 @@ def get_client_info():
         conn.close()
     except FileNotFoundError:
         logger.log("ERROR", "get_client_info", "Settings file not found",
-        "1003", "helperfunctions.py")
+        "1003", FILENAME)
     except:
         logger.log("ERROR", "get_client_info", "General Error getting settings",
-        "1002", "helperfunctions.py")
+        "1002", FILENAME)
 
     # Append each setting and value to a dictionary
     for row in settings_df.iterrows():
@@ -107,39 +98,27 @@ def get_client_info():
     except KeyError:
         CLIENT_ID = -1
         logger.log("ERROR", "get_client_info", "CLIENT_ID not found in settings",
-        "1001", "helperfunctions.py")
+        "1001", FILENAME)
     except:
         CLIENT_ID = -1
         logger.log("ERROR", "get_client_info", "General Error getting CLIENT_ID from settings",
-        "1002", "helperfunctions.py")
+        "1002", FILENAME)
 
-    # get tenant ID
-    try:
-        TENANT_ID = settings_dict.get('TENANT_ID', -1)
-        tenant_id_set = True
-    except KeyError:
-        TENANT_ID = -1
-        logger.log("ERROR", "get_client_info", "TENANT_ID not found in settings",
-        "1001", "helperfunctions.py")
-    except:
-        TENANT_ID = -1
-        logger.log("ERROR", "get_client_info", "General Error getting TENANT_ID from settings",
-        "1002", "helperfunctions.py")
 
     # Get tenant portal
     try:
         TENANT_PORTAL_URL = settings_dict.get('TENANT_PORTAL_URL',
-        "https://nexum.com/tenant_portal")
+        DEFAULT_PORTAL_URL)
         tenant_portal_url_set = True
     except KeyError:
-        TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
+        TENANT_PORTAL_URL = DEFAULT_PORTAL_URL
         logger.log("ERROR", "get_client_info", "TENANT_PORTAL_URL not found in settings",
-        "1001", "helperfunctions.py")
+        "1001", FILENAME)
     except:
-        TENANT_PORTAL_URL = "https://nexum.com/tenant_portal"
+        TENANT_PORTAL_URL = DEFAULT_PORTAL_URL
         logger.log("ERROR", "get_client_info",
         "General Error getting TENANT_PORTAL_URL from settings",
-        "1002", "helperfunctions.py")
+        "1002", FILENAME)
 
     API.get_job()
 
@@ -161,10 +140,9 @@ def save_client_info():
     conn = sqlite3.connect(SETTINGS_PATH)
     cursor = conn.cursor()
 
-    # Insert the client_id, TENANT_ID, and TENANT_PORTAL_URL
+    # Insert TENANT_PORTAL_URL
     # and Polling interval  into the settings table
     cursor.execute("INSERT INTO settings (setting, value) VALUES ('client_id', ?)", (CLIENT_ID,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_ID', ?)", (TENANT_ID,))
     cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_PORTAL_URL', ?)",
     (TENANT_PORTAL_URL,))
     cursor.execute("INSERT INTO settings (setting, value) VALUES ('POLLING_INTERVAL', ?)",
@@ -182,8 +160,7 @@ def logs():
     Writes logs to the users downloads folder
     """
     logger = Logger()
-    current_user = os.getlogin()
-    file_path = f"C:\\Users\\{current_user}\\Downloads\\nexumlog.csv" # download logs to CSV file in users downloads
+    file_path = DOWNLOAD_PATH # download logs to CSV file in users downloads
     InitSql.log_files()
     try:
         # Connect to the logs database
@@ -199,10 +176,10 @@ def logs():
         logs_df.to_csv(file_path, index=False)
     except FileNotFoundError:
         logger.log("ERROR", "logs", "Log file not found",
-        "1003", "helperfunctions.py")
+        "1003", FILENAME)
     except:
         logger.log("ERROR", "logs", "General Error getting logs",
-        "1002", "helperfunctions.py")
+        "1002", FILENAME)
 
 def tenant_portal():
     """

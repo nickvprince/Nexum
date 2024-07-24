@@ -51,20 +51,17 @@ Error Codes
 
 # pylint: disable= no-member,no-name-in-module, import-error
 
-
-import time
+import subprocess
 from logger import Logger
-from MySqlite import MySqlite
+#from MySqlite import MySqlite
 from InitSql import InitSql
 from runjob import RunJob, LOCAL_JOB
 from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
-from job import Job
-from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 from HeartBeat import HeartBeat
-import subprocess
+
 
 # Global variables
 
@@ -89,17 +86,17 @@ def main():
     processes = str(subprocess.check_output("tasklist", shell=True))
     # if nexserv.exe is running exit
     if len(processes) > 0:
-        count = processes.count("nexserv.exe") + processes.count("NexumServer.exe")
+        count = processes.count("nexum.exe") + processes.count("Nexum.exe")
         if count >=3:
             return
-        
+
     # create a Logger
     l = Logger()
     # init databases
     init()
     # get client info
     get_client_info()
-    
+
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
     IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
@@ -111,7 +108,7 @@ def main():
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
-    h = HeartBeat()
+    _ = HeartBeat()
     FlaskServer()
 
 
