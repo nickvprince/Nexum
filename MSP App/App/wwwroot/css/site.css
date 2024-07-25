@@ -74,15 +74,11 @@ i {
 }
 
 /* Highlight color and shadow on hover */
-.nav-link:hover {
+.nav-link:hover, .nav-link.active {
     box-shadow: inset 0px 0px 150px rgba(243, 229, 255, 1); /* Shadow on hover */
 }
 
-.nav-link:hover i {
-    color: rgba(30, 4, 51, 1);
-    transform: scale(1.1);
-}
-.nav-link:hover p {
+.nav-link:hover i, .nav-link:hover p, .nav-link.active i, .nav-link.active p  {
     color: rgba(30, 4, 51, 1);
     transform: scale(1.1);
 }

@@ -13,7 +13,7 @@
         <partial name="_NavBarPartial" />
     </header>
     <main role="main" class="bg-nexum-dark bg-gradient">
-        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
+        <partial name="_CookieSessionListPartial" /> @*for developement*@
         <div class="container-fluid p-0">
             <div class="row gx-0">
                 <div id="dashPartial1" class="col-xxl-1 p-0 d-none d-xxl-block rounded-end-5 border border-3 border-light" style="overflow-y: auto; overflow-x: hidden;">
@@ -101,5 +101,62 @@
     document.getElementById('navDropdownMenuButton').addEventListener('click', function () {
         var dropdownMenu = document.getElementById('navDropdownMenu');
         dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function setActiveLink(linkId) {
+            var sideNavs = document.querySelectorAll('#sideNav');
+            sideNavs.forEach(function (sideNav) {
+                var navLinks = sideNav.querySelectorAll('.nav-link');
+                navLinks.forEach(function (link) {
+                    link.classList.remove('active');
+                });
+            });
+            var activeLinks = document.querySelectorAll(`#${linkId}`);
+            activeLinks.forEach(function (activeLink) {
+                activeLink.classList.add('active');
+            });
+        }
+
+        // Get the active link from session storage
+        var activeLinkId = '@Context.Session.GetString("ActiveNavLink")';
+        if (activeLinkId) {
+            console.log('Active link from session:', activeLinkId);
+            setActiveLink(activeLinkId);
+        } else {
+            console.log('No active link found in session storage.');
+        }
+
+        // Add click event listeners to each nav link
+        var sideNavs = document.querySelectorAll('#sideNav');
+        sideNavs.forEach(function (sideNav) {
+            var navLinks = sideNav.querySelectorAll('.nav-link');
+            navLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    event.preventDefault();
+                    var linkId = this.id;
+                    var targetUrl = this.getAttribute('href');
+
+                    console.log('Clicked link id:', linkId);
+                    setActiveLink(linkId);
+                    console.log(JSON.stringify({ activeLinkId: linkId }));
+                    // Save the active link to session storage via Ajax request
+                    $.ajax({
+                        type: 'POST',
+                        url: '/api/Session',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ activeLinkId: linkId }),
+                        success: function () {
+                            console.log('Active link saved to session storage:', linkId);
+                            window.location.href = targetUrl;
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Failed to save active link to session storage:', error);
+                        }
+                    });
+                });
+            });
+        });
     });
 </script>
