@@ -15,8 +15,12 @@
     <main role="main" class="bg-nexum-dark bg-gradient">
         @*<partial name="_CookieSessionListPartial" /> @*for developement*@
         <div class="container-fluid p-0">
-            <partial name="_TempDataMessagePartial" />
-            @RenderBody()
+            <div class="row gx-0">
+                <div class="col-11 col-xxl-10 p-0 mx-auto">
+                    <partial name="_TempDataMessagePartial" />
+                    @RenderBody()
+                </div>
+            </div>
         </div>
     </main>
     <partial name="_FooterPartial" />

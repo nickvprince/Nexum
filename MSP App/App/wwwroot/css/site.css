@@ -91,6 +91,7 @@ i {
     background-color: rgba(30, 4, 51, 1);
     border-color: #ffffff;
     border-width: 1px;
+    overflow: hidden;
 }
 
 .btn-login-nexum-dark:hover {
