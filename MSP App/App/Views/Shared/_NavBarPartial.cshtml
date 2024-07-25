@@ -1,27 +1,21 @@
-﻿<nav id="topNavbar" class="navbar bg-dark py-0">
-    <div class="container-fluid bg-dark" style="overflow-x:auto">
+﻿<nav id="topNavbar" class="navbar py-0">
+    <div class="container-fluid" style="overflow-x:auto">
         <a class="text-center p-0" asp-controller="Home" asp-action="Index" role="button" style="color:white;">
             <div class="d-flex justify-content-center py-1">
                 <img src="~/images/NexumLong.png" alt="Nexum Logo" style="min-width: 6vw; max-width: 12vw;" />
             </div>
         </a>
-        <h4 class="text-white">@ViewData["Title"]</h4>
+        <h4 class="text-nexum-light">@ViewData["Title"]</h4>
         <div class="dropdown">
-            <button id="navDropdownMenuButton" class="btn btn-dark d-flex no-dropdown-arrow p-0" data-bs-toggle="dropdown">
-                <i class="bi bi-gear" style="font-size: 3.25vw;"></i>
+            <button id="navDropdownMenuButton" class="btn btn-nexum-gear-dark d-flex no-dropdown-arrow p-0" data-bs-toggle="dropdown">
+                <i class="bi bi-gear text-light" style="font-size: 3.25vw;"></i>
             </button>
-            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-dark dropdown-menu-end" style="display: none; position: fixed; top: 10vh; right: 1vw;">
-                <li><a class="dropdown-item" href="#">@(User.Identity?.Name ?? "Settings")</a></li>
-                <li><a class="dropdown-item" href="#">Admin Panel</a></li>
-                <li><a class="dropdown-item" href="#">Logout</a></li>
+            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-end" style="display: none; position: fixed; top: 5vh; right: 2vw;">
+                <li><a class="dropdown-item text-light" href="#">Admin Panel</a></li>
+                <li><hr class="dropdown-divider bg-light"></li>
+                <li><a class="dropdown-item text-light" href="#">@(User.Identity?.Name ?? "Settings")</a></li>
+                <li><a class="dropdown-item text-light" href="#">Logout</a></li>
             </ul>
         </div>
     </div>
 </nav>
-
-<script>
-    document.getElementById('navDropdownMenuButton').addEventListener('click', function () {
-        var dropdownMenu = document.getElementById('navDropdownMenu');
-        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-    });
-</script>

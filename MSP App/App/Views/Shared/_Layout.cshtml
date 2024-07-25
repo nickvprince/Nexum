@@ -3,27 +3,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - App</title>
+    <title>@ViewData["Title"] - Nexum</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="bg-dark bg-gradient">
-    <header class="mb-1 sticky-top">
+    <header class="bg-nexum-dark bg-gradient sticky-top">
         <partial name="_NavBarPartial" />
     </header>
-    <main role="main">
+    <main role="main" class="bg-nexum-dark bg-gradient">
         @*<partial name="_CookieSessionListPartial" /> @*for developement*@
         <div class="container-fluid p-0">
             <partial name="_TempDataMessagePartial" />
             @RenderBody()
         </div>
     </main>
-    <footer>
-        <div class="text-light text-end text-nowrap me-5">
-            &copy; 2024 Nexum Inc. <a asp-area="" asp-controller="Home" asp-action="Privacy" style="color:inherit;">Privacy</a>.
-        </div>
-    </footer>
+    <partial name="_FooterPartial" />
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -31,3 +27,10 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<script>
+    document.getElementById('navDropdownMenuButton').addEventListener('click', function () {
+        var dropdownMenu = document.getElementById('navDropdownMenu');
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>

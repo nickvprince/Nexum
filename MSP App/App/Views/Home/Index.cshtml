@@ -2,57 +2,47 @@
     ViewData["Title"] = "Summary";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div class="border text-center border-light text-white container-fluid">
+<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
+    <div class="text-center text-white container-fluid">
         <!-- First Row: 2 Cards -->
-        <div class="row my-3">
-            <div class="col-6 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 1</h5>
-                        <p class="card-text text-light">This is the first card.</p>
-                    </div>
+        <div class="d-flex flex-wrap justify-content-center my-3">
+            <div class="card bg-nexum-dark m-1" style="flex: 1 1 calc(50% - 2rem);">
+                <div class="card-body p-0">
+                    <h5 class="card-title text-light">Card 1</h5>
+                    <p class="card-text text-light">This is the first card.</p>
                 </div>
             </div>
-            <div class="col-6 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 2</h5>
-                        <p class="card-text text-light">This is the second card.</p>
-                    </div>
+            <div class="card bg-nexum-dark m-1" style="flex: 1 1 calc(50% - 2rem);">
+                <div class="card-body p-0">
+                    <h5 class="card-title text-light">Card 2</h5>
+                    <p class="card-text text-light">This is the second card.</p>
                 </div>
             </div>
         </div>
         <!-- Second Row: 3 Cards -->
-        <div class="row mb-3">
-            <div class="col-4 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 3</h5>
-                        <p class="card-text text-light">This is the third card.</p>
-                    </div>
+        <div class="d-flex flex-wrap justify-content-center mb-3">
+            <div class="card bg-nexum-dark m-1" style="flex: 1 1 calc(33.33% - 2rem);">
+                <div class="card-body p-0">
+                    <h5 class="card-title text-light">Card 3</h5>
+                    <p class="card-text text-light">This is the third card.</p>
                 </div>
             </div>
-            <div class="col-4 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 4</h5>
-                        <p class="card-text text-light">This is the fourth card.</p>
-                    </div>
+            <div class="card bg-nexum-dark m-1" style="flex: 1 1 calc(33.33% - 2rem);">
+                <div class="card-body p-0">
+                    <h5 class="card-title text-light">Card 4</h5>
+                    <p class="card-text text-light">This is the fourth card.</p>
                 </div>
             </div>
-            <div class="col-4 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 5</h5>
-                        <p class="card-text text-light">This is the fifth card.</p>
-                    </div>
+            <div class="card bg-nexum-dark m-1" style="flex: 1 1 calc(33.33% - 2rem);">
+                <div class="card-body p-0">
+                    <h5 class="card-title text-light">Card 5</h5>
+                    <p class="card-text text-light">This is the fifth card.</p>
                 </div>
             </div>
         </div>
     </div>
     <br />
-    <div id="alertContentBox" class="border text-center border-light text-white"></div>
+    <div id="alertContentBox" class="text-center text-white"></div>
 </div>
 
 @section Scripts {

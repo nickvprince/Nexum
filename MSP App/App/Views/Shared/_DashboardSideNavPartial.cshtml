@@ -1,71 +1,32 @@
 ﻿<nav id="sideNav" class="nav flex-xxl-column d-flex align-items-center flex-nowrap">
-    <a class="nav-link text-center" asp-controller="Home" role="button" style="color:white;">
-        <i class="bi bi-house-door d-flex justify-content-center"></i>
-        <p class="m-0 dashboard-nav-text">Home</p>
-    </a>
-    <a class="nav-link text-center" asp-controller="Job" role="button" style="color:white;">
-        <i class="bi bi-calendar-check d-flex justify-content-center"></i>
-        <p class="m-0 dashboard-nav-text">Jobs</p>
-    </a>
-    <a class="nav-link text-center" asp-controller="Storage" role="button" style="color:white;">
-        <i class="bi bi-server d-flex justify-content-center"></i>
-        <p class="m-0 dashboard-nav-text">Storage</p>
-    </a>
-    <a class="nav-link text-center" asp-controller="Alert" role="button" style="color:white;">
-        <i class="bi bi-exclamation-triangle d-flex justify-content-center"></i>
-        <p class="m-0 dashboard-nav-text">Alerts</p>
-    </a>
-    <a class="nav-link text-center" asp-controller="Log" role="button" style="color:white;">
-        <i class="bi bi-file-earmark-text d-flex justify-content-center"></i>
-        <p class="m-0 dashboard-nav-text">Logs</p>
-    </a>
+    <div class="">
+        <a class="nav-link rounded-5 p-3" asp-controller="Home" role="button" style="color:white;">
+            <i class="bi bi-house-door d-flex justify-content-center text-nexum-light"></i>
+            <p class="m-0 text-center dashboard-nav-text text-nexum-light">Home</p>
+        </a>
+    </div>
+    <div class="">
+        <a class="nav-link rounded-5 p-3" asp-controller="Job" role="button" style="color:white;">
+            <i class="bi bi-calendar-check d-flex justify-content-center text-nexum-light"></i>
+            <p class="m-0 text-center dashboard-nav-text text-nexum-light">Jobs</p>
+        </a>
+    </div>
+    <div class="">
+        <a class="nav-link rounded-5 p-3" asp-controller="Storage" role="button" style="color:white;">
+            <i class="bi bi-database d-flex justify-content-center text-nexum-light"></i>
+            <p class="m-0 text-center dashboard-nav-text text-nexum-light">Storage</p>
+        </a>
+    </div>
+    <div class="">
+        <a class="nav-link rounded-5 p-3" asp-controller="Alert" role="button" style="color:white;">
+            <i class="bi bi-exclamation-triangle d-flex justify-content-center text-nexum-light"></i>
+            <p class="m-0 text-center dashboard-nav-text text-nexum-light">Alerts</p>
+        </a>
+    </div>
+    <div class="">
+        <a class="nav-link rounded-5 p-3" asp-controller="Log" role="button" style="color:white;">
+            <i class="bi bi-file-earmark-text d-flex justify-content-center text-nexum-light"></i>
+            <p class="m-0 text-center dashboard-nav-text text-nexum-light">Logs</p>
+        </a>
+    </div>
 </nav>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        function updateSideNavClasses() {
-            var sideNavs = document.querySelectorAll('#sideNav');
-            sideNavs.forEach(function (sideNav) {
-                var navLinks = sideNav.getElementsByTagName('a');
-
-                if (window.innerWidth < 1400) { // breakpoint for Bootstrap
-                    sideNav.classList.remove('justify-content-between', 'dashboard-nav-left');
-                    sideNav.classList.add('justify-content-center', 'dashboard-nav-top');
-                    for (var i = 0; i < navLinks.length; i++) {
-                        if(i == 0) {
-                            navLinks[i].classList.remove('mb-auto', 'mt-5');
-                            navLinks[i].classList.add('my-auto', 'ms-5');
-                        }
-                        if (i == navLinks.length - 1) {
-                            navLinks[i].classList.remove('mt-auto', 'mb-5');
-                            navLinks[i].classList.add('my-auto', 'me-5');
-                        }
-                        navLinks[i].classList.remove('my-auto');
-                        navLinks[i].classList.add('mx-auto');
-                    }
-                } else {
-                    sideNav.classList.remove('justify-content-center', 'dashboard-nav-top');
-                    sideNav.classList.add('justify-content-between', 'dashboard-nav-left');
-                    for (var i = 0; i < navLinks.length; i++) {
-                        if (i == 0) {
-                            navLinks[i].classList.remove('my-auto', 'ms-5');
-                            navLinks[i].classList.add('mb-auto', 'mt-5');
-                        }
-                        if (i == navLinks.length - 1) {
-                            navLinks[i].classList.remove('my-auto', 'me-5');
-                            navLinks[i].classList.add('mt-auto', 'mb-5');
-                        }
-                        navLinks[i].classList.remove('mx-auto');
-                        navLinks[i].classList.add('my-auto');
-                    }
-                }
-            });
-        }
-
-        // Run the function on load
-        updateSideNavClasses();
-
-        // Add event listener for window resize
-        window.addEventListener('resize', updateSideNavClasses);
-    });
-</script>
