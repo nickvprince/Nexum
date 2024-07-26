@@ -64,13 +64,11 @@ namespace App.Controllers
                     };
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                    var authProperties = new AuthenticationProperties
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                     {
                         IsPersistent = true,
                         ExpiresUtc = response.Expires
-                    };
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+                    });
                     
                     TempData["LastActionMessage"] = $"(Auth) : Success";
 
@@ -86,6 +84,13 @@ namespace App.Controllers
                 TempData["ErrorMessage"] = $"(Auth) : Failed";
             }
             return View(authViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Auth");
         }
     }
 }

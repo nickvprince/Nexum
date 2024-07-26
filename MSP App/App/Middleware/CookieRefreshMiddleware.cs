@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using SharedComponents.Entities.WebEntities.Requests.AuthRequests;
 using SharedComponents.Services.APIRequestServices.Interfaces;
 using SharedComponents.Utilities;
@@ -22,6 +23,12 @@ namespace App.Middleware
 
             if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken) && DateTime.TryParse(expires, out var expiryDate))
             {
+                if (expiryDate <= DateTimeUtilities.EstNow()) // Token has already expired
+                {
+                    await context.SignOutAsync("Cookies");
+                    return;
+                }
+
                 if (expiryDate <= DateTimeUtilities.EstNow().AddMinutes(5)) // If the token expires in less than 5 minutes
                 {
                     var refreshRequest = new AuthRefreshRequest
@@ -41,10 +48,9 @@ namespace App.Middleware
                         claims.Add(new Claim("RefreshToken", refreshResponse.RefreshToken));
                         claims.Add(new Claim("Expires", refreshResponse.Expires.ToString()));
 
-                        var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                        await context.SignInAsync("Cookies", claimsPrincipal, new AuthenticationProperties
+                        await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                         {
                             IsPersistent = true,
                             ExpiresUtc = refreshResponse.Expires
