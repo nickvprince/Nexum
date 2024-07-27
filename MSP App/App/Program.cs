@@ -4,6 +4,7 @@ using App.Services.APIRequestServices;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SharedComponents.JWTToken.Entities;
 using SharedComponents.Services.APIRequestServices.Interfaces;
@@ -14,6 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var mvcBuilder = builder.Services.AddControllersWithViews();
+/*var mvcBuilder = builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new RequireHttpsAttribute());
+});*/
 
 if (builder.Environment.IsDevelopment())
 {
@@ -124,5 +129,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Index}/{id?}");
 
-app.Run();
-//app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);
+//app.Run();
+app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);

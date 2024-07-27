@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Roles";
+    Layout = "~/Views/Shared/_LayoutDashboardAdmin.cshtml";
+}
+<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
+    <div class="text-center text-white container-fluid">
+    <div id="roleContentBox" class="text-center text-white"></div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/Role/Partial',
+                type: 'GET',
+                success: function (result) {
+                        $('#roleContentBox').html(result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        });
+    </script>
+}

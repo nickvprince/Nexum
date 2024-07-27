@@ -1,21 +1,20 @@
-﻿<nav id="topNavbar" class="navbar py-0">
-    <div class="container-fluid" style="overflow-x:auto">
-        <a class="text-center p-0" asp-controller="Home" asp-action="Index" role="button" style="color:white;">
-            <div class="d-flex justify-content-center py-1">
-                <img src="~/images/NexumLong.png" alt="Nexum Logo" style="min-width: 6vw; max-width: 12vw;" />
-            </div>
+﻿<nav id="topNav" class="navbar py-0 overflow-x-auto overflow-y-hidden flex-nowrap" style="height:56px;">
+        <a id="nexumLogoLink" class="text-center" asp-controller="Home" asp-action="Index" role="button" style="color:white;">
+            <img src="~/images/NexumLong.png" alt="Nexum Logo" style="height: 52px" />
         </a>
-        <h4 class="text-nexum-light">@ViewData["Title"]</h4>
+        @* <h4 class="text-nexum-light">@ViewData["Title"]</h4> *@
         <div class="dropdown">
         @if (User.Identity?.IsAuthenticated ?? true)
         {
-            <button id="navDropdownMenuButton" class="btn btn-nexum-gear-dark d-flex no-dropdown-arrow p-0" data-bs-toggle="dropdown">
-                <i class="bi bi-gear text-light" style="font-size: 3.25vw;"></i>
+            <button id="navDropdownMenuButton" class="btn btn-nexum-gear-dark no-dropdown-arrow p-0 d-flex" data-bs-toggle="dropdown">
+                <svg class="bi text-white" width="52px" height="52px" fill="currentColor">
+                    <use xlink:href="#gear"></use>
+                </svg>
             </button>
             <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-end" style="display: none; position: fixed; top: 5vh; right: 2vw;">
-                <li><a class="dropdown-item text-light" href="#">@(User.Identity?.Name)</a></li>
+                <li><a class="dropdown-item text-light disabled" aria-disabled="true">@(User.Identity?.Name)</a></li>
                 <li><hr class="dropdown-divider bg-light"></li>
-                <li><a class="dropdown-item text-light" href="#">Admin Panel</a></li>
+                <li><a id="adminLink" class="dropdown-item text-light" asp-controller="Tenant" asp-action="Index">Admin Panel</a></li>
                 <li><a class="dropdown-item text-light" href="#">Settings</a></li>
                 <form method="post" asp-controller="Auth" asp-action="Logout">
                     <li><button class="dropdown-item text-light" type="submit">Logout</button></li>
@@ -23,5 +22,4 @@
             </ul>
         }
        </div>
-    </div>
 </nav>
