@@ -1,0 +1,128 @@
+﻿@model ICollection<Tenant>?
+
+<div class="table-responsive">
+    <table class="table tab table-striped m-0 table-nexum-dark">
+        <thead>
+            <tr>
+                <th>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Add" role="button">
+                            <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
+                                <use xlink:href="#plus-circle"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </th>
+                <th>Name</th>
+                <th>Representative</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">No tenants found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                foreach (var tenant in Model)
+                {
+                    i++;
+                    <tr data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
+                        <td class="text-nowrap">@i</td>
+                        <td class="text-nowrap">@tenant.Name</td>
+                        <td class="text-nowrap">@tenant.TenantInfo.Name</td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="View" role="button">
+                                    <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#key"></use>
+                                    </svg>
+                                </a>
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Update" role="button">
+                                    <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#pencil-square"></use>
+                                    </svg>
+                                </a>
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Delete" role="button">
+                                    <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#x-circle"></use>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="p-0" colspan="12">
+                            <div id="details@(tenant.Id)" class="collapse">
+                                <table class="table table-striped m-0 table-nexum-dark border-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Phone</th>
+                                            <th>Email</th>
+                                            <th>Address</th>
+                                            <th>City</th>
+                                            <th>State</th>
+                                            <th>Zip</th>
+                                            <th>Country</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>@tenant.TenantInfo.Name</td>
+                                            <td>@tenant.TenantInfo.Phone</td>
+                                            <td>@tenant.TenantInfo.Email</td>
+                                            <td>@tenant.TenantInfo.Address</td>
+                                            <td>@tenant.TenantInfo.City</td>
+                                            <td>@tenant.TenantInfo.State</td>
+                                            <td>@tenant.TenantInfo.Zip</td>
+                                            <td>@tenant.TenantInfo.Country</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="12">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="View" role="button">
+                                                        <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#key"></use>
+                                                        </svg>
+                                                    </a>
+                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Update" role="button">
+                                                        <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#pencil-square"></use>
+                                                        </svg>
+                                                    </a>
+                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Delete" role="button">
+                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#x-circle"></use>
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.tenant-row').click(function () {
+            var target = $(this).data('target');
+            $(target).collapse('toggle');
+        });
+
+        $('.collapse').on('show.bs.collapse', function () {
+            $('.collapse').not(this).collapse('hide');
+        });
+    });
+</script>

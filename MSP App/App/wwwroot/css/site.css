@@ -148,3 +148,30 @@ hr {
     z-index: 1000;
     background-image: linear-gradient(to bottom, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
 }
+
+.table-button-nexum {
+    max-width: 40px;
+    max-height: 40px;
+}
+
+
+.table-nexum-dark {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+}
+
+.table-nexum-dark th,
+.table-nexum-dark td {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for cells */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity for cells */
+    color: white; /* Ensure text is visible */
+}
+
+.table-nexum-dark thead th {
+    background-color: rgba(52, 58, 64, 0.8); /* Dark gray with opacity for header */
+    color: white; /* White text for header */
+}
+
+.table-nexum-dark tbody tr:hover {
+    background-color: rgba(233, 236, 239, 0.8); /* Lighter gray with opacity for hover effect */
+}

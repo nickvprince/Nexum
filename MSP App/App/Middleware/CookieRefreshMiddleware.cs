@@ -56,10 +56,16 @@ namespace App.Middleware
                         if (context.User.Identity.IsAuthenticated)
                         {
                             await context.SignOutAsync("Cookies");
-
                             var returnUrl = context.Request.Path + context.Request.QueryString;
-                            var loginUrl = $"/Auth/Index?ReturnUrl={Uri.EscapeDataString(returnUrl)}";
-                            context.Response.Redirect(loginUrl);
+                            if (!returnUrl.Contains("Auth"))
+                            {
+                                var loginUrl = $"/Auth/Index?ReturnUrl={Uri.EscapeDataString(returnUrl)}";
+                                context.Response.Redirect(loginUrl);
+                            }
+                            else
+                            {
+                                context.Response.Redirect("/Auth/Index");
+                            }
                             return;
                         }
                     }

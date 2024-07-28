@@ -3,8 +3,8 @@
     Layout = "~/Views/Shared/_LayoutDashboardAdmin.cshtml";
 }
 
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div id="contentBox" class="border text-center border-light text-white"></div>
+<div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
+    <div id="contentBox" class="border text-center border-light text-white rounded-4 overflow-hidden"></div>
 </div>
 
 @section Scripts {
@@ -12,7 +12,7 @@
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: '/Tenant/Partial',
+                url: '/Tenant/Table',
                 type: 'GET',
                 success: function (result) {
                     $('#contentBox').html(result);
