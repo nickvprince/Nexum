@@ -8,20 +8,17 @@
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-dark bg-gradient">
+<body>
+    <div id="svg-sprite" style="display:none">
+        @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+        @Html.Raw(System.IO.File.ReadAllText(System.IO.Path.Combine(WebHostEnvironment.WebRootPath, "lib", "bootstrap-icons", "bootstrap-icons.svg")))
+    </div>
     <header class="bg-nexum-dark bg-gradient sticky-top">
         <partial name="_NavBarPartial" />
     </header>
-    <main role="main" class="bg-nexum-dark bg-gradient">
-        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
-        <div class="container-fluid p-0">
-            <div class="row gx-0">
-                <div class="col-11 col-xxl-10 p-0 mx-auto">
-                    <partial name="_TempDataMessagePartial" />
-                    @RenderBody()
-                </div>
-            </div>
-        </div>
+    <main role="main" style="margin-left 10px; margin-right: 10px; margin-top: 10px;">
+        <partial name="_TempDataMessagePartial" />
+        @RenderBody()
     </main>
     <partial name="_FooterPartial" />
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
@@ -31,10 +28,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
-<script>
-    document.getElementById('navDropdownMenuButton').addEventListener('click', function () {
-        var dropdownMenu = document.getElementById('navDropdownMenu');
-        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-    });
-</script>

@@ -11,7 +11,7 @@
                     <use xlink:href="#gear"></use>
                 </svg>
             </button>
-            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-end" style="display: none; position: fixed; top: 5vh; right: 2vw;">
+            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-end" style="display: none; position: fixed; top: 5vh; right: 2vw; z-index: 1100;">
                 <li><a class="dropdown-item text-light disabled" aria-disabled="true">@(User.Identity?.Name)</a></li>
                 <li><hr class="dropdown-divider bg-light"></li>
                 <li><a id="adminLink" class="dropdown-item text-light" asp-controller="Tenant" asp-action="Index">Admin Panel</a></li>

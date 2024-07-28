@@ -11,6 +11,6 @@ namespace SharedComponents.JWTToken.Services
         public Task<ICollection<string>> GetRolesFromTokenAsync(string token);
         public Task<string> GetUsernameFromTokenAsync(string token);
         public Task<string> GetUserIdFromTokenAsync(string token);
-        public Task<DateTime?> GetTokenExpiryInESTAsync(string token);
+        public Task<DateTime?> GetTokenExpiryAsync(string token);
     }
 }

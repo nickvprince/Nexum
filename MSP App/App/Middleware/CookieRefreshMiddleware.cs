@@ -23,13 +23,7 @@ namespace App.Middleware
 
             if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken) && DateTime.TryParse(expires, out var expiryDate))
             {
-                if (expiryDate <= DateTimeUtilities.EstNow()) // Token has already expired
-                {
-                    await context.SignOutAsync("Cookies");
-                    return;
-                }
-
-                if (expiryDate <= DateTimeUtilities.EstNow().AddMinutes(5)) // If the token expires in less than 5 minutes
+                if (expiryDate <= DateTime.Now.ToUniversalTime().AddMinutes(5)) // If the token expires in less than 5 minutes
                 {
                     var refreshRequest = new AuthRefreshRequest
                     {
@@ -42,11 +36,12 @@ namespace App.Middleware
                     {
                         // Update the cookie claims with the new token details
                         var claims = context.User.Claims.ToList();
-                        claims.RemoveAll(c => c.Type == "Token" || c.Type == "RefreshToken" || c.Type == "Expires");
+                        claims.RemoveAll(c => c.Type == "Token" || c.Type == "RefreshToken" || c.Type == "Expires" || c.Type == "ExpiresEST");
 
                         claims.Add(new Claim("Token", refreshResponse.Token));
                         claims.Add(new Claim("RefreshToken", refreshResponse.RefreshToken));
                         claims.Add(new Claim("Expires", refreshResponse.Expires.ToString()));
+                        claims.Add(new Claim("ExpiresEST", DateTimeUtilities.ConvertToEst((DateTime)refreshResponse.Expires).ToString()));
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -55,6 +50,18 @@ namespace App.Middleware
                             IsPersistent = true,
                             ExpiresUtc = refreshResponse.Expires
                         });
+                    }
+                    else
+                    {
+                        if (context.User.Identity.IsAuthenticated)
+                        {
+                            await context.SignOutAsync("Cookies");
+
+                            var returnUrl = context.Request.Path + context.Request.QueryString;
+                            var loginUrl = $"/Auth/Index?ReturnUrl={Uri.EscapeDataString(returnUrl)}";
+                            context.Response.Redirect(loginUrl);
+                            return;
+                        }
                     }
                 }
             }

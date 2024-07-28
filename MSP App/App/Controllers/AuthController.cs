@@ -60,7 +60,8 @@ namespace App.Controllers
                         new Claim(ClaimTypes.Name, authViewModel.Username!),
                         new Claim("Token", response.Token),
                         new Claim("RefreshToken", response.RefreshToken),
-                        new Claim("Expires", response.Expires.ToString())
+                        new Claim("Expires", response.Expires.ToString()),
+                        new Claim("ExpiresEST", DateTimeUtilities.ConvertToEst((DateTime)response.Expires).ToString())
                     };
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

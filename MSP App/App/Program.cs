@@ -68,6 +68,7 @@ builder.Services.AddScoped<IAPIRequestUserService, APIRequestUserService>();
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AppAuthorizationMiddlewareResultHandler>();
 
 // Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -79,14 +80,12 @@ builder.Services.AddAuthentication(options =>
     options.Cookie.Name = ".Nexum.AuthCookie";
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
     options.SlidingExpiration = true;
-    options.LoginPath = "/Auth/Login";
+    options.LoginPath = "/Auth/Index";
     options.AccessDeniedPath = "/Auth/AccessDenied";
 })
 .AddJwtBearer(options =>
 {
-    var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,

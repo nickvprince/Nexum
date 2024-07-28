@@ -139,9 +139,12 @@ hr {
 .vertical-nav {
     position: fixed;
     height: calc(100vh - 56px);
+    background-image: linear-gradient(to right, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
 }
 
 .horizontal-nav {
     position: fixed;
     height: 115px;
+    z-index: 1000;
+    background-image: linear-gradient(to bottom, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
 }

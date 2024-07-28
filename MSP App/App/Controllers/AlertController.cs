@@ -27,6 +27,7 @@ namespace App.Controllers
             if (HttpContext != null)
             {
                 HttpContext.Session.SetString("ReturnUrl", HttpContext.Request.Path);
+                HttpContext.Session.SetString("ActiveNavLink", "alertLink");
             }
         }
 

@@ -2,9 +2,9 @@
     ViewData["Title"] = "Software";
     Layout = "~/Views/Shared/_LayoutDashboardAdmin.cshtml";
 }
-<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div class="text-center text-white container-fluid">
-    <div id="softwareContentBox" class="text-center text-white"></div>
+
+<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
+    <div id="contentBox" class="border text-center border-light text-white"></div>
 </div>
 
 @section Scripts {
@@ -15,9 +15,10 @@
                 url: '/Software/Partial',
                 type: 'GET',
                 success: function (result) {
-                        $('#softwareContentBox').html(result);
+                    $('#contentBox').html(result);
                 },
                 error: function (xhr, status, error) {
+                    $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
                 }
             });

@@ -42,7 +42,7 @@ namespace API.Controllers
                     var roles = await _dbRoleService.GetAllUserRolesByUserIdAsync(user.Id);
                     var token = await _jwtService.GenerateTokenAsync(user.Id, user.UserName, roles.Select(r => r.RoleId).ToList());
                     var refreshToken = await _jwtService.GenerateRefreshTokenAsync();
-                    var expiry = await _jwtService.GetTokenExpiryInESTAsync(token);
+                    var expiry = await _jwtService.GetTokenExpiryAsync(token);
 
                     user.RefreshToken = refreshToken;
                     user.RefreshTokenExpiryTime = expiry.Value.AddMinutes(_jwtService.JWTSettings.ExpiryMinutes); 
@@ -72,7 +72,8 @@ namespace API.Controllers
                 {
                     return Unauthorized("Invalid token.");
                 }
-                if (user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTimeUtilities.EstNow())
+
+                if (user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
                 {
                     return Unauthorized("Invalid refresh token.");
                 }
@@ -80,7 +81,7 @@ namespace API.Controllers
                 var roles = await _dbRoleService.GetAllUserRolesByUserIdAsync(user.Id);
                 var newToken = await _jwtService.GenerateTokenAsync(user.Id, user.UserName, roles.Select(r => r.RoleId).ToList());
                 var newRefreshToken = await _jwtService.GenerateRefreshTokenAsync();
-                var newExpiry = await _jwtService.GetTokenExpiryInESTAsync(newToken);
+                var newExpiry = await _jwtService.GetTokenExpiryAsync(newToken);
 
                 user.RefreshToken = newRefreshToken;
                 user.RefreshTokenExpiryTime = newExpiry.Value.AddMinutes(_jwtService.JWTSettings.ExpiryMinutes);
@@ -114,7 +115,7 @@ namespace API.Controllers
                     if (user != null)
                     {
                         user.RefreshToken = null;
-                        user.RefreshTokenExpiryTime = DateTimeUtilities.EstNow();
+                        user.RefreshTokenExpiryTime = DateTime.MinValue;
                         await _userManager.UpdateAsync(user);
                     }
                     await _signInManager.SignOutAsync();
