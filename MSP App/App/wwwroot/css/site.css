@@ -154,14 +154,12 @@ hr {
     max-height: 40px;
 }
 
-
 .table-nexum-dark {
     background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
     border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
 }
 
-.table-nexum-dark th,
-.table-nexum-dark td {
+.table-nexum-dark th, .table-nexum-dark td {
     background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for cells */
     border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity for cells */
     color: white; /* Ensure text is visible */
@@ -170,6 +168,14 @@ hr {
 .table-nexum-dark thead th {
     background-color: rgba(52, 58, 64, 0.8); /* Dark gray with opacity for header */
     color: white; /* White text for header */
+}
+
+.table-nexum-dark tbody .row-nexum-striped-odd, .row-nexum-striped:nth-child(odd) {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for odd rows */
+}
+
+.table-nexum-dark tbody .row-nexum-striped-even, .row-nexum-striped:nth-child(even) {
+    background-color: rgba(243, 229, 255, 0.4); /* Dark gray with opacity for even rows */
 }
 
 .table-nexum-dark tbody tr:hover {

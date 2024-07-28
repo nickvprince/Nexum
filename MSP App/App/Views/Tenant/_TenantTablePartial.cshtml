@@ -1,10 +1,10 @@
 ﻿@model ICollection<Tenant>?
 
 <div class="table-responsive">
-    <table class="table tab table-striped m-0 table-nexum-dark">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
         <thead>
-            <tr>
-                <th>
+            <tr class="text-center">
+                <th class="border-0">
                     <div class="d-flex justify-content-center align-items-center">
                         <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Add" role="button">
                             <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
@@ -13,9 +13,9 @@
                         </a>
                     </div>
                 </th>
-                <th>Name</th>
-                <th>Representative</th>
-                <th>Actions</th>
+                <th class="border-0">Name</th>
+                <th class="border-0">Representative</th>
+                <th class="border-0">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -31,11 +31,11 @@
                 foreach (var tenant in Model)
                 {
                     i++;
-                    <tr data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
-                        <td class="text-nowrap">@i</td>
-                        <td class="text-nowrap">@tenant.Name</td>
-                        <td class="text-nowrap">@tenant.TenantInfo.Name</td>
-                        <td>
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
+                        <td class="text-nowrap border-0">@i</td>
+                        <td class="text-nowrap border-0">@tenant.Name</td>
+                        <td class="text-nowrap border-0">@tenant.TenantInfo.Name</td>
+                        <td class="border-0">
                             <div class="d-flex justify-content-center align-items-center">
                                 <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="View" role="button">
                                     <svg class="bi text-light table-button-nexum" fill="currentColor">
@@ -56,34 +56,34 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="p-0" colspan="12">
+                        <td class="p-0 border-0" colspan="12">
                             <div id="details@(tenant.Id)" class="collapse">
-                                <table class="table table-striped m-0 table-nexum-dark border-0">
+                                <table class="table m-0 table-nexum-dark border-0">
                                     <thead>
                                         <tr>
-                                            <th>Name</th>
-                                            <th>Phone</th>
-                                            <th>Email</th>
-                                            <th>Address</th>
-                                            <th>City</th>
-                                            <th>State</th>
-                                            <th>Zip</th>
-                                            <th>Country</th>
+                                            <th class="border-0">Name</th>
+                                            <th class="border-0">Phone</th>
+                                            <th class="border-0">Email</th>
+                                            <th class="border-0">Address</th>
+                                            <th class="border-0">City</th>
+                                            <th class="border-0">State</th>
+                                            <th class="border-0">Zip</th>
+                                            <th class="border-0">Country</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>@tenant.TenantInfo.Name</td>
-                                            <td>@tenant.TenantInfo.Phone</td>
-                                            <td>@tenant.TenantInfo.Email</td>
-                                            <td>@tenant.TenantInfo.Address</td>
-                                            <td>@tenant.TenantInfo.City</td>
-                                            <td>@tenant.TenantInfo.State</td>
-                                            <td>@tenant.TenantInfo.Zip</td>
-                                            <td>@tenant.TenantInfo.Country</td>
+                                        <tr class="row-nexum-striped">
+                                            <td class="border-0">@tenant.TenantInfo.Name</td>
+                                            <td class="border-0">@tenant.TenantInfo.Phone</td>
+                                            <td class="border-0">@tenant.TenantInfo.Email</td>
+                                            <td class="border-0">@tenant.TenantInfo.Address</td>
+                                            <td class="border-0">@tenant.TenantInfo.City</td>
+                                            <td class="border-0">@tenant.TenantInfo.State</td>
+                                            <td class="border-0">@tenant.TenantInfo.Zip</td>
+                                            <td class="border-0">@tenant.TenantInfo.Country</td>
                                         </tr>
-                                        <tr>
-                                            <td colspan="12">
+                                        <tr class="row-nexum-striped">
+                                            <td class="border-0" colspan="12">
                                                 <div class="d-flex justify-content-center align-items-center">
                                                     <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="View" role="button">
                                                         <svg class="bi text-light table-button-nexum" fill="currentColor">
@@ -116,11 +116,6 @@
 
 <script>
     $(document).ready(function () {
-        $('.tenant-row').click(function () {
-            var target = $(this).data('target');
-            $(target).collapse('toggle');
-        });
-
         $('.collapse').on('show.bs.collapse', function () {
             $('.collapse').not(this).collapse('hide');
         });
