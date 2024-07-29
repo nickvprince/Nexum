@@ -6,7 +6,7 @@
             <tr class="text-center">
                 <th class="border-0">
                     <div class="d-flex justify-content-center align-items-center">
-                        <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Add" role="button">
+                        <a id="tenantCreateLink" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Create" role="button">
                             <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
                                 <use xlink:href="#plus-circle"></use>
                             </svg>
@@ -23,7 +23,7 @@
             @if (Model == null || Model.Count == 0)
             {
                 <tr>
-                    <td colspan="4">No tenants found</td>
+                    <td class="text-center text-nowrap" colspan="12">No tenants found</td>
                 </tr>
             }
             else
@@ -86,12 +86,13 @@
                                         </tr>
                                         <tr class="row-nexum-striped">
                                             <td class="p-0 border-0" colspan="12">
+                                                <div id="keyCreateContentBox@(i)"></div>
                                                 <table class="table m-0 table-nexum-dark border-0">
                                                     <thead>
                                                         <tr class="text-center text-nowrap">
                                                             <th class="border-0">
                                                                 <div class="d-flex justify-content-center align-items-center">
-                                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="AddKey" role="button">
+                                                                    <a id="keyCreateLink@(i)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="AddKey" role="button">
                                                                         <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
                                                                             <use xlink:href="#plus-circle"></use>
                                                                         </svg>
@@ -108,7 +109,7 @@
                                                         @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Count() == 0)
                                                         {
                                                             <tr class="text-center text-nowrap">
-                                                                <td class="border-0" colspan="12">No Installation keys found</td>
+                                                                <td class="border-0" colspan="12">No keys found</td>
                                                             </tr>
                                                         }
                                                         else

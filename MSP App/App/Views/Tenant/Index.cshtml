@@ -4,6 +4,7 @@
 }
 
 <div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
+    <div id="createContentBox" class="mb-2"></div>
     <div id="contentBox"></div>
 </div>
 
@@ -11,16 +12,74 @@
 
     <script>
         $(document).ready(function () {
-            $.ajax({
-                url: '/Tenant/Table',
-                type: 'GET',
-                success: function (result) {
-                    $('#contentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
-                    console.error('Error loading partial view:', error);
-                }
+            function loadTable() {
+                $.ajax({
+                    url: '/Tenant/Table',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#contentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }
+
+            loadTable();
+
+            $(document).on('click', '#tenantCreateLink', function (event) {
+                event.preventDefault();
+                $.ajax({
+                    url: '/Tenant/Create',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#createContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#createContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $('#tenantForm').on('submit', function (event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '/Tenant/Create', // Update with your actual endpoint
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(Object.fromEntries(formData.entries())),
+                    success: function (result) {
+                        $('#createContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#createContentBox').html('<p>Error adding tenant: ' + error + '</p>');
+                    }
+                });
+            });
+
+            $(document).on('click', '[id^=keyCreateLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('keyCreateLink', '');
+                $.ajax({
+                    url: '/Tenant/' + id + '/CreateKey',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#keyCreateContentBox' + id).html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#keyCreateContentBox' + id).html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+            $(document).on('click', '[id^=keyCreateCloseLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('keyCreateCloseLink', '');
+                $('#keyCreateContentBox' + id).html('');
             });
         });
     </script>

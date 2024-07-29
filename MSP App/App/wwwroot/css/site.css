@@ -59,6 +59,7 @@ hr {
 .bg-nexum-light {
     background-color: rgba(128, 16, 220, 0.15);
 }
+
 .bg-nexum-dark {
     background-color: rgba(30, 4, 51, 1);
 }
@@ -86,14 +87,14 @@ hr {
     transform: scale(1.1);
 }
 
-.btn-login-nexum-dark {
+.btn-success-nexum-dark {
     background-color: rgba(30, 4, 51, 1);
     border-color: #ffffff;
     border-width: 1px;
     overflow: hidden;
 }
 
-.btn-login-nexum-dark:hover {
+.btn-success-nexum-dark:hover {
     background-color: rgba(40, 167, 69, 1);
     color: #ffffff;
     transform: scale(1.1);
@@ -180,4 +181,16 @@ hr {
 
 .table-nexum-dark tbody tr:hover {
     background-color: rgba(233, 236, 239, 0.8); /* Lighter gray with opacity for hover effect */
+}
+
+.form-control-nexum-dark {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+    color: white; /* White text */
+}
+
+.form-control-nexum-dark:focus {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+    color: white; /* White text */
 }
