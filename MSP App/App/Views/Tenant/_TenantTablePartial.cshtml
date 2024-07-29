@@ -15,6 +15,7 @@
                 </th>
                 <th class="border-0">Name</th>
                 <th class="border-0">Representative</th>
+                <th class="border-0">isActive</th>
                 <th class="border-0">Actions</th>
             </tr>
         </thead>
@@ -31,13 +32,14 @@
                 foreach (var tenant in Model)
                 {
                     i++;
-                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
-                        <td class="text-nowrap border-0">@i</td>
-                        <td class="text-nowrap border-0">@tenant.Name</td>
-                        <td class="text-nowrap border-0">@tenant.TenantInfo.Name</td>
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
+                        <td class="border-0">@i</td>
+                        <td class="border-0">@tenant.Name</td>
+                        <td class="border-0">@tenant.TenantInfo.Name</td>
+                        <td class="border-0">@tenant.IsActive.ToString()</td>
                         <td class="border-0">
                             <div class="d-flex justify-content-center align-items-center">
-                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="View" role="button">
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
                                     <svg class="bi text-light table-button-nexum" fill="currentColor">
                                         <use xlink:href="#key"></use>
                                     </svg>
@@ -60,7 +62,7 @@
                             <div id="details@(tenant.Id)" class="collapse">
                                 <table class="table m-0 table-nexum-dark border-0">
                                     <thead>
-                                        <tr>
+                                        <tr class="text-center text-nowrap">
                                             <th class="border-0">Name</th>
                                             <th class="border-0">Phone</th>
                                             <th class="border-0">Email</th>
@@ -72,7 +74,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="row-nexum-striped">
+                                        <tr class="row-nexum-striped text-center text-nowrap">
                                             <td class="border-0">@tenant.TenantInfo.Name</td>
                                             <td class="border-0">@tenant.TenantInfo.Phone</td>
                                             <td class="border-0">@tenant.TenantInfo.Email</td>
@@ -83,24 +85,62 @@
                                             <td class="border-0">@tenant.TenantInfo.Country</td>
                                         </tr>
                                         <tr class="row-nexum-striped">
-                                            <td class="border-0" colspan="12">
-                                                <div class="d-flex justify-content-center align-items-center">
-                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="View" role="button">
-                                                        <svg class="bi text-light table-button-nexum" fill="currentColor">
-                                                            <use xlink:href="#key"></use>
-                                                        </svg>
-                                                    </a>
-                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Update" role="button">
-                                                        <svg class="bi text-light table-button-nexum" fill="currentColor">
-                                                            <use xlink:href="#pencil-square"></use>
-                                                        </svg>
-                                                    </a>
-                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Delete" role="button">
-                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
-                                                            <use xlink:href="#x-circle"></use>
-                                                        </svg>
-                                                    </a>
-                                                </div>
+                                            <td class="p-0 border-0" colspan="12">
+                                                <table class="table m-0 table-nexum-dark border-0">
+                                                    <thead>
+                                                        <tr class="text-center text-nowrap">
+                                                            <th class="border-0">
+                                                                <div class="d-flex justify-content-center align-items-center">
+                                                                    <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="AddKey" role="button">
+                                                                        <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
+                                                                            <use xlink:href="#plus-circle"></use>
+                                                                        </svg>
+                                                                    </a>
+                                                                </div>
+                                                            </th>
+                                                            <th class="border-0">Value</th>
+                                                            <th class="border-0">Type</th>
+                                                            <th class="border-0">isActive</th>
+                                                            <th class="border-0">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="border-bottom">
+                                                        @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Count() == 0)
+                                                        {
+                                                            <tr class="text-center text-nowrap">
+                                                                <td class="border-0" colspan="12">No Installation keys found</td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            int j = 0;
+                                                            foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted))
+                                                            {
+                                                                j++;
+                                                                <tr class="row-nexum-striped text-center text-nowrap">
+                                                                    <td class="border-0">@j</td>
+                                                                    <td class="border-0">@key.Key</td>
+                                                                    <td class="border-0">@key.Type</td>
+                                                                    <td class="border-0">@key.IsActive.ToString()</td>
+                                                                    <td class="border-0">
+                                                                        <div class="d-flex justify-content-center align-items-center">
+                                                                            <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="EditKey" role="button">
+                                                                                <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                                                                    <use xlink:href="#pencil-square"></use>
+                                                                                </svg>
+                                                                            </a>
+                                                                            <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="DeleteKey" role="button">
+                                                                                <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                                                    <use xlink:href="#x-circle"></use>
+                                                                                </svg>
+                                                                            </a>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
                                             </td>
                                         </tr>
                                     </tbody>
