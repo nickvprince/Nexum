@@ -68,7 +68,9 @@
                         if (result.success) {
                             $('#tenantActionContentBox').html('');
                             $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                            loadTable();
+                            setTimeout(function () {
+                                loadTable();
+                            }, 2000);
                         } else {
                             $('#tenantActionContentBox').html(result.html);
                             $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
@@ -110,7 +112,9 @@
                     success: function (result) {
                         if (result.success) {
                             $('#tempDataMessageTenant' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                            loadTable();
+                            setTimeout(function () {
+                                loadTable();
+                            }, 2000);
                         } else {
                             $('#tempDataMessageTenant' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         }
@@ -182,7 +186,9 @@
                     success: function (result) {
                         if (result.success) {
                             $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                            loadTable();
+                            setTimeout(function () {
+                                loadTable();
+                            }, 2000);
                         } else {
                             $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         }
@@ -212,7 +218,9 @@
                         if (result.success) {
                             $('#keyCreateContentBox' + id).html('');
                             $('#tempDataMessageKey' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                            loadTable();
+                            setTimeout(function () {
+                                loadTable();
+                            }, 2000);
                         } else {
                             $('#keyCreateContentBox' + id).html(result.html);
                             $('#tempDataMessageKey' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
