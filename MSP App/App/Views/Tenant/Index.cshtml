@@ -14,6 +14,10 @@
     <script>
         $(document).ready(function () {
             function loadTable() {
+                // Add a loading message
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Table...</h5>';
+                $('#contentBox').prepend(loadingMessage);
+
                 $.ajax({
                     url: '/Tenant/Table',
                     type: 'GET',
@@ -28,6 +32,8 @@
             }
 
             loadTable();
+
+            //Tenants
 
             $(document).on('click', '#tenantCreateLink', function (event) {
                 event.preventDefault();
@@ -68,6 +74,33 @@
                     }
                 });
             });
+
+            $(document).on('submit', '[id^=tenantDeleteForm]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace('tenantDeleteForm', '');
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tempDataMessageTenant' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadTable();
+                        } else {
+                            $('#tempDataMessageTenant' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tempDataMessageTenant' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            //Keys
 
             $(document).on('click', '[id^=keyCreateLink]', function (event) {
                 event.preventDefault();

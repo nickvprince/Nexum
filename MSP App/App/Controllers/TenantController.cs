@@ -75,6 +75,21 @@ namespace App.Controllers
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 
+        [HttpPost("Delete/{id}")]
+        public async Task<IActionResult> DeleteTenantAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if(await _tenantService.DeleteAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Tenant deleted successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                }
+            }
+            TempData["ErrorMessage"] = "An error occurred while deleting the tenant.";
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString() });
+        }
+
         [HttpGet("{id}/CreateKey")]
         public async Task<IActionResult> CreateKeyPartialAsync(int id)
         {
