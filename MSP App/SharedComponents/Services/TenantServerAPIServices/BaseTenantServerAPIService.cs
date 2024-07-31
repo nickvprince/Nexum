@@ -30,11 +30,10 @@ namespace SharedComponents.Services.TenantServerAPIServices
                         if (apiUrl != null && Uri.TryCreate(apiUrl, UriKind.Absolute, out var baseUri))
                         {
                             _httpClient.BaseAddress = baseUri;
-                            return true;
                         }
                         if (!string.IsNullOrEmpty(tenant.ApiKeyServer))
                         {
-                            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("apikey", tenant.ApiKey);
+                            _httpClient.DefaultRequestHeaders.Add("apikey", tenant.ApiKey);
                             return true;
                         }
                         else
