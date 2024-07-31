@@ -29,7 +29,7 @@
             else
             {
                 int i = 0;
-                foreach (var tenant in Model)
+                foreach (var tenant in Model.OrderBy(t => t.Name))
                 {
                     i++;
                     <tr>
@@ -49,7 +49,7 @@
                                         <use xlink:href="#key"></use>
                                     </svg>
                                 </a>
-                                <a id="tenantEditLink@(tenant.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Update" role="button">
+                                <a id="tenantEditLink@(tenant.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Update" asp-route-id="@tenant.Id" role="button">
                                     <svg class="bi text-light table-button-nexum" fill="currentColor">
                                         <use xlink:href="#pencil-square"></use>
                                     </svg>
@@ -133,16 +133,18 @@
                                                                     <td class="border-0">@key.IsActive.ToString()</td>
                                                                     <td class="border-0">
                                                                         <div class="d-flex justify-content-center align-items-center">
-                                                                            <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="EditKey" role="button">
+                                                                            <a id="keyEditLink@(key.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="EditKey" asp-route-id="@key.Id" role="button">
                                                                                 <svg class="bi text-light table-button-nexum" fill="currentColor">
                                                                                     <use xlink:href="#pencil-square"></use>
                                                                                 </svg>
                                                                             </a>
-                                                                            <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="DeleteKey" role="button">
-                                                                                <svg class="bi text-danger table-button-nexum" fill="currentColor">
-                                                                                    <use xlink:href="#x-circle"></use>
-                                                                                </svg>
-                                                                            </a>
+                                                                            <form id="keyDeletelink@(key.Id)" asp-controller="Tenant" asp-action="DeleteKey" asp-route-id="@key.Id">
+                                                                                <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                                                    <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                                                        <use xlink:href="#x-circle"></use>
+                                                                                    </svg>
+                                                                                </button>
+                                                                            </form>
                                                                         </div>
                                                                     </td>
                                                                 </tr>

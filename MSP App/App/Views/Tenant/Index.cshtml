@@ -23,6 +23,9 @@
                     type: 'GET',
                     success: function (result) {
                         $('#contentBox').html(result);
+                        $('.collapse').on('show.bs.collapse', function () {
+                            $('.collapse').not(this).collapse('hide');
+                        });
                     },
                     error: function (xhr, status, error) {
                         $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
@@ -55,7 +58,6 @@
                 var form = $(this);
                 var formData = form.serialize();
                 var id = form.find('input[name="Id"]').val();
-                console.log(id);
                 var url = id ? '/Tenant/' + id + '/Update' : '/Tenant/Create';
 
                 $.ajax({
@@ -120,6 +122,12 @@
                 });
             });
 
+            $(document).on('click', '[id^=tenantCloseLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('tenantCloseLink', '');
+                $('#tenantActionContentBox').html('');
+            });
+
             //Keys
 
             $(document).on('click', '[id^=keyCreateLink]', function (event) {
@@ -138,13 +146,66 @@
                 });
             });
 
-            $(document).on('submit', '[id^=keyForm]', function (event) {
+            $(document).on('click', '[id^=keyEditLink]', function (event) {
                 event.preventDefault();
-                var id = $(this).attr('id').replace('keyForm', '');
-                var formData = $(this).serialize();
+                var id = $(this).attr('id').replace('keyEditLink', '');
+
+                var parentDiv = $(this).closest('[id^=details]');
+                var tenantId = parentDiv.attr('id').replace('details', '');
 
                 $.ajax({
-                    url: '/Tenant/' + id + '/CreateKey',
+                    url: '/Tenant/' + id + '/UpdateKey',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#keyCreateContentBox' + tenantId).html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#keyCreateContentBox' + tenantId).html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=keyDeletelink]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace('keyDeletelink', '');
+                var formData = form.serialize();
+
+                var parentDiv = $(this).closest('[id^=details]');
+                var tenantId = parentDiv.attr('id').replace('details', '');
+
+                $.ajax({
+                    url: '/Tenant/' + id + '/DeleteKey',
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadTable();
+                        } else {
+                            $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=keyForm]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+                var id = $(this).attr('id').replace('keyForm', '');
+                var keyId = form.find('input[name="Id"]').val();
+                var url = keyId ? '/Tenant/' + keyId + '/UpdateKey' : '/Tenant/' + id + '/CreateKey';
+
+                console.log(`tenant ${id} - key ${keyId} - url ${url}`)
+
+                $.ajax({
+                    url: url,
                     type: 'POST',
                     data: formData,
                     success: function (result) {
@@ -168,10 +229,6 @@
                 event.preventDefault();
                 var id = $(this).attr('id').replace('keyCreateCloseLink', '');
                 $('#keyCreateContentBox' + id).html('');
-            });
-
-            $('.collapse').on('show.bs.collapse', function () {
-                $('.collapse').not(this).collapse('hide');
             });
         });
     </script>

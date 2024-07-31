@@ -149,13 +149,56 @@ namespace App.Controllers
                 InstallationKey? key = await _installationKeyService.CreateAsync(request);
                 if (key != null)
                 {
-                    TempData["LastActionMessage"] = "Installation key created successfully.";
+                    TempData["LastActionMessage"] = "Key created successfully.";
                     return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
                 }
             }
-            TempData["ErrorMessage"] = "An error occurred while creating the installation key.";
+            TempData["ErrorMessage"] = "An error occurred while creating the key.";
             string html = await RenderUtilities.RenderViewToStringAsync(this, "_KeyCreatePartial", request);
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
+        }
+
+        [HttpGet("{id}/UpdateKey")]
+        public async Task<IActionResult> UpdateKeyPartialAsync(int id)
+        {
+            InstallationKey? key = await _installationKeyService.GetAsync(id);
+            if (key != null)
+            {
+                return await Task.FromResult(PartialView("_KeyUpdatePartial", key));
+            }
+            return await Task.FromResult(PartialView("_KeyUpdatePartial"));
+        }
+
+        [HttpPost("{id}/UpdateKey")]
+        public async Task<IActionResult> UpdateKeyAsync(InstallationKeyUpdateRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                InstallationKey? key = await _installationKeyService.UpdateAsync(request);
+                if (key != null)
+                {
+                    TempData["LastActionMessage"] = "Key updated successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                }
+            }
+            TempData["ErrorMessage"] = "An error occurred while updating the key.";
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "_KeyUpdatePartial", request);
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
+        }
+
+        [HttpPost("{id}/DeleteKey")]
+        public async Task<IActionResult> DeleteKeyAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _installationKeyService.DeleteAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Key deleted successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                }
+            }
+            TempData["ErrorMessage"] = "An error occurred while deleting the key.";
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString() });
         }
     }
 }
