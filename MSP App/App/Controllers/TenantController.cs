@@ -5,6 +5,7 @@ using SharedComponents.Entities.DbEntities;
 using SharedComponents.Entities.WebEntities.Requests.InstallationKeyRequests;
 using SharedComponents.Entities.WebEntities.Requests.TenantRequests;
 using SharedComponents.Services.APIRequestServices.Interfaces;
+using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
@@ -65,10 +66,13 @@ namespace App.Controllers
                 Tenant? tenant = await _tenantService.CreateAsync(request);
                 if (tenant != null)
                 {
-                    return RedirectToAction("Index", "Tenant");
+                    TempData["LastActionMessage"] = "Tenant created successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
                 }
             }
-            return await Task.FromResult(PartialView("_TenantCreatePartial", request));
+            TempData["ErrorMessage"] = "An error occurred while creating the tenant.";
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "_TenantCreatePartial", request);
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 
         [HttpGet("{id}/CreateKey")]
@@ -79,6 +83,23 @@ namespace App.Controllers
                 TenantId = id
             };
             return await Task.FromResult(PartialView("_KeyCreatePartial", request));
+        }
+
+        [HttpPost("{id}/CreateKey")]
+        public async Task<IActionResult> CreateKeyAsync(InstallationKeyCreateRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                InstallationKey? key = await _installationKeyService.CreateAsync(request);
+                if (key != null)
+                {
+                    TempData["LastActionMessage"] = "Installation key created successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                }
+            }
+            TempData["ErrorMessage"] = "An error occurred while creating the installation key.";
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "_KeyCreatePartial", request);
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
     }
 }

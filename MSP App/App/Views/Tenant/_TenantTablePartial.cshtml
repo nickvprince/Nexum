@@ -86,13 +86,14 @@
                                         </tr>
                                         <tr class="row-nexum-striped">
                                             <td class="p-0 border-0" colspan="12">
-                                                <div id="keyCreateContentBox@(i)"></div>
+                                                <div id="tempDataMessageKey@(tenant.Id)"></div>
+                                                <div id="keyCreateContentBox@(tenant.Id)"></div>
                                                 <table class="table m-0 table-nexum-dark border-0">
                                                     <thead>
                                                         <tr class="text-center text-nowrap">
                                                             <th class="border-0">
                                                                 <div class="d-flex justify-content-center align-items-center">
-                                                                    <a id="keyCreateLink@(i)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="AddKey" role="button">
+                                                                    <a id="keyCreateLink@(tenant.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="AddKey" role="button">
                                                                         <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
                                                                             <use xlink:href="#plus-circle"></use>
                                                                         </svg>
@@ -154,11 +155,3 @@
         </tbody>
     </table>
 </div>
-
-<script>
-    $(document).ready(function () {
-        $('.collapse').on('show.bs.collapse', function () {
-            $('.collapse').not(this).collapse('hide');
-        });
-    });
-</script>
