@@ -52,10 +52,14 @@
 
             $('#tenantActionContentBox').on('submit', '#tenantForm', function (event) {
                 event.preventDefault();
-                var formData = $(this).serialize();
+                var form = $(this);
+                var formData = form.serialize();
+                var id = form.find('input[name="Id"]').val();
+                console.log(id);
+                var url = id ? '/Tenant/' + id + '/Update' : '/Tenant/Create';
 
                 $.ajax({
-                    url: '/Tenant/Create',
+                    url: url,
                     type: 'POST',
                     data: formData,
                     success: function (result) {
@@ -75,14 +79,30 @@
                 });
             });
 
-            $(document).on('submit', '[id^=tenantDeleteForm]', function (event) {
+            $(document).on('click', '[id^=tenantEditLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('tenantEditLink', '');
+                $.ajax({
+                    url: '/Tenant/' + id + '/Update',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#tenantActionContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=tenantDeletelink]', function (event) {
                 event.preventDefault();
                 var form = $(this);
-                var id = form.attr('id').replace('tenantDeleteForm', '');
+                var id = form.attr('id').replace('tenantDeletelink', '');
                 var formData = form.serialize();
 
                 $.ajax({
-                    url: form.attr('action'),
+                    url: '/Tenant/' + id + '/Delete',
                     type: 'POST',
                     data: formData,
                     success: function (result) {

@@ -1,0 +1,51 @@
+﻿@model TenantUpdateRequest
+
+<div class="d-flex justify-content-center container-fluid rounded-5 overflow-hidden bg-nexum-dark bg-gradient">
+    <div class="my-5 text-nexum-light" style="width: 80%">
+        <h2 class="">@Model.Name</h2>
+        <form id="tenantForm" asp-controller="Tenant" asp-action="Update" asp-route-id="@Model.Id">
+            <div>
+                <input asp-for="Id" type="hidden" value="@Model.Id" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Name">Name</label>
+                <input asp-for="Name" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactName">Contact Name</label>
+                <input asp-for="ContactName" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactEmail">Contact Email</label>
+                <input asp-for="ContactEmail" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactPhone">Contact Phone</label>
+                <input asp-for="ContactPhone" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address">Address</label>
+                <input asp-for="Address" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="City">City</label>
+                <input asp-for="City" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="State">State</label>
+                <input asp-for="State" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="Zip">ZIP</label>
+                <input asp-for="Zip" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="form-group">
+                <label asp-for="Country">Country</label>
+                <input asp-for="Country" class="form-control form-control-nexum-dark" required>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-success-nexum-dark mt-3 text-nexum-light bg-nexum-light" style="width:40%">Update</button>
+            </div>
+        </form>
+    </div>
+</div>

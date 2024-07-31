@@ -75,7 +75,48 @@ namespace App.Controllers
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 
-        [HttpPost("Delete/{id}")]
+        [HttpGet("{id}/Update")]
+        public async Task<IActionResult> UpdateTenantPartialAsync(int id)
+        {
+            Tenant? tenant = await _tenantService.GetAsync(id);
+            if (tenant != null)
+            {
+                TenantUpdateRequest tenantUpdateRequest = new TenantUpdateRequest
+                {
+                    Id = tenant.Id,
+                    Name = tenant.Name,
+                    ContactName = tenant.TenantInfo.Name,
+                    ContactEmail = tenant.TenantInfo.Email,
+                    ContactPhone = tenant.TenantInfo.Phone,
+                    Address = tenant.TenantInfo.Address,
+                    City = tenant.TenantInfo.City,
+                    State = tenant.TenantInfo.State,
+                    Zip = tenant.TenantInfo.Zip,
+                    Country = tenant.TenantInfo.Country
+                };
+                return await Task.FromResult(PartialView("_TenantUpdatePartial", tenantUpdateRequest));
+            }
+            return await Task.FromResult(PartialView("_TenantUpdatePartial"));
+        }
+
+        [HttpPost("{id}/Update")]
+        public async Task<IActionResult> UpdateTenantAsync(TenantUpdateRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                Tenant? tenant = await _tenantService.UpdateAsync(request);
+                if (tenant != null)
+                {
+                    TempData["LastActionMessage"] = "Tenant updated successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                }
+            }
+            TempData["ErrorMessage"] = "An error occurred while updating the tenant.";
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "_TenantUpdatePartial", request);
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
+        }
+
+        [HttpPost("{id}/Delete")]
         public async Task<IActionResult> DeleteTenantAsync(int id)
         {
             if (ModelState.IsValid)
