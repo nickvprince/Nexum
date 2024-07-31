@@ -1,0 +1,4 @@
+ * Serving Flask app 'nexum_service'
+ * Debug mode: off
+ * Serving Flask app 'nexum_service'
+ * Debug mode: off

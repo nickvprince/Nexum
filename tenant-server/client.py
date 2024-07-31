@@ -18,11 +18,11 @@ class Client():
     """
     Class structure for client data
     """
-    mac = ""
-    ip = ""
-    name = ""
-    status = ""
-    id = -1
+    mac:str = ""
+    ip:str = ""
+    name:str = ""
+    status:str = ""
+    id:str = -1
 
     def __init__(self, mac, ip, name, status, identification):
         """

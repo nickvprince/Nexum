@@ -1,0 +1,177 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/main.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": true
+  },
+  {
+   "optionDest": "console",
+   "value": false
+  },
+  {
+   "optionDest": "icon_file",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data/installer.ico"
+  },
+  {
+   "optionDest": "name",
+   "value": "Nexserv"
+  },
+  {
+   "optionDest": "clean_build",
+   "value": false
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "embed_manifest",
+   "value": false
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "win_private_assemblies",
+   "value": false
+  },
+  {
+   "optionDest": "win_no_prefer_redirects",
+   "value": false
+  },
+  {
+   "optionDest": "ascii",
+   "value": false
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "pystray"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "sqlite3"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "cryptography"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "win32timezone"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "pandas"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "flask"
+  },
+  {
+   "optionDest": "binaries",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/__pycache__/sql.cpython-312.pyc;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/api.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/client.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/conf.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/flaskserver.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/HeartBeat.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/helperfunctions.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/iconmanager.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/job.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/jobsettings.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/logger.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/main.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/runjob.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/security.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/tenant-server/sql.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data;./Data"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/settings;./settings"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data/N.png;."
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}

@@ -15,15 +15,64 @@
 
 # pylint: disable= import-error, unused-argument
 
+import datetime
+import base64
 import subprocess
 import time
 import threading
+import os
+import json
+from flask import request
+import requests
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
 import job
 from logger import Logger
-import jobsettings
+from MySqlite import MySqlite
+
 
 # pylint: disable=line-too-long,broad-except,global-variable-not-assigned
+@staticmethod
+def unpad(ct):
+    """
+    Unpads a string
+    """
+    return ct[:-ct[-1]]
+@staticmethod
+def shuffle():
+    """
+    Shuffles the api keys
+    """
+    api=MySqlite.read_setting("apikey")
+    msp=MySqlite.read_setting("msp-api")
+    # for char in range mspapi-1 password = msp_api[i]+api[i+1]
+    password = ""
+    for i in range(len(msp)):
+       password+=msp[i]+api[i]
+    return password
+@staticmethod
+def decrypt_password(password:str):
+    """
+    Decrypt encryted password from MSP for smb share
+    """
+    encryption_key=shuffle()
 
+    # only take first 32 chars
+    encryption_key=encryption_key[:32]
+
+    cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+
+
+    # Decode the string from base64
+    decoded_string = base64.b64decode(password)
+
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    decrypted_string = str(decrypted_string.decode("utf-8"))
+    #rstrip \0b
+    decrypted_string = decrypted_string.rstrip("\x0b")
+    return str(decrypted_string)
 
 
 LOCAL_JOB = job.Job() # job assigned to this computer
@@ -39,7 +88,7 @@ class RunJob():
     stop_job_var = False # stop the job
     kill_job_var = False # stop the job
     job_running_var = False
-
+    logger = Logger()
     def run(self):
         """
         Runs the backup job. This is the main function that runs the backup job
@@ -48,6 +97,8 @@ class RunJob():
         @param: self
         """
         while self.leave is False: # As long as the job is not terminated
+            global LOCAL_JOB
+            LOCAL_JOB.load(0) # load the job assigned to this computer
             if self.kill_job_var is True:
                 # stop the job
                 self.kill_job_var = False
@@ -57,18 +108,19 @@ class RunJob():
                 p = subprocess.Popen(['powershell.exe', command])
                 time.sleep(10)
                 p.kill()
+                MySqlite.write_setting("status","Idle")
                 self.job_running_var = False
                 # set job status to killed
 
             elif self.job_pending is True and self.stop_job_var is False : # Run the job if a job is pending. If the job is not stopped state
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
-                command='wbadmin start backup -backupTarget:'+LOCAL_JOB.get_settings().get_backup_path()+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings().get_user()+' -password:'+LOCAL_JOB.get_settings().get_password()
+                command='-backupTarget:'+LOCAL_JOB.get_settings()[10]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+str(decrypt_password(LOCAL_JOB.get_settings()[12]))
 
                 p=subprocess.Popen(['powershell.exe', command])
                 time.sleep(10)
                 p.kill()
-
+                MySqlite.write_setting("status","Running")
                 # set job status to running
                 self.job_running_var = True # set job running to true
 
@@ -81,19 +133,55 @@ class RunJob():
                     LOCAL_JOB.settings[3] = ""
                 current_time = time.strftime("%H:%M")
                 if (LOCAL_JOB.settings[2] <= current_time) and (LOCAL_JOB.settings[3] > current_time):
-                    Logger.debug_print("Job Triggered by time")
-                    try:
-                        command='wbadmin start backup -backupTarget:'+LOCAL_JOB.settings[12]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.settings[10]+' -password:'+LOCAL_JOB.settings[11]
-                        p = subprocess.Popen(['powershell.exe', command])
-                        time.sleep(10)
-                        Logger.log("INFO", "RunJob", p.stdout.read(), "0000", time.asctime())
-                        p.kill()
-                    except Exception as e:
-                        Logger.log("ERROR", "RunJob", e, "1007", time.asctime())
-                    # Run the Job
-            except:
+                    schedule = LOCAL_JOB.get_settings()[1]
+                    today = datetime.datetime.now().weekday()
+                    if schedule[today] == "1":
+                        Logger.debug_print("Job Triggered by time")
+                        user = LOCAL_JOB.get_settings()[11]
+                        if user is None:
+                            user = "user"
+                        password = decrypt_password(LOCAL_JOB.get_settings()[12])
+                        if password is None:
+                            password = "password"
+                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+user+' -password:'+password)
+                        self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","9/24/2024")
+                        url = 'http://127.0.0.1:5004/start_job_service'
+                        body = {
+                            "start_job_commands": str(command)
+                        }
+                        headers = {
+                            "apikey": MySqlite.read_setting("apikey"),
+                            "Content-Type": "application/json"
+                        }
+                        try:
+                            _ = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
+                            MySqlite.write_setting("job_status","InProgress")
+                        except TimeoutError:
+                            self.logger.log("ERROR","RunJob","Timeout Error","0","runjob.py")
+                            MySqlite.write_setting("job_status","NotStarted")
+                            MySqlite.write_setting("Status","ServiceOffline")
+                        except Exception as e:
+                            self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
+                            Logger.debug_print("Error: "+str(e))
+
+                        # set job status to running
+                        self.job_running_var = True
+                    else:
+                        pass
+            except Exception:
                 Logger.log("INFO", "RunJob", "Job may not be configured or failed to run", "1008", time.asctime())
-                pass
+            try:
+                headers = {
+                    "apikey": MySqlite.read_setting("apikey"),
+                    "Content-Type": "application/json"
+                }
+                self.logger.log("INFO","RunJob","Checking status of service","0","runjob.py")
+                _ = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                MySqlite.write_setting("Status","Online")
+            except Exception:
+                self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
+                MySqlite.write_setting("Status","ServiceOffline")
+
 
 
     def __init__(self):

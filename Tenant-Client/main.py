@@ -51,19 +51,17 @@ Error Codes
 
 # pylint: disable= no-member,no-name-in-module, import-error
 
-
-import time
+import subprocess
 from logger import Logger
-from MySqlite import MySqlite
+#from MySqlite import MySqlite
 from InitSql import InitSql
 from runjob import RunJob, LOCAL_JOB
 from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
-from job import Job
-from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 from HeartBeat import HeartBeat
+
 
 # Global variables
 
@@ -85,33 +83,32 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
-    t = JobSettings()
-    t.backup_path = "\\\\192.168.2.201\\Backups"
-    t.user = "tenant\\Backup"
-    t.password = "Test123"
-    LOCAL_JOB.set_settings(t)
-    Security.set_client_secret("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
+    processes = str(subprocess.check_output("tasklist", shell=True))
+    # if nexserv.exe is running exit
+    if len(processes) > 0:
+        count = processes.count("nexum.exe") + processes.count("Nexum.exe")
+        if count >=3:
+            return
+
     # create a Logger
     l = Logger()
     # init databases
     init()
     # get client info
     get_client_info()
+
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
     IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
     # run the icon
     i.run()
-    # log a message
-    l.log("INFO", "Main", "Main has started", "000", time.asctime())
-    # run the job
-    temp = Security.sha256_string("ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    temp = Security.add_salt_pepper(temp, "salt", "pepricart", "salt2")
-    print(Security.encrypt_client_secret(temp))
+    # log a messageo
+    l.log("INFO", "Main_client", "Main has started", "000", "main.py")
+
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
-    h = HeartBeat()
+    _ = HeartBeat()
     FlaskServer()
 
 
@@ -119,13 +116,9 @@ def main():
 
 
 if __name__ == "__main__":
-    MySqlite.write_setting("client_secret", "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("TENANT_ID","1")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("TENANT_PORTAL_URL","http://127.0.0.1:5000/index")
-    MySqlite.write_setting("POLLING_INTERVAL","10")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5000")
-    MySqlite.write_setting("tenant_secret","ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD")
-    MySqlite.write_setting("heartbeat_interval","5")
+    InitSql()
+
+
+
+
     main()

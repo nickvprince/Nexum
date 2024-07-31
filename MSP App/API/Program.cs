@@ -77,6 +77,7 @@ builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAutho
 
 builder.Services.AddAuthorization();
 
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = true;
@@ -137,4 +138,4 @@ using (var scope = scopeFactory.CreateScope())
     await AppDbContext.IntitalizeUserIdentities(scope.ServiceProvider);
 }
 
-app.Run();
+app.Run("https://0.0.0.0:7101");
