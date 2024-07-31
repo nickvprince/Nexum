@@ -13,10 +13,10 @@
 
 """
 # pylint: disable= import-error, unused-argument
-from PIL import Image
 import threading
 import time
 import os
+from PIL import Image
 import pystray
 from logger import Logger
 from api import API
@@ -50,8 +50,6 @@ class IconManager():
             percent = IconManager.get_percent()
             version = IconManager.get_version()
             menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
-            self.logger.log("INFO", "change_status", "Status changed to "+str(status) + ":"+str(percent)+
-                  ":"+str(version), "0", "iconmanager.py")
             self.update_menu(menu)
 
     # stop the tray icon

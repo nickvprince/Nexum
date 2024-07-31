@@ -23,7 +23,7 @@ from logger import Logger
 from api import API
 from helperfunctions import logs, tenant_portal,POLLING_INTERVAL
 from sql import current_dir
-image_path = os.path.join(current_dir, '../Data/n.png') # path to the icon image
+image_path = os.path.join(current_dir, 'n.png') # path to the icon image
 
 
 
@@ -40,6 +40,7 @@ class IconManager():
     @param l: the logger
     """
     logger = Logger()
+    old_status = ""
     # change the status of the job every 5 seconds
     def change_status(self):
         """
@@ -48,12 +49,18 @@ class IconManager():
         l = Logger()
         while True :
             time.sleep(POLLING_INTERVAL)
-            status = IconManager.get_status()
             percent = IconManager.get_percent()
             version = IconManager.get_version()
-            menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
-            l.log("INFO", "IconManager.change_status", "Status changed to "+str(status) + ":"+str(percent)+
+            new_status = IconManager.get_status()
+
+            if self.old_status != new_status:
+                l.log("INFO", "IconManager.change_status",
+                  "Status changed to "+str(new_status) + f" from{self.old_status} :"+str(percent)+
                   ":"+str(version), "0","IconManager.py")
+            status = new_status
+            self.old_status = status
+            menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
+
             self.update_menu(menu)
 
     # stop the tray icon

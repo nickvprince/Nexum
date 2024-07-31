@@ -15,25 +15,28 @@
 
 # pylint: disable= import-error, unused-argument
 
+import datetime
+import base64
 import subprocess
 import time
 import threading
-import job
-from logger import Logger
-import jobsettings
-from MySqlite import MySqlite
-import datetime
-from flask import Flask, request
-import requests
 import os
 import json
+from flask import request
+import requests
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-import base64
+import job
+from logger import Logger
+from MySqlite import MySqlite
+
 
 # pylint: disable=line-too-long,broad-except,global-variable-not-assigned
 @staticmethod
 def unpad(ct):
+    """
+    Unpads a string
+    """
     return ct[:-ct[-1]]
 @staticmethod
 def shuffle():
@@ -49,24 +52,27 @@ def shuffle():
     return password
 @staticmethod
 def decrypt_password(password:str):
-        encryption_key=shuffle()
+    """
+    Decrypt encryted password from MSP for smb share
+    """
+    encryption_key=shuffle()
 
-        # only take first 32 chars
-        encryption_key=encryption_key[:32]
+    # only take first 32 chars
+    encryption_key=encryption_key[:32]
 
-        cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
-        decryptor = cipher.decryptor()
-        
+    cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
 
-        # Decode the string from base64
-        decoded_string = base64.b64decode(password)
-        
-        # Decrypt the string using AES
-        decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
-        decrypted_string = str(decrypted_string.decode("utf-8"))
-        #rstrip \0b
-        decrypted_string = decrypted_string.rstrip("\x0b")
-        return str(decrypted_string)
+
+    # Decode the string from base64
+    decoded_string = base64.b64decode(password)
+
+    # Decrypt the string using AES
+    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+    decrypted_string = str(decrypted_string.decode("utf-8"))
+    #rstrip \0b
+    decrypted_string = decrypted_string.rstrip("\x0b")
+    return str(decrypted_string)
 
 
 LOCAL_JOB = job.Job() # job assigned to this computer
@@ -131,7 +137,13 @@ class RunJob():
                     today = datetime.datetime.now().weekday()
                     if schedule[today] == "1":
                         Logger.debug_print("Job Triggered by time")
-                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
+                        user = LOCAL_JOB.get_settings()[11]
+                        if user is None:
+                            user = "user"
+                        password = decrypt_password(LOCAL_JOB.get_settings()[12])
+                        if password is None:
+                            password = "password"
+                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+user+' -password:'+password)
                         self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","9/24/2024")
                         url = 'http://127.0.0.1:5004/start_job_service'
                         body = {
@@ -142,7 +154,7 @@ class RunJob():
                             "Content-Type": "application/json"
                         }
                         try:
-                            response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
+                            _ = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
                             MySqlite.write_setting("job_status","InProgress")
                         except TimeoutError:
                             self.logger.log("ERROR","RunJob","Timeout Error","0","runjob.py")
@@ -156,18 +168,17 @@ class RunJob():
                         self.job_running_var = True
                     else:
                         pass
-            except Exception as e:
+            except Exception:
                 Logger.log("INFO", "RunJob", "Job may not be configured or failed to run", "1008", time.asctime())
-                pass
             try:
                 headers = {
                     "apikey": MySqlite.read_setting("apikey"),
                     "Content-Type": "application/json"
                 }
                 self.logger.log("INFO","RunJob","Checking status of service","0","runjob.py")
-                response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                _ = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
                 MySqlite.write_setting("Status","Online")
-            except Exception as e:
+            except Exception:
                 self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
                 MySqlite.write_setting("Status","ServiceOffline")
 

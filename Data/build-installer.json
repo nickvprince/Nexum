@@ -47,7 +47,7 @@
   },
   {
    "optionDest": "uac_admin",
-   "value": false
+   "value": true
   },
   {
    "optionDest": "uac_uiaccess",
@@ -148,6 +148,10 @@
   {
    "optionDest": "hiddenimports",
    "value": "sys"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data/nexum.png;."
   }
  ],
  "nonPyinstallerOptions": {

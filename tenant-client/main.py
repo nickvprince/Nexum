@@ -51,20 +51,17 @@ Error Codes
 
 # pylint: disable= no-member,no-name-in-module, import-error
 
-
-import time
+import subprocess
 from logger import Logger
-from MySqlite import MySqlite
+#from MySqlite import MySqlite
 from InitSql import InitSql
 from runjob import RunJob, LOCAL_JOB
 from helperfunctions import get_client_info, logs, tenant_portal,load
 from security import Security
-from job import Job
-from jobsettings import JobSettings
 from iconmanager import IconManager, image_path
 from flaskserver import FlaskServer
 from HeartBeat import HeartBeat
-import subprocess
+
 
 # Global variables
 
@@ -89,24 +86,17 @@ def main():
     processes = str(subprocess.check_output("tasklist", shell=True))
     # if nexserv.exe is running exit
     if len(processes) > 0:
-        count = processes.count("nexserv.exe") + processes.count("NexumServer.exe")
+        count = processes.count("nexum.exe") + processes.count("Nexum.exe")
         if count >=3:
             return
-        
+
     # create a Logger
     l = Logger()
     # init databases
     init()
     # get client info
     get_client_info()
-    MySqlite.write_setting("uuid","ajfajfbaoejbaefbagbabgo")
-    MySqlite.write_setting("CLIENT_ID","1")
-    MySqlite.write_setting("msp_api","773195a9-e346-406b-8633-328a7e1f7b33")
-    MySqlite.write_setting("server_address","127.0.0.1")
-    MySqlite.write_setting("server_port","5002")
-    MySqlite.write_setting("Status","Online")
-    MySqlite.write_setting("apikey","7e634e33-a5b5-45a4-9af9-9f60bf91c7f6")
-    
+
     # create the IconManager
     i = IconManager(image_path, IconManager.create_menu(IconManager.get_status(),
     IconManager.get_percent(), IconManager.get_version(), logs, tenant_portal), "Nexum Client",l)
@@ -118,7 +108,7 @@ def main():
     FlaskServer.set_run_job_object(RunJob())
 
     # run server to listen for requests
-    h = HeartBeat()
+    _ = HeartBeat()
     FlaskServer()
 
 

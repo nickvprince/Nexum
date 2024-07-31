@@ -12,10 +12,11 @@
 #               1. Logger - File IO
 
 """
-# pylint: disable= import-error, unused-argument
+# pylint: disable= import-error, unused-argument,line-too-long,broad-except
 import time
-from sql import MySqlite,InitSql
 import requests
+from sql import MySqlite,InitSql
+
 
 @staticmethod
 def convert_type(type):
@@ -51,7 +52,7 @@ class Logger():
         InitSql.log_files()
 
     # log a message to the database
-    def log(self, severity, Function, message, code,filename,alert=False,identifier=MySqlite.read_setting("CLIENT_ID")):
+    def log(self, severity, function, message, code,filename,alert=False,identifier=MySqlite.read_setting("CLIENT_ID")):
         """
         Information
         """
@@ -64,7 +65,7 @@ class Logger():
         content = {
             "client_id": identifier,
             "severity": severity,
-            "function": Function,
+            "function": function,
             "message": message,
             "uuid": MySqlite.read_setting("uuid"),
             "code": code,
@@ -77,7 +78,6 @@ class Logger():
             print(response.status_code)
         except Exception as e:
             print(e)
-        
 
         if alert is True:
             # post to https://{Mysqlite.read_setting("msp_server_address")}:{Mysqlite.read_setting("msp-port")}/api/DataLink/Alert
@@ -97,7 +97,7 @@ class Logger():
                 print(response.status_code)
             except Exception as e:
                 print(e)
-        MySqlite.write_log(severity, Function, message, code, date)
+        MySqlite.write_log(severity, function, message, code, date)
     @staticmethod
     def debug_print(message):
         """

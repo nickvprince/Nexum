@@ -17,14 +17,11 @@
 # check_first_run - The check_first_run function checks if this program has been run before.
 
 """
-# pylint: disable= import-error, global-statement,unused-argument
+# pylint: disable= import-error, global-statement,unused-argument, bare-except
 
 import os
 import time
-import winreg
-import traceback
 import pandas as pd
-from security import CLIENT_SECRET
 from api import API
 from logger import Logger
 from sql import InitSql,sqlite3,logdirectory,logpath,SETTINGS_PATH,MySqlite
@@ -34,21 +31,28 @@ POLLING_INTERVAL = 5 # interval to send the server heartbeats
 CLIENT_ID = -1 # client id
 TENANT_ID = -1 # tenant id
 TENANT_PORTAL_URL = "https://nexum.com/tenant_portal" # url to the tenant portal
+APIKEY = ""
+UUID = ""
 
 # pylint: disable= bare-except
 # pylint: disable= global-statement
 def load():
     """
-    Load the client secret
+    Load the client information
     """
     global TENANT_ID
     global CLIENT_ID
     global TENANT_PORTAL_URL
     global POLLING_INTERVAL
+    global APIKEY
+    global UUID
+
     TENANT_ID = MySqlite.read_setting("TENANT_ID")
     CLIENT_ID = MySqlite.read_setting("CLIENT_ID")
     TENANT_PORTAL_URL = MySqlite.read_setting("TENANT_PORTAL_URL")
     POLLING_INTERVAL = MySqlite.read_setting("POLLING_INTERVAL")
+    APIKEY = MySqlite.read_setting("apikey")
+    UUID = MySqlite.read_setting("uuid")
 
 def check_install_key(key, secret, server, port):
     """
@@ -149,27 +153,31 @@ def save_client_info():
     """
 
     #ensure settings files are ready
+
     InitSql.settings()
+    try:
+        #create connection
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
 
-    #create connection
-    conn = sqlite3.connect(SETTINGS_PATH)
-    cursor = conn.cursor()
-
-    # Insert the client_id, TENANT_ID, and TENANT_PORTAL_URL
-    # and Polling interval  into the settings table
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('client_id', ?)", (CLIENT_ID,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_ID', ?)", (TENANT_ID,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_PORTAL_URL', ?)",
-    (TENANT_PORTAL_URL,))
-    cursor.execute("INSERT INTO settings (setting, value) VALUES ('POLLING_INTERVAL', ?)",
-    (POLLING_INTERVAL,))
-
-    #write local job to database
+        # Insert the client_id, TENANT_ID, and TENANT_PORTAL_URL
+        # and Polling interval  into the settings table
+        cursor.execute("INSERT INTO settings (setting, value) VALUES ('client_id', ?)",
+                        (CLIENT_ID,))
+        cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_ID', ?)",
+                        (TENANT_ID,))
+        cursor.execute("INSERT INTO settings (setting, value) VALUES ('TENANT_PORTAL_URL', ?)",
+                        (TENANT_PORTAL_URL,))
+        cursor.execute("INSERT INTO settings (setting, value) VALUES ('POLLING_INTERVAL', ?)",
+                        (POLLING_INTERVAL,))
 
 
-    # Close the connection
-    conn.commit()
-    conn.close()
+
+        # Close the connection
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        pass
 
 def logs():
     """ 
@@ -204,58 +212,3 @@ def tenant_portal():
     """
     os.system(f"start {TENANT_PORTAL_URL}")
 
-@staticmethod
-def first_run(key,secret,server,port):
-    """
-    The first run function checks if this program has been run before. 
-    If it has not been run before it will create a registry entry and 
-    call the API to send the success install
-
-    :param arg: The download key
-    :return: True if the first run is successful, False otherwise
-    """
-
-    if check_install_key(key,secret,server,port):
-        try:
-            get_client_info()
-            save_client_info()
-            key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Nexum")
-            winreg.CloseKey(key)
-            key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Nexum\\Client")
-            winreg.CloseKey(key)
-            API.send_success_install(CLIENT_ID,TENANT_ID,CLIENT_SECRET)
-            return True
-        except FileNotFoundError:
-            print(traceback.format_exc())
-            return False
-        except PermissionError:
-            print(traceback.format_exc())
-            return False
-        except:
-            print(traceback.format_exc())
-            return False
-    else:
-        return False
-@staticmethod
-def check_first_run(key,secret,server,port):
-
-    """
-    The check_first_run function checks if this program has been run before.
-    It is a helper function for the first_run function
-    """
-    l = Logger()
-    # check for registry entry Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Nexum\A2
-    # to see if this is the first run if it exists return, else call first_run()
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Nexum\\Client")
-        winreg.CloseKey(key)
-        return True
-    except FileNotFoundError:
-        return first_run(key,secret,server,port)
-    except PermissionError:
-        l.log("ERROR", "check_first_run", "Permission Error checking registry",
-        "1005", time.strftime("%Y-%m-%d %H:%M:%S:%m", "helperfunctions.py"))
-    except:
-        l.log("ERROR", "check_first_run", "General Error checking registry",
-        "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m", "helperfunctions.py"))
-    return False

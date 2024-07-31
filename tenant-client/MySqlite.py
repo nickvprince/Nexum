@@ -24,7 +24,7 @@ from cryptography.hazmat.backends import default_backend
 import requests
 
 ENCODING = 'utf-8'
-# pah directories
+# path directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
@@ -150,7 +150,7 @@ class MySqlite():
         Write a setting to the database
         """
         result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                        capture_output=True, text=True,check=True,shell=True) # Use UUID to encrypt the data
+                capture_output=True, text=True,check=True,shell=True) # Use UUID to encrypt the data
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:32]
@@ -177,13 +177,16 @@ class MySqlite():
             content = {
                 "severity": "INFO",
                 "function":"status",
+                "message":"",
+                "time":"9/24/2024",
+                "filename":"",
                 "code":convert_device_status(),
                 "uuid": MySqlite.read_setting("uuid"),
                 "client_id": MySqlite.read_setting("CLIENT_ID"),
             }
             try:
-                response = requests.post(f"http://{MySqlite.read_setting('server_address')}:{MySqlite.read_setting('server_port')}/log", headers=headers, json=content,timeout=5)
-            except Exception as e:
+                _ = requests.post(f"http://{MySqlite.read_setting('server_address')}:{MySqlite.read_setting('server_port')}/log", headers=headers, json=content,timeout=5)
+            except Exception:
                 MySqlite.write_log("ERROR", "API", "Error sending status", "0", "9/7/2024")
 
     @staticmethod
@@ -199,7 +202,7 @@ class MySqlite():
             value = cursor.fetchone()[0]
             conn.close()
             result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
+                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
             output = result.stdout.strip()
             output = output.split('\n\n', 1)[-1]
             output = output[:32]

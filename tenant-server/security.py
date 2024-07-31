@@ -12,7 +12,7 @@
 #               1. API - Connector
 
 """
-# pylint: disable= import-error, unused-argument, global-statement
+# pylint: disable= import-error, unused-argument, global-statement, broad-except
 
 import base64
 import hashlib
@@ -20,10 +20,7 @@ import time
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from logger import Logger
-from sql import MySqlite
 
-CLIENT_SECRET = "ASDFGLKJHTQWERTYUIOPLKJHGFVBNMCD" # secret for the client to communicate with A2
-# pylint: disable= bare-except
 
 class Security():
     """
@@ -31,28 +28,7 @@ class Security():
     Type: Security
     Relationship: NONE
     """
-    @staticmethod
-    def set_client_secret(secret):
-        """
-        Set the client secret
-        """
-        global CLIENT_SECRET
-        CLIENT_SECRET = secret
-    @staticmethod
-    def get_client_secret():
-        """
-        Get the client secret
-        """
-        return CLIENT_SECRET
-    @staticmethod
-    def load_tenant_secret():
-        """
-        Load the client secret from the db
 
-        """
-        global CLIENT_SECRET
-        temp = MySqlite.read_setting("tenant_secret")
-        CLIENT_SECRET = temp
     @staticmethod
     def split_string(string):
         """
@@ -125,80 +101,7 @@ class Security():
         except UnicodeDecodeError:
             l.log("ERROR", "decrypt_string", "Decryption failed", "1004", "security.py")
             return "Decryption failed"
-        except:
-            l.log("ERROR", "decrypt_string", "General Error decrypting string",
+        except Exception as e:
+            l.log("ERROR", "decrypt_string", "General Error decrypting string "+str(e),
             "1002", time.strftime("%Y-%m-%d %H:%M:%S:%m","security.py"))
             return "Decryption failed"
-
-    # add salt, pepper, and salt2 to the string
-    @staticmethod
-    def add_salt_pepper(string="", salt="", pepper="", salt2=""):
-        """
-        Adds salt, pepper, and salt2 to the string in a specific way
-        """
-        salt = salt[-1] + salt[1:-1] + salt[0]  # Swap first and last letter of salt
-        pepper = pepper[:-2] + pepper[-1] + pepper[-2]
-        temp = salt2[:2]  # Save the first 2 letters of salt2
-        salt2 = pepper[:2] + salt2[2:]  # Write the first two letters of pepper to salt2
-        pepper = temp[:2] + pepper[2:]  # Copy the temp values to the first 2 letters of pepper
-
-        string_return = Security.split_string(string)
-
-
-        return salt + string_return[0] + pepper +string_return[1]+ salt2
-    # remove salt, pepper, and salt2 from the string
-    @staticmethod
-    def remove_salt_pepper(string, salt, pepper, salt2):
-        """
-        Removes salt, pepper, and salt2 from the string in a specific way
-        """
-        salt = salt[-1] + salt[1:-1] + salt[0]
-        pepper = pepper[:-2] + pepper[-1] + pepper[-2]
-        temp = salt2[:2]
-        salt2 = pepper[:2] + salt2[2:]
-        pepper = temp[:2] + pepper[2:]
-
-        # remove salt from front of string
-        string2 = str(string)[len(salt):]
-        # remove all trailing whitespace
-        string3 = str(string2).rstrip()
-        #remove salt2 from end of string
-        string4 = str(string3)[:-len(salt2)]
-        # find pepper in the remaining string and remove it
-        pepper_index = str(string4).find(pepper)
-        string5 = string4[:pepper_index] + string4[pepper_index+len(pepper):]
-        return string5
-
-    # decrypt the clientSecret
-    # clientSecret is the global clientSecret
-    # given clientSecret is 32 characters long set the password to [0][31][1][30][2][29]...[15][16]
-    @staticmethod
-    def decrypt_client_secret(client_secret_in):
-        """
-        Uses a specific sequence to decrypt the client secret
-        """
-        password = ""
-        for i in range(16):
-            print(CLIENT_SECRET)
-            password += str(CLIENT_SECRET)[i] + str(CLIENT_SECRET)[31-i]
-        try:
-            return Security.decrypt_string(password, client_secret_in).strip()
-        except ValueError:
-            l = Logger()
-            l.log("ERROR", "decrypt_client_secret", "Decryption failed",
-            "1004","security.py")
-            return "Decryption failed"
-        except:
-            return ""
-    # uses plaintext clientSecret to encrypt the clientSecret
-    # clientSecret is the global clientSecret
-    # given clientSecret is 32 characters long set the password to [0][31][1][30][2][29]...[15][16]
-    @staticmethod
-    def encrypt_client_secret(client_secret_in):
-        """
-        Uses a specific sequence to encrypt the client secret
-        """
-        password = ""
-        for i in range(16):
-            password += str(CLIENT_SECRET)[i] + str(CLIENT_SECRET)[31-i]
-        return Security.encrypt_string(password, client_secret_in)

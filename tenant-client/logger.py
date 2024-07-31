@@ -14,28 +14,41 @@
 """
 # pylint: disable= import-error, unused-argument
 
-from MySqlite import MySqlite
 import time
 import requests
+from MySqlite import MySqlite
+
+TIMEFORMAT = "%Y-%m-%dT%H:%M:%S.%m"
+
+# SETTINGS
+APIKEY_SETTING = "apikey"
+CLIENT_ID_SETTING = "CLIENT_ID"
+UUID_SETTING = "uuid"
+SERVER_ADDRESS_SETTING = "server_address"
+SERVER_PORT_SETTING = "server_port"
+LOG_ROUTE = "/log"
+TENANT_PROTOCOL = "http://"
+
 @staticmethod
-def convert_type(type):
+def convert_type(log_type):
     """
     Convert a string to a type
     """
-    if type == "Trace":
+    if log_type == "Trace":
         return 0
-    elif type == "Debug":
+    elif log_type == "Debug":
         return 1
-    elif type == "INFO":
+    elif log_type == "INFO":
         return 2
-    elif type == "warning":
+    elif log_type == "warning":
         return 3
-    elif type == "Error":
+    elif log_type == "Error":
         return 4
-    elif type == "Critical":
+    elif log_type == "Critical":
         return 5
     else:
         return -1
+    
 class Logger():
 
     """
@@ -43,23 +56,21 @@ class Logger():
     Type: File IO
     Relationship: NONE
     """
-
-
     # log a message to the database
     @staticmethod
     def log(severity, subject, message, code, filename,alert=False):
         """
         Information
         """
-        date = time.strftime("%Y-%m-%dT%H:%M:%S.%m", time.localtime())
+        date = time.strftime(TIMEFORMAT, time.localtime())
         MySqlite.write_log(severity, subject, message, code, date)
         header ={
             "Content-Type": "application/json",
-            "apikey": MySqlite.read_setting("apikey"),
+            "apikey": MySqlite.read_setting(APIKEY_SETTING),
         }
         content = {
-            "client_id": MySqlite.read_setting("CLIENT_ID"),
-            "uuid": MySqlite.read_setting("uuid"),
+            "client_id": MySqlite.read_setting(CLIENT_ID_SETTING),
+            "uuid": MySqlite.read_setting(UUID_SETTING),
             "severity": severity,
             "function": subject,
             "message": message,
@@ -69,7 +80,7 @@ class Logger():
             "alert": alert
         }
         try:
-            response = requests.post(f"http://{MySqlite.read_setting('server_address')}:{MySqlite.read_setting('server_port')}/log", headers=header, json=content,timeout=5,verify=False)
+            response = requests.post(f"{TENANT_PROTOCOL}{MySqlite.read_setting(SERVER_ADDRESS_SETTING)}:{MySqlite.read_setting(SERVER_PORT_SETTING)}{LOG_ROUTE}", headers=header, json=content,timeout=5,verify=False)
             print(response.status_code)
         except Exception as e:
             print(e)
