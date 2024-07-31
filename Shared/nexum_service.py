@@ -59,7 +59,7 @@ def read_setting(setting):
                                     capture_output=True, text=True,check=True,shell=True) # enc with uuid
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
-        output = output[:24]
+        output = output[:32]
         value = decrypt_string(output,value)
         return value.rstrip()
     except:
@@ -93,7 +93,7 @@ def start_job(start_job_commands=""):
         except Exception as e:
             return make_response(str(e), 500)
     else:
-        return make_response("405 Unauthorized", 405)
+        return make_response("401 Unauthorized", 401)
 
 @app.route('/stop_job_service',methods=['POST'])
 def stop_job():
@@ -146,6 +146,7 @@ def main():
     flask_thread = threading.Thread(target=app.run, kwargs={'port': 5004})
     flask_thread.daemon=True
     flask_thread.start()
+    flask_thread.join()
 
 class NexumService(win32serviceutil.ServiceFramework):
     _svc_name_ = "NexumService"
@@ -177,12 +178,15 @@ class NexumService(win32serviceutil.ServiceFramework):
      
 
     def main(self):
+        """
         while self.is_running:
             win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
             main()
+            """
 
 if __name__ == '__main__':
     main()
+    """
     if len(sys.argv) > 1:
        # Called by Windows shell. Handling arguments such as: Install, Remove, etc.
        win32serviceutil.HandleCommandLine(NexumService)
@@ -191,4 +195,4 @@ if __name__ == '__main__':
        servicemanager.Initialize()
        servicemanager.PrepareToHostSingle(NexumService)
        servicemanager.StartServiceCtrlDispatcher()
-       
+       """

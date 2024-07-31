@@ -24,6 +24,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import requests
 import job
+import jobsettings
 from logger import Logger
 from sql import MySqlite
 # pylint: disable=line-too-long
@@ -72,7 +73,7 @@ def decrypt_password(password:str):
         decrypted_string = decrypted_string.rstrip("\x0b")
     except Exception as e:
         Logger.debug_print("Error: "+str(e))
-        return ""
+        return "none"
     return str(decrypted_string)
 class RunJob():
     """
@@ -198,8 +199,12 @@ class RunJob():
             # check if time has passed since it should have run
             if LOCAL_JOB.get_settings()is not None:
                 if LOCAL_JOB.get_settings()[2] is None or LOCAL_JOB.get_settings()[3] is None:
-                    LOCAL_JOB.get_settings().start_time = ""
-                    LOCAL_JOB.get_settings().stop_time = ""
+                    setting = LOCAL_JOB.get_settings()
+                    setting = list(setting)
+                    setting[2] = "00:00"
+                    setting[3] = "00:00"
+                    set3=LOCAL_JOB.settings
+                    LOCAL_JOB.settings=setting
                 if (LOCAL_JOB.get_settings()[2] < str(datetime.datetime.now().time())) and (LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time())):
 
                     schedule = LOCAL_JOB.get_settings()[1]

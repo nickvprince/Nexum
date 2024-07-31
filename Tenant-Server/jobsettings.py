@@ -51,6 +51,8 @@ class JobSettings():
     def get_schedule(self):
         return self.schedule
     def get_start_time(self):
+        if(self.start_time is None):
+            return "00:00"
         return self.start_time
     def get_stop_time(self):
         return self.stop_time

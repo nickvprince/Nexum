@@ -137,7 +137,13 @@ class RunJob():
                     today = datetime.datetime.now().weekday()
                     if schedule[today] == "1":
                         Logger.debug_print("Job Triggered by time")
-                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
+                        user = LOCAL_JOB.get_settings()[11]
+                        if user is None:
+                            user = "user"
+                        password = decrypt_password(LOCAL_JOB.get_settings()[12])
+                        if password is None:
+                            password = "password"
+                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+user+' -password:'+password)
                         self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","9/24/2024")
                         url = 'http://127.0.0.1:5004/start_job_service'
                         body = {

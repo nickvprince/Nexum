@@ -45,7 +45,7 @@ class Job():
         return self.created
     def get_config(self):
         return self.config
-    def get_settings(self):
+    def get_settings(self)->jobsettings:
         return self.settings
 
     # Setters

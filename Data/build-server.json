@@ -164,6 +164,10 @@
   {
    "optionDest": "datas",
    "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/settings;./settings"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data/N.png;."
   }
  ],
  "nonPyinstallerOptions": {

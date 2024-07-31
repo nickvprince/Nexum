@@ -6,23 +6,20 @@
 # purpose: This is the main file for the program A2. This program ensures connectivity
 # to A3, recieves jobs from A3 and executes backups and heartbeats. It has a tray icon
 # that the user may not interact with
-
-
 """
 
 # pylint: disable= no-member,no-name-in-module, import-error,global-variable-not-assigned
-
 
 import subprocess
 from iconmanager import IconManager, image_path
 from helperfunctions import logs, tenant_portal,load
 from logger import Logger
-from flaskserver import FlaskServer
+
 from sql import InitSql
 from runjob import LOCAL_JOB
 from HeartBeat import HeartBeat
 from sql import MySqlite
-import sql
+from flaskserver import FlaskServer
 
 
 
@@ -76,6 +73,4 @@ def main():
     f.run()
 
 if __name__ == "__main__":
-    
-
     main()

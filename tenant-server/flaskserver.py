@@ -1,4 +1,4 @@
- """
+"""
 # Program: Tenant-server
 # File: flaskserver.py
 # Authors: 1. Danny Smith
@@ -224,7 +224,7 @@ class FlaskServer():
             code = 401
             msg = "Access Denied"
         else:
-            if client_id == 0:
+            if str(client_id) == str(0):
                 logger.log("INFO", "get_files", "Getting local files",0,FILENAME)
                 return FlaskServer.get_local_files(data.get('path', ''))
             for i in CLIENTS:
@@ -282,10 +282,10 @@ class FlaskServer():
             code = 401
             msg = "Access Denied"
         else:
-            if identification == 0:
+            if str(identification) == str(0):
                 logger.log("INFO", "start_job", "Starting job",0,FILENAME)
                 RUN_JOB_OBJECT.trigger_job()
-                return "200 OK"
+                return make_response("200 OK", 200)
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
@@ -338,10 +338,10 @@ class FlaskServer():
             code = 401
             msg = "Access Denied"
         else:
-            if identification == 0:
+            if str(identification) == str(0):
                 logger.log("INFO", "stop_job", "Stopping job",0,FILENAME)
                 RUN_JOB_OBJECT.stop_job()
-                return "200 OK"
+                return make_response("200 OK", 200)
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
@@ -393,10 +393,10 @@ class FlaskServer():
             code = 401
             msg = "Access Denied"
         else:
-            if identification == 0:
+            if str(identification) == str(0):
                 logger.log("INFO", "kill_job", "Killing job",0,FILENAME)
                 RUN_JOB_OBJECT.kill_job()
-                return "200 OK"
+                return make_response("200 OK", 200)
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
@@ -450,10 +450,10 @@ class FlaskServer():
             code = 401
             msg = "Access Denied"
         else:
-            if identification == 0:
+            if str(identification) == str(0):
                 logger.log("INFO", "enable_job", "Enabling job",0,FILENAME)
                 RUN_JOB_OBJECT.enable_job()
-                return "200 OK"
+                return make_response("200 OK", 200)
             for i in CLIENTS:
                 msg = "Client not found"
                 code=5
@@ -503,15 +503,15 @@ class FlaskServer():
                 logger.log("INFO", "modify_job", "Modifying job",0,FILENAME)
 
                 # recieve settings as json
-                recieved_settings = data.get('settings', '')
 
+                recieved_settings = data.get('settings', '')
                 job_to_save = Job()
                 job_to_save.set_id(0)
                 job_to_save.set_title(data.get('title', ''))
                 settings = JobSettings()
                 settings.set_id(0)
                 settings.set_schedule(recieved_settings.get('schedule', ''))
-                settings.set_start_time(recieved_settings.get('startTime', ''))
+                settings.set_start_time(recieved_settings.get(('startTime', '')))
                 settings.set_stop_time(recieved_settings.get('stopTime', ''))
                 settings.set_retry_count(recieved_settings.get('retryCount', ''))
                 settings.set_sampling(recieved_settings.get('sampling', ''))
@@ -519,22 +519,29 @@ class FlaskServer():
                 settings.set_heartbeat_interval(recieved_settings.get('heartbeat_interval', ''))
                 settings.set_retry_count(recieved_settings.get('retryCount', ''))
                 settings.set_retention(recieved_settings.get('retention', ''))
+                
 
                 config = Configuration(0, 0, apikey)
                 #update to use the smb share id provided instead of user password path from the request
                 server_id = recieved_settings.get('backupServerId', '')
                 server = MySqlite.get_backup_server(server_id)
-                settings.backup_path=server[1]
-                config.address = server[1]
-                settings.set_username(server[2])
-                settings.set_password(server[3])
+                if server is None:
+                    settings.backup_path=recieved_settings.get('path', '')
+                    config.address = recieved_settings.get('path', '')
+                    settings.set_username(recieved_settings.get('user', ''))
+                    settings.set_password(recieved_settings.get('password', ''))
+                else:
+                    settings.backup_path=server[1]
+                    config.address = server[1]
+                    settings.set_username(server[2])
+                    settings.set_password(server[3])
 
                 job_to_save.set_settings(settings)
                 job_to_save.set_config(config)
                 job_to_save.save()
                 logger.log("INFO", "modify_job", "Job Saved",0,FILENAME)
                 RUN_JOB_OBJECT = job_to_save
-                return "200 OK"
+                return make_response("200 OK", 200)
             else:
                 for i in CLIENTS:
 
@@ -625,9 +632,13 @@ class FlaskServer():
                 logger.log("INFO", "nexum", "Got Nexum File.. Relaying",0,FILENAME)
                 return make_response(requestsecond.content,requestsecond.status_code)
 
-
+            except ConnectionError:
+                logger.log("ERROR","nexum", "Failed to get URLS","1009",FILENAME)
+                return make_response("Timeout,403")
             except Exception as e:
                 logger.log("ERROR","nexum", "Failed to get URLS " + str(e),"1009",FILENAME)
+                return make_response("500 Internal Server Error", 500)
+            
         else:
             logger.log("ERROR", "nexum", "Access Denied",401,FILENAME)
             return make_response("401 Access Denied", 401)
@@ -647,26 +658,29 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             try:
                 logger.log("INFO", "nexumservice", "Getting URLS",0,FILENAME)
-                request = requests.request("GET", f"{"http://"}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}{URLS_ROUTE}",
+                request2 = requests.request("GET", f"{"http://"}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}{URLS_ROUTE}",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:MySqlite.read_setting(APIKEY)},
                         verify=VERIFY)
 
-                request = request.json()
+                request2 = request.json()
 
                 service_url=request["nexumServiceUrlLocal"]
 
-                request = requests.request("GET", f"{TENANT_PROTOCOL}{service_url}",
+                request2 = requests.request("GET", f"{TENANT_PROTOCOL}{service_url}",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:MySqlite.read_setting(APIKEY)},
                         verify=VERIFY)
                 logger.log("INFO", "nexumservice", "Got Nexum Service File.. Relaying",0,FILENAME)
-                return make_response(request.content,request.status_code)
+                return make_response(request2.content,request2.status_code)
 
-
+            except ConnectionError:
+                logger.log("ERROR","nexumservice", "Failed to get URLS","1009",FILENAME)
+                return make_response("Timeout,403")
             except Exception as e:
                 logger.log("ERROR","nexumservice", "Failed to get URLS " + str(e),"1009",FILENAME)
+                make_response("500 Internal Server Error", 500)
         else:
             return make_response("401 Access Denied", 401)
-    @website.route('/get_job/<int:id>', methods=['GET'], )
+    @website.route('/get_job/<int:identification>', methods=['GET'], )
     @staticmethod
     def get_job(identification):
         """
@@ -683,24 +697,29 @@ class FlaskServer():
                 logger.log("INFO", "get_job", "Getting job",0,FILENAME)
                 j:Job = Job()
                 j.load(0)
-                data = {
-                    "0":{
-                    "title": j.get_title(),
-                    "settings": {
-                        "schedule": j.get_settings()[1],
-                        "startTime": j.get_settings()[2],
-                        "stopTime": j.get_settings()[3],
-                        "retryCount": j.get_settings()[4],
-                        "sampling": j.get_settings()[5],
-                        "notifyEmail": j.get_settings()[8],
-                        "heartbeat_interval": j.get_settings()[9],
-                        "retention": j.get_settings()[6],
-                        "path": j.get_config()[2],
-                        "user": j.get_settings()[11],
-                        "password": j.get_settings()[12]
+                data = {}
+                try:
+                    data = {
+                        "0":{
+                        "title": j.get_title(),
+                            "settings": {
+                                "schedule": j.get_settings()[1],
+                                "startTime": j.get_settings()[2],
+                                "stopTime": j.get_settings()[3],
+                                "retryCount": j.get_settings()[4],
+                                "sampling": j.get_settings()[5],
+                                "notifyEmail": j.get_settings()[8],
+                                "heartbeat_interval": j.get_settings()[9],
+                                "retention": j.get_settings()[6],
+                                "path": j.get_config()[2],
+                                "user": j.get_settings()[11],
+                                "password": j.get_settings()[12]
+                            }
+                        }
                     }
-                    }
-                }
+                except Exception as e:
+                    pass
+                
                 return make_response(data,200)
             for client in CLIENTS:
                 if client[0] == identification:
@@ -734,7 +753,6 @@ class FlaskServer():
         logger=Logger()
         if FlaskServer.auth(apikey, logger, identification) == 200:
             if identification == str(0):
-                API.server_beat()
                 return make_response("200 OK", 200)
             else:
                 for client in CLIENTS:
@@ -774,7 +792,7 @@ class FlaskServer():
         return "200 OK"
 
 
-    @website.route('/get_status/<int:id>', methods=['GET'], )
+    @website.route('/get_status/<int:identification>', methods=['GET'], )
     @staticmethod
     def get_status(identification):
         """
@@ -817,7 +835,7 @@ class FlaskServer():
             logger.log("ERROR", "get_status", "Access Denied",401,FILENAME)
             return make_response("401 Access Denied", 401)
 
-    @website.route('/get_job_status/<int:id>', methods=['GET'], )
+    @website.route('/get_job_status/<int:identification>', methods=['GET'], )
     @staticmethod
     def get_job_status(identification):
         """
@@ -881,7 +899,7 @@ class FlaskServer():
                 logger.log("INFO", "force_update", "Forcing update",0,FILENAME)
             else:
                 for i in CLIENTS:
-                    if i[1] == identification:
+                    if str(i[1]) == str(identification):
                         url = f"{TENANT_PROTOCOL}{i[2]}:{i[3]}/force_update"
                         try:
                             logger.log("INFO", "force_update", f"Forcing update on {url}",0,FILENAME)
@@ -895,10 +913,11 @@ class FlaskServer():
                         except Exception as e:
                             logger.log("ERROR", "force_update.relay.force_update", "Internal server error"+ str(e),500,FILENAME)
                 return make_response("Client not found", 403)
-        return "200 OK"
+        else:
+            return make_response("401 Access Denied", 401)
 
 
-    @website.route('/get_version/<int:id>', methods=['GET'], )
+    @website.route('/get_version/<int:identification>', methods=['GET'], )
     @staticmethod
     def get_version(identification):
         """
@@ -952,25 +971,28 @@ class FlaskServer():
             logger.log("INFO", "get_jobs", "Getting server job",0,FILENAME)
             j:Job = Job()
             j.load(0)
-            data = {
-                    "0":{
-                    "title": j.get_title(),
-                    RX_CLIENT_ID: "0",
-                    "settings": {
-                        "schedule": j.get_settings()[1],
-                        "startTime": j.get_settings()[2],
-                        "stopTime": j.get_settings()[3],
-                        "retryCount": j.get_settings()[4],
-                        "sampling": j.get_settings()[5],
-                        "notifyEmail": j.get_settings()[8],
-                        "heartbeat_interval": j.get_settings()[9],
-                        "retention": j.get_settings()[6],
-                        "path": j.get_config()[2],
-                        "user": j.get_settings()[11],
-                        "password": j.get_settings()[12]
+            try:
+                data = {
+                        "0":{
+                        "title": j.get_title(),
+                        RX_CLIENT_ID: "0",
+                        "settings": {
+                            "schedule": j.get_settings()[1],
+                            "startTime": j.get_settings()[2],
+                            "stopTime": j.get_settings()[3],
+                            "retryCount": j.get_settings()[4],
+                            "sampling": j.get_settings()[5],
+                            "notifyEmail": j.get_settings()[8],
+                            "heartbeat_interval": j.get_settings()[9],
+                            "retention": j.get_settings()[6],
+                            "path": j.get_config()[2],
+                            "user": j.get_settings()[11],
+                            "password": j.get_settings()[12]
+                        }
                     }
                 }
-            }
+            except Exception as e:
+                pass
             jobs.append(data)
             for client in CLIENTS:
                 url = f"http://{client[2]}:{client[3]}/get_job"
@@ -1037,13 +1059,11 @@ class FlaskServer():
         secret = request.headers.get(APIKEY)
         if MySqlite.read_setting(APIKEY) == secret:
             try:
-                req = requests.request("GET", f"{MSP_PROTOCOL}{MySqlite.read_setting("MSP_SERVER_SETTING")}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{URLS_ROUTE}",
+                req = requests.request("GET", f"{MSP_PROTOCOL}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{URLS_ROUTE}",
                             timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:secret}, verify=VERIFY)
-                Logger.log("INFO","urls","flask",f"Request to MSP: {req.status_code}",200, FILENAME)
-                Logger.log("INFO","urls","flask",f"Request to MSP: {req.content}",200, FILENAME)
             except Exception as e:
                 Logger.log("ERROR","urls","flask",f"Request to MSP: {e}",500, FILENAME)
-                return make_response("500 Internal Server Error",500)
+                return make_response("Connection Error",403)
 
             return make_response(req.content, str(req.status_code))
 
@@ -1062,7 +1082,7 @@ class FlaskServer():
         password = data.get('password', '')
         username = data.get('username', '')
         identification = data.get('CLIENT_ID', '')
-        path = os.path.normpath(path)
+        #path = os.path.normpath(path) leae out so wbadmin has \\\\device\\path over \\device\path
         logger=Logger()
         auth = FlaskServer.auth(apikey, logger,  MySqlite.read_setting(CLIENT_ID_SETTING))
         if auth == 200:
@@ -1082,7 +1102,7 @@ class FlaskServer():
             return make_response("401 Access Denied", 401)
         else:
             return make_response("500 Internal Server Error", 500)
-    @website.route('/get_smb/<int:id>', methods=['GET'], )
+    @website.route('/get_smb/<int:identification>', methods=['GET'], )
     @staticmethod
     def get_smb(identification):
         """
@@ -1096,20 +1116,25 @@ class FlaskServer():
         if auth == 200:
             logger.log("INFO", "get_smb", f"Getting smb share {identification}",200,FILENAME)
             server= MySqlite.get_backup_server(int(identification))
+
             # format smb info as json
-            data = {
-                "Name":server[4],
-                "Path":server[1],
-                "Username":server[2],
-                "Password":server[3]
-            }
+            data={}
+            try:
+                data = {
+                    "Name":server[4],
+                    "Path":server[1],
+                    "Username":server[2],
+                    "Password":server[3]
+                }
+            except Exception as e:
+                pass
             return make_response(data, 200)
         elif auth == 405:
             return make_response("401 Access Denied", 401)
         else:
             return make_response("500 Internal Server Error", 500)
 
-    @website.route('/delete_smb/<int:id>', methods=['DELETE'], )
+    @website.route('/delete_smb/<int:identification>', methods=['DELETE'], )
     @staticmethod
     def delete_smb(identification):
         """
@@ -1129,7 +1154,7 @@ class FlaskServer():
         else:
             return make_response("500 Internal Server Error", 500)
 
-    @website.route('verify', methods=['GET'], )
+    @website.route('/verify', methods=['GET'], )
     @staticmethod
     def verify():
         """
@@ -1154,8 +1179,12 @@ class FlaskServer():
                 _ = requests.request("POST", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/verify", 
                         timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                         json=payload, verify=False)
+            except ConnectionError:
+                make_response("403 Timeout",403)
             except Exception as e:
-                pass
+                return make_response("500 Internal Server Error", 500)
+        else:
+            return make_response("401 Access Denied", 401)
 
             
     # PUT ROUTES
@@ -1209,8 +1238,15 @@ class FlaskServer():
         }
             logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, FILENAME)
             logger.log("INFO", "check-installer", f"path :{MSP_PROTOCOL} {MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{CLIENT_REGISTRATION_PATH}", 200, FILENAME)
-            req = requests.request("POST", f"{MSP_PROTOCOL}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{CLIENT_REGISTRATION_PATH}",
-                        timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:secret}, json=payload, verify=VERIFY)
+            try:
+                req = requests.request("POST", f"{MSP_PROTOCOL}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{CLIENT_REGISTRATION_PATH}",
+                            timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:secret}, json=payload, verify=VERIFY)
+            except TimeoutError:
+                logger.log("ERROR", "check-installer", "Timeout connecting to MSP",500,FILENAME)
+                return make_response("403 Timeout",403)
+            except Exception as e:
+                logger.log("ERROR", "check-installer", f"Failed to connect to MSP: {e}", 500, FILENAME)
+                return make_response("Failed to contact MSP", 500)
             logger.log("INFO", "check-installer", f"Request to MSP: {req.status_code}", 200, FILENAME)
             # if msp returns 200 ok, then return 200 ok
             if req.status_code == 200:
