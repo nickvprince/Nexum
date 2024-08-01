@@ -17,6 +17,7 @@ Error Code:
 # pylint: disable= import-error, global-statement,unused-argument, line-too-long, broad-except
 
 import socket
+import json
 import uuid
 import os
 import requests
@@ -494,24 +495,28 @@ class FlaskServer():
         CLIENTS = MySqlite.load_clients()
         logger=Logger()
         data = request.get_json()
+        data = json.dumps(data)
+        data = json.loads(data)
         # get client secret from header
         apikey = request.headers.get(APIKEY)
         identification = data.get(RX_CLIENT_ID, '')
 
         if FlaskServer.auth(apikey, logger, identification) == 200:
-            if identification == str(0):
+            if str(identification) == str(0):
                 logger.log("INFO", "modify_job", "Modifying job",0,FILENAME)
 
                 # recieve settings as json
 
-                recieved_settings = data.get('settings', '')
+                recieved_settings = data.get('0', '').get('settings', '')
+                recieved_settings = json.dumps(recieved_settings)
+                recieved_settings = json.loads(recieved_settings)
                 job_to_save = Job()
                 job_to_save.set_id(0)
-                job_to_save.set_title(data.get('title', ''))
+                job_to_save.set_title(data.get('0', '').get('title', ''))
                 settings = JobSettings()
                 settings.set_id(0)
                 settings.set_schedule(recieved_settings.get('schedule', ''))
-                settings.set_start_time(recieved_settings.get(('startTime', '')))
+                settings.set_start_time(recieved_settings.get('startTime', ''))
                 settings.set_stop_time(recieved_settings.get('stopTime', ''))
                 settings.set_retry_count(recieved_settings.get('retryCount', ''))
                 settings.set_sampling(recieved_settings.get('sampling', ''))
@@ -523,7 +528,7 @@ class FlaskServer():
 
                 config = Configuration(0, 0, apikey)
                 #update to use the smb share id provided instead of user password path from the request
-                server_id = recieved_settings.get('backupServerId', '')
+                server_id = recieved_settings.get('id', '')
                 server = MySqlite.get_backup_server(server_id)
                 if server is None:
                     settings.backup_path=recieved_settings.get('path', '')
@@ -1077,10 +1082,10 @@ class FlaskServer():
         data = request.get_json()
         # get client secret from header
         apikey = request.headers.get(APIKEY)
-        name = data.get('name', '')
-        path = data.get('path', '')
-        password = data.get('password', '')
-        username = data.get('username', '')
+        name = data.get('Name', '')
+        path = data.get('Path', '')
+        password = data.get('Password', '')
+        username = data.get('Username', '')
         identification = data.get('CLIENT_ID', '')
         #path = os.path.normpath(path) leae out so wbadmin has \\\\device\\path over \\device\path
         logger=Logger()
@@ -1223,13 +1228,12 @@ class FlaskServer():
             payload = {
             "name":socket.gethostname(),
             RX_UUID:uid,
-            "client_Id":identification,
+            "client_id":identification,
             "ipaddress":ip,
             "port":port,
             "type":type,
             "macaddresses":[
                 {
-                "id":0,
                 "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
                             for ele in range(0,8*6,8)][::-1])
                 }

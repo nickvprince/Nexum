@@ -178,15 +178,14 @@ class NexumService(win32serviceutil.ServiceFramework):
      
 
     def main(self):
-        """
+        
         while self.is_running:
             win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
             main()
-            """
+        
 
 if __name__ == '__main__':
     main()
-    """
     if len(sys.argv) > 1:
        # Called by Windows shell. Handling arguments such as: Install, Remove, etc.
        win32serviceutil.HandleCommandLine(NexumService)
@@ -195,4 +194,3 @@ if __name__ == '__main__':
        servicemanager.Initialize()
        servicemanager.PrepareToHostSingle(NexumService)
        servicemanager.StartServiceCtrlDispatcher()
-       """

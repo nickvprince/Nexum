@@ -1236,7 +1236,7 @@ def main():
 
 
     #TESTING Area
-    
+    main_window(tk.Tk())
 
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
