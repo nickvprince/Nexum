@@ -77,6 +77,43 @@ hr {
     color: #ffffff;
 }
 
+/*Nexum Cards*/
+.nexum-card-container {
+    width: 96px; 
+    height: 96px; 
+}
+
+.nexum-card-icon {
+    font-size: 3.25rem;
+}
+
+.nexum-card-flex-item {
+    flex: 1 1 calc(33.33% - 2rem);
+}
+
+.nexum-card-title {
+    font-size: 3rem;
+}
+
+.nexum-card-body {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.nexum-card-content {
+    flex-grow: 1;
+}
+
+.nexum-card-shadow {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nexum-card-text {
+    font-size: 1.25rem;
+}
+
+
 /* Highlight color and shadow on hover */
 .nav-link:hover, .nav-link.active {
     box-shadow: inset 0px 0px 150px rgba(243, 229, 255, 1); /* Shadow on hover */
