@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_LayoutDashboardAdmin.cshtml";
 }
 
-<div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
+<div id="parentContentBox">
     <div id="tempDataMessage" class="mb-2"></div>
     <div id="tenantActionContentBox" class="mb-2"></div>
     <div id="contentBox" class="mb-2"></div>
@@ -27,7 +27,7 @@
                         });
                     },
                     error: function (xhr, status, error) {
-                        $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        $('#contentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
@@ -46,7 +46,7 @@
                         $('#tenantActionContentBox').html(result);
                     },
                     error: function (xhr, status, error) {
-                        $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
@@ -62,7 +62,7 @@
                         $('#tenantActionContentBox').html(result);
                     },
                     error: function (xhr, status, error) {
-                        $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
@@ -119,7 +119,7 @@
                         }
                     },
                     error: function (xhr, status, error) {
-                        $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
@@ -143,7 +143,7 @@
                         $('#keyCreateContentBox' + id).html(result);
                     },
                     error: function (xhr, status, error) {
-                        $('#keyCreateContentBox' + id).html('<p>' + 'No Partial Found' + '</p>');
+                        $('#keyCreateContentBox' + id).html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
@@ -163,7 +163,7 @@
                         $('#keyCreateContentBox' + tenantId).html(result);
                     },
                     error: function (xhr, status, error) {
-                        $('#keyCreateContentBox' + tenantId).html('<p>' + 'No Partial Found' + '</p>');
+                        $('#keyCreateContentBox' + tenantId).html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
@@ -226,7 +226,7 @@
                         }
                     },
                     error: function (xhr, status, error) {
-                        $('#keyCreateContentBox' + id).html('<p>' + 'No Partial Found' + '</p>');
+                        $('#keyCreateContentBox' + id).html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });

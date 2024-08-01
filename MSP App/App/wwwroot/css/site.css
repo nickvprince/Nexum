@@ -70,11 +70,16 @@ hr {
 }
 
 .text-nexum-dark {
-    color: rgba(30, 4, 51, 1);
+    color: rgba(30, 4, 51, 1) !important;
 }
 
 .text-nexum-light {
-    color: #ffffff;
+    /*color: #ffffff;*/
+    color: rgba(198, 186, 210, 1) !important;
+}
+
+.border-nexum-light {
+    border-color: rgba(198, 186, 210, 1) !important;
 }
 
 /* Highlight color and shadow on hover */
@@ -83,7 +88,7 @@ hr {
 }
 
 .nav-link:hover svg, .nav-link:hover p, .nav-link.active svg, .nav-link.active p  {
-    color: rgba(30, 4, 51, 1);
+    color: rgba(30, 4, 51, 1) !important;
     transform: scale(1.1);
 }
 
@@ -96,7 +101,7 @@ hr {
 
 .btn-success-nexum-dark:hover {
     background-color: rgba(40, 167, 69, 1);
-    color: #ffffff;
+    color: #ffffff !important;
     transform: scale(1.1);
     border-color: rgba(30, 4, 51, 1);
     border-width: 1px;
@@ -112,14 +117,14 @@ hr {
 }
 
 .dropdown-menu {
-    background-color: rgba(30, 4, 51, 0.95);
+    background-color: rgba(30, 4, 51, 0.99);
     border-color: rgba(255, 255, 255, 1);
     border-width: 1px;
 }
 
-.dropdown-item:hover {
-    background-color: rgba(128, 16, 220, 0.5);
-    color: rgba(255, 255, 255, 1);
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: rgba(128, 16, 220, 0.5) !important;
+    color: rgba(255, 255, 255, 1) !important;
 }
 
 ::-webkit-scrollbar {
@@ -141,6 +146,7 @@ hr {
     position: fixed;
     height: calc(100vh - 56px);
     background-image: linear-gradient(to right, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
+    border-color: rgba(198, 186, 210, 1) !important;
 }
 
 .horizontal-nav {
@@ -148,6 +154,7 @@ hr {
     height: 115px;
     z-index: 1000;
     background-image: linear-gradient(to bottom, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
+    border-color: rgba(198, 186, 210, 1) !important;
 }
 
 .table-button-nexum {
