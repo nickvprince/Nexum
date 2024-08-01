@@ -20,8 +20,9 @@
         <partial name="_DashboardSideNavPartial" />
     </nav>
     <main role="main" style="margin-left: 220px; margin-right: 10px;">
-        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
+        <partial name="_CookieSessionListPartial" /> @*for developement*@
         <partial name="_TempDataMessagePartial" />
+        <div id="tenantDeviceSelectorContainer"></div>
         @RenderBody()
     </main>
     <partial name="_FooterPartial" />
@@ -106,5 +107,60 @@
         } else {
             console.log('No active link found in session storage.');
         }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        function loadTenantDeviceSelectorPartial() {
+            $.ajax({
+                url: '/api/Session/Selector',
+                type: 'GET',
+                success: function (result) {
+                    $('#tenantDeviceSelectorContainer').html(result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        }
+
+        loadTenantDeviceSelectorPartial();
+
+        $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+            var prefix = form.attr('id').split('-')[0];
+
+            var ajaxUrl = '';
+            if (prefix === 'tenant') {
+                ajaxUrl = '/api/Session/Tenant/' + id;
+            } else if (prefix === 'device') {
+                ajaxUrl = '/api/Session/Device/' + id;
+            }
+
+            console.log('Ajax URL:', ajaxUrl);
+            console.log('Prefix:', prefix);
+            console.log('ID:', id);
+            console.log('Form:', form);
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                success: function (result) {
+                    var name = form.find('button').text();
+                    if (prefix === 'tenant') {
+                        $('#tenantDropdown').text(name);
+                    } else if (prefix === 'device') {
+                        $('#deviceDropdown').text(name);
+                    }
+                    loadTenantDeviceSelectorPartial();
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
     });
 </script>

@@ -77,6 +77,108 @@ hr {
     color: #ffffff;
 }
 
+/*Nexum Home Rectangular Cards*/
+.nexum-card-container {
+    width: 96px; 
+    height: 96px; 
+}
+
+.nexum-card-icon {
+    font-size: 3.25rem;
+}
+
+.nexum-card-flex-item {
+    flex: 1 1 calc(33.33% - 2rem);
+}
+
+.nexum-card-title {
+    font-size: 3rem;
+}
+
+.nexum-card-body {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.nexum-card-content {
+    flex-grow: 1;
+}
+
+.nexum-card-shadow {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nexum-card-text {
+    font-size: 1.25rem;
+}
+
+/* Nexum Alerts, Logs, and Jobs Square Cards*/
+.nexum-card-container-square {
+    width: 20vw;
+    height: 20vw;
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 1rem; /* Rounded square corners */
+}
+
+.nexum-card-title-square {
+    font-size: 2vw; /* Responsive font size */
+}
+
+.nexum-card-text-square {
+    font-size: 1vw; /* Responsive font size */
+}
+
+.nexum-card-body-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.nexum-card-shadow-square {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+/* Background colors for Alerts and Logs and jobs */
+.bg-information, .bg-information-log {
+    background-color: #2f4f4f; /* Dark Slate Gray */
+}
+
+.bg-low, .bg-debug, .bg-complete {
+    background-color: #228b22; /* Forest Green */
+}
+
+.bg-medium, .bg-warning {
+    background-color: #ffa500; /* Orange */
+}
+
+.bg-high, .bg-trace {
+    background-color: #ff4500; /* Orange Red */
+}
+
+.bg-critical, .bg-error {
+    background-color: #8b0000; /* Dark Red */
+}
+
+.bg-not-started {
+    background-color: #6c757d; /* Slate Gray */
+}
+
+.bg-in-progress {
+    background-color: #1e90ff; /* Dodger Blue */
+}
+
+.bg-restarting {
+    background-color: #ff8c00; /* Dark Orange */
+}
+
+.bg-failed {
+    background-color: #8b0000; /* Dark Red */
+}
+
 /* Highlight color and shadow on hover */
 .nav-link:hover, .nav-link.active {
     box-shadow: inset 0px 0px 150px rgba(243, 229, 255, 1); /* Shadow on hover */

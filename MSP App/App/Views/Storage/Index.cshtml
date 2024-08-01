@@ -1,27 +1,66 @@
-﻿@{
+﻿@model ICollection<Tenant>?
+
+@{
     ViewData["Title"] = "Storage";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div id="contentBox" class="border text-center border-light text-white"></div>
+<div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
+    <div id="tempDataMessage" class="mb-2"></div>
+    <div id="nasActionContentBox" class="mb-2"></div>
+    <div id="nasContentBox" class="mb-2"></div>
+    <div id="backupActionContentBox" class="mb-2"></div>
+    <div id="backupContentBox" class="mb-2"></div>
 </div>
 
 @section Scripts {
 
     <script>
         $(document).ready(function () {
-            $.ajax({
-                url: '/Storage/Partial',
-                type: 'GET',
-                success: function (result) {
-                    $('#contentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
-                    console.error('Error loading partial view:', error);
-                }
+            function loadNASTable() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading NASServers...</h5>';
+                $('#nasContentBox').prepend(loadingMessage);
+
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Storage/NASTable',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#nasContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#nasContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            /*function loadBackupTable() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Backups...</h5>';
+                $('#backupContentBox').prepend(loadingMessage);
+
+                $.ajax({
+                    url: '/Storage/BackupTable',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#backupContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#backupContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }*/
+
+            loadNASTable();
+            /*loadBackupTable();*/
+
+            $(document).on('submit', '[id^=tenant-select]', '[id^=device-select]', function (event) {
+                event.preventDefault();
+                loadNASTable();
             });
+
         });
     </script>
 }

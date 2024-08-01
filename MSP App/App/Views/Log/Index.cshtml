@@ -3,7 +3,48 @@
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
+<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
+
+    <!-- Logs Cards -->
+    <div class="d-flex flex-wrap justify-content-around my-3">
+        <!-- Information Log Card -->
+        <div class="card bg-information-log text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">7</h3>
+                <p class="nexum-card-text-square mb-0">Information</p>
+            </div>
+        </div>
+        <!-- Trace Log Card -->
+        <div class="card bg-trace text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">6</h3>
+                <p class="nexum-card-text-square mb-0">Trace</p>
+            </div>
+        </div>
+        <!-- Debug Log Card -->
+        <div class="card bg-debug text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">4</h3>
+                <p class="nexum-card-text-square mb-0">Debug</p>
+            </div>
+        </div>
+        <!-- Warning Log Card -->
+        <div class="card bg-warning text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">3</h3>
+                <p class="nexum-card-text-square mb-0">Warning</p>
+            </div>
+        </div>
+        <!-- Error Log Card -->
+        <div class="card bg-error text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">2</h3>
+                <p class="nexum-card-text-square mb-0">Error</p>
+            </div>
+        </div>
+    </div>
+
+
     <div id="contentBox" class="border text-center border-light text-white"></div>
 </div>
 

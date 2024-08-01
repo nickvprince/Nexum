@@ -113,8 +113,8 @@
                                                             <th class="border-0">Actions</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody class="border-bottom">
-                                                        @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Count() == 0)
+                                                    <tbody class="border-2 border-top-0 border-start-0 border-end-0">
+                                                        @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Where(k => !k.IsDeleted).Count() == 0)
                                                         {
                                                             <tr class="text-center text-nowrap">
                                                                 <td class="border-0" colspan="12">No keys found</td>

@@ -4,9 +4,9 @@
 }
 
 <div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
-    <div id="tempDataMessage"></div>
+    <div id="tempDataMessage" class="mb-2"></div>
     <div id="tenantActionContentBox" class="mb-2"></div>
-    <div id="contentBox"></div>
+    <div id="contentBox" class="mb-2"></div>
 </div>
 
 @section Scripts {
@@ -14,7 +14,6 @@
     <script>
         $(document).ready(function () {
             function loadTable() {
-                // Add a loading message
                 var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Table...</h5>';
                 $('#contentBox').prepend(loadingMessage);
 
@@ -45,36 +44,6 @@
                     type: 'GET',
                     success: function (result) {
                         $('#tenantActionContentBox').html(result);
-                    },
-                    error: function (xhr, status, error) {
-                        $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
-                        console.error('Error loading partial view:', error);
-                    }
-                });
-            });
-
-            $('#tenantActionContentBox').on('submit', '#tenantForm', function (event) {
-                event.preventDefault();
-                var form = $(this);
-                var formData = form.serialize();
-                var id = form.find('input[name="Id"]').val();
-                var url = id ? '/Tenant/' + id + '/Update' : '/Tenant/Create';
-
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    success: function (result) {
-                        if (result.success) {
-                            $('#tenantActionContentBox').html('');
-                            $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                            setTimeout(function () {
-                                loadTable();
-                            }, 2000);
-                        } else {
-                            $('#tenantActionContentBox').html(result.html);
-                            $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                        }
                     },
                     error: function (xhr, status, error) {
                         $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
@@ -122,6 +91,36 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageTenant' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    }
+                });
+            });
+
+            $('#tenantActionContentBox').on('submit', '#tenantForm', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+                var id = form.find('input[name="Id"]').val();
+                var url = id ? '/Tenant/' + id + '/Update' : '/Tenant/Create';
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tenantActionContentBox').html('');
+                            $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            setTimeout(function () {
+                                loadTable();
+                            }, 2000);
+                        } else {
+                            $('#tenantActionContentBox').html(result.html);
+                            $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tenantActionContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
                     }
                 });
             });

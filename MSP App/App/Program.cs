@@ -37,8 +37,9 @@ builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".Nexum.Session";
     options.IdleTimeout = TimeSpan.FromMinutes(15);
-    options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly = false;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
 /*builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
@@ -78,8 +79,9 @@ builder.Services.AddAuthentication(options =>
 .AddCookie(options =>
 {
     options.Cookie.Name = ".Nexum.AuthCookie";
-    options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly = false;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
     options.SlidingExpiration = true;
     options.LoginPath = "/Auth/Index";
     options.AccessDeniedPath = "/Auth/AccessDenied";
