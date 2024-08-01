@@ -142,69 +142,42 @@ hr {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
 }
 
-/* Background colors for Alerts */
-.bg-information {
+/* Background colors for Alerts and Logs and jobs */
+.bg-information, .bg-information-log {
     background-color: #2f4f4f; /* Dark Slate Gray */
 }
 
-.bg-low {
+.bg-low, .bg-debug, .bg-complete {
     background-color: #228b22; /* Forest Green */
 }
 
-.bg-medium {
+.bg-medium, .bg-warning {
     background-color: #ffa500; /* Orange */
 }
 
-.bg-high {
+.bg-high, .bg-trace {
     background-color: #ff4500; /* Orange Red */
 }
 
-.bg-critical {
+.bg-critical, .bg-error {
     background-color: #8b0000; /* Dark Red */
 }
 
-/* Background colors for Logs */
-.bg-trace {
-    background-color: #4682b4; /* Steel Blue */
-}
-
-.bg-debug {
-    background-color: #5f9ea0; /* Cadet Blue */
-}
-
-.bg-information-log {
-    background-color: #20b2aa; /* Light Sea Green */
-}
-
-.bg-warning {
-    background-color: #daa520; /* Goldenrod */
-}
-
-.bg-error {
-    background-color: #b22222; /* Firebrick */
-}
-
-/* Background colors for Jobs */
 .bg-not-started {
-    background-color: #708090; /* Slate Gray */
+    background-color: #6c757d; /* Slate Gray */
 }
 
 .bg-in-progress {
     background-color: #1e90ff; /* Dodger Blue */
 }
 
-.bg-complete {
-    background-color: #32cd32; /* Lime Green */
-}
-
-.bg-failed {
+.bg-restarting {
     background-color: #ff8c00; /* Dark Orange */
 }
 
-.bg-restarting {
+.bg-failed {
     background-color: #8b0000; /* Dark Red */
 }
-
 
 /* Highlight color and shadow on hover */
 .nav-link:hover, .nav-link.active {
