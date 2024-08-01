@@ -7,17 +7,17 @@
         @if (User.Identity?.IsAuthenticated ?? true)
         {
             <button id="navDropdownMenuButton" class="btn btn-nexum-gear-dark no-dropdown-arrow p-0 d-flex" data-bs-toggle="dropdown">
-                <svg class="bi text-white" width="52px" height="52px" fill="currentColor">
+                <svg class="bi text-nexum-light" width="52px" height="52px" fill="currentColor">
                     <use xlink:href="#gear"></use>
                 </svg>
             </button>
             <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-end" style="display: none; position: fixed; top: 5vh; right: 2vw; z-index: 1100;">
-                <li><a class="dropdown-item text-light disabled" aria-disabled="true">@(User.Identity?.Name)</a></li>
+                <li><a class="dropdown-item text-nexum-light" aria-disabled="true"><b>@(User.Identity?.Name)</b></a></li>
                 <li><hr class="dropdown-divider bg-light"></li>
-                <li><a id="adminLink" class="dropdown-item text-light" asp-controller="Tenant" asp-action="Index">Admin Panel</a></li>
-                <li><a class="dropdown-item text-light" href="#">Settings</a></li>
+                <li><a id="adminLink" class="dropdown-item text-nexum-light" asp-controller="Tenant" asp-action="Index">Admin Panel</a></li>
+                <li><a class="dropdown-item text-nexum-light" href="#">Settings</a></li>
                 <form method="post" asp-controller="Auth" asp-action="Logout">
-                    <li><button class="dropdown-item text-light" type="submit">Logout</button></li>
+                <li><button class="dropdown-item text-nexum-light" type="submit">Logout</button></li>
                 </form>
             </ul>
         }
