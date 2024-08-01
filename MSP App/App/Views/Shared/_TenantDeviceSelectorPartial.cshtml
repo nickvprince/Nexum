@@ -1,0 +1,62 @@
+﻿@model ICollection<Tenant>?
+
+<div class="d-flex justify-content-start align-items-center my-3">
+    <span class="text-nexum-light me-2">Tenant:</span>
+    <div class="dropdown me-3">
+        <a class="text-decoration-none dropdown-toggle" href="#" role="button" id="tenantDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            @{
+                var activeTenantId = Context.Session.GetString("ActiveTenantId");
+                var tenantName = activeTenantId != null
+                    ? Model.Where(t => t.Id == int.Parse(activeTenantId)).FirstOrDefault()?.Name
+                    : "All";
+            }
+            @tenantName
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="tenantDropdown">
+            <li>
+                <form id="tenant-selectAll" asp-controller="Session" asp-action="Tenant">
+                    <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
+                        All
+                    </button>
+                </form>
+            </li>
+            @if (Model != null)
+            {
+                @foreach (var tenant in Model)
+                {
+                    <li>
+                        <form id="tenant-select@(tenant.Id)" asp-controller="Session" asp-action="Tenant">
+                            <input type="hidden" asp-for="@tenant.Id" value="@tenant.Id" />
+                            <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
+                                @tenant.Name
+                            </button>
+                        </form>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+    <span class="text-nexum-light me-2">Device:</span>
+    <div class="dropdown">
+        <a class="text-decoration-none dropdown-toggle" href="#" role="button" id="deviceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            All
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="deviceDropdown">
+            @if (Model != null)
+            {
+                @foreach (var tenant in Model)
+                {
+                    @if(tenant.Devices != null)
+                    {
+                        @foreach (var device in tenant.Devices)
+                        {
+                            <li>
+                                <a id="device-select@(device.Id)" class="dropdown-item text-nexum-light" data-device-id="@device.Id" href="#">@device.DeviceInfo.Name</a>
+                            </li>
+                        }
+                    }
+                }
+            }
+        </ul>
+    </div>
+</div>

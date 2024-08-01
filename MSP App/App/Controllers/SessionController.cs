@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SharedComponents.Entities.WebAppEntities.Requests.Session_Requests;
+using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebAppEntities.Requests.SessionRequests;
+using SharedComponents.Services.APIRequestServices.Interfaces;
 
 namespace App.Controllers
 {
@@ -8,20 +10,35 @@ namespace App.Controllers
     [ApiController]
     public class SessionController : ControllerBase
     {
-        public SessionController() { }
+        private readonly IAPIRequestTenantService _tenantService;
+        public SessionController(IAPIRequestTenantService tenantService)
+        {
+            _tenantService = tenantService;
+        }
 
-        [HttpPost("")]
-        public async Task<IActionResult> SetActiveNavLink([FromBody] SetActiveNavLinkRequest request)
+        [HttpPost("Tenant/{id}")]
+        public async Task<IActionResult> SetActiveTenant(string? id)
         {
             if (ModelState.IsValid)
             {
-                if (!string.IsNullOrEmpty(request.ActiveLinkId))
+                if (id != null)
                 {
-                    HttpContext.Session.SetString("ActiveNavLink", request.ActiveLinkId);
-                    return await Task.FromResult(Ok());
+                    if (id.Equals("All"))
+                    {
+                        HttpContext.Session.Remove("ActiveTenantId");
+                        return await Task.FromResult(Ok());
+                    }
+
+                    Tenant? tenant = await _tenantService.GetAsync(int.Parse(id));
+                    if (tenant != null)
+                    {
+                        HttpContext.Session.SetString("ActiveTenantId", tenant.Id.ToString());
+                        return await Task.FromResult(Ok());
+                    }
                 }
+                
             }
-            return await Task.FromResult(BadRequest("Invalid active link ID."));
+            return await Task.FromResult(BadRequest("Invalid tenant Id."));
         }
     }
 }

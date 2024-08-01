@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedComponents.Entities.WebAppEntities.Requests.Session_Requests
+namespace SharedComponents.Entities.WebAppEntities.Requests.SessionRequests
 {
     public class SetActiveNavLinkRequest
     {
