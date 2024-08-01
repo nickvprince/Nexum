@@ -39,21 +39,67 @@
     <span class="text-nexum-light me-2">Device:</span>
     <div class="dropdown">
         <a class="text-decoration-none dropdown-toggle" href="#" role="button" id="deviceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            All
+            @{
+                var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+                var deviceName = Model != null && !string.IsNullOrEmpty(activeDeviceId) && int.TryParse(activeDeviceId, out var parsedDeviceId)
+                    ? Model.FirstOrDefault(t => t.Devices != null && t.Devices.Any(d => d.Id == parsedDeviceId))
+                        ?.Devices?.FirstOrDefault(d => d.Id == parsedDeviceId)?.DeviceInfo?.Name ?? "All"
+                    : "All";
+            }
+            @deviceName
         </a>
         <ul class="dropdown-menu" aria-labelledby="deviceDropdown">
+            <li>
+                <form id="device-selectAll" asp-controller="Session" asp-action="Device">
+                    <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
+                        All
+                    </button>
+                </form>
+            </li>
             @if (Model != null)
             {
-                @foreach (var tenant in Model)
+                if (activeDeviceId != null)
                 {
-                    @if(tenant.Devices != null)
+                    var activeDeviceIdInt = int.Parse(activeDeviceId);
+                    foreach (var device in Model.Where(t => t.Devices != null).SelectMany(t => t.Devices).Where(d => d.Id == activeDeviceIdInt))
                     {
-                        @foreach (var device in tenant.Devices)
-                        {
-                            <li>
-                                <a id="device-select@(device.Id)" class="dropdown-item text-nexum-light" data-device-id="@device.Id" href="#">@device.DeviceInfo.Name</a>
-                            </li>
-                        }
+                        <li>
+                            <form id="device-select@(device.Id)" asp-controller="Session" asp-action="Device">
+                                <input type="hidden" asp-for="@device.Id" value="@device.Id" />
+                                <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
+                                    @device.DeviceInfo.Name
+                                </button>
+                            </form>
+                        </li>
+                    }
+                }
+                else if (activeTenantId != null)
+                {
+                    var activeTenantIdInt = int.Parse(activeTenantId);
+                    foreach (var device in Model.Where(t => t.Id == activeTenantIdInt && t.Devices != null).SelectMany(t => t.Devices))
+                    {
+                        <li>
+                            <form id="device-select@(device.Id)" asp-controller="Session" asp-action="Device">
+                                <input type="hidden" asp-for="@device.Id" value="@device.Id" />
+                                <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
+                                    @device.DeviceInfo.Name
+                                </button>
+                            </form>
+                        </li>
+                    }
+                }
+                else
+                {
+                    foreach (var device in Model.Where(t => t.Devices != null).SelectMany(t => t.Devices))
+                    {
+                        <li>
+                            <form id="device-select@(device.Id)" asp-controller="Session" asp-action="Device">
+                                <input type="hidden" asp-for="@device.Id" value="@device.Id" />
+                                <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
+                                    @device.DeviceInfo.Name
+                                </button>
+                            </form>
+                        </li>
                     }
                 }
             }

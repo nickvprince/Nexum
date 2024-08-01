@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities.DbEntities;
 using SharedComponents.Entities.WebAppEntities.Requests.SessionRequests;
 using SharedComponents.Services.APIRequestServices.Interfaces;
+using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
@@ -11,9 +12,11 @@ namespace App.Controllers
     public class SessionController : ControllerBase
     {
         private readonly IAPIRequestTenantService _tenantService;
-        public SessionController(IAPIRequestTenantService tenantService)
+        private readonly IAPIRequestDeviceService _deviceService;
+        public SessionController(IAPIRequestTenantService tenantService, IAPIRequestDeviceService deviceService)
         {
             _tenantService = tenantService;
+            _deviceService = deviceService;
         }
 
         [HttpPost("Tenant/{id}")]
@@ -26,6 +29,7 @@ namespace App.Controllers
                     if (id.Equals("All"))
                     {
                         HttpContext.Session.Remove("ActiveTenantId");
+                        HttpContext.Session.Remove("ActiveDeviceId");
                         return await Task.FromResult(Ok());
                     }
 
@@ -39,6 +43,47 @@ namespace App.Controllers
                 
             }
             return await Task.FromResult(BadRequest("Invalid tenant Id."));
+        }
+
+        [HttpPost("Device/{id}")]
+        public async Task<IActionResult> SetActiveDevice(string? id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (id != null)
+                {
+                    if (id.Equals("All"))
+                    {
+                        HttpContext.Session.Remove("ActiveDeviceId");
+                        return await Task.FromResult(Ok());
+                    }
+
+                    Device? device = await _deviceService.GetAsync(int.Parse(id));
+                    if (device != null)
+                    {
+                        HttpContext.Session.SetString("ActiveTenantId", device.TenantId.ToString());
+                        HttpContext.Session.SetString("ActiveDeviceId", device.Id.ToString());
+                        return await Task.FromResult(Ok());
+                    }
+                }
+                
+            }
+            return await Task.FromResult(BadRequest("Invalid tenant Id."));
+        }
+
+        [HttpGet("Selector")]
+        public async Task<IActionResult> GetTenantDeviceSelectorPartial()
+        {
+            ICollection<Tenant>? tenants = await _tenantService.GetAllAsync();
+            if (tenants != null)
+            {
+                foreach (var tenant in tenants)
+                {
+                    tenant.Devices = await _deviceService.GetAllByTenantIdAsync(tenant.Id);
+                }
+            }
+            var partialViewString = await RenderUtilities.RenderViewToStringAsync(this, "_TenantDeviceSelectorPartial", tenants);
+            return Ok(partialViewString);
         }
     }
 }

@@ -6,7 +6,6 @@
 }
 
 <div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
-    <partial name="_TenantDeviceSelectorPartial" model="@(Model)" />
     <div id="tempDataMessage" class="mb-2"></div>
     <div id="nasActionContentBox" class="mb-2"></div>
     <div id="nasContentBox" class="mb-2"></div>
@@ -22,17 +21,19 @@
                 var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading NASServers...</h5>';
                 $('#nasContentBox').prepend(loadingMessage);
 
-                $.ajax({
-                    url: '/Storage/NASTable',
-                    type: 'GET',
-                    success: function (result) {
-                        $('#nasContentBox').html(result);
-                    },
-                    error: function (xhr, status, error) {
-                        $('#nasContentBox').html('<p>' + 'No Partial Found' + '</p>');
-                        console.error('Error loading partial view:', error);
-                    }
-                });
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Storage/NASTable',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#nasContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#nasContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
             }
 
             /*function loadBackupTable() {
@@ -55,29 +56,9 @@
             loadNASTable();
             /*loadBackupTable();*/
 
-            $(document).on('submit', '[id^=tenant-select]', function (event) {
+            $(document).on('submit', '[id^=tenant-select]', '[id^=device-select]', function (event) {
                 event.preventDefault();
-                var form = $(this);
-                var id = form.attr('id').replace('tenant-select', '');
-
-                console.log(form);
-                console.log(id);
-
-                $.ajax({
-                    url: '/api/Session/Tenant/' + id,
-                    type: 'POST',
-                    success: function (result) {
-                        var tenantName = form.find('button').text();
-                        $('#tenantDropdown').text(tenantName);
-                        setTimeout(function () {
-                            loadNASTable();
-                        }, 2000);
-                    },
-                    error: function (xhr, status, error) {
-                        $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                        console.error('Error:', error);
-                    }
-                });
+                loadNASTable();
             });
 
         });
