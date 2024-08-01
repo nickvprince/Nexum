@@ -5,10 +5,12 @@
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-<div id="parentContentBox" class="container-fluid p-0" style="flex: 1 1 auto; min-height:80vh;">
+<div id="parentContentBox">
     <div id="tempDataMessage" class="mb-2"></div>
+    <h2 class="text-nexum-light">NAS Servers</h2>
     <div id="nasActionContentBox" class="mb-2"></div>
     <div id="nasContentBox" class="mb-2"></div>
+    <h2 class="text-nexum-light">Backups</h2>
     <div id="backupActionContentBox" class="mb-2"></div>
     <div id="backupContentBox" class="mb-2"></div>
 </div>
@@ -29,36 +31,44 @@
                             $('#nasContentBox').html(result);
                         },
                         error: function (xhr, status, error) {
-                            $('#nasContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                            $('#nasContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                             console.error('Error loading partial view:', error);
                         }
                     });
                 }, 2000);
             }
 
-            /*function loadBackupTable() {
+            function loadBackupTable() {
                 var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Backups...</h5>';
                 $('#backupContentBox').prepend(loadingMessage);
-
-                $.ajax({
-                    url: '/Storage/BackupTable',
-                    type: 'GET',
-                    success: function (result) {
-                        $('#backupContentBox').html(result);
-                    },
-                    error: function (xhr, status, error) {
-                        $('#backupContentBox').html('<p>' + 'No Partial Found' + '</p>');
-                        console.error('Error loading partial view:', error);
-                    }
-                });
-            }*/
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Storage/BackupTable',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#backupContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#backupContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
 
             loadNASTable();
-            /*loadBackupTable();*/
+            loadBackupTable();
 
-            $(document).on('submit', '[id^=tenant-select]', '[id^=device-select]', function (event) {
+            $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
                 event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+
+                console.log('ID:', id);
+                console.log('Form:', form);
+
                 loadNASTable();
+                loadBackupTable();
             });
 
         });

@@ -37,6 +37,7 @@ namespace App.Controllers
                     if (tenant != null)
                     {
                         HttpContext.Session.SetString("ActiveTenantId", tenant.Id.ToString());
+                        HttpContext.Session.Remove("ActiveDeviceId");
                         return await Task.FromResult(Ok());
                     }
                 }
@@ -68,7 +69,7 @@ namespace App.Controllers
                 }
                 
             }
-            return await Task.FromResult(BadRequest("Invalid tenant Id."));
+            return await Task.FromResult(BadRequest("Invalid device Id."));
         }
 
         [HttpGet("Selector")]
@@ -81,9 +82,10 @@ namespace App.Controllers
                 {
                     tenant.Devices = await _deviceService.GetAllByTenantIdAsync(tenant.Id);
                 }
+                var partialViewString = await RenderUtilities.RenderViewToStringAsync(this, "_TenantDeviceSelectorPartial", tenants);
+                return Ok(partialViewString);
             }
-            var partialViewString = await RenderUtilities.RenderViewToStringAsync(this, "_TenantDeviceSelectorPartial", tenants);
-            return Ok(partialViewString);
+            return await Task.FromResult(NotFound());
         }
     }
 }

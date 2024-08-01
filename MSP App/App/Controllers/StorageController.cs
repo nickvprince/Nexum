@@ -47,12 +47,33 @@ namespace App.Controllers
                     if (tenant.NASServers != null)
                     {
                         ICollection<DeviceBackup>? backups = await _backupService.GetAllByTenantIdAsync(tenant.Id);
-                        foreach (var nasServer in tenant.NASServers)
+                        if (backups != null)
                         {
-                            nasServer.Backups = backups.Where(b => b.NASServerId == nasServer.Id).ToList();
+                            foreach (var nasServer in tenant.NASServers)
+                            {
+                                nasServer.Backups = backups.Where(b => b.NASServerId == nasServer.Id).ToList();
+                            }
                         }
                     }
                 }
+            }
+            if (HttpContext.Session.GetString("ActiveDeviceId") != null)
+            {
+                int? ActiveDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
+                List<Tenant>? tenantsByDevice = tenants?
+                    .Where(t => t.NASServers != null && t.Devices != null &&
+                        t.NASServers.Any(n => n.Backups != null &&
+                            n.Backups.Any(b => b.Client_Id == t.Devices
+                                .Where(d => d.Id == ActiveDeviceId)
+                                .Select(d => d.DeviceInfo?.ClientId)
+                                .FirstOrDefault())))
+                    .ToList();
+                return await Task.FromResult(View(tenantsByDevice));
+            }
+            if (HttpContext.Session.GetString("ActiveTenantId") != null)
+            {
+                int? ActiveTenantId = int.Parse(HttpContext.Session.GetString("ActiveTenantId"));
+                return await Task.FromResult(View(tenants.Where(t => t.Id == ActiveTenantId).ToList()));
             }
             return await Task.FromResult(View(tenants));
         }
@@ -70,12 +91,28 @@ namespace App.Controllers
                     if (tenant.NASServers != null)
                     {
                         ICollection<DeviceBackup>? backups = await _backupService.GetAllByTenantIdAsync(tenant.Id);
-                        foreach (var nasServer in tenant.NASServers)
+                        if (backups != null)
                         {
-                            nasServer.Backups = backups.Where(b => b.NASServerId == nasServer.Id).ToList();
+                            foreach (var nasServer in tenant.NASServers)
+                            {
+                                nasServer.Backups = backups.Where(b => b.NASServerId == nasServer.Id).ToList();
+                            }
                         }
                     }
                 }
+            }
+            if (HttpContext.Session.GetString("ActiveDeviceId") != null)
+            {
+                int? ActiveDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
+                List<Tenant>? tenantsByDevice = tenants?
+                    .Where(t => t.NASServers != null && t.Devices != null && 
+                        t.NASServers.Any(n => n.Backups != null && 
+                            n.Backups.Any(b => b.Client_Id == t.Devices
+                                .Where(d => d.Id == ActiveDeviceId)
+                                .Select(d => d.DeviceInfo?.ClientId)
+                                .FirstOrDefault())))
+                    .ToList();
+                return await Task.FromResult(PartialView("_NASTablePartial", tenantsByDevice));
             }
             if (HttpContext.Session.GetString("ActiveTenantId") != null)
             {
@@ -93,17 +130,38 @@ namespace App.Controllers
             {
                 foreach (var tenant in tenants)
                 {
+                    tenant.Devices = await _deviceService.GetAllByTenantIdAsync(tenant.Id);
                     tenant.NASServers = await _nasServerService.GetAllByTenantIdAsync(tenant.Id);
-                }
-                foreach (var tenant in tenants)
-                {
-                    if (tenant.NASServers != null) {
-                        foreach (var nasServer in tenant.NASServers)
+                    if (tenant.NASServers != null) 
+                    {
+                        ICollection<DeviceBackup>? backups = await _backupService.GetAllByTenantIdAsync(tenant.Id);
+                        if(backups != null)
                         {
-                            nasServer.Backups = (await _backupService.GetAllByTenantIdAsync(tenant.Id)).Where(b => b.NASServerId == nasServer.Id).ToList();
+                            foreach (var nasServer in tenant.NASServers)
+                            {
+                                nasServer.Backups = backups.Where(b => b.NASServerId == nasServer.Id).ToList();
+                            }
                         }
                     }
                 }
+            }
+            if (HttpContext.Session.GetString("ActiveDeviceId") != null)
+            {
+                int? ActiveDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
+                List<Tenant>? tenantsByDevice = tenants?
+                    .Where(t => t.NASServers != null && t.Devices != null &&
+                        t.NASServers.Any(n => n.Backups != null &&
+                            n.Backups.Any(b => b.Client_Id == t.Devices
+                                .Where(d => d.Id == ActiveDeviceId)
+                                .Select(d => d.DeviceInfo?.ClientId)
+                                .FirstOrDefault())))
+                    .ToList();
+                return await Task.FromResult(PartialView("_BackupTablePartial", tenantsByDevice));
+            }
+            if (HttpContext.Session.GetString("ActiveTenantId") != null)
+            {
+                int? ActiveTenantId = int.Parse(HttpContext.Session.GetString("ActiveTenantId"));
+                return await Task.FromResult(PartialView("_BackupTablePartial", tenants.Where(t => t.Id == ActiveTenantId).ToList()));
             }
             return await Task.FromResult(PartialView("_BackupTablePartial", tenants));
         }

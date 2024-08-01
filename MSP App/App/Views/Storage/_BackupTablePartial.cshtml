@@ -1,1 +1,86 @@
 ﻿@model ICollection<Tenant>?
+
+<div class="table-responsive">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
+        <thead>
+            <tr class="text-center">
+                <th class="border-0 text-nexum-light">#</th>
+                @if (Model.Count() > 1)
+                {
+                    <th class="border-0 text-nexum-light">Tenant</th>
+                }
+                @if(Context.Session.GetString("ActiveDeviceId") == null)
+                {
+                    <th class="border-0 text-nexum-light">Device</th>
+                }
+                <th class="border-0 text-nexum-light">Filename</th>
+                <th class="border-0 text-nexum-light">Path</th>
+                <th class="border-0 text-nexum-light">Date</th>
+                <th class="border-0 text-nexum-light">NAS</th>
+                <th class="border-0 text-nexum-light">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || Model.All(t => t.NASServers == null) || Model.All(t => t.NASServers.All(n => n.Backups == null)))
+            {
+                <tr>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Backups found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                foreach (var tenant in Model.OrderBy(t => t.Name))
+                {
+                    if (tenant.NASServers != null && tenant.Devices != null)
+                    {
+                        if (tenant.NASServers.Count() != 0 && tenant.Devices.Count() != 0)
+                        {
+                            foreach (var nasServer in tenant.NASServers.OrderBy(n => n.Name))
+                            {
+                                if (nasServer.Backups != null)
+                                {
+                                    foreach (var backup in nasServer.Backups.OrderBy(b => b.Date))
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td class="p-0 border-0" colspan="12">
+                                                <div id="tempDataMessageBackup@(backup.Id)"></div>
+                                            </td>
+                                        </tr>
+                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap">
+                                            <td class="border-0 text-nexum-light">@i</td>
+                                            @if (Model.Count() > 1)
+                                            {
+                                                <th class="border-0 text-nexum-light">@tenant.Name</th>
+                                            }
+                                            @if(Context.Session.GetString("ActiveDeviceId") == null)
+                                            {
+                                                <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.DeviceInfo.ClientId == backup.Client_Id).FirstOrDefault()?.DeviceInfo.Name</td>
+                                            }
+                                            <td class="border-0 text-nexum-light">@backup.Filename</td>
+                                            <td class="border-0 text-nexum-light">@backup.Path</td>
+                                            <td class="border-0 text-nexum-light">@backup.Date</td>
+                                            <td class="border-0 text-nexum-light">@nasServer.Name</td>
+                                            <td class="border-0">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <form id="backupDeletelink@(backup.Id)" asp-controller="Storage" asp-action="DeleteBackup" asp-route-id="@backup.Id">
+                                                        <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                            <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                                <use xlink:href="#x-circle"></use>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
