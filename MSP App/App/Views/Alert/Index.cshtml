@@ -3,8 +3,48 @@
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div id="contentBox" class="border text-center border-light text-white"></div>
+<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
+
+    <!-- Alerts Cards -->
+    <div class="d-flex flex-wrap justify-content-around my-3">
+        <!-- Information Alert Card -->
+        <div class="card bg-information text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">2</h3>
+                <p class="nexum-card-text-square mb-0">Information</p>
+            </div>
+        </div>
+        <!-- Low Alert Card -->
+        <div class="card bg-low text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">5</h3>
+                <p class="nexum-card-text-square mb-0">Low</p>
+            </div>
+        </div>
+        <!-- Medium Alert Card -->
+        <div class="card bg-medium text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">3</h3>
+                <p class="nexum-card-text-square mb-0">Medium</p>
+            </div>
+        </div>
+        <!-- High Alert Card -->
+        <div class="card bg-high text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">1</h3>
+                <p class="nexum-card-text-square mb-0">High</p>
+            </div>
+        </div>
+        <!-- Critical Alert Card -->
+        <div class="card bg-critical text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+            <div class="card-body nexum-card-body-square">
+                <h3 class="nexum-card-title-square mb-0">7</h3>
+                <p class="nexum-card-text-square mb-0">Critical</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="contentBox" class="border text-center text-white"></div>
 </div>
 
 @section Scripts {

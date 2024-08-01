@@ -77,7 +77,7 @@ hr {
     color: #ffffff;
 }
 
-/*Nexum Cards*/
+/*Nexum Home Rectangular Cards*/
 .nexum-card-container {
     width: 96px; 
     height: 96px; 
@@ -111,6 +111,91 @@ hr {
 
 .nexum-card-text {
     font-size: 1.25rem;
+}
+
+/* Nexum Alerts, Logs, and Jobs Square Cards*/
+.nexum-card-container-square {
+    width: 20vw;
+    height: 20vw;
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 1rem; /* Rounded square corners */
+}
+
+.bg-information {
+    background-color: #17a2b8; /* Bootstrap info color */
+}
+
+.bg-low {
+    background-color: #28a745; /* Bootstrap success color */
+}
+
+.bg-medium {
+    background-color: #ffc107; /* Bootstrap warning color */
+}
+
+.bg-high {
+    background-color: #fd7e14; /* Bootstrap orange color */
+}
+
+.bg-critical {
+    background-color: #dc3545; /* Bootstrap danger color */
+}
+
+.bg-trace {
+    background-color: #6c757d; /* Bootstrap secondary color */
+}
+
+.bg-debug {
+    background-color: #17a2b8; /* Bootstrap info color */
+}
+
+.bg-warning {
+    background-color: #ffc107; /* Bootstrap warning color */
+}
+
+.bg-error {
+    background-color: #dc3545; /* Bootstrap danger color */
+}
+
+.bg-not-started {
+    background-color: #6c757d; /* Bootstrap secondary color */
+}
+
+.bg-in-progress {
+    background-color: #17a2b8; /* Bootstrap info color */
+}
+
+.bg-complete {
+    background-color: #28a745; /* Bootstrap success color */
+}
+
+.bg-failed {
+    background-color: #ffc107; /* Bootstrap warning color */
+}
+
+.bg-restarting {
+    background-color: #dc3545; /* Bootstrap danger color */
+}
+
+.nexum-card-title-square {
+    font-size: 2.5vw; /* Responsive font size */
+}
+
+.nexum-card-text-square {
+    font-size: 1.25vw; /* Responsive font size */
+}
+
+.nexum-card-body-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.nexum-card-shadow-square {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
 }
 
 
