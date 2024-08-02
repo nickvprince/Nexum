@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedComponents.Entities.DbEntities;
 using SharedComponents.Entities.WebAppEntities.Requests.SessionRequests;
@@ -9,6 +10,7 @@ namespace App.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SessionController : ControllerBase
     {
         private readonly IAPIRequestTenantService _tenantService;

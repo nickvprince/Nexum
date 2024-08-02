@@ -86,6 +86,16 @@ a.text-nexum-dark:hover {
     border-color: rgba(198, 186, 210, 1) !important;
 }
 
+.accordion-button, .accordion-button:not(.collapsed) {
+    background-color: rgba(30, 4, 51, 1) !important;
+    color: rgba(198, 186, 210, 1) !important;
+    box-shadow: none;
+}
+
+.accordion-button::after, .accordion-button:not(.collapsed)::after {
+    filter: invert(1);
+}
+
 /* Highlight color and shadow on hover */
 .nav-link:hover, .nav-link.active {
     box-shadow: inset 0px 0px 150px rgba(243, 229, 255, 1); /* Shadow on hover */

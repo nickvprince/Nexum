@@ -7,12 +7,28 @@
 
 <div id="parentContentBox">
     <div id="tempDataMessage" class="mb-2"></div>
-    <h2 class="text-nexum-light">NAS Servers</h2>
-    <div id="nasActionContentBox" class="mb-2"></div>
-    <div id="nasContentBox" class="mb-2"></div>
-    <h2 class="text-nexum-light">Backups</h2>
-    <div id="backupActionContentBox" class="mb-2"></div>
-    <div id="backupContentBox" class="mb-2"></div>
+    <div class="accordion">
+        <h2 id="nasHeading">
+            <button class="accordion-button rounded-5 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNAS" aria-expanded="false" aria-controls="collapseNAS">
+                <strong>NAS Servers</strong>
+            </button>
+        </h2>
+        <div id="collapseNAS" class="collapse" aria-labelledby="nasHeading">
+            <div id="nasActionContentBox" class="mb-2"></div>
+            <div id="nasContentBox" class="mb-2"></div>
+        </div>
+    </div>
+    <div class="accordion">
+        <h2 id="backupsHeading">
+        <button class="accordion-button rounded-5 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBackup" aria-expanded="false" aria-controls="collapseBackup">
+                <strong>Backups</strong>
+            </button>
+        </h2>
+        <div id="collapseBackup" class="collapse" aria-labelledby="backupsHeading">
+            <div id="backupActionContentBox" class="mb-2"></div>
+            <div id="backupContentBox" class="mb-2"></div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
