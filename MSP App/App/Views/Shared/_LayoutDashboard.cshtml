@@ -20,7 +20,7 @@
         <partial name="_DashboardSideNavPartial" />
     </nav>
     <main role="main" style="margin-left: 220px; margin-right: 10px; min-height: 90vh;">
-        <partial name="_CookieSessionListPartial" /> @*for developement*@
+        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
         <partial name="_TempDataMessagePartial" />
         <div id="tenantDeviceSelectorContainer"></div>
         <div class="container-fluid">
@@ -121,6 +121,7 @@
                     $('#tenantDeviceSelectorContainer').html(result);
                 },
                 error: function (xhr, status, error) {
+                    $('#tenantDeviceSelectorContainer').html('<p class="text-nexum-light">' + 'Failed to load tenant/device selector.' + '</p>');
                     console.error('Error loading partial view:', error);
                 }
             });

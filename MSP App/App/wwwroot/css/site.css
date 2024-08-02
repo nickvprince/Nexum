@@ -73,6 +73,10 @@ hr {
     color: rgba(30, 4, 51, 1) !important;
 }
 
+a.text-nexum-dark:hover {
+    color: rgba(115, 95, 136, 1) !important;
+}
+
 .text-nexum-light {
     /*color: #ffffff;*/
     color: rgba(198, 186, 210, 1) !important;
