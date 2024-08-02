@@ -143,7 +143,7 @@ class RunJob():
                         password = decrypt_password(LOCAL_JOB.get_settings()[12])
                         if password is None:
                             password = "password"
-                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+user+' -password:'+password)
+                        command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+user+' -password:'+password
                         self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","9/24/2024")
                         url = 'http://127.0.0.1:5004/start_job_service'
                         body = {

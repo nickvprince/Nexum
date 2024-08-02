@@ -49,6 +49,10 @@ def read_setting(setting):
     """
     Read a setting from the database
     """
+    # get temp directory from cmd %temp%
+
+
+
     try:
         conn = sqlite3.connect(tempfile.gettempdir()+'\\settings\\settings.db')
         cursor = conn.cursor()
@@ -60,17 +64,16 @@ def read_setting(setting):
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
         output = output[:32]
-        value = decrypt_string(output,value)
-        return value.rstrip()
-    except:
-        return None
+        value = decrypt_string(output,value).rstrip()
+        return value
+    except Exception as e:
+        return e
 
 def auth(recieved_client_secret):
     """     
     Authenticate with the APIKEY
     """
-
-    if str(recieved_client_secret) == read_setting("apikey"):
+    if str(recieved_client_secret)== read_setting("apikey"):
         return 200
     return 405
 
@@ -91,7 +94,7 @@ def start_job(start_job_commands=""):
             print(response)
             return response
         except Exception as e:
-            return make_response(str(e), 500)
+            return make_response(str(e) + "\n"+str(read_setting("apikey")+"\n" + str(recieved_client_secret)), 500)
     else:
         return make_response("401 Unauthorized", 401)
 
@@ -143,10 +146,10 @@ def get_status():
     
 @main_requires_admin
 def main():
-    flask_thread = threading.Thread(target=app.run, kwargs={'port': 5004})
+    flask_thread = threading.Thread(target=app.run, kwargs={'host':'0.0.0.0','port': 5004})
     flask_thread.daemon=True
     flask_thread.start()
-    flask_thread.join()
+
 
 class NexumService(win32serviceutil.ServiceFramework):
     _svc_name_ = "NexumService"
@@ -178,6 +181,7 @@ class NexumService(win32serviceutil.ServiceFramework):
      
 
     def main(self):
+
         
         while self.is_running:
             win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)

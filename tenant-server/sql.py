@@ -373,7 +373,7 @@ class MySqlite():
         output = output[:32]
 
 
-        value = encrypt_string(output,value)
+        value = encrypt_string(output,value).rstrip()
 
         try:
             conn = sqlite3.connect(SETTINGS_PATH)

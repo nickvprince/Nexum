@@ -545,7 +545,6 @@ class FlaskServer():
                 job_to_save.set_config(config)
                 job_to_save.save()
                 logger.log("INFO", "modify_job", "Job Saved",0,FILENAME)
-                RUN_JOB_OBJECT = job_to_save
                 return make_response("200 OK", 200)
             else:
                 for i in CLIENTS:

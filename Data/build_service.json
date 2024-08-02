@@ -23,7 +23,7 @@
   },
   {
    "optionDest": "name",
-   "value": "nexum_service"
+   "value": "NexumService"
   },
   {
    "optionDest": "clean_build",

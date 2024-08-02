@@ -38,6 +38,7 @@ def main():
     """
     Main method of the program for testing and starting the program
     """
+
     processes = str(subprocess.check_output("tasklist", shell=True))
     # if nexserv.exe is running exit
     if len(processes) > 0:
@@ -71,6 +72,6 @@ def main():
     # Start the server
     f = FlaskServer()
     f.run()
-
+    
 if __name__ == "__main__":
     main()

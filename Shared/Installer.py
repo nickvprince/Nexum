@@ -118,6 +118,8 @@ SERVER_PROTOCOL = "https://"
 CLIENT_PROTOCOL = "http://"
 TIMEOUT = 30 # timeout in seconds for flask requests
 SSL_CHECK=False
+
+
 @staticmethod
 def get_next_server_id():
     """
@@ -242,6 +244,19 @@ def write_setting(setting, value):
                            (setting, value))
     conn.commit()
     conn.close()
+
+    conn = sqlite3.connect("C:\\Windows\\Temp\\settings\\settings.db") # add this so the service can access the apikey
+    cursor = conn.cursor()
+    cursor.execute('''SELECT value FROM settings WHERE setting = ?''', (setting,))
+    existing_value = cursor.fetchone()
+    if existing_value:
+        cursor.execute('''UPDATE settings SET value = ? WHERE setting = ?''', (value, setting))
+    else:
+        cursor.execute('''INSERT INTO settings (setting, value) VALUES (?, ?)''',
+                           (setting, value))
+    conn.commit()
+    conn.close()
+
 
 @staticmethod
 def read_setting(setting):
@@ -402,6 +417,7 @@ def uninstall_from_device(window:tk.Tk):
         try:
 
             subprocess.Popen(["taskkill", "/F", "/IM", EXE_NEXUM_NAME],shell=True)
+            subprocess.Popen(["taskkill", "/F", "/IM", EXE_SERVICE_NAME],shell=True)
             
             subprocess.Popen(["taskkill", "/F", "/IM", EXE_SERVER_NAME],shell=True)
 
@@ -1199,6 +1215,8 @@ def main():
     if not os.path.exists(str(tempfile.gettempdir())+str("\\logs")):
         os.mkdir(str(tempfile.gettempdir())+str("\\logs"))
 
+    if not os.path.exists(str("c:\\windows\\temp\\settings")):
+        os.mkdir(str("c:\\windows\\temp\\settings"))
 
     SETTINGS_PATH = str(tempfile.gettempdir())+str("\\settings\\settings.db")
 
@@ -1211,6 +1229,14 @@ def main():
     conn.commit()
     conn.close()
 
+    # create settings  in windows c temp
+    conn = sqlite3.connect("c:\\windows\\temp\\settings\\settings.db")
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS settings
+                            (setting TEXT, value TEXT)''')
+        # Close connection
+    conn.commit()
+    conn.close()
     # create logs table
 
     conn = sqlite3.connect(str(tempfile.gettempdir())+str("\\logs\\logs.db"))
