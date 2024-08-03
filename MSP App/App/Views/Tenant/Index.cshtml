@@ -37,6 +37,43 @@
                 }, 2000);
             }
 
+            function fillCountryRegionSelectors() {
+                var countries = [
+                    { id: 'CA', text: 'Canada' }
+                ];
+
+                var provinces = {
+                    'CA': [
+                        { id: 'AB', text: 'Alberta' },
+                        { id: 'BC', text: 'British Columbia' },
+                        { id: 'MB', text: 'Manitoba' },
+                        { id: 'NB', text: 'New Brunswick' },
+                        { id: 'NL', text: 'Newfoundland and Labrador' },
+                        { id: 'NS', text: 'Nova Scotia' },
+                        { id: 'ON', text: 'Ontario' },
+                        { id: 'PE', text: 'Prince Edward Island' },
+                        { id: 'QC', text: 'Quebec' },
+                        { id: 'SK', text: 'Saskatchewan' }
+                    ]
+                };
+
+                // Populate the country dropdown
+                countries.forEach(function (country) {
+                    $('#country').append(new Option(country.text, country.id));
+                });
+
+                // Update the region dropdown based on selected country
+                $('#country').on('change', function () {
+                    var countryId = $(this).val();
+                    var regions = provinces[countryId] || [];
+
+                    $('#region').empty().append(new Option('Select a province', ''));
+                    regions.forEach(function (region) {
+                        $('#region').append(new Option(region.text, region.id));
+                    });
+                });
+            }
+
             loadTable();
 
             //Tenants
@@ -48,6 +85,9 @@
                     type: 'GET',
                     success: function (result) {
                         $('#tenantActionContentBox').html(result);
+                        $(document).ready(function () {
+                            fillCountryRegionSelectors();
+                        });
                     },
                     error: function (xhr, status, error) {
                         $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
@@ -64,6 +104,9 @@
                     type: 'GET',
                     success: function (result) {
                         $('#tenantActionContentBox').html(result);
+                        $(document).ready(function () {
+                            fillCountryRegionSelectors();
+                        });
                     },
                     error: function (xhr, status, error) {
                         $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
@@ -115,7 +158,9 @@
                             loadTable();
                         } else {
                             $('#tenantActionContentBox').html(result.html);
-                            $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            if (result.message) {
+                                $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            }
                         }
                     },
                     error: function (xhr, status, error) {
@@ -218,7 +263,9 @@
                             loadTable();
                         } else {
                             $('#keyCreateContentBox' + id).html(result.html);
-                            $('#tempDataMessageKey' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            if (result.message) {
+                                $('#tempDataMessageKey' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            }
                         }
                     },
                     error: function (xhr, status, error) {

@@ -5,7 +5,7 @@
         <thead>
             <tr class="text-center">
                 <th class="border-0 text-nexum-light">#</th>
-                @if (Model.Count() > 1)
+                @if (Model != null && Model.Count() > 1)
                 {
                     <th class="border-0 text-nexum-light">Tenant</th>
                 }
@@ -21,7 +21,7 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model == null || Model.All(t => t.NASServers == null) || Model.All(t => t.NASServers.All(n => n.Backups == null)))
+            @if (Model == null || !Model.Any() || Model.All(t => t.NASServers == null || !t.NASServers.Any(ns => ns.Backups != null && ns.Backups.Any())))
             {
                 <tr>
                     <td class="text-center text-nowrap text-nexum-light" colspan="12">No Backups found</td>
@@ -34,7 +34,7 @@
                 {
                     if (tenant.NASServers != null && tenant.Devices != null)
                     {
-                        if (tenant.NASServers.Count() != 0 && tenant.Devices.Count() != 0)
+                        if (tenant.NASServers.Any() && tenant.Devices.Any())
                         {
                             foreach (var nasServer in tenant.NASServers.OrderBy(n => n.Name))
                             {

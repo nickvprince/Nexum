@@ -7,25 +7,24 @@
 
 <div id="parentContentBox">
     <div id="tempDataMessage" class="mb-2"></div>
+    <div id="nasActionContentBox" class="mb-2"></div>
     <div class="accordion">
         <h2 id="nasHeading">
-            <button class="accordion-button rounded-5 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNAS" aria-expanded="false" aria-controls="collapseNAS">
+            <button class="accordion-button rounded-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNAS" aria-expanded="true" aria-controls="collapseNAS">
                 <strong>NAS Servers</strong>
             </button>
         </h2>
-        <div id="collapseNAS" class="collapse" aria-labelledby="nasHeading">
-            <div id="nasActionContentBox" class="mb-2"></div>
+        <div id="collapseNAS" class="collapse show" aria-labelledby="nasHeading">
             <div id="nasContentBox" class="mb-2"></div>
         </div>
     </div>
     <div class="accordion">
         <h2 id="backupsHeading">
-        <button class="accordion-button rounded-5 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBackup" aria-expanded="false" aria-controls="collapseBackup">
+        <button class="accordion-button rounded-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBackup" aria-expanded="true" aria-controls="collapseBackup">
                 <strong>Backups</strong>
             </button>
         </h2>
-        <div id="collapseBackup" class="collapse" aria-labelledby="backupsHeading">
-            <div id="backupActionContentBox" class="mb-2"></div>
+        <div id="collapseBackup" class="collapse show" aria-labelledby="backupsHeading">
             <div id="backupContentBox" class="mb-2"></div>
         </div>
     </div>
@@ -45,6 +44,9 @@
                         type: 'GET',
                         success: function (result) {
                             $('#nasContentBox').html(result);
+                            $('.collapse').on('show.bs.collapse hide.bs.collapse', function () {
+                                $('#nasActionContentBox').html('');
+                            });
                         },
                         error: function (xhr, status, error) {
                             $('#nasContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
@@ -83,8 +85,162 @@
                 console.log('ID:', id);
                 console.log('Form:', form);
 
+                $('#nasActionContentBox').html('');
                 loadNASTable();
                 loadBackupTable();
+            });
+
+            $(document).on('click', '[id^=nasCreateLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('nasCreateLink', '');
+
+                $.ajax({
+                    url: '/Storage/' + id + '/CreateNAS',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#nasActionContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#nasActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('click', '[id^=nasEditLink]', function (event) {
+                event.preventDefault();
+                var ids = $(this).attr('id').replace('nasEditLink', '').split('-');
+                var tenantId = ids[0];
+                var nasId = ids[1];
+
+                $.ajax({
+                    url: '/api/Session/Tenant',
+                    type: 'GET',
+                    success: function (result) {
+                        console.log(result);
+                        if (result.activeTenantId !== tenantId) {
+                            $.ajax({
+                                url: '/api/Session/Tenant/' + tenantId,
+                                type: 'POST',
+                                success: function (result) {
+                                    loadEdit(nasId);
+                                    loadTenantDeviceSelectorPartial();
+                                    loadNASTable();
+                                    loadBackupTable();
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('Error:', error);
+                                }
+                            });
+                        } else {
+                            loadEdit(nasId);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+
+                function loadEdit(nasId) {
+                    $.ajax({
+                        url: '/Storage/' + nasId + '/UpdateNAS',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#nasActionContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#nasActionContentBox').html('<p class="text-nexum-light">No Partial Found</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }
+            });
+
+            $(document).on('submit', '[id^=nasDeletelink]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace('nasDeletelink', '');
+
+                $.ajax({
+                    url: '/Storage/' + id + '/DeleteNAS',
+                    type: 'POST',
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tempDataMessageNASServer' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadNASTable();
+                            loadBackupTable();
+                        } else {
+                            $('#tempDataMessageNASServer' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tempDataMessageNASServer' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=backupDeletelink]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace('backupDeletelink', '');
+
+                $.ajax({
+                    url: '/Storage/' + id + '/DeleteBackup',
+                    type: 'POST',
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tempDataMessageBackup' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadNASTable();
+                            loadBackupTable();
+                        } else {
+                            $('#tempDataMessageBackup' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tempDataMessageBackup' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $('#nasActionContentBox').on('submit', '#nasForm', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+                var id = form.find('input[name="Id"]').val();
+                var tenantId = form.find('input[name="TenantId"]').val();
+                var url = id ? '/Storage/' + id + '/UpdateNAS' : '/Storage/' + tenantId + '/CreateNAS';
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#nasActionContentBox').html('');
+                            $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadNASTable();
+                            loadBackupTable();
+                        } else {
+                            $('#nasActionContentBox').html(result.html);
+                            if (result.message) {
+                                $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#nasActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+
+            $(document).on('click', '[id^=nasCloseLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('nasCloseLink', '');
+                $('#nasActionContentBox').html('');
             });
 
         });

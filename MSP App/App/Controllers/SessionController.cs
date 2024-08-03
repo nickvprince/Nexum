@@ -21,6 +21,21 @@ namespace App.Controllers
             _deviceService = deviceService;
         }
 
+        [HttpGet("Tenant")]
+        public async Task<IActionResult> GetActiveTenant()
+        {
+            string? activeTenantId = HttpContext.Session.GetString("ActiveTenantId");
+            if (activeTenantId != null)
+            {
+                Tenant? tenant = await _tenantService.GetAsync(int.Parse(activeTenantId));
+                if (tenant != null)
+                {
+                    return await Task.FromResult(Ok(new { activeTenantId }));
+                }
+            }
+            return await Task.FromResult(Ok(new { activeTenantId = (int?)null }));
+        }
+
         [HttpPost("Tenant/{id}")]
         public async Task<IActionResult> SetActiveTenant(string? id)
         {
@@ -46,6 +61,21 @@ namespace App.Controllers
                 
             }
             return await Task.FromResult(BadRequest("Invalid tenant Id."));
+        }
+
+        [HttpGet("Device")]
+        public async Task<IActionResult> GetActiveDevice()
+        {
+            string? activeDeviceId = HttpContext.Session.GetString("ActiveDeviceId");
+            if (activeDeviceId != null)
+            {
+                Device? device = await _deviceService.GetAsync(int.Parse(activeDeviceId));
+                if (device != null)
+                {
+                    return await Task.FromResult(Ok(new { activeDeviceId }));
+                }
+            }
+            return await Task.FromResult(Ok(new { activeDeviceId = (int?)null }));
         }
 
         [HttpPost("Device/{id}")]
@@ -84,10 +114,9 @@ namespace App.Controllers
                 {
                     tenant.Devices = await _deviceService.GetAllByTenantIdAsync(tenant.Id);
                 }
-                var partialViewString = await RenderUtilities.RenderViewToStringAsync(this, "_TenantDeviceSelectorPartial", tenants);
-                return Ok(partialViewString);
             }
-            return await Task.FromResult(NotFound());
+            var partialViewString = await RenderUtilities.RenderViewToStringAsync(this, "_TenantDeviceSelectorPartial", tenants);
+            return Ok(partialViewString);
         }
     }
 }

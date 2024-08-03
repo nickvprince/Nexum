@@ -113,20 +113,7 @@
 </script>
 <script>
     $(document).ready(function () {
-        function loadTenantDeviceSelectorPartial() {
-            $.ajax({
-                url: '/api/Session/Selector',
-                type: 'GET',
-                success: function (result) {
-                    $('#tenantDeviceSelectorContainer').html(result);
-                },
-                error: function (xhr, status, error) {
-                    $('#tenantDeviceSelectorContainer').html('<p class="text-nexum-light">' + 'Failed to load tenant/device selector.' + '</p>');
-                    console.error('Error loading partial view:', error);
-                }
-            });
-        }
-
+        
         loadTenantDeviceSelectorPartial();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
