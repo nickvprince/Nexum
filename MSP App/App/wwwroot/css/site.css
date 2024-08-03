@@ -247,6 +247,7 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
 
 .nexum-card-flex-item {
     flex: 1 1 calc(33.33% - 2rem);
+    min-width: 315px;
 }
 
 .nexum-card-title {
@@ -277,15 +278,17 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
     height: 20vw;
     max-width: 150px;
     max-height: 150px;
+    min-width: 106px;
+    min-height: 106px;
     border-radius: 1rem; /* Rounded square corners */
 }
 
 .nexum-card-title-square {
-    font-size: 2vw; /* Responsive font size */
+    font-size: calc(5vh*1rem) !important; /* Responsive font size */
 }
 
 .nexum-card-text-square {
-    font-size: 1vw; /* Responsive font size */
+    font-size: calc(5vh*1rem); /* Responsive font size */
 }
 
 .nexum-card-body-square {
