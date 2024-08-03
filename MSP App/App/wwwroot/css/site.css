@@ -252,6 +252,7 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
 
 .nexum-card-title {
     font-size: 3rem;
+    white-space: nowrap;
 }
 
 .nexum-card-body {
@@ -274,6 +275,7 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
 
 .nexum-card-text {
     font-size: 1.25rem;
+    white-space: nowrap;
 }
 
 /*-------------------------------------------------------------------------*/

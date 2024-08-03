@@ -13,7 +13,7 @@
 
     <script>
 
-        function loadStatusCards() {
+        function loadSeverityCards() {
             var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Severity Cards...</h5>';
             $('#alertSeverityCardsContentBox').prepend(loadingMessage);
             setTimeout(function () {
@@ -31,7 +31,7 @@
             }, 2000);
         }
 
-        loadStatusCards();
+        loadSeverityCards();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
             event.preventDefault();
@@ -39,7 +39,7 @@
             var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
 
             $('#alertActionContentBox').html('');
-            loadStatusCards();
+            loadSeverityCards();
         });
 
     </script>
