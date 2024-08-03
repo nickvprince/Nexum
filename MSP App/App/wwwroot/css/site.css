@@ -268,6 +268,10 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
+.nexum-card-shadow-light {
+    box-shadow: 0 8px 16px rgba(128, 16, 220, 0.3);
+}
+
 .nexum-card-text {
     font-size: 1.25rem;
 }
@@ -356,7 +360,8 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
 /* General Card Styling */
 .nexum-summary-card {
     color: #ffffff;
-    border: 1px solid #ffffff; /* White border for highlights */
+    /*border: 1px solid rgba(128, 16, 220, 1);*/
+    /*border: 1px solid rgba(198, 186, 210, 1);*/
     border-radius: 1rem;
     margin-bottom: 1rem;
     padding: 1.5rem;
