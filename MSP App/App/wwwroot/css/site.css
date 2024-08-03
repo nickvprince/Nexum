@@ -272,6 +272,10 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
     font-size: 1.25rem;
 }
 
+
+/*-------------------------------------------------------------------------*/
+
+
 /* Nexum Alerts, Logs, and Jobs Square Cards*/
 .nexum-card-container-square {
     width: 20vw;
@@ -338,4 +342,179 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
 
 .bg-failed {
     background-color: #8b0000; /* Dark Red */
+}
+
+/*-------------------------------------------------------------------------*/
+
+/* General Card Styling */
+.nexum-summary-card {
+    color: #ffffff;
+    border: 1px solid #ffffff; /* White border for highlights */
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+}
+
+/* Title Styling */
+.nexum-summary-card-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Mini Card Styling */
+.nexum-mini-card {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    flex: 1 1 30%; /* Allowing the cards to take up a third of the width */
+    margin-bottom: 0.75rem; /* Adjust spacing */
+    min-width: 200px; /* Minimum width to maintain readability */
+}
+
+/* Default Mini Card Background */
+.bg-mini-card {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background */
+}
+
+/* Icon Styling */
+.nexum-summary-icon {
+    font-size: 1.25rem;
+    margin-right: 0.5rem; /* Closer margin between icon and text */
+}
+
+/* Text Styling */
+.nexum-mini-card span {
+    text-align: center;
+    flex: 1; /* Ensure the text takes up the remaining space */
+}
+
+/* Background Colors for Mini Cards */
+.bg-purple-dark {
+    background-color: rgba(75, 0, 130, 0.8); /* Indigo */
+}
+
+.bg-purple-light {
+    background-color: rgba(147, 112, 219, 0.8); /* Medium Purple */
+}
+
+/*-------------------------------------------------------------------------*/
+
+/* Highlight color and shadow on hover */
+.nav-link:hover, .nav-link.active {
+    box-shadow: inset 0px 0px 150px rgba(243, 229, 255, 1); /* Shadow on hover */
+}
+
+.nav-link:hover svg, .nav-link:hover p, .nav-link.active svg, .nav-link.active p  {
+    color: rgba(30, 4, 51, 1);
+    transform: scale(1.1);
+}
+
+.btn-success-nexum-dark {
+    background-color: rgba(30, 4, 51, 1);
+    border-color: #ffffff;
+    border-width: 1px;
+    overflow: hidden;
+}
+
+.btn-success-nexum-dark:hover {
+    background-color: rgba(40, 167, 69, 1);
+    color: #ffffff;
+    transform: scale(1.1);
+    border-color: rgba(30, 4, 51, 1);
+    border-width: 1px;
+}
+
+.btn-nexum-gear-dark {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn-nexum-gear-dark:hover {
+    background-color: rgba(0, 0, 0, 1);
+    transform: scale(1.01);
+}
+
+.dropdown-menu {
+    background-color: rgba(30, 4, 51, 0.95);
+    border-color: rgba(255, 255, 255, 1);
+    border-width: 1px;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(128, 16, 220, 0.5);
+    color: rgba(255, 255, 255, 1);
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(100,100,100,0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(255,255,255,0.5);
+    background-color: rgba(30, 4, 51, 1);
+}
+
+.vertical-nav {
+    position: fixed;
+    height: calc(100vh - 56px);
+    background-image: linear-gradient(to right, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
+}
+
+.horizontal-nav {
+    position: fixed;
+    height: 115px;
+    z-index: 1000;
+    background-image: linear-gradient(to bottom, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
+}
+
+.table-button-nexum {
+    max-width: 40px;
+    max-height: 40px;
+}
+
+.table-nexum-dark {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+}
+
+.table-nexum-dark th, .table-nexum-dark td {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for cells */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity for cells */
+    color: white; /* Ensure text is visible */
+}
+
+.table-nexum-dark thead th {
+    background-color: rgba(52, 58, 64, 0.8); /* Dark gray with opacity for header */
+    color: white; /* White text for header */
+}
+
+.table-nexum-dark tbody .row-nexum-striped-odd, .row-nexum-striped:nth-child(odd) {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for odd rows */
+}
+
+.table-nexum-dark tbody .row-nexum-striped-even, .row-nexum-striped:nth-child(even) {
+    background-color: rgba(243, 229, 255, 0.4); /* Dark gray with opacity for even rows */
+}
+
+.table-nexum-dark tbody tr:hover {
+    background-color: rgba(233, 236, 239, 0.8); /* Lighter gray with opacity for hover effect */
+}
+
+.form-control-nexum-dark {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+    color: white; /* White text */
+}
+
+.form-control-nexum-dark:focus {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+    color: white; /* White text */
 }
