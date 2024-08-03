@@ -34,6 +34,8 @@ namespace SharedComponents.Utilities
 
         private static async Task<string> RenderViewToStringAsync(IServiceProvider serviceProvider, HttpContext httpContext, string viewName, object model, ViewDataDictionary viewData, ITempDataDictionary tempData)
         {
+            viewData.Model = model;
+
             var viewEngine = serviceProvider.GetService<ICompositeViewEngine>();
             var viewResult = viewEngine.FindView(new ActionContext(httpContext, new RouteData(), new ActionDescriptor()), viewName, false);
 

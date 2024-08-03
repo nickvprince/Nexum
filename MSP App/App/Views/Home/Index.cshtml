@@ -2,7 +2,8 @@
     ViewData["Title"] = "Summary";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
-<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
+
+<div id="parentContentBox">
     <div class="text-center text-white container-fluid">
         
         <!-- First Row: 3 Cards -->
@@ -113,7 +114,7 @@
                     $('#alertContentBox').html(result);
                 },
                 error: function (xhr, status, error) {
-                    $('#alertContentBox').html('<p>' + 'No Partial Found' + '</p>');
+                    $('#alertContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
                 }
             });

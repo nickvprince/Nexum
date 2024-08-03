@@ -9,39 +9,52 @@
             </div>
             <div class="form-group">
                 <label asp-for="Name">Name</label>
-                <input asp-for="Name" class="form-control form-control-nexum-dark" required>
+                <input asp-for="Name" class="form-control form-control-nexum-dark text-nexum-light" placeholder="Nexum Headquarters">
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ContactName">Contact Name</label>
-                <input asp-for="ContactName" class="form-control form-control-nexum-dark" required>
+                <input asp-for="ContactName" class="form-control form-control-nexum-dark" placeholder="John Doe">
+                <span asp-validation-for="ContactName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ContactEmail">Contact Email</label>
-                <input asp-for="ContactEmail" class="form-control form-control-nexum-dark" required>
+                <input asp-for="ContactEmail" class="form-control form-control-nexum-dark" placeholder="john.doe@example.com">
+                <span asp-validation-for="ContactEmail" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ContactPhone">Contact Phone</label>
-                <input asp-for="ContactPhone" class="form-control form-control-nexum-dark" required>
+                <input asp-for="ContactPhone" class="form-control form-control-nexum-dark" placeholder="123-456-7890">
+                <span asp-validation-for="ContactPhone" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Address">Address</label>
-                <input asp-for="Address" class="form-control form-control-nexum-dark" required>
-            </div>
-            <div class="form-group">
-                <label asp-for="City">City</label>
-                <input asp-for="City" class="form-control form-control-nexum-dark" required>
-            </div>
-            <div class="form-group">
-                <label asp-for="State">State</label>
-                <input asp-for="State" class="form-control form-control-nexum-dark" required>
-            </div>
-            <div class="form-group">
-                <label asp-for="Zip">ZIP</label>
-                <input asp-for="Zip" class="form-control form-control-nexum-dark" required>
+                <input asp-for="Address" class="form-control form-control-nexum-dark" placeholder="123 Main St">
+                <span asp-validation-for="Address" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Country">Country</label>
-                <input asp-for="Country" class="form-control form-control-nexum-dark" required>
+                <select id="country" asp-for="Country" class="form-control form-control-nexum-dark" data-region-id="region">
+                    <option value="">Select a country</option>
+                </select>
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="State">State</label>
+                <select id="region" asp-for="State" class="form-control form-control-nexum-dark">
+                    <option value="">Select a province</option>
+                </select>
+                <span asp-validation-for="State" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City">City</label>
+                <input asp-for="City" class="form-control form-control-nexum-dark" placeholder="Waterloo">
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Zip">ZIP/Postal Code</label>
+                <input asp-for="Zip" class="form-control form-control-nexum-dark" placeholder="A1B 3A4">
+                <span asp-validation-for="Zip" class="text-danger"></span>
             </div>
             <div class="d-flex justify-content-center">
                 <button type="submit" class="btn btn-success-nexum-dark mt-3 text-nexum-light bg-nexum-light" style="width:40%">Update</button>

@@ -4,32 +4,8 @@
     ViewData["Title"] = "Login";
 }
 
-<div id="parentContentBox" class="text-center text-white container-fluid p-0 d-flex justify-content-center align-items-center" style="min-height: 95vh;">
-    <div class="card bg-nexum-light bg-gradient p-3 mx-sm-2 border border-nexum-dark-3" style="max-width: 55vw;">
-        <div class="card-title m-0">
-        <h4 class="text-center text-nexum-light m-0 text-nowrap" style="overflow: hidden;">Login</h4>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                <div class="form-group mb-1">
-                    <span asp-validation-for="Username" class="text-danger"></span>
-                    <div class="input-group">
-                        <input id="username" type="text" asp-for="Username" class="form-control border border-nexum-dark-3" placeholder="Username" />
-                    </div>
-                </div>
-                <div class="form-group mb-1">
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                    <div class="input-group">
-                        <input id="password" type="password" asp-for="Password" class="form-control border border-nexum-dark-3" placeholder="Password" />
-                    </div>
-                </div>
-                <div class="form-group d-flex justify-content-center">
-                    <button id="loginButton" type="submit" class="btn btn-success-nexum-dark text-nexum-light w-100 text-nowrap">Login</button>
-                </div>
-                <div class="text-center mt-1">
-                    <a href="#" class="text-nexum-light dropdown-item" style="overflow: hidden;">Forgot Username / Password?</a>
-                </div>
-            </form>
-        </div>
+<div id="parentContentBox">
+    <div class="d-flex justify-content-center align-content-center">
+        <partial name="_LoginFormPartial" model="Model"/>
     </div>
 </div>

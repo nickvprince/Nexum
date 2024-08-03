@@ -19,11 +19,13 @@
     <nav id="sideNav" class="vertical-nav d-flex flex-column align-items-center justify-content-between p-2 border border-3 border-start-0 rounded-end-5 overflow-y-auto">
         <partial name="_DashboardSideNavPartial" />
     </nav>
-    <main role="main" style="margin-left: 220px; margin-right: 10px;">
-        <partial name="_CookieSessionListPartial" /> @*for developement*@
+    <main role="main" style="margin-left: 220px; margin-right: 10px; min-height: 90vh;">
+        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
         <partial name="_TempDataMessagePartial" />
         <div id="tenantDeviceSelectorContainer"></div>
-        @RenderBody()
+        <div class="container-fluid">
+            @RenderBody()
+        </div>
     </main>
     <partial name="_FooterPartial" />
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
@@ -111,19 +113,7 @@
 </script>
 <script>
     $(document).ready(function () {
-        function loadTenantDeviceSelectorPartial() {
-            $.ajax({
-                url: '/api/Session/Selector',
-                type: 'GET',
-                success: function (result) {
-                    $('#tenantDeviceSelectorContainer').html(result);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading partial view:', error);
-                }
-            });
-        }
-
+        
         loadTenantDeviceSelectorPartial();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {

@@ -69,10 +69,10 @@ namespace App.Controllers
                     TempData["LastActionMessage"] = "Tenant created successfully.";
                     return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
                 }
+                TempData["ErrorMessage"] = "An error occurred while creating the tenant.";
             }
-            TempData["ErrorMessage"] = "An error occurred while creating the tenant.";
-            string html = await RenderUtilities.RenderViewToStringAsync(this, "_TenantCreatePartial", request);
-            return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "Tenant/_TenantCreatePartial", request);
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString(), html });
         }
 
         [HttpGet("{id}/Update")]
@@ -112,7 +112,7 @@ namespace App.Controllers
                 }
             }
             TempData["ErrorMessage"] = "An error occurred while updating the tenant.";
-            string html = await RenderUtilities.RenderViewToStringAsync(this, "_TenantUpdatePartial", request);
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "Tenant/_TenantUpdatePartial", request);
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 
@@ -154,7 +154,7 @@ namespace App.Controllers
                 }
             }
             TempData["ErrorMessage"] = "An error occurred while creating the key.";
-            string html = await RenderUtilities.RenderViewToStringAsync(this, "_KeyCreatePartial", request);
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "Tenant/_KeyCreatePartial", request);
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 
@@ -182,7 +182,7 @@ namespace App.Controllers
                 }
             }
             TempData["ErrorMessage"] = "An error occurred while updating the key.";
-            string html = await RenderUtilities.RenderViewToStringAsync(this, "_KeyUpdatePartial", request);
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "Tenant/_KeyUpdatePartial", request);
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 

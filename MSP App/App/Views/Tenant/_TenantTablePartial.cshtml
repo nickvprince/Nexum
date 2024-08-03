@@ -13,17 +13,17 @@
                         </a>
                     </div>
                 </th>
-                <th class="border-0">Name</th>
-                <th class="border-0">Representative</th>
-                <th class="border-0">isActive</th>
-                <th class="border-0">Actions</th>
+                <th class="border-0 text-nexum-light">Name</th>
+                <th class="border-0 text-nexum-light">Representative</th>
+                <th class="border-0 text-nexum-light">isActive</th>
+                <th class="border-0 text-nexum-light">Actions</th>
             </tr>
         </thead>
         <tbody>
             @if (Model == null || Model.Count == 0)
             {
                 <tr>
-                    <td class="text-center text-nowrap" colspan="12">No tenants found</td>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No tenants found</td>
                 </tr>
             }
             else
@@ -38,19 +38,19 @@
                         </td>
                     </tr>
                     <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
-                        <td class="border-0">@i</td>
-                        <td class="border-0">@tenant.Name</td>
-                        <td class="border-0">@tenant.TenantInfo.Name</td>
-                        <td class="border-0">@tenant.IsActive.ToString()</td>
+                        <td class="border-0 text-nexum-light">@i</td>
+                        <td class="border-0 text-nexum-light">@tenant.Name</td>
+                        <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
+                        <td class="border-0 text-nexum-light">@tenant.IsActive.ToString()</td>
                         <td class="border-0">
                             <div class="d-flex justify-content-center align-items-center">
                                 <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
-                                    <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
                                         <use xlink:href="#key"></use>
                                     </svg>
                                 </a>
                                 <a id="tenantEditLink@(tenant.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="Update" asp-route-id="@tenant.Id" role="button">
-                                    <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
                                         <use xlink:href="#pencil-square"></use>
                                     </svg>
                                 </a>
@@ -70,26 +70,26 @@
                                 <table class="table m-0 table-nexum-dark border-0">
                                     <thead>
                                         <tr class="text-center text-nowrap">
-                                            <th class="border-0">Name</th>
-                                            <th class="border-0">Phone</th>
-                                            <th class="border-0">Email</th>
-                                            <th class="border-0">Address</th>
-                                            <th class="border-0">City</th>
-                                            <th class="border-0">State</th>
-                                            <th class="border-0">Zip</th>
-                                            <th class="border-0">Country</th>
+                                            <th class="border-0 text-nexum-light">Name</th>
+                                            <th class="border-0 text-nexum-light">Phone</th>
+                                            <th class="border-0 text-nexum-light">Email</th>
+                                            <th class="border-0 text-nexum-light">Address</th>
+                                            <th class="border-0 text-nexum-light">City</th>
+                                            <th class="border-0 text-nexum-light">State</th>
+                                            <th class="border-0 text-nexum-light">Zip</th>
+                                            <th class="border-0 text-nexum-light">Country</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr class="row-nexum-striped text-center text-nowrap">
-                                            <td class="border-0">@tenant.TenantInfo.Name</td>
-                                            <td class="border-0">@tenant.TenantInfo.Phone</td>
-                                            <td class="border-0">@tenant.TenantInfo.Email</td>
-                                            <td class="border-0">@tenant.TenantInfo.Address</td>
-                                            <td class="border-0">@tenant.TenantInfo.City</td>
-                                            <td class="border-0">@tenant.TenantInfo.State</td>
-                                            <td class="border-0">@tenant.TenantInfo.Zip</td>
-                                            <td class="border-0">@tenant.TenantInfo.Country</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Phone</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Email</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Address</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.City</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.State</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Zip</td>
+                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Country</td>
                                         </tr>
                                         <tr class="row-nexum-striped">
                                             <td class="p-0 border-0" colspan="12">
@@ -107,17 +107,17 @@
                                                                     </a>
                                                                 </div>
                                                             </th>
-                                                            <th class="border-0">Value</th>
-                                                            <th class="border-0">Type</th>
-                                                            <th class="border-0">isActive</th>
-                                                            <th class="border-0">Actions</th>
+                                                            <th class="border-0 text-nexum-light">Value</th>
+                                                            <th class="border-0 text-nexum-light">Type</th>
+                                                            <th class="border-0 text-nexum-light">isActive</th>
+                                                            <th class="border-0 text-nexum-light">Actions</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="border-2 border-top-0 border-start-0 border-end-0">
                                                         @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Where(k => !k.IsDeleted).Count() == 0)
                                                         {
                                                             <tr class="text-center text-nowrap">
-                                                                <td class="border-0" colspan="12">No keys found</td>
+                                                                <td class="border-0 text-nexum-light" colspan="12">No keys found</td>
                                                             </tr>
                                                         }
                                                         else
@@ -127,14 +127,14 @@
                                                             {
                                                                 j++;
                                                                 <tr class="row-nexum-striped text-center text-nowrap">
-                                                                    <td class="border-0">@j</td>
-                                                                    <td class="border-0">@key.Key</td>
-                                                                    <td class="border-0">@key.Type</td>
-                                                                    <td class="border-0">@key.IsActive.ToString()</td>
+                                                                    <td class="border-0 text-nexum-light">@j</td>
+                                                                    <td class="border-0 text-nexum-light">@key.Key</td>
+                                                                    <td class="border-0 text-nexum-light">@key.Type</td>
+                                                                    <td class="border-0 text-nexum-light">@key.IsActive.ToString()</td>
                                                                     <td class="border-0">
                                                                         <div class="d-flex justify-content-center align-items-center">
                                                                             <a id="keyEditLink@(key.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Tenant" asp-action="EditKey" asp-route-id="@key.Id" role="button">
-                                                                                <svg class="bi text-light table-button-nexum" fill="currentColor">
+                                                                                <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
                                                                                     <use xlink:href="#pencil-square"></use>
                                                                                 </svg>
                                                                             </a>

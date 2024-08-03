@@ -2,9 +2,8 @@
     ViewData["Title"] = "Logs";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
-
-<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">
-
+<div id="parentContentBox">
+@*<div id="parentContentBox" class="text-center text-white container-fluid p-0" style="flex: 1 1 auto;">*@
     <!-- Logs Cards -->
     <div class="d-flex flex-wrap justify-content-around my-3">
         <!-- Information Log Card -->
@@ -44,8 +43,7 @@
         </div>
     </div>
 
-
-    <div id="contentBox" class="border text-center border-light text-white"></div>
+    <div id="contentBox" class="border border-nexum-light"></div>
 </div>
 
 @section Scripts {
@@ -59,7 +57,7 @@
                     $('#contentBox').html(result);
                 },
                 error: function (xhr, status, error) {
-                    $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
+                    $('#contentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
                 }
             });
