@@ -4,63 +4,43 @@
 }
 
 <div id="parentContentBox">
-    <!-- Alerts Cards -->
-    <div class="d-flex flex-wrap justify-content-around my-3">
-        <!-- Information Alert Card -->
-        <div class="card bg-information text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">2</h3>
-                <p class="nexum-card-text-square mb-0">Information</p>
-            </div>
-        </div>
-        <!-- Low Alert Card -->
-        <div class="card bg-low text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">5</h3>
-                <p class="nexum-card-text-square mb-0">Low</p>
-            </div>
-        </div>
-        <!-- Medium Alert Card -->
-        <div class="card bg-medium text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">3</h3>
-                <p class="nexum-card-text-square mb-0">Medium</p>
-            </div>
-        </div>
-        <!-- High Alert Card -->
-        <div class="card bg-high text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">1</h3>
-                <p class="nexum-card-text-square mb-0">High</p>
-            </div>
-        </div>
-        <!-- Critical Alert Card -->
-        <div class="card bg-critical text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">7</h3>
-                <p class="nexum-card-text-square mb-0">Critical</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="contentBox" class="border border-nexum-light"></div>
+    <div id="alertSeverityCardsContentBox"></div>
+    <div id="alertActionContentBox"></div>
+    <div id="alertContentBox"></div>
 </div>
 
 @section Scripts {
 
     <script>
-        $(document).ready(function () {
-            $.ajax({
-                url: '/Alert/Table',
-                type: 'GET',
-                success: function (result) {
-                    $('#contentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    $('#contentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
-                    console.error('Error loading partial view:', error);
-                }
-            });
+
+        function loadStatusCards() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Severity Cards...</h5>';
+            $('#alertSeverityCardsContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Alert/SeverityCards',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#alertSeverityCardsContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#alertSeverityCardsContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
+        loadStatusCards();
+
+        $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+
+            $('#alertActionContentBox').html('');
+            loadStatusCards();
         });
+
     </script>
 }

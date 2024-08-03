@@ -1,0 +1,72 @@
+﻿@model ICollection<Tenant>?
+
+@{
+    var notStartedJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.NotStarted) ?? 0;
+
+    var inProgressJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.InProgress) ?? 0;
+
+    var completeJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.Complete) ?? 0;
+
+    var failedJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.Failed) ?? 0;
+
+    var restartingJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.Restarting) ?? 0;
+}
+
+<!-- Jobs Cards -->
+<div class="d-flex flex-wrap justify-content-around my-3">
+    <!-- Not Started Job Card -->
+    <div class="card bg-not-started text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <h3 class="nexum-card-title-square mb-0">@notStartedJobsCount</h3>
+            <p class="nexum-card-text-square mb-0">Not Started</p>
+        </div>
+    </div>
+    <!-- In Progress Job Card -->
+    <div class="card bg-in-progress text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <h3 class="nexum-card-title-square mb-0">@inProgressJobsCount</h3>
+            <p class="nexum-card-text-square mb-0">In Progress</p>
+        </div>
+    </div>
+    <!-- Complete Job Card -->
+    <div class="card bg-complete text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <h3 class="nexum-card-title-square mb-0">@completeJobsCount</h3>
+            <p class="nexum-card-text-square mb-0">Complete</p>
+        </div>
+    </div>
+    <!-- Failed Job Card -->
+    <div class="card bg-failed text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <h3 class="nexum-card-title-square mb-0">@failedJobsCount</h3>
+            <p class="nexum-card-text-square mb-0">Failed</p>
+        </div>
+    </div>
+    <!-- Restarting Job Card -->
+    <div class="card bg-restarting text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <h3 class="nexum-card-title-square mb-0">@restartingJobsCount</h3>
+            <p class="nexum-card-text-square mb-0">Restarting</p>
+        </div>
+    </div>
+</div>
