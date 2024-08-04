@@ -1,0 +1,82 @@
+﻿@model ICollection<Tenant>?
+
+@{
+    var informationLogsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Logs != null)
+                                    .SelectMany(d => d.Logs!)
+                                    .Count(l => l.Type == LogType.Information) ?? 0;
+
+    var traceLogsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Logs != null)
+                                    .SelectMany(d => d.Logs!)
+                                    .Count(l => l.Type == LogType.Trace) ?? 0;
+
+    var debugLogsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Logs != null)
+                                    .SelectMany(d => d.Logs!)
+                                    .Count(l => l.Type == LogType.Debug) ?? 0;
+
+    var warningLogsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Logs != null)
+                                    .SelectMany(d => d.Logs!)
+                                    .Count(l => l.Type == LogType.Warning) ?? 0;
+
+    var errorLogsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Logs != null)
+                                    .SelectMany(d => d.Logs!)
+                                    .Count(l => l.Type == LogType.Error) ?? 0;
+}
+
+<!-- Logs Cards -->
+<div class="d-flex flex-wrap justify-content-around my-3">
+    <!-- Information Log Card -->
+    <div class="card bg-information-log text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@informationLogsCount</h3>
+                <p class="nexum-card-text-square mb-0">Information</p>
+            </div>
+        </div>
+    </div>
+    <!-- Trace Log Card -->
+    <div class="card bg-trace text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@traceLogsCount</h3>
+                <p class="nexum-card-text-square mb-0">Trace</p>
+            </div>
+        </div>
+    </div>
+    <!-- Debug Log Card -->
+    <div class="card bg-debug text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@debugLogsCount</h3>
+                <p class="nexum-card-text-square mb-0">Debug</p>
+            </div>
+        </div>
+    </div>
+    <!-- Warning Log Card -->
+    <div class="card bg-warning text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@warningLogsCount</h3>
+                <p class="nexum-card-text-square mb-0">Warning</p>
+            </div>
+        </div>
+    </div>
+    <!-- Error Log Card -->
+    <div class="card bg-error text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@errorLogsCount</h3>
+                <p class="nexum-card-text-square mb-0">Error</p>
+            </div>
+        </div>
+    </div>
+</div>
