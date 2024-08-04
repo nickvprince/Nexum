@@ -235,7 +235,7 @@ namespace API.Controllers
                         return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                     }
                     // --- End of authentication check ---
-                    if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.Id))
+                    if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.JobId))
                     {
                         if (await _dbJobService.DeleteAsync(id))
                         {
@@ -388,7 +388,7 @@ namespace API.Controllers
                             return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                         }
                         // --- End of authentication check ---
-                        if (await _httpJobService.StartAsync(device.TenantId, job.Id))
+                        if (await _httpJobService.StartAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
                             return Ok("Job started successfully.");
                         }
@@ -422,7 +422,7 @@ namespace API.Controllers
                             return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                         }
                         // --- End of authentication check ---
-                        if (await _httpJobService.PauseAsync(device.TenantId, job.Id))
+                        if (await _httpJobService.PauseAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
                             return Ok("Job paused successfully.");
                         }
@@ -456,7 +456,7 @@ namespace API.Controllers
                             return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                         }
                         // --- End of authentication check ---
-                        if (await _httpJobService.ResumeAsync(device.TenantId, job.Id))
+                        if (await _httpJobService.ResumeAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
                             return Ok("Job resumed successfully.");
                         }
@@ -490,7 +490,7 @@ namespace API.Controllers
                             return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                         }
                         // --- End of authentication check ---
-                        if (await _httpJobService.StopAsync(device.TenantId, job.Id))
+                        if (await _httpJobService.StopAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
                             return Ok("Job stopped successfully.");
                         }
@@ -524,7 +524,7 @@ namespace API.Controllers
                             return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                         }
                         // --- End of authentication check ---
-                        DeviceJobStatus? status = await _httpJobService.GetStatusAsync(device.TenantId, device.DeviceInfo.ClientId, job.Id);
+                        DeviceJobStatus? status = await _httpJobService.GetStatusAsync(device.TenantId, device.DeviceInfo.ClientId, job.JobId);
                         if (status != null)
                         {
                             job.Status = (DeviceJobStatus)status;

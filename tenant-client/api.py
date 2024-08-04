@@ -13,11 +13,24 @@
 
 """
 # pylint: disable=import-error, unused-argument
-from logger import Logger
+import re
+import datetime
+import requests
+from MySqlite import MySqlite
+from job import Job
 
+# SETTINGS
+CLIENT_ID_SETTING = "CLIENT_ID"
+TENANT_PORTAL_URL_SETTING = "TENANT_PORTAL_URL"
+STATUS_SETTING = "Status"
+APIKEY_SETTING = "apikey"
+SERVICE_ADDRESS_SETTING = "service_address"
+JOB_STATUS_SETTING = "job_status"
+VERSION_SETTING = "version"
 
-
-
+#GENERAL
+TIMEOUT = 5
+STATUS_URL = "/get_status"
 
 
 class API():
@@ -33,98 +46,74 @@ class API():
         """
         Gets the tenant portal URL from the tenant server device
         """
-        Logger.debug_print("Getting tenant portal url")
-        # call the API from tenant server to get the tenant portal URL
-        return "https://nexum.com/tenant_portal"
+        return MySqlite.read_setting(TENANT_PORTAL_URL_SETTING)
     @staticmethod
     def get_status():
         """
         Call the API from tenant server to get the status of the client
         """
-        Logger.debug_print("Getting status")
-        # call the API from tenant server to get the status of the client
-        return "running"
+        return MySqlite.read_setting(STATUS_SETTING)
     @staticmethod
     def get_percent():
         """
         call the API from tenant server to get the percent complete of the job
         """
-        Logger.debug_print("Getting percent")
-        # call the API from tenant server to get the percent complete of the job
-        return 70
+        # call 127.0.0.1:5004/get_status
+        apikey = MySqlite.read_setting(APIKEY_SETTING)
+        client_id = MySqlite.read_setting(CLIENT_ID_SETTING)
+
+        url = MySqlite.read_setting(SERVICE_ADDRESS_SETTING)+STATUS_URL
+
+        headers = {
+            "Content-Type": "application/json",
+            "apikey": str(apikey),
+            "id": str(client_id)
+        }
+        try:
+            response = requests.get(url, headers=headers,timeout=TIMEOUT)
+            data = response.json()
+            result = data["result"]
+            if "copied" in result:
+                # Find the copied (xxx%) in the result string
+                match = re.search(r'copied \((\d+)%\)', result)
+                if match:
+                    percent = int(match.group(1))
+                    return percent
+                else:
+                    return "0%"
+            else:
+                                # set job status to idle
+                new_client =MySqlite.write_setting(JOB_STATUS_SETTING,"NotRunning")
+                return "0%"
+        except Exception:
+            MySqlite.write_log("ERROR","API","Error getting percent","0",datetime.datetime.now())
+            new_client = MySqlite.read_setting("CLIENT_ID")
+            if new_client is None:
+                MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
+                return "0%"
+            else:
+                MySqlite.write_setting(STATUS_SETTING,"service --offline")
+                return "0%"
+
     @staticmethod
     def get_version():
         """
         Call the API from tenant server to get the version of the program
         """
-        Logger.debug_print("Getting version")
-        # call the API from tenant server to get the version of the program
-        return "1.2.7"
+        return MySqlite.read_setting(VERSION_SETTING)
+
     @staticmethod
     def get_job():
         """
         Call the API from tenant server to get the job assigned to this computer
         """
-        Logger.debug_print("Getting job")
+        jb:Job = Job()
+        jb.load(MySqlite.read_setting(CLIENT_ID_SETTING))
         # call the API from tenant server to get the job assigned to this computer
-        return "backup"
+        return jb
     @staticmethod
     def get_client_id():
         """
         Call the API from tenant server to get the client id
         """
-        Logger.debug_print("Getting client id")
-        # call the API from tenant server to get the client id
-        return 1
-    @staticmethod
-    def get_tenant_id():
-        """
-        Call the API from tenant server to get the tenant id
-        """
-        Logger.debug_print("Getting tenant id")
-        # call the API from tenant server to get the tenant id
-        return 1
-    @staticmethod
-    def get_download_key():
-        """
-        call the API from tenant server to get the download key
-        """
-        Logger.debug_print("Getting download key")
-        # call the API from tenant server to get the download key
-        return "1234"
-
-    @staticmethod
-    def send_success_install(client_id,tenant_id,client_secret):
-        """
-        Call the API from tenant server to send the success install
-        """
-        Logger.debug_print("Sending success install")
-        # call the API from tenant server to send the success install
-        return True
-
-    @staticmethod
-    def get_update_available():
-        """
-        Checks the server for a new update
-        """
-        Logger.debug_print("Checking Update Status")
-        # call the API from tenant server to send the success install
-        return True
-
-    @staticmethod
-    def get_update_path():
-        """
-        Checks the server for the update path
-        """
-        Logger.debug_print("Getting Update Path")
-        # call the API from tenant server to send the success install
-        return True
-
-    @staticmethod
-    def get_polling_interval():
-        """
-        Checks the server for a polling interval
-        """
-        Logger.debug_print("Checking Polling Interval")
-        # call the API from tenant server to send the success install
-        return True
+        return MySqlite.read_setting(CLIENT_ID_SETTING)

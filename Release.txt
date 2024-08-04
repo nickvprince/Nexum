@@ -1,0 +1,25 @@
+Tenant Server VERSION 1 complete.
+ - Deployed installer to clean vm 
+ - Set a smb
+ - Modified job
+ - Ran job
+ - Waited for backup to complete
+ - Sampled backup
+
+***Known bugs***
+
+ - Enable job disconnected
+ - Pause job disconnected
+ - Modify job with invalid smb crashes
+ - Start job with no job set crashes service
+
+Installer Version 1 Complete.
+ - Deployed installer to clean vm 
+ - Ran server installer
+ - Checked device properly registered in database on MSP machine
+ - Checked can reach tenant portal
+ - Checked service offline properly alerts MSP
+
+*** Known Bugs ***
+
+ - Tenant client may fail installation still in progress

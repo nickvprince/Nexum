@@ -13,10 +13,10 @@
 
 """
 # pylint: disable= import-error, unused-argument
-from PIL import Image
 import threading
 import time
 import os
+from PIL import Image
 import pystray
 from logger import Logger
 from api import API
@@ -44,15 +44,12 @@ class IconManager():
         """
         Changes the status of the job every 5 seconds
         """
-        l = Logger()
         while True :
             time.sleep(POLLING_INTERVAL)
             status = IconManager.get_status()
             percent = IconManager.get_percent()
             version = IconManager.get_version()
             menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
-            l.log("INFO", "change_status", "Status changed to "+str(status) + ":"+str(percent)+
-                  ":"+str(version), "0", time.strftime("%Y-%m-%d %H:%M:%S:%m", time.localtime()))
             self.update_menu(menu)
 
     # stop the tray icon

@@ -1,0 +1,161 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Shared/Installer.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": true
+  },
+  {
+   "optionDest": "console",
+   "value": false
+  },
+  {
+   "optionDest": "icon_file",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data/installer.ico"
+  },
+  {
+   "optionDest": "name",
+   "value": "Installer"
+  },
+  {
+   "optionDest": "clean_build",
+   "value": false
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "embed_manifest",
+   "value": false
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": true
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "win_private_assemblies",
+   "value": false
+  },
+  {
+   "optionDest": "win_no_prefer_redirects",
+   "value": false
+  },
+  {
+   "optionDest": "ascii",
+   "value": false
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "base64"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "tkinter"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "winreg"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "shutil"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "subprocess"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "time"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "socket"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "uuid"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "os"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "sqlite3"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "PIL"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "requests"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "cryptography.hazmat.primitives.ciphers"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "cryptography.hazmat.backends"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "Installer.py"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Shared/security.py;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Shared/task.py;."
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "win32com.shell.shell as shell"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "sys"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/teche/OneDrive/Desktop/Nexum/repo/Data/nexum.png;."
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}

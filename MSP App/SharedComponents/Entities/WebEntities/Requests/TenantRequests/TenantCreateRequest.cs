@@ -13,9 +13,9 @@ namespace SharedComponents.Entities.WebEntities.Requests.TenantRequests
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string? ContactEmail { get; set; }
         [Required(ErrorMessage = "Contact Phone Number is Required")]
+        [Phone(ErrorMessage = "Phone number is invalid")]
         public string? ContactPhone { get; set; }
         [Required(ErrorMessage = "Address is Required")]
-        [Phone(ErrorMessage = "Phone number is invalid")]
         public string? Address { get; set; }
         [Required(ErrorMessage = "City is Required")]
         public string? City { get; set; }

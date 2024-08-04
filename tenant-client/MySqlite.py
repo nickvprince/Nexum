@@ -21,8 +21,10 @@ import subprocess
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import requests
 
-# pah directories
+ENCODING = 'utf-8'
+# path directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) # working directory
 settingsDirectory = os.path.join(current_dir, '..\\settings') # directory for settings
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
@@ -35,7 +37,20 @@ configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logpath = os.path.join('/log.db') # path to the log database
 
-
+@staticmethod
+def convert_device_status():
+    """
+    Converts the status to a enum
+    """
+    status = MySqlite.read_setting("Status")
+    if status == "Online":
+        return 1
+    elif status == "Offline":
+        return 0
+    elif status == "ServiceOffline":
+        return 2
+    else:
+        return -1
 
 # encrypt a string using AES
 @staticmethod
@@ -44,7 +59,7 @@ def encrypt_string(password, string):
     Encrypt a string with AES-256 bit encryption
     """
     # Pad the password to be 16 bytes long
-    password_hashed = str(password).ljust(16).encode('utf-8')
+    password_hashed = str(password).ljust(16).encode(ENCODING)
 
     # Create a new AES cipher with the password as the key
     cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
@@ -52,7 +67,7 @@ def encrypt_string(password, string):
 
     # Pad the string to be a multiple of 16 bytes long
     try:
-        string = str(string).ljust((len(string) // 16 + 1) * 16).encode('utf-8')
+        string = str(string).ljust((len(string) // 16 + 1) * 16).encode(ENCODING)
 
 
     # Encrypt the string using AES
@@ -60,7 +75,7 @@ def encrypt_string(password, string):
 
     # Encode the encrypted string in base64
         encoded_string = base64.b64encode(encrypted_string)
-        return encoded_string.decode('utf-8')
+        return encoded_string.decode(ENCODING)
     except UnicodeDecodeError:
         MySqlite.write_log("ERROR", "SQL", "Failed to encrypt string - Unicode decode error",
                             "1007", "Failed to encrypt string")
@@ -77,7 +92,7 @@ def decrypt_string(password, string):
     Decrypt a string with AES-256 bit decryption
     """
     # Pad the password to be 16 bytes long
-    password_hashed = str(password).ljust(16).encode('utf-8')
+    password_hashed = str(password).ljust(16).encode(ENCODING)
 
     # Create a new AES cipher with the password as the key
     cipher = Cipher(algorithms.AES(password_hashed), modes.ECB(), backend=default_backend())
@@ -89,7 +104,7 @@ def decrypt_string(password, string):
     # Decrypt the string using AES
     decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
     try:
-        return decrypted_string.decode('utf-8')
+        return decrypted_string.decode(ENCODING)
     except UnicodeDecodeError:
         MySqlite.write_log("ERROR", "SQL", "Failed to decrypt string - Unicode decode error",
                             "1004", "Failed to decrypt string")
@@ -104,6 +119,7 @@ class MySqlite():
     Class to interact with the sqlite database
     Type: File IO
     """
+
     @staticmethod
     def write_log(severity, subject, message, code, date):
         """ 
@@ -134,10 +150,10 @@ class MySqlite():
         Write a setting to the database
         """
         result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                        capture_output=True, text=True,check=True,shell=True) # Use UUID to encrypt the data
+                capture_output=True, text=True,check=True,shell=True) # Use UUID to encrypt the data
         output = result.stdout.strip()
         output = output.split('\n\n', 1)[-1]
-        output = output[:24]
+        output = output[:32]
 
         value = encrypt_string(output,value)
 
@@ -153,6 +169,26 @@ class MySqlite():
         conn.commit()
         conn.close()
 
+        if setting == "Status":
+            headers = {
+                "apikey": MySqlite.read_setting("apikey"),
+                "Content-Type": "application/json"
+            }
+            content = {
+                "severity": "INFO",
+                "function":"status",
+                "message":"",
+                "time":"9/24/2024",
+                "filename":"",
+                "code":convert_device_status(),
+                "uuid": MySqlite.read_setting("uuid"),
+                "client_id": MySqlite.read_setting("CLIENT_ID"),
+            }
+            try:
+                _ = requests.post(f"http://{MySqlite.read_setting('server_address')}:{MySqlite.read_setting('server_port')}/log", headers=headers, json=content,timeout=5)
+            except Exception:
+                MySqlite.write_log("ERROR", "API", "Error sending status", "0", "9/7/2024")
+
     @staticmethod
     def read_setting(setting):
         """
@@ -166,10 +202,10 @@ class MySqlite():
             value = cursor.fetchone()[0]
             conn.close()
             result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
-                                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
+                    capture_output=True, text=True,check=True,shell=True) # enc with uuid
             output = result.stdout.strip()
             output = output.split('\n\n', 1)[-1]
-            output = output[:24]
+            output = output[:32]
             value = decrypt_string(output,value)
             return value.rstrip()
         except:
