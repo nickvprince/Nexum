@@ -6,8 +6,10 @@ using API.Services.TenantServerAPIServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SharedComponents.Entities.DbEntities;
 using SharedComponents.Handlers.Attributes.HasPermission;
 using SharedComponents.JWTToken.Entities;
@@ -16,6 +18,8 @@ using SharedComponents.Services.APIServices.Interfaces;
 using SharedComponents.Services.DbServices.Interfaces;
 using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 using SharedComponents.Utilities;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +47,47 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Server API",
         Version = "v1",
         Description = "API definition for communication between the Tenant-Server and the web api."
+    });
+
+    // Add comments for each Swagger doc
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+
+    // Customize the Swagger UI
+    options.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        if (!apiDesc.TryGetMethodInfo(out MethodInfo methodInfo)) return false;
+
+        var versions = methodInfo.DeclaringType.GetCustomAttributes<ApiExplorerSettingsAttribute>()
+            .Select(attr => attr.GroupName);
+
+        return versions.Any(v => v == docName);
+    });
+
+    // Ensure security definitions are included if you're using JWT
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
@@ -138,4 +183,5 @@ using (var scope = scopeFactory.CreateScope())
     await AppDbContext.IntitalizeUserIdentities(scope.ServiceProvider);
 }
 
-app.Run("https://0.0.0.0:7101");
+app.Run($"https://0.0.0.0:7101");
+//app.Run();
