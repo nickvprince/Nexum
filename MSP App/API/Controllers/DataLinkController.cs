@@ -78,8 +78,8 @@ namespace API.Controllers
                 }
                 UrlResponse response = new UrlResponse
                 {
-                    PortalUrl = webUrl + "/Auth/login",
-                    PortalUrlLocal = webUrlLocal + "/Auth/login",
+                    PortalUrl = webUrl + "/Auth/Index",
+                    PortalUrlLocal = webUrlLocal + "/Auth/Index",
                     NexumUrl = apiUrl + "/Software/Nexum",
                     NexumUrlLocal = apiUrlLocal + "/Software/Nexum",
                     NexumServerUrl = apiUrl + "/Software/NexumServer",
