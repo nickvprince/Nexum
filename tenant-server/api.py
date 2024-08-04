@@ -77,7 +77,7 @@ class API():
                 match = re.search(r'copied \((\d+)%\)', result)
                 if match:
                     percent = int(match.group(1))
-                    return percent
+                    return str(percent) + str("%")
                 else:
                     return "0%"
             else:

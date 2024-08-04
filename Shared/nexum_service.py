@@ -134,7 +134,7 @@ def get_status():
             result = subprocess.Popen(["powershell.exe", "wbadmin Get status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             output = result.stdout
             resp = ""
-            value =output.read(160)
+            value =output.read(241)
 
             response = {"result": "{"+str(value)+"}"}
             print(response)

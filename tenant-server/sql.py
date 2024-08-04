@@ -34,6 +34,7 @@ configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logdirectory = os.path.join(current_dir,'../logs') # directory for logs
 logpath = os.path.join('/log.db') # path to the log database
+memory_settings:dict = {}
 @staticmethod
 def convert_device_status():
     """
@@ -495,10 +496,6 @@ class MySqlite():
         try:
             conn = sqlite3.connect(settingsDirectory+job_settingsFile)
             cursor = conn.cursor()
-            cursor.execute('''SELECT Address FROM clients WHERE Address = ?''', (address,))
-            existing_address = cursor.fetchone()
-            if existing_address:
-                return 500
             cursor.execute('''INSERT INTO clients (id, Name, Address, Port, Status, MAC,uuid)
                         VALUES (?, ?, ?, ?, ?, ?,?)''',
                         (identification, name, address, port, status, mac,uuid))
@@ -508,7 +505,7 @@ class MySqlite():
             return 200
         except Exception as e:
             MySqlite.write_log("ERROR", "MySqlite", "Error writing client - "+str(e), 500, datetime.datetime.now())
-            return 500
+            return e
 class InitSql():
     """
     Initialized SQL information files. This includes
@@ -656,7 +653,29 @@ class InitSql():
             MySqlite.write_log("INFO", "MySqlite", "Job Settings table created", 200, datetime.datetime.now())
         except Exception as e:
             MySqlite.write_log("ERROR", "MySqlite", "Job settings table not created - "+str(e), 500, datetime.datetime.now())
-
+    @staticmethod
+    def load_settings():
+        """
+        Loads settings into memory
+        """
+        create_db_file(settingsDirectory,SETTINGS_PATH)
+        # create settings table
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''Select * from settings''')
+        settings = cursor.fetchall()
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+        capture_output=True, text=True,check=True,shell=True) # enc with uuid
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:32]
+        global memory_settings
+        for setting in settings:
+            sett = decrypt_string(output,setting[1])
+            memory_settings[setting[0]] =sett.rstrip()
+        # Close connection
+        conn.commit()
+        conn.close()
     @staticmethod
     def backup_servers():
         """
@@ -679,6 +698,7 @@ class InitSql():
         InitSql.settings()
         InitSql.job_files()
         InitSql.config_files()
+        InitSql.load_settings()
         InitSql.job_settings()
         InitSql.clients()
         InitSql.heartbeat()

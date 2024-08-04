@@ -87,6 +87,7 @@ class RunJob():
     stop_job_var = False # stop the job
     kill_job_var = False # stop the job
     job_running_var = False
+    day_ran=False
     logger=Logger()
     def run(self):
         """
@@ -101,7 +102,7 @@ class RunJob():
             global LOCAL_JOB
             #pylint: enable=global-variable-not-assigned
             LOCAL_JOB.load(0)
-            self.logger.log("INFO","RunJob","Checking backup statuses","0","runjob.py")
+
             if self.kill_job_var is True:
                 # stop the job
                 self.logger.log("INFO","RunJob","Killing job","0","runjob.py")
@@ -192,9 +193,10 @@ class RunJob():
                     "apikey": MySqlite.read_setting("apikey"),
                     "Content-Type": "application/json"
                 }
-                self.logger.log("INFO","RunJob","Checking status of service","0","runjob.py")
-                response = requests.post("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
-                MySqlite.write_setting("Status","Online")
+                response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                if (MySqlite.read_setting("Status")!= "Online"):
+                    self.logger.log("INFO","RunJob","Service is online","0","runjob.py")
+                    MySqlite.write_setting("Status","Online")
             except Exception as e:
                 self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
                 MySqlite.write_setting("Status","ServiceOffline")
@@ -208,13 +210,16 @@ class RunJob():
                     setting[3] = "00:00"
                     set3=LOCAL_JOB.settings
                     LOCAL_JOB.settings=setting
-                if (LOCAL_JOB.get_settings()[2] < str(datetime.datetime.now().time())) and (LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time())):
+                if LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time()): #past current schreduled time can be re enabled
+                    self.day_ran=False
+                if (LOCAL_JOB.get_settings()[2] < str(datetime.datetime.now().time())) and (LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time()) and self.day_ran is False):
 
                     schedule = LOCAL_JOB.get_settings()[1]
                     today = datetime.datetime.now().weekday()
                     if schedule[today] == "1":
                         # check if backup allowed to run today
                         Logger.debug_print("Job Triggered by time")
+                        self.day_ran=True
                         command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
                         self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","runjob.py")
                         url = 'http://127.0.0.1:5004/start_job_service'
