@@ -7,7 +7,7 @@ namespace SharedComponents.Entities.WebEntities.Requests.NASServerRequests
         [Required(ErrorMessage = "Name is required.")]
         public string? Name { get; set; }
         [Required(ErrorMessage = "Path is required.")]
-        [RegularExpression(@"^\\.*$", ErrorMessage = "Invalid path. It should start with a '\\'.")]
+        [RegularExpression(@"^\/\/.*$", ErrorMessage = "Invalid path. It should start with '//'.")]
         public string? Path { get; set; }
         [Required(ErrorMessage = "Username is required.")]
         public string? NASUsername { get; set; }

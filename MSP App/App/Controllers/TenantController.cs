@@ -66,7 +66,7 @@ namespace App.Controllers
                 Tenant? tenant = await _tenantService.CreateAsync(request);
                 if (tenant != null)
                 {
-                    TempData["LastActionMessage"] = "Tenant created successfully.";
+                    TempData["LastActionMessage"] = $"Tenant created successfully: {tenant.ApiKey}.";
                     return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
                 }
                 TempData["ErrorMessage"] = "An error occurred while creating the tenant.";
