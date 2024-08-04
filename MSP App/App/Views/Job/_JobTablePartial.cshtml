@@ -1,0 +1,151 @@
+﻿@model ICollection<Tenant>?
+
+<div class="table-responsive">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
+        <thead>
+            <tr class="text-center">
+                @{
+                    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+                }
+                @if (activeTenantId != null && Model != null)
+                {
+                    <th class="border-0">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <a id="jobCreateLink@(int.Parse(activeTenantId))" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Job" asp-action="Create" asp-route-id="@int.Parse(activeTenantId)" role="button">
+                                <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
+                                    <use xlink:href="#plus-circle"></use>
+                                </svg>
+                            </a>
+                        </div>
+                    </th>
+                }
+                else
+                {
+                    <th class="border-0 text-nexum-light">#</th>
+                }
+                @if (Model != null && Model.Count() > 1)
+                {
+                    <th class="border-0 text-nexum-light">Tenant</th>
+                }
+                @if (Context.Session.GetString("ActiveDeviceId") == null)
+                {
+                    <th class="border-0 text-nexum-light">Device</th>
+                }
+                <th class="border-0 text-nexum-light">Status</th>
+                <th class="border-0 text-nexum-light">Type</th>
+                <th class="border-0 text-nexum-light">Progress</th>
+                <th class="border-0 text-nexum-light">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Jobs != null && d.Jobs.Any())))
+            {
+                <tr>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Jobs found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                foreach (var tenant in Model.OrderBy(t => t.Name))
+                {
+                    if (tenant.Devices != null && tenant.Devices.Any())
+                    {
+                        foreach (var device in tenant.Devices)
+                        {
+                            if(device.Jobs != null && device.Jobs.Any())
+                            {
+                                foreach (var job in device.Jobs)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td class="p-0 border-0" colspan="12">
+                                            <div id="tempDataMessagejob@(job.Id)"></div>
+                                        </td>
+                                    </tr>
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                        <td class="border-0 text-nexum-light">@i</td>
+                                        @if (Model.Count() > 1)
+                                        {
+                                            <th class="border-0 text-nexum-light">@tenant.Name</th>
+                                        }
+                                        @if (Context.Session.GetString("ActiveDeviceId") == null)
+                                        {
+                                            <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == job.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
+                                        }
+                                        <td class="border-0 text-nexum-light">@AddSpacesToCapital(EnumUtilities.EnumToString(job.Status))</td>
+                                        <td class="border-0 text-nexum-light">@AddSpacesToCapital(EnumUtilities.EnumToString(job.Settings.Type))</td>
+                                        <td class="border-0 text-nexum-light">
+                                            @if (@job.Progress != null)
+                                            {
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: @job.Progress%;" aria-valuenow="@job.Progress" aria-valuemin="0" aria-valuemax="100">
+                                                        @job.Progress%
+                                                    </div>
+                                                </div>
+                                            }
+                                            else if(job.Status == DeviceJobStatus.Complete)
+                                            {
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                                        100%
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <text>N/A</text>
+                                            }
+                                        </td>
+                                        <td class="border-0">
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(job.Id)">
+                                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                                        <use xlink:href="#eye"></use>
+                                                    </svg>
+                                                </a>
+                                                <a id="jobUpdateLink@(job.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Job" asp-action="Update" asp-route-id="@job.Id" role="button">
+                                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                                        <use xlink:href="#pencil-square"></use>
+                                                    </svg>
+                                                </a>
+                                                <form id="jobDeletelink@(job.Id)" asp-controller="Job" asp-action="Delete" asp-route-id="@job.Id">
+                                                    <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#x-circle"></use>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    public static string AddSpacesToCapital(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        var newText = new System.Text.StringBuilder(text.Length * 2);
+        newText.Append(text[0]);
+
+        for (int i = 1; i < text.Length; i++)
+        {
+            if (char.IsUpper(text[i]) && text[i - 1] != ' ')
+            {
+                newText.Append(' ');
+            }
+            newText.Append(text[i]);
+        }
+        return newText.ToString();
+    }
+}

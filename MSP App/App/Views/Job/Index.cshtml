@@ -31,7 +31,26 @@
             }, 2000);
         }
 
+        function loadTable() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Jobs...</h5>';
+            $('#jobContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Job/Table',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#jobContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#jobContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
         loadStatusCards();
+        loadTable();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
             event.preventDefault();
@@ -40,6 +59,7 @@
 
             $('#jobActionContentBox').html('');
             loadStatusCards();
+            loadTable();
         });
 
     </script>

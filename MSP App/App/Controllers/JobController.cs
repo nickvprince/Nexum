@@ -87,5 +87,11 @@ namespace App.Controllers
         {
             return await Task.FromResult(PartialView("_JobStatusCardsPartial", FilterTenantsBySession(await PopulateTenantsAsync())));
         }
+
+        [HttpGet("Table")]
+        public async Task<IActionResult> TableAsync()
+        {
+            return await Task.FromResult(PartialView("_JobTablePartial", FilterTenantsBySession(await PopulateTenantsAsync())));
+        }
     }
 }
