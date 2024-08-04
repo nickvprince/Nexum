@@ -7,6 +7,9 @@ using SharedComponents.Utilities;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing data links between the tenant server and devices.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Server")]
@@ -24,6 +27,20 @@ namespace API.Controllers
         private readonly IDbNASServerService _dbNASServerService;
         private readonly IConfiguration _config;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataLinkController"/> class.
+        /// </summary>
+        /// <param name="dbTenantService">The tenant service.</param>
+        /// <param name="dbDeviceService">The device service.</param>
+        /// <param name="dbSecurityService">The security service.</param>
+        /// <param name="dbSoftwareService">The software service.</param>
+        /// <param name="dbAlertService">The alert service.</param>
+        /// <param name="dbLogService">The log service.</param>
+        /// <param name="dbInstallationKeyService">The installation key service.</param>
+        /// <param name="dbJobService">The job service.</param>
+        /// <param name="dbBackupService">The backup service.</param>
+        /// <param name="dbNASServerService">The NAS server service.</param>
+        /// <param name="config">The configuration.</param>
         public DataLinkController(IDbTenantService dbTenantService, IDbDeviceService dbDeviceService, 
             IDbSecurityService dbSecurityService, IDbSoftwareService dbSoftwareService, 
             IDbAlertService dbAlertService, IDbLogService dbLogService,
@@ -44,6 +61,11 @@ namespace API.Controllers
             _config = config;
         }
 
+        /// <summary>
+        /// Gets the URLs for the API and web portals.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <returns>The URLs for the API and web portals.</returns>
         [HttpGet("Urls")]
         public async Task<IActionResult> UrlsAsync([FromHeader] string apikey)
         {
@@ -92,6 +114,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Registers a new device with the tenant server.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The device registration request.</param>
+        /// <returns>The device registration response.</returns>
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromHeader] string apikey, [FromBody] DeviceRegistrationRequest request)
         {
@@ -250,6 +278,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Verifies the installation of a device.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The verification request.</param>
+        /// <returns>The verification response.</returns>
         [HttpPost("Verify")]
         public async Task<IActionResult> VerifyInstallationAsync([FromHeader] string apikey, [FromBody] VerifyInstallationRequest request)
         {
@@ -300,6 +334,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Checks for software updates.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The update check request.</param>
+        /// <returns>The update check response.</returns>
         [HttpGet("Check-For-Updates")]
         public async Task<IActionResult> CheckForUpdatesAsync([FromHeader] string apikey, [FromBody] CheckForUpdatesRequest request)
         {
@@ -362,6 +402,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Updates the device information.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The update device request.</param>
+        /// <returns>The update device response.</returns>
         [HttpPut("Update-Device")]
         public async Task<IActionResult> UpdateAsync([FromHeader] string apikey, [FromBody] UpdateDeviceRequest request)
         {
@@ -419,6 +465,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Updates the device status.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The update device status request.</param>
+        /// <returns>The update device status response.</returns>
         [HttpPut("Update-Device-Status")]
         public async Task<IActionResult> UpdateDeviceStatusAsync([FromHeader] string apikey, [FromBody] UpdateDeviceStatusRequest request)
         {
@@ -464,6 +516,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Updates the job status.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The update job status request.</param>
+        /// <returns>The update job status response.</returns>
         [HttpPut("Update-Job-Status")]
         public async Task<IActionResult> UpdateJobStatusAsync([FromHeader] string apikey, [FromBody] UpdateJobStatusRequest request)
         {
@@ -519,6 +577,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Creates a new backup.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The backup request.</param>
+        /// <returns>The backup response.</returns>
         [HttpPost("Backup")]
         public async Task<IActionResult> BackupAsync([FromHeader] string apikey, [FromBody] CreateBackupRequest request)
         {
@@ -575,6 +639,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Creates a new alert.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The alert request.</param>
+        /// <returns>The alert response.</returns>
         [HttpPost("Alert")]
         public async Task<IActionResult> AlertAsync([FromHeader] string apikey, [FromBody] CreateAlertRequest request)
         {
@@ -627,6 +697,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Creates a new log entry.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The log request.</param>
+        /// <returns>The log response.</returns>
         [HttpPost("Log")]
         public async Task<IActionResult> LogAsync([FromHeader] string apikey, [FromBody] CreateLogRequest request)
         {
@@ -687,6 +763,12 @@ namespace API.Controllers
             return Unauthorized("Invalid API Key.");
         }
 
+        /// <summary>
+        /// Uninstalls a device.
+        /// </summary>
+        /// <param name="apikey">The API key for authentication.</param>
+        /// <param name="request">The uninstallation request.</param>
+        /// <returns>The uninstallation response.</returns>
         [HttpPost("Uninstall")]
         public async Task<IActionResult> UninstallAsync([FromHeader] string apikey, [FromBody] UninstallRequest request)
         {

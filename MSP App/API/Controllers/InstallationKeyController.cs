@@ -8,6 +8,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for handling installation key-related operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -17,6 +20,12 @@ namespace API.Controllers
         private readonly IDbTenantService _dbTenantService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstallationKeyController"/> class.
+        /// </summary>
+        /// <param name="dbInstallationKeyService">The installation key service.</param>
+        /// <param name="dbTenantService">The tenant service.</param>
+        /// <param name="authService">The authentication service.</param>
         public InstallationKeyController(IDbInstallationKeyService dbInstallationKeyService, IDbTenantService dbTenantService, IAPIAuthService authService)
         {
             _dbInstallationKeyService = dbInstallationKeyService;
@@ -24,6 +33,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new installation key.
+        /// </summary>
+        /// <param name="request">The installation key create request.</param>
+        /// <returns>An action result containing the created installation key.</returns>
         [HttpPost("")]
         [HasPermission("InstallationKey.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] InstallationKeyCreateRequest request)
@@ -70,6 +84,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates an existing installation key.
+        /// </summary>
+        /// <param name="request">The installation key update request.</param>
+        /// <returns>An action result containing the updated installation key.</returns>
         [HttpPut("")]
         [HasPermission("InstallationKey.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] InstallationKeyUpdateRequest request)
@@ -115,6 +134,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes an installation key by ID.
+        /// </summary>
+        /// <param name="id">The ID of the installation key to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("InstallationKey.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -141,6 +165,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets an installation key by ID.
+        /// </summary>
+        /// <param name="id">The ID of the installation key to retrieve.</param>
+        /// <returns>An action result containing the installation key.</returns>
         [HttpGet("{id}")]
         [HasPermission("InstallationKey.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -163,6 +192,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all installation keys accessible by the authenticated user.
+        /// </summary>
+        /// <returns>An action result containing all installation keys accessible by the user.</returns>
         [HttpGet("")]
         [HasPermission("InstallationKey.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -198,6 +231,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all installation keys for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the installation keys for the tenant.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("InstallationKey.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)

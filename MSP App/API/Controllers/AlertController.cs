@@ -8,6 +8,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for handling alert-related operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -17,6 +20,12 @@ namespace API.Controllers
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AlertController"/> class.
+        /// </summary>
+        /// <param name="dbAlertService">Service for interacting with alerts.</param>
+        /// <param name="dbDeviceService">Service for interacting with devices.</param>
+        /// <param name="authService">Service for authentication.</param>
         public AlertController(IDbAlertService dbAlertService, IDbDeviceService dbDeviceService,
             IAPIAuthService authService)
         {
@@ -25,6 +34,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new alert.
+        /// </summary>
+        /// <param name="request">The request containing the alert details.</param>
+        /// <returns>An action result indicating the outcome of the operation.</returns>
         [HttpPost("")]
         [HasPermission("Alert.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] AlertCreateRequest request)
@@ -61,6 +75,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates an existing alert.
+        /// </summary>
+        /// <param name="request">The request containing the updated alert details.</param>
+        /// <returns>An action result indicating the outcome of the operation.</returns>
         [HttpPut("")]
         [HasPermission("Alert.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] AlertUpdateRequest request)
@@ -98,6 +117,12 @@ namespace API.Controllers
             }
             return BadRequest("Invalid Request.");
         }
+
+        /// <summary>
+        /// Acknowledges an alert.
+        /// </summary>
+        /// <param name="id">The ID of the alert to acknowledge.</param>
+        /// <returns>An action result indicating the outcome of the operation.</returns>
         [HttpPost("{id}/Acknowledge")]
         [HasPermission("Alert.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> AcknowledgeAsync(int id)
@@ -139,6 +164,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes an alert.
+        /// </summary>
+        /// <param name="id">The ID of the alert to delete.</param>
+        /// <returns>An action result indicating the outcome of the operation.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Alert.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -170,6 +200,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets a specific alert by ID.
+        /// </summary>
+        /// <param name="id">The ID of the alert to retrieve.</param>
+        /// <returns>An action result containing the alert.</returns>
         [HttpGet("{id}")]
         [HasPermission("Alert.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -197,6 +232,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all alerts.
+        /// </summary>
+        /// <returns>An action result containing a list of alerts.</returns>
         [HttpGet("")]
         [HasPermission("Alert.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -232,6 +271,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all alerts for a specific device.
+        /// </summary>
+        /// <param name="deviceId">The ID of the device.</param>
+        /// <returns>An action result containing the list of alerts.</returns>
         [HttpGet("By-Device/{deviceId}")]
         [HasPermission("Alert.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
@@ -262,6 +306,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all alerts for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the list of alerts.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("Alert.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)

@@ -8,6 +8,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for handling backup-related operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -18,6 +21,13 @@ namespace API.Controllers
         private readonly IDbNASServerService _dbNASServerService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BackupController"/> class.
+        /// </summary>
+        /// <param name="dbBackupService">The backup service.</param>
+        /// <param name="dbDeviceService">The device service.</param>
+        /// <param name="dbNASServerService">The NAS server service.</param>
+        /// <param name="authService">The authentication service.</param>
         public BackupController(IDbBackupService dbBackupService, IDbDeviceService dbDeviceService,
             IDbNASServerService dbNASServerService, IAPIAuthService authService)
         {
@@ -27,6 +37,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new backup.
+        /// </summary>
+        /// <param name="request">The backup create request.</param>
+        /// <returns>An action result containing the created backup.</returns>
         [HttpPost("")]
         [HasPermission("Backup.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] BackupCreateRequest request)
@@ -73,6 +88,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates an existing backup.
+        /// </summary>
+        /// <param name="request">The backup update request.</param>
+        /// <returns>An action result containing the updated backup.</returns>
         [HttpPut("")]
         [HasPermission("Backup.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] BackupUpdateRequest request)
@@ -103,6 +123,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes a backup by ID.
+        /// </summary>
+        /// <param name="id">The ID of the backup to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Backup.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -129,6 +154,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets a backup by ID.
+        /// </summary>
+        /// <param name="id">The ID of the backup to retrieve.</param>
+        /// <returns>An action result containing the backup.</returns>
         [HttpGet("{id}")]
         [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -151,6 +181,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all backups accessible by the authenticated user.
+        /// </summary>
+        /// <returns>An action result containing all backups accessible by the user.</returns>
         [HttpGet("")]
         [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -186,6 +220,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all backups for a specific device.
+        /// </summary>
+        /// <param name="deviceId">The ID of the device.</param>
+        /// <returns>An action result containing the backups for the device.</returns>
         [HttpGet("By-Device/{deviceId}")]
         [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
@@ -216,6 +255,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all backups for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the backups for the tenant.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("Backup.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)

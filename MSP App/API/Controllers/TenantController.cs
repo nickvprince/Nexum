@@ -11,6 +11,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing tenants.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -22,6 +25,14 @@ namespace API.Controllers
         private readonly IAPIAuthService _authService;
         private readonly IJWTService _jwtService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TenantController"/> class.
+        /// </summary>
+        /// <param name="dbTenantService">The tenant service.</param>
+        /// <param name="dbRoleService">The role service.</param>
+        /// <param name="dbPermissionService">The permission service.</param>
+        /// <param name="authService">The authentication service.</param>
+        /// <param name="jwtService">The JWT service.</param>
         public TenantController(IDbTenantService dbTenantService, IDbRoleService dbRoleService,
             IDbPermissionService dbPermissionService, IAPIAuthService authService,
             IJWTService jwtService)
@@ -33,6 +44,11 @@ namespace API.Controllers
             _jwtService = jwtService;
         }
 
+        /// <summary>
+        /// Creates a new tenant.
+        /// </summary>
+        /// <param name="request">The tenant create request.</param>
+        /// <returns>An action result containing the created tenant.</returns>
         [HttpPost("")]
         [HasPermission("Tenant.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromBody] TenantCreateRequest request)
@@ -115,6 +131,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Updates an existing tenant.
+        /// </summary>
+        /// <param name="request">The tenant update request.</param>
+        /// <returns>An action result containing the updated tenant.</returns>
         [HttpPut("")]
         [HasPermission("Tenant.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] TenantUpdateRequest request)
@@ -155,6 +176,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Deletes a tenant by ID.
+        /// </summary>
+        /// <param name="id">The ID of the tenant to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Tenant.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -182,6 +208,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets a tenant by ID.
+        /// </summary>
+        /// <param name="id">The ID of the tenant to retrieve.</param>
+        /// <returns>An action result containing the tenant.</returns>
         [HttpGet("{id}")]
         [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -204,6 +235,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets a tenant by ID with additional rich information.
+        /// </summary>
+        /// <param name="id">The ID of the tenant to retrieve.</param>
+        /// <returns>An action result containing the tenant with rich information.</returns>
         [HttpGet("{id}/Rich")]
         [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetRichAsync(int id)
@@ -226,6 +262,10 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all tenants accessible by the current user.
+        /// </summary>
+        /// <returns>An action result containing all accessible tenants.</returns>
         [HttpGet("")]
         [HasPermission("Tenant.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()

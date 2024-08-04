@@ -10,6 +10,9 @@ using SharedComponents.Utilities;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for handling authentication-related operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -20,6 +23,13 @@ namespace API.Controllers
         private readonly IJWTService _jwtService;
         private readonly IDbRoleService _dbRoleService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthController"/> class.
+        /// </summary>
+        /// <param name="signInManager">SignIn manager service.</param>
+        /// <param name="userManager">User manager service.</param>
+        /// <param name="jwtService">JWT service for token handling.</param>
+        /// <param name="dbRoleService">Role service for database interactions.</param>
         public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager,
             IJWTService jwtService, IDbRoleService dbRoleService)
         {
@@ -29,6 +39,11 @@ namespace API.Controllers
             _dbRoleService = dbRoleService;
         }
 
+        /// <summary>
+        /// Logs in a user and generates JWT tokens.
+        /// </summary>
+        /// <param name="request">The login request containing username and password.</param>
+        /// <returns>An action result containing the authentication response.</returns>
         [HttpPost("Login")]
         public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request)
         {
@@ -61,6 +76,11 @@ namespace API.Controllers
             return BadRequest($"Login failed. Please fill out the username and password and try again.");
         }
 
+        /// <summary>
+        /// Refreshes the JWT token using the provided refresh token.
+        /// </summary>
+        /// <param name="request">The refresh token request.</param>
+        /// <returns>An action result containing the new authentication response.</returns>
         [HttpPost("Refresh")]
         public async Task<IActionResult> Refresh([FromBody] AuthRefreshRequest request)
         {
@@ -99,6 +119,10 @@ namespace API.Controllers
         }
 
         //does not invalidate the token after logging out, requires validation tracking and token blacklisting
+        /// <summary>
+        /// Logs out the currently authenticated user.
+        /// </summary>
+        /// <returns>An action result indicating success or failure.</returns>
         [HttpPost("Logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
