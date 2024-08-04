@@ -90,7 +90,7 @@ namespace API.Services.TenantServerAPIServices
                 if (await InitiallizeHttpClient(tenantId))
                 {
                     int client_Id = clientId;
-                    var content = new StringContent(JsonConvert.SerializeObject(new { client_Id = clientId }), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(new { client_id = clientId }), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("start_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -111,7 +111,7 @@ namespace API.Services.TenantServerAPIServices
                 if (await InitiallizeHttpClient(tenantId))
                 {
                     int client_Id = clientId;
-                    var content = new StringContent(JsonConvert.SerializeObject(new { client_Id = clientId }), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(new { client_id = clientId }), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("kill_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -132,7 +132,7 @@ namespace API.Services.TenantServerAPIServices
                 if (await InitiallizeHttpClient(tenantId))
                 {
                     int client_Id = clientId;
-                    var content = new StringContent(JsonConvert.SerializeObject(new { client_Id = clientId }), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(new { client_id = clientId }), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("enable_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -153,7 +153,7 @@ namespace API.Services.TenantServerAPIServices
                 if (await InitiallizeHttpClient(tenantId))
                 {
                     int client_Id = clientId;
-                    var content = new StringContent(JsonConvert.SerializeObject(new { client_Id = clientId }), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(new { client_id = clientId }), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("stop_job", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
