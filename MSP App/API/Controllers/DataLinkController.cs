@@ -557,6 +557,7 @@ namespace API.Controllers
                     return BadRequest("Invalid Job Status.");
                 }
                 job.Status = request.Status;
+                job.Progress = request.Progress;
                 job = await _dbJobService.UpdateAsync(job);
                 if (job != null)
                 {
