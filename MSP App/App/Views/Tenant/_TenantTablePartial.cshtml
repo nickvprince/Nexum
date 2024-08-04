@@ -37,7 +37,7 @@
                             <div id="tempDataMessageTenant@(tenant.Id)"></div>
                         </td>
                     </tr>
-                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
                         <td class="border-0 text-nexum-light">@i</td>
                         <td class="border-0 text-nexum-light">@tenant.Name</td>
                         <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
@@ -126,7 +126,7 @@
                                                             foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted))
                                                             {
                                                                 j++;
-                                                                <tr class="row-nexum-striped text-center text-nowrap">
+                                                                <tr class="row-nexum-striped text-center text-nowrap align-middle">
                                                                     <td class="border-0 text-nexum-light">@j</td>
                                                                     <td class="border-0 text-nexum-light">@key.Key</td>
                                                                     <td class="border-0 text-nexum-light">@key.Type</td>

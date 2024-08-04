@@ -2,64 +2,45 @@
     ViewData["Title"] = "Logs";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
-<div id="parentContentBox">
-    <!-- Logs Cards -->
-    <div class="d-flex flex-wrap justify-content-around my-3">
-        <!-- Information Log Card -->
-        <div class="card bg-information-log text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">7</h3>
-                <p class="nexum-card-text-square mb-0">Information</p>
-            </div>
-        </div>
-        <!-- Trace Log Card -->
-        <div class="card bg-trace text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">6</h3>
-                <p class="nexum-card-text-square mb-0">Trace</p>
-            </div>
-        </div>
-        <!-- Debug Log Card -->
-        <div class="card bg-debug text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">4</h3>
-                <p class="nexum-card-text-square mb-0">Debug</p>
-            </div>
-        </div>
-        <!-- Warning Log Card -->
-        <div class="card bg-warning text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">3</h3>
-                <p class="nexum-card-text-square mb-0">Warning</p>
-            </div>
-        </div>
-        <!-- Error Log Card -->
-        <div class="card bg-error text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
-            <div class="card-body nexum-card-body-square">
-                <h3 class="nexum-card-title-square mb-0">2</h3>
-                <p class="nexum-card-text-square mb-0">Error</p>
-            </div>
-        </div>
-    </div>
 
-    <div id="contentBox" class="border border-nexum-light"></div>
+<div id="parentContentBox">
+    <div id="logTypeContentBox"></div>
+    <div id="logActionContentBox"></div>
+    <div id="logContentBox"></div>
 </div>
 
 @section Scripts {
 
     <script>
-        $(document).ready(function () {
-            $.ajax({
-                url: '/Log/Partial',
-                type: 'GET',
-                success: function (result) {
-                    $('#contentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    $('#contentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
-                    console.error('Error loading partial view:', error);
-                }
-            });
+
+        function loadTypeCards() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Type Cards...</h5>';
+            $('#logTypeContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Log/TypeCards',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#logTypeContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#logTypeContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
+        loadTypeCards();
+
+        $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+
+            $('#logActionContentBox').html('');
+            loadTypeCards();
         });
+
     </script>
 }

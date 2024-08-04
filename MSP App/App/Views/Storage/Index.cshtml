@@ -1,6 +1,4 @@
-﻿@model ICollection<Tenant>?
-
-@{
+﻿@{
     ViewData["Title"] = "Storage";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
@@ -81,9 +79,6 @@
                 event.preventDefault();
                 var form = $(this);
                 var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
-
-                console.log('ID:', id);
-                console.log('Form:', form);
 
                 $('#nasActionContentBox').html('');
                 loadNASTable();

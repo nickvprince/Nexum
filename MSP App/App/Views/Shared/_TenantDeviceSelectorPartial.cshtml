@@ -8,8 +8,8 @@
                 @{
                     var activeTenantId = Context.Session.GetString("ActiveTenantId");
                     var tenantName = activeTenantId != null
-                        ? Model.Where(t => t.Id == int.Parse(activeTenantId)).FirstOrDefault()?.Name
-                        : "All";
+                    ? Model?.FirstOrDefault(t => t.Id == int.Parse(activeTenantId))?.Name ?? "All"
+                    : "All";
                 }
                 <b>@tenantName</b>
             </a>

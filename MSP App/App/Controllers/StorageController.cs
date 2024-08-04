@@ -9,8 +9,8 @@ using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
-    [Route("[controller]")]
     [Authorize]
+    [Route("[controller]")]
     public class StorageController : Controller
     {
         private readonly IAPIRequestTenantService _tenantService;
@@ -85,9 +85,19 @@ namespace App.Controllers
         [HttpGet]
         public async Task<IActionResult> IndexAsync()
         {
-            var tenants = await PopulateTenantsAsync();
-            var filteredTenants = FilterTenantsBySession(tenants);
-            return await Task.FromResult(View(filteredTenants));
+            return await Task.FromResult(View());
+        }
+
+        [HttpGet("NASTable")]
+        public async Task<IActionResult> NASTableAsync()
+        {
+            return await Task.FromResult(PartialView("_NASTablePartial", FilterTenantsBySession(await PopulateTenantsAsync())));
+        }
+
+        [HttpGet("BackupTable")]
+        public async Task<IActionResult> BackupTableAsync()
+        {
+            return await Task.FromResult(PartialView("_BackupTablePartial", FilterTenantsBySession(await PopulateTenantsAsync())));
         }
 
         [HttpGet("{id}/CreateNAS")]
@@ -181,23 +191,6 @@ namespace App.Controllers
             }
             return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
         }
-
-        [HttpGet("NASTable")]
-        public async Task<IActionResult> NASTableAsync()
-        {
-            var tenants = await PopulateTenantsAsync();
-            var filteredTenants = FilterTenantsBySession(tenants);
-            return await Task.FromResult(PartialView("_NASTablePartial", filteredTenants));
-        }
-
-        [HttpGet("BackupTable")]
-        public async Task<IActionResult> BackupTableAsync()
-        {
-            var tenants = await PopulateTenantsAsync();
-            var filteredTenants = FilterTenantsBySession(tenants);
-            return await Task.FromResult(PartialView("_BackupTablePartial", filteredTenants));
-        }
-
         
     }
 }
