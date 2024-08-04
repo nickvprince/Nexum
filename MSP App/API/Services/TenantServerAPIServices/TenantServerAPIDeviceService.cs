@@ -26,7 +26,7 @@ namespace API.Services.TenantServerAPIServices
             }*/
         }
 
-        public async Task<bool?> ForceDeviceCheckinAsync(int tenantId, int client_id)
+        public async Task<bool?> ForceDeviceCheckinAsync(int tenantId, int clientId)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace API.Services.TenantServerAPIServices
             return false;
         }
 
-        public async Task<bool?> ForceDeviceUpdateAsync(int tenantId, int client_id)
+        public async Task<bool?> ForceDeviceUpdateAsync(int tenantId, int clientId)
         {
             try
             {
