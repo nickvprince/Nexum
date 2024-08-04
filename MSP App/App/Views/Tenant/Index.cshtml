@@ -85,9 +85,7 @@
                     type: 'GET',
                     success: function (result) {
                         $('#tenantActionContentBox').html(result);
-                        $(document).ready(function () {
-                            fillCountryRegionSelectors();
-                        });
+                        fillCountryRegionSelectors();
                     },
                     error: function (xhr, status, error) {
                         $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
@@ -104,9 +102,7 @@
                     type: 'GET',
                     success: function (result) {
                         $('#tenantActionContentBox').html(result);
-                        $(document).ready(function () {
-                            fillCountryRegionSelectors();
-                        });
+                        fillCountryRegionSelectors();
                     },
                     error: function (xhr, status, error) {
                         $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
@@ -158,6 +154,7 @@
                             loadTable();
                         } else {
                             $('#tenantActionContentBox').html(result.html);
+                            fillCountryRegionSelectors();
                             if (result.message) {
                                 $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                             }
