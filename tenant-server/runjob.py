@@ -110,6 +110,7 @@ class RunJob():
                     "apikey": MySqlite.read_setting("apikey"),
                     "Content-Type": "application/json"
                 }
+                
                 try:
                     response = requests.post(url, headers=headers,timeout=15)
                     if response.json()["result"] == "{[b'wbadmin 1.0 - Backup command-line tool\\r\\n', b'(C) Copyright Microsoft Corporation. All rights reserved.\\r\\n', b'\\r\\n', b'ERROR - The user name or password is unexpected because the backup location \\r\\n', b'is not a remote shared folder.\\r\\n', b'\\r\\n']}":
@@ -118,6 +119,7 @@ class RunJob():
                     else:
                         MySqlite.write_setting("job_status","NotStarted")
                         MySqlite.write_setting("Status","Online")
+                    self.kill_job_var = False
                 except ConnectionError:
                     self.logger.log("ERROR","RunJob","Connection Error","0","runjob.py")
                     MySqlite.write_setting("job_status","NotStarted")
@@ -131,6 +133,7 @@ class RunJob():
                     MySqlite.write_setting("job_status","NotStarted")
                     MySqlite.write_setting("Status","ServiceOffline")
                     Logger.debug_print("Error: "+str(e))
+                
                 time.sleep(2)
                 #ensures the servce is online regardless of what happens or is supposed to happen
                 # check response for what happened
@@ -254,13 +257,15 @@ class RunJob():
         """
         Enables the job to run
         """
-        self.stop_job_var = False
+        #self.stop_job_var = False
+        pass
     def stop_job(self):
         """
         Sets the job_stop state to True thus stopping the job.
         This does not stop active jobs. It will only prevent new jobs from being started.
         """
-        self.stop_job_var = True
+        #self.stop_job_var = True
+        pass
     def kill_job(self):
         """
         Stops the currently running job

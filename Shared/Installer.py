@@ -963,7 +963,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     # create GUID
     msp_api = uuid.uuid4()
     ip = get('https://api.ipify.org',timeout=10).content.decode('utf8')
-    ip = server_address # Use this for demo since its locally built
+    ip = socket.gethostbyname(socket.gethostname()) # Use this for demo since its locally built
     write_setting("msp_api",str(msp_api))
     try:
 
