@@ -1027,7 +1027,7 @@ class FlaskServer():
         logger = Logger()
         client_list = MySqlite.load_clients()
         for client in client_list:
-            if client[0] == identification:
+            if str(client[0]) == str(identification):
                 if MySqlite.read_setting(APIKEY) == secret:
                     logger.log("INFO","beat",f"Client heartbeat added{identification}",200,FILENAME)
                     MySqlite.update_heartbeat_time(identification)
@@ -1045,8 +1045,7 @@ class FlaskServer():
                     try:
                         server_address = MySqlite.read_setting(MSP_SERVER_SETTING)
                         msp_port = MySqlite.read_setting(MSP_PORT_SETTING)
-                        # not sending this should prevent Online status from overwriting ServiceOffline
-                        #_ = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{UPDATE_DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=TIMEOUT,verify=VERIFY)
+                        _ = requests.put(f"{MSP_PROTOCOL}{server_address}:{msp_port}{UPDATE_DEVICE_STATUS_ROUTE}", headers=header, json=content,timeout=TIMEOUT,verify=VERIFY)
                     except Exception:
                         return False
                     return "200 OK"
@@ -1213,9 +1212,10 @@ class FlaskServer():
             ip = body.get('ipaddress', '')
             port = body.get('port', '')
             status = 'Installing'
-            mac = body["macaddresses"][0]["address"]
+            mac = body["macaddresses"]
             uid = body.get('uuid', '')
             type = body.get('type', '')
+            
             # ensure no duplicate client ip's
             clients = MySqlite.load_clients()
             for client in clients:
@@ -1231,16 +1231,9 @@ class FlaskServer():
             "ipaddress":ip,
             "port":port,
             "type":type,
-            "macaddresses":[
-                {
-                "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
-                            for ele in range(0,8*6,8)][::-1])
-                }
-            ],
+            "macaddresses":mac,
             "installationKey":key
         }
-            logger.log("INFO", "check-installer", f"Request to MSP: {payload}", 200, FILENAME)
-            logger.log("INFO", "check-installer", f"path :{MSP_PROTOCOL} {MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{CLIENT_REGISTRATION_PATH}", 200, FILENAME)
             try:
                 req = requests.request("POST", f"{MSP_PROTOCOL}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{CLIENT_REGISTRATION_PATH}",
                             timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:secret}, json=payload, verify=VERIFY)

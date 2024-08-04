@@ -754,7 +754,6 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
             "type":1,
             "macaddresses":[
                 {
-                "id":0,
                 "address":':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
                             for ele in range(0,8*6,8)][::-1])
                 }
@@ -1262,8 +1261,6 @@ def main():
 
 
     #TESTING Area
-    main_window(tk.Tk())
-
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
         params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
