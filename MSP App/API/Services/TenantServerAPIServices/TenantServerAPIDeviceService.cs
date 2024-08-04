@@ -32,7 +32,7 @@ namespace API.Services.TenantServerAPIServices
             {
                 if (await InitiallizeHttpClient(tenantId))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(client_id), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(new { client_Id = clientId }), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("force_checkin", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
@@ -52,7 +52,7 @@ namespace API.Services.TenantServerAPIServices
             {
                 if (await InitiallizeHttpClient(tenantId))
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(client_id), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(new { client_Id = clientId }), Encoding.UTF8, "application/json");
                     var response = await _httpClient.PostAsync("force_update", content);
                     var responseData = await response.Content.ReadAsStringAsync();
                     response.EnsureSuccessStatusCode();
