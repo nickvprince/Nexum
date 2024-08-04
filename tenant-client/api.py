@@ -62,7 +62,7 @@ class API():
         apikey = MySqlite.read_setting(APIKEY_SETTING)
         client_id = MySqlite.read_setting(CLIENT_ID_SETTING)
 
-        url = MySqlite.read_setting(SERVICE_ADDRESS_SETTING)+STATUS_URL
+        url = f"http://{MySqlite.read_setting(SERVICE_ADDRESS_SETTING)}{STATUS_URL}"
 
         headers = {
             "Content-Type": "application/json",
@@ -70,7 +70,7 @@ class API():
             "id": str(client_id)
         }
         try:
-            response = requests.get(url, headers=headers,timeout=TIMEOUT)
+            response = requests.get(url, headers=headers,timeout=TIMEOUT,verify=False)
             data = response.json()
             result = data["result"]
             if "copied" in result:
@@ -78,14 +78,31 @@ class API():
                 match = re.search(r'copied \((\d+)%\)', result)
                 if match:
                     percent = int(match.group(1))
-                    return percent
+
+                    try:
+                        # update MSP
+                        headers = {
+                            "Content-Type": "application/json",
+                            "apikey": str(apikey),
+                        }
+                        content = {
+                            "client_id": str(client_id),
+                            "status":1,
+                            "progress":percent
+                        }
+                        route = "http://"+MySqlite.read_setting("server_address")+":"+MySqlite.read_setting("server_port")+"/update_job_status"
+                        response = requests.post(route, headers=headers, json=content,timeout=TIMEOUT,verify=False)
+                    except Exception as e:
+                        _ = e
+                    return str(percent) + str("%")
                 else:
                     return "0%"
             else:
                                 # set job status to idle
                 new_client =MySqlite.write_setting(JOB_STATUS_SETTING,"NotRunning")
                 return "0%"
-        except Exception:
+        except Exception as e:
+            _ = e
             MySqlite.write_log("ERROR","API","Error getting percent","0",datetime.datetime.now())
             new_client = MySqlite.read_setting("CLIENT_ID")
             if new_client is None:

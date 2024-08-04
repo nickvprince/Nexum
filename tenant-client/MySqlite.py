@@ -36,7 +36,7 @@ jobFile=os.path.join('/settings.db')
 configFile=os.path.join('/settings.db')
 job_settingsFile=os.path.join('/settings.db')
 logpath = os.path.join('/log.db') # path to the log database
-
+memory_settings:dict = {}
 @staticmethod
 def convert_device_status():
     """
@@ -216,15 +216,18 @@ class MySqlite():
         """
         create the database file if it does not exist and the folder for it
         """
-        # ensure ../ logs directory exists
-        if not os.path.exists(os.path.join(directory)):
-            os.makedirs(os.path.join(directory))
-        # if file does not exist create it
-        if not os.path.exists(directory+path):
-            if path=="":
-                conn = sqlite3.connect(directory)
-            elif directory=="" :
-                conn = sqlite3.connect(path)
-            else:
-                conn = sqlite3.connect(directory+path)
-            conn.close()
+        try:
+            # ensure ../ logs directory exists
+            if not os.path.exists(os.path.join(directory)):
+                os.makedirs(os.path.join(directory))
+            # if file does not exist create it
+            if not os.path.exists(directory+path):
+                if path=="":
+                    conn = sqlite3.connect(directory)
+                elif directory=="" :
+                    conn = sqlite3.connect(path)
+                else:
+                    conn = sqlite3.connect(directory+path)
+                conn.close()
+        except:
+            pass

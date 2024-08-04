@@ -364,6 +364,16 @@ def uninstall_from_device(window:tk.Tk):
     not_installed_indentifiers:int = 0 # increases as parts are removed
     identifiers_count:int =0 # total number of identifiers
 
+    # remove data
+    
+    # if c:\windows\temp\settings exists delete it
+    if os.path.exists("C:\\Windows\\Temp\\settings"):
+        shutil.rmtree("C:\\Windows\\Temp\\settings")
+
+    #if users temp settings exists delete it
+    if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+        shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+
     identifiers_count += 1
     try:
         key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, AUTO_RUN_KEY, 0, winreg.KEY_ALL_ACCESS)
@@ -707,7 +717,7 @@ def notify_server(backupserver:str,id:int,apikey:str,uuid:str,key:str):
     write_log("INFO", "Install Server", "Notifying server", 0, get_time())
     try:
         payload = {
-        "client_Id":id,
+        "client_id":id,
         "uuid":uuid,
         "installationKey":key
         }
@@ -726,6 +736,18 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     The background process for installing the client on the server, 
     including the registry keys and the service, and the persistence
     """
+
+    # clean on install incase
+
+    # if c:\windows\temp\settings exists delete it
+    if os.path.exists("C:\\Windows\\Temp\\settings"):
+        shutil.rmtree("C:\\Windows\\Temp\\settings")
+
+    #if users temp settings exists delete it
+    if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+        shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+
+
     write_log("INFO", "Install Client", "Install Client Background Started", 0, get_time())
     server_address = backupserver.split(":")[0]
     server_port = backupserver.split(":")[1]
@@ -748,7 +770,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # send information to local server
         payload = {
             "name":socket.gethostname(),
-            "uuid":output[0:31],
+            "uuid":output[0:3],
             "ipaddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":1,
@@ -765,7 +787,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # initial registration request
         request = requests.request("GET",
                 f"{CLIENT_PROTOCOL}{backupserver}/{CLIENT_REGISTRATION_PATH}",
-                timeout=120, headers={"Content-Type": "application/json","apikey":apikey},
+                timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                 json=payload, verify=SSL_CHECK)
 
         identification = request.headers.get('clientid')
@@ -775,9 +797,9 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
 
 
     except Exception as e:
-        write_log("ERROR", "Install Client", "Could not connect to server "+str(e),
+        write_log("ERROR", "Install Client", "Could not connect to server "+str(e) + request.content+"\n"+request.headers +"\n"+request.status_code, 
                 1100, get_time())
-        completed(window,"","client install failed - 1100")
+        completed(window,"","client install failed - 1100 "+str(e))
 
     if request.status_code == 200:
         write_log("INFO", "Install Client",
@@ -943,6 +965,16 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     """
     Main loop for installing the server in the backend
     """
+    # clean on install incase
+    
+    # if c:\windows\temp\settings exists delete it
+    if os.path.exists("C:\\Windows\\Temp\\settings"):
+        shutil.rmtree("C:\\Windows\\Temp\\settings")
+
+    #if users temp settings exists delete it
+    if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+        shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+
     write_log("INFO", "Install Server", "Install Server process starting", 0, get_time())
     # split backupserver as 127.0.0.1:5000 as [127.0.0.1,5000]
     server_address = backupserver.split(":")[0]
@@ -1261,6 +1293,9 @@ def main():
 
 
     #TESTING Area
+    t = tk.Tk() # bypass UAC for testing
+    main_window(t)
+
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
         params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
