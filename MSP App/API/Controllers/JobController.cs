@@ -84,7 +84,7 @@ namespace API.Controllers
                                 StartTime = request.Settings.StartTime,
                                 EndTime = request.Settings.EndTime,
                                 UpdateInterval = request.Settings.UpdateInterval,
-                                retryCount = request.Settings.retryCount,
+                                RetryCount = request.Settings.RetryCount,
                                 Sampling = request.Settings.Sampling,
                                 Retention = request.Settings.Retention,
 
@@ -162,7 +162,7 @@ namespace API.Controllers
                         job.Settings.StartTime = request.Settings.StartTime;
                         job.Settings.EndTime = request.Settings.EndTime;
                         job.Settings.UpdateInterval = request.Settings.UpdateInterval;
-                        job.Settings.retryCount = request.Settings.retryCount;
+                        job.Settings.RetryCount = request.Settings.RetryCount;
                         job.Settings.Sampling = request.Settings.Sampling;
                         job.Settings.Retention = request.Settings.Retention;
                         job.Settings.Schedule.Sunday = request.Settings.Schedule.Sunday;
