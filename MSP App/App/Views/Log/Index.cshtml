@@ -3,25 +3,44 @@
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div id="contentBox" class="border text-center border-light text-white"></div>
+<div id="parentContentBox">
+    <div id="logTypeContentBox"></div>
+    <div id="logActionContentBox"></div>
+    <div id="logContentBox"></div>
 </div>
 
 @section Scripts {
 
     <script>
-        $(document).ready(function () {
-            $.ajax({
-                url: '/Log/Partial',
-                type: 'GET',
-                success: function (result) {
-                    $('#contentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    $('#contentBox').html('<p>' + 'No Partial Found' + '</p>');
-                    console.error('Error loading partial view:', error);
-                }
-            });
+
+        function loadTypeCards() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Type Cards...</h5>';
+            $('#logTypeContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Log/TypeCards',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#logTypeContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#logTypeContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
+        loadTypeCards();
+
+        $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+
+            $('#logActionContentBox').html('');
+            loadTypeCards();
         });
+
     </script>
 }

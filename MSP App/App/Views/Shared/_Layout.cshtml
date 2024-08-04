@@ -3,27 +3,27 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - App</title>
+    <title>@ViewData["Title"] - Nexum</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-dark bg-gradient">
-    <header class="mb-1">
+<body>
+    <div id="svg-sprite" style="display:none">
+        @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+        @Html.Raw(System.IO.File.ReadAllText(System.IO.Path.Combine(WebHostEnvironment.WebRootPath, "lib", "bootstrap-icons", "bootstrap-icons.svg")))
+    </div>
+    <header class="bg-nexum-dark bg-gradient sticky-top">
         <partial name="_NavBarPartial" />
     </header>
-    <main role="main">
-        <partial name="_CookieSessionListPartial" /> @*for developement*@
+    <main role="main" style="margin-left: 10px; margin-right: 10px; margin-top: 10px; min-height: 90vh;">
+        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
         <partial name="_TempDataMessagePartial" />
-        <div class="container-fluid p-0">
+        <div class="container-fluid">
             @RenderBody()
         </div>
     </main>
-    <footer>
-        <div class="text-light text-end text-nowrap me-5">
-            &copy; 2024 Nexum Inc. <a asp-area="" asp-controller="Home" asp-action="Privacy" style="color:inherit;">Privacy</a>.
-        </div>
-    </footer>
+    <partial name="_FooterPartial" />
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

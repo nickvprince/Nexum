@@ -7,6 +7,7 @@ using SharedComponents.Services.APIRequestServices.Interfaces;
 using SharedComponents.Entities.WebEntities.Requests.AuthRequests;
 using SharedComponents.Entities.WebEntities.Responses.AuthResponses;
 using Microsoft.AspNetCore.Mvc.Filters;
+using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
@@ -24,7 +25,7 @@ namespace App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> IndexAsync(string? returnUrl = null)
         {
             var users = await _userService.GetAllAsync();
             if(HttpContext.User.Identity != null)
@@ -34,11 +35,15 @@ namespace App.Controllers
                     return RedirectToAction("Index", "Home");
                 }
             }
+            if(returnUrl != null)
+            {
+                HttpContext.Session.SetString("ReturnUrl", URLUtilities.CapitalizeFirstLetterAfterSlashes(returnUrl));
+            }
             return await Task.FromResult(View());
         }
 
         [HttpPost]
-        public async Task<IActionResult> IndexAsync(AuthViewModel authViewModel)
+        public async Task<IActionResult> IndexAsync(AuthViewModel authViewModel, string? returnUrl = null)
         {
             if (ModelState.IsValid)
             {
@@ -55,24 +60,38 @@ namespace App.Controllers
                         new Claim(ClaimTypes.Name, authViewModel.Username!),
                         new Claim("Token", response.Token),
                         new Claim("RefreshToken", response.RefreshToken),
-                        new Claim("Expires", response.Expires.ToString())
+                        new Claim("Expires", response.Expires.ToString()),
+                        new Claim("ExpiresEST", DateTimeUtilities.ConvertToEst((DateTime)response.Expires).ToString())
                     };
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                    var authProperties = new AuthenticationProperties
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                     {
                         IsPersistent = true,
                         ExpiresUtc = response.Expires
-                    };
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+                    });
                     
                     TempData["LastActionMessage"] = $"(Auth) : Success";
-                    return RedirectToAction("Index", "Home");
+
+                    if (Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 TempData["ErrorMessage"] = $"(Auth) : Failed";
             }
             return View(authViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Auth");
         }
     }
 }

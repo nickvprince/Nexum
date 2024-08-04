@@ -49,7 +49,7 @@ namespace SharedComponents.JWTToken.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Claims = claims.ToDictionary(claim => claim.Type, claim => (object)claim.Value),
-                Expires = DateTimeUtilities.EstNow().AddMinutes(_jwtSettings.ExpiryMinutes),
+                Expires = DateTime.Now.ToUniversalTime().AddMinutes(_jwtSettings.ExpiryMinutes),
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -120,7 +120,7 @@ namespace SharedComponents.JWTToken.Services
             var usernameClaim = claimsPrincipal?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
             return await Task.Run(() => usernameClaim?.Value!);
         }
-        public async Task<DateTime?> GetTokenExpiryInESTAsync(string token)
+        public async Task<DateTime?> GetTokenExpiryAsync(string token)
         {
             var tokenHandler = new JsonWebTokenHandler();
             var validationResult = await tokenHandler.ValidateTokenAsync(token, _tokenValidationParameters);
@@ -133,8 +133,7 @@ namespace SharedComponents.JWTToken.Services
             if (expiryClaim != null)
             {
                 var unixTimeSeconds = long.Parse(expiryClaim.Value);
-                var expiryDateUtc = DateTimeOffset.FromUnixTimeSeconds(unixTimeSeconds).DateTime;
-                return await Task.Run(() => DateTimeUtilities.ConvertToEst(expiryDateUtc));
+                return await Task.Run(() => DateTimeOffset.FromUnixTimeSeconds(unixTimeSeconds).DateTime);
             }
             return null;
         }

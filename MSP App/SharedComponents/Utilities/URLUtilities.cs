@@ -41,5 +41,23 @@ namespace SharedComponents.Utilities
             }
             return null;
         }
+        public static string CapitalizeFirstLetterAfterSlashes(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                return url;
+            }
+
+            var segments = url.Split('/');
+            for (int i = 0; i < segments.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(segments[i]))
+                {
+                    segments[i] = char.ToUpper(segments[i][0]) + segments[i].Substring(1);
+                }
+            }
+
+            return string.Join('/', segments);
+        }
     }
 }

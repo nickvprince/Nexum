@@ -1,20 +1,25 @@
-﻿<nav id="topNavbar" class="navbar bg-dark py-0">
-    <div class="container-fluid bg-dark">
-        <a class="text-center p-0" asp-controller="Home" role="button" style="color:white;">
-            <div class="d-flex justify-content-center">
-                <img src="~/images/NexumLong.png" alt="Nexum Logo" style="max-width: 210px;" />
-            </div>
+﻿<nav id="topNav" class="navbar py-0 overflow-x-auto overflow-y-hidden flex-nowrap" style="height:56px;">
+        <a id="nexumLogoLink" class="text-center" asp-controller="Home" asp-action="Index" role="button" style="color:white;">
+            <img src="~/images/NexumLong.png" alt="Nexum Logo" style="height: 52px" />
         </a>
-        <h4 class="text-white">@ViewData["Title"]</h4>
+        @* <h4 class="text-nexum-light">@ViewData["Title"]</h4> *@
         <div class="dropdown">
-            <button id="navDropdownMenuButton" class="btn btn-dark d-flex no-dropdown-arrow" data-bs-toggle="dropdown">
-                <i class="bi bi-gear" style="font-size: 2rem;"></i>
+        @if (User.Identity?.IsAuthenticated ?? true)
+        {
+            <button id="navDropdownMenuButton" class="btn btn-nexum-gear-dark no-dropdown-arrow p-0 d-flex" data-bs-toggle="dropdown">
+                <svg class="bi text-nexum-light" width="52px" height="52px" fill="currentColor">
+                    <use xlink:href="#gear"></use>
+                </svg>
             </button>
-            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                <li><a class="dropdown-item" href="#">@(User.Identity?.Name ?? "Settings")</a></li>
-                <li><a class="dropdown-item" href="#">Admin Panel</a></li>
-                <li><a class="dropdown-item" href="#">Logout</a></li>
+            <ul id="navDropdownMenu" class="dropdown-menu dropdown-menu-end" style="display: none; position: fixed; top: 5vh; right: 2vw; z-index: 1100;">
+                <li><a class="dropdown-item text-nexum-light" aria-disabled="true"><b>@(User.Identity?.Name)</b></a></li>
+                <li><hr class="dropdown-divider bg-light"></li>
+                <li><a id="adminLink" class="dropdown-item text-nexum-light" asp-controller="Tenant" asp-action="Index">Admin Panel</a></li>
+                <li><a class="dropdown-item text-nexum-light" href="#">Settings</a></li>
+                <form method="post" asp-controller="Auth" asp-action="Logout">
+                <li><button class="dropdown-item text-nexum-light" type="submit">Logout</button></li>
+                </form>
             </ul>
-        </div>
-    </div>
+        }
+       </div>
 </nav>

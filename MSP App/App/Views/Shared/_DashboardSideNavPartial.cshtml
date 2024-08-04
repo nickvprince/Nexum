@@ -1,26 +1,40 @@
-﻿<nav id="sideNav" class="nav flex-column d-flex align-items-center justify-content-center">
-    <a class="nav-link text-center p-0" asp-controller="Home" role="button" style="color:white;">
-        <i class="bi bi-house-door d-flex justify-content-center"></i>
-        <p class="m-0">Home</p>
+﻿<div class="m-auto">
+    <a id="homeLink" class="nav-link rounded-5 p-2 d-flex flex-column align-items-center justify-content-center" asp-controller="Home" asp-action="Index" role="button" style="color:white;">
+        <svg class="bi text-nexum-light w-100" fill="currentColor">
+            <use xlink:href="#house-door"></use>
+        </svg>
+        <p class="m-0 text-center dashboard-nav-text text-nexum-light" style="font-size: calc(5vh*1rem);">Home</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Job" role="button" style="color:white;">
-        <i class="bi bi-calendar-check d-flex justify-content-center"></i>
-        <p class="m-0">Jobs</p>
+</div>
+<div class="m-auto">
+    <a id="jobLink" class="nav-link rounded-5 p-2 d-flex flex-column align-items-center justify-content-center" asp-controller="Job" asp-action="Index" role="button" style="color:white;">
+        <svg class="bi text-nexum-light w-100" fill="currentColor">
+            <use xlink:href="#calendar-check"></use>
+        </svg>
+        <p class="m-0 text-center dashboard-nav-text text-nexum-light" style="font-size: calc(5vh*1rem);">Jobs</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Storage" role="button" style="color:white;">
-        <i class="bi bi-server d-flex justify-content-center"></i>
-        <p class="m-0">Storage</p>
+</div>
+<div class="m-auto">
+    <a id="storageLink" class="nav-link rounded-5 p-2 d-flex flex-column align-items-center justify-content-center" asp-controller="Storage" asp-action="Index" role="button" style="color:white;">
+        <svg class="bi text-nexum-light w-100" fill="currentColor">
+            <use xlink:href="#database"></use>
+        </svg>
+        <p class="m-0 text-center dashboard-nav-text text-nexum-light" style="font-size: calc(5vh*1rem);">Storage</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Alert" role="button" style="color:white;">
-        <i class="bi bi-exclamation-triangle d-flex justify-content-center"></i>
-        <p class="m-0">Alerts</p>
+</div>
+<div class="m-auto">
+    <a id="alertLink" class="nav-link rounded-5 p-2 d-flex flex-column align-items-center justify-content-center" asp-controller="Alert" asp-action="Index" role="button" style="color:white;">
+        <svg class="bi text-nexum-light w-100" fill="currentColor">
+            <use xlink:href="#exclamation-triangle"></use>
+        </svg>
+        <p class="m-0 text-center dashboard-nav-text text-nexum-light" style="font-size: calc(5vh*1rem);">Alerts</p>
     </a>
-    <hr />
-    <a class="nav-link text-center p-0" asp-controller="Log" role="button" style="color:white;">
-        <i class="bi bi-file-earmark-text d-flex justify-content-center"></i>
-        <p class="m-0">Logs</p>
+</div>
+<div class="m-auto">
+    <a id="logLink" class="nav-link rounded-5 p-2 d-flex flex-column align-items-center justify-content-center" asp-controller="Log" asp-action="Index" role="button" style="color:white;">
+        <svg class="bi text-nexum-light w-100" fill="currentColor">
+            <use xlink:href="#file-earmark-text"></use>
+        </svg>
+        <p class="m-0 text-center dashboard-nav-text text-nexum-light" style="font-size: calc(5vh*1rem);">Logs</p>
     </a>
-</nav>
+</div>

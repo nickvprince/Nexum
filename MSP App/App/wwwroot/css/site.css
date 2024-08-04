@@ -1,3 +1,5 @@
+/*Standard*/
+
 html {
     font-size: 14px;
 }
@@ -13,11 +15,12 @@ html {
 }
 
 html {
-    position: relative;
-    min-height: 100%;
+    min-height:100%;
+    background-image: linear-gradient(to bottom, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
 }
 
 body {
+    background-color: rgba(255, 255, 255, 0);
 }
 
 h5 {
@@ -28,19 +31,389 @@ h4 {
     font-size: clamp(20px, 2.5vw, 65px);
 }
 
-p {
-    font-size: clamp(1vw, 1.5vw, 1.5vw);
-}
-
-i {
-    font-size: clamp(0vh, 5vw, 5vw);
-}
-
 hr {
     margin-top: 0px;
     margin-bottom: 10px;
 }
 
+.bg-nexum-light {
+    background-color: rgba(128, 16, 220, 0.15);
+}
+
+.bg-nexum-dark {
+    background-color: rgba(30, 4, 51, 1);
+}
+
+.text-nexum-dark {
+    color: rgba(30, 4, 51, 1) !important;
+}
+
+.text-nexum-light {
+    color: rgba(198, 186, 210, 1) !important;
+}
+
+a.text-nexum-dark:hover {
+    color: rgba(115, 95, 136, 1) !important;
+}
+
+.border-nexum-light {
+    border-color: rgba(198, 186, 210, 1) !important;
+}
+
+.border-nexum-dark-3 {
+    border-color: rgba(30, 4, 51, 1) !important;
+    border-width: 3px !important;
+}
+
+/*Navs*/
+
+.dashboard-nav-top {
+    height: auto;
+    max-width: 100%;
+    position: relative;
+}
+
+.dashboard-nav-text {
+    font-size: clamp(0rem, 1rem, 1rem);
+}
+
+.vertical-nav {
+    position: fixed;
+    height: calc(100vh - 56px);
+    background-image: linear-gradient(to right, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
+    border-color: rgba(198, 186, 210, 1) !important;
+}
+
+.horizontal-nav {
+    position: fixed;
+    height: 115px;
+    z-index: 1000;
+    background-image: linear-gradient(to bottom, rgba(100, 16, 150, 1), rgba(30, 4, 51, 1));
+    border-color: rgba(198, 186, 210, 1) !important;
+}
+
+.nav-link:hover, .nav-link.active {
+    box-shadow: inset 0px 0px 150px rgba(243, 229, 255, 1); /* Shadow on hover */
+}
+
+.nav-link:hover svg, .nav-link:hover p, .nav-link.active svg, .nav-link.active p  {
+    color: rgba(30, 4, 51, 1) !important;
+    transform: scale(1.1);
+}
+
+/*Green Success Buttons*/
+
+.btn-success-nexum-dark {
+    background-color: rgba(30, 4, 51, 1);
+    border-color: #ffffff;
+    border-width: 1px;
+    overflow: hidden;
+}
+
+.btn-success-nexum-dark:hover {
+    background-color: rgba(40, 167, 69, 1);
+    color: #ffffff !important;
+    transform: scale(1.1);
+    border-color: rgba(30, 4, 51, 1);
+    border-width: 1px;
+}
+
+/*Settings icon*/
+
 .no-dropdown-arrow::after {
     display: none;
+}
+
+.btn-nexum-gear-dark {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn-nexum-gear-dark:hover {
+    background-color: rgba(0, 0, 0, 1);
+    transform: scale(1.01);
+}
+
+/*Dropdown menus*/
+
+.dropdown-menu {
+    background-color: rgba(30, 4, 51, 0.99);
+    border-color: rgba(255, 255, 255, 1);
+    border-width: 1px;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: rgba(128, 16, 220, 0.5) !important;
+    color: rgba(255, 255, 255, 1) !important;
+}
+
+/*Accordion Dividers*/
+
+.accordion-button, .accordion-button:not(.collapsed) {
+    background-color: rgba(30, 4, 51, 1) !important;
+    color: rgba(198, 186, 210, 1) !important;
+    box-shadow: none;
+}
+
+.accordion-button::after, .accordion-button:not(.collapsed)::after {
+    filter: invert(1);
+}
+
+/*scrollbar*/
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(100,100,100,0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(255,255,255,0.5);
+    background-color: rgba(30, 4, 51, 1);
+}
+
+/*Table*/
+
+.table-button-nexum {
+    max-width: 40px;
+    max-height: 40px;
+}
+
+.table-nexum-dark {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+}
+
+.table-nexum-dark th, .table-nexum-dark td {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for cells */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity for cells */
+    color: white; /* Ensure text is visible */
+}
+
+.table-nexum-dark thead th {
+    background-color: rgba(52, 58, 64, 0.8); /* Dark gray with opacity for header */
+    color: white; /* White text for header */
+}
+
+.table-nexum-dark tbody .row-nexum-striped-odd, .row-nexum-striped:nth-child(odd) {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity for odd rows */
+}
+
+.table-nexum-dark tbody .row-nexum-striped-even, .row-nexum-striped:nth-child(even) {
+    background-color: rgba(243, 229, 255, 0.4); /* Dark gray with opacity for even rows */
+}
+
+.table-nexum-dark tbody tr:hover {
+    background-color: rgba(233, 236, 239, 0.8); /* Lighter gray with opacity for hover effect */
+}
+
+/*Form Fields*/
+
+.form-control-nexum-dark, .form-control-nexum-dark:focus {
+    background-color: rgba(30, 4, 51, 0.8); /* Dark purple with opacity */
+    border: 1px solid rgba(222, 226, 230, 0.8); /* Border with opacity */
+    color: white;
+}
+
+.form-control-nexum-dark::placeholder {
+    color: rgba(115, 95, 136, 1);
+}
+
+/*Validation*/
+
+.input-validation-error {
+    border: 2px solid #dc3545 !important; /* same red as text-danger */
+}
+
+input.form-control:valid, input.form-control:invalid, input.form-control:focus {
+    background-color: rgba(30, 4, 51, 0.8) !important; /* Dark purple with opacity */
+    color: white !important;
+}
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------*/
+
+/*Nexum Home Rectangular Cards*/
+.nexum-card-container {
+    width: 96px; 
+    height: 96px; 
+}
+
+.nexum-card-icon {
+    font-size: 3.25rem;
+}
+
+.nexum-card-flex-item {
+    flex: 1 1 calc(33.33% - 2rem);
+    min-width: 315px;
+}
+
+.nexum-card-title {
+    font-size: 3rem;
+    white-space: nowrap;
+}
+
+.nexum-card-body {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.nexum-card-content {
+    flex-grow: 1;
+}
+
+.nexum-card-shadow {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nexum-card-shadow-light {
+    box-shadow: 0 8px 16px rgba(128, 16, 220, 0.3);
+}
+
+.nexum-card-text {
+    font-size: 1.25rem;
+    white-space: nowrap;
+}
+
+/*-------------------------------------------------------------------------*/
+
+/* Nexum Alerts, Logs, and Jobs Square Cards*/
+.nexum-card-container-square {
+    width: 20vw;
+    height: 20vw;
+    max-width: 150px;
+    max-height: 150px;
+    min-width: 122px;
+    min-height: 122px;
+    border-radius: 1rem; /* Rounded square corners */
+}
+
+.nexum-card-title-square {
+    font-size: calc(5vh*1rem) !important; /* Responsive font size */
+    white-space: nowrap;
+}
+
+.nexum-card-text-square {
+    font-size: calc(5vh*1rem); /* Responsive font size */
+    white-space: nowrap;
+}
+
+.nexum-card-body-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.nexum-card-shadow-square {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.nexum-card-shadow-inset {
+    padding: 0.6rem;
+    background-color: rgba(30, 4, 51, 1);
+    width: 100%;
+    height: 100%;
+}
+
+/* Background colors for Alerts and Logs and jobs */
+.bg-information, .bg-information-log {
+    background-color: #2f4f4f; /* Dark Slate Gray */
+}
+
+.bg-low, .bg-debug, .bg-complete {
+    background-color: #228b22; /* Forest Green */
+}
+
+.bg-medium, .bg-warning {
+    background-color: #ffa500; /* Orange */
+}
+
+.bg-high, .bg-trace {
+    background-color: #ff4500; /* Orange Red */
+}
+
+.bg-critical, .bg-error {
+    background-color: #8b0000; /* Dark Red */
+}
+
+.bg-not-started {
+    background-color: #6c757d; /* Slate Gray */
+}
+
+.bg-in-progress {
+    background-color: #1e90ff; /* Dodger Blue */
+}
+
+.bg-restarting {
+    background-color: #ff8c00; /* Dark Orange */
+}
+
+.bg-failed {
+    background-color: #8b0000; /* Dark Red */
+}
+
+/*-------------------------------------------------------------------------*/
+
+/* General Card Styling */
+.nexum-summary-card {
+    color: #ffffff;
+    /*border: 1px solid rgba(128, 16, 220, 1);*/
+    /*border: 1px solid rgba(198, 186, 210, 1);*/
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+}
+
+/* Title Styling */
+.nexum-summary-card-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Mini Card Styling */
+.nexum-mini-card {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    flex: 1 1 30%; /* Allowing the cards to take up a third of the width */
+    margin-bottom: 0.75rem; /* Adjust spacing */
+    min-width: 200px; /* Minimum width to maintain readability */
+}
+
+/* Default Mini Card Background */
+.bg-mini-card {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background */
+}
+
+/* Icon Styling */
+.nexum-summary-icon {
+    font-size: 1.25rem;
+    margin-right: 0.5rem; /* Closer margin between icon and text */
+}
+
+/* Text Styling */
+.nexum-mini-card span {
+    text-align: center;
+    flex: 1; /* Ensure the text takes up the remaining space */
+}
+
+/* Background Colors for Mini Cards */
+.bg-purple-dark {
+    background-color: rgba(75, 0, 130, 0.8); /* Indigo */
+}
+
+.bg-purple-light {
+    background-color: rgba(147, 112, 219, 0.8); /* Medium Purple */
 }

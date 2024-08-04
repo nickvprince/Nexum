@@ -1,0 +1,285 @@
+﻿@{
+    ViewData["Title"] = "Tenants";
+    Layout = "~/Views/Shared/_LayoutDashboardAdmin.cshtml";
+}
+
+<div id="parentContentBox">
+    <div id="tempDataMessage" class="mb-2"></div>
+    <div id="tenantActionContentBox" class="mb-2"></div>
+    <div id="contentBox" class="mb-2"></div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            function loadTable() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Tenants...</h5>';
+                $('#contentBox').prepend(loadingMessage);
+
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Tenant/Table',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#contentBox').html(result);
+                            $('.collapse').on('show.bs.collapse', function () {
+                                $('#tenantActionContentBox').html('');
+                                $('[id^=keyCreateContentBox]').html('');
+                                $('.collapse').not(this).collapse('hide');
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            $('#contentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            function fillCountryRegionSelectors() {
+                var countries = [
+                    { id: 'CA', text: 'Canada' }
+                ];
+
+                var provinces = {
+                    'CA': [
+                        { id: 'AB', text: 'Alberta' },
+                        { id: 'BC', text: 'British Columbia' },
+                        { id: 'MB', text: 'Manitoba' },
+                        { id: 'NB', text: 'New Brunswick' },
+                        { id: 'NL', text: 'Newfoundland and Labrador' },
+                        { id: 'NS', text: 'Nova Scotia' },
+                        { id: 'ON', text: 'Ontario' },
+                        { id: 'PE', text: 'Prince Edward Island' },
+                        { id: 'QC', text: 'Quebec' },
+                        { id: 'SK', text: 'Saskatchewan' }
+                    ]
+                };
+
+                // Populate the country dropdown
+                countries.forEach(function (country) {
+                    $('#country').append(new Option(country.text, country.id));
+                });
+
+                // Update the region dropdown based on selected country
+                $('#country').on('change', function () {
+                    var countryId = $(this).val();
+                    var regions = provinces[countryId] || [];
+
+                    $('#region').empty().append(new Option('Select a province', ''));
+                    regions.forEach(function (region) {
+                        $('#region').append(new Option(region.text, region.id));
+                    });
+                });
+            }
+
+            loadTable();
+
+            //Tenants
+
+            $(document).on('click', '#tenantCreateLink', function (event) {
+                event.preventDefault();
+                $.ajax({
+                    url: '/Tenant/Create',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#tenantActionContentBox').html(result);
+                        $(document).ready(function () {
+                            fillCountryRegionSelectors();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('click', '[id^=tenantEditLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('tenantEditLink', '');
+                $.ajax({
+                    url: '/Tenant/' + id + '/Update',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#tenantActionContentBox').html(result);
+                        $(document).ready(function () {
+                            fillCountryRegionSelectors();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=tenantDeletelink]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace('tenantDeletelink', '');
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: '/Tenant/' + id + '/Delete',
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tempDataMessageTenant' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                                loadTable();
+                        } else {
+                            $('#tempDataMessageTenant' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tempDataMessageTenant' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $('#tenantActionContentBox').on('submit', '#tenantForm', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+                var id = form.find('input[name="Id"]').val();
+                var url = id ? '/Tenant/' + id + '/Update' : '/Tenant/Create';
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tenantActionContentBox').html('');
+                            $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadTable();
+                        } else {
+                            $('#tenantActionContentBox').html(result.html);
+                            if (result.message) {
+                                $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tenantActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('click', '[id^=tenantCloseLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('tenantCloseLink', '');
+                $('#tenantActionContentBox').html('');
+            });
+
+            //Keys
+
+            $(document).on('click', '[id^=keyCreateLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('keyCreateLink', '');
+                $.ajax({
+                    url: '/Tenant/' + id + '/CreateKey',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#keyCreateContentBox' + id).html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#keyCreateContentBox' + id).html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('click', '[id^=keyEditLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('keyEditLink', '');
+
+                var parentDiv = $(this).closest('[id^=details]');
+                var tenantId = parentDiv.attr('id').replace('details', '');
+
+                $.ajax({
+                    url: '/Tenant/' + id + '/UpdateKey',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#keyCreateContentBox' + tenantId).html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#keyCreateContentBox' + tenantId).html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=keyDeletelink]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace('keyDeletelink', '');
+                var formData = form.serialize();
+
+                var parentDiv = $(this).closest('[id^=details]');
+                var tenantId = parentDiv.attr('id').replace('details', '');
+
+                $.ajax({
+                    url: '/Tenant/' + id + '/DeleteKey',
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadTable();
+                        } else {
+                            $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#tempDataMessageKey' + tenantId).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $(document).on('submit', '[id^=keyForm]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+                var id = $(this).attr('id').replace('keyForm', '');
+                var keyId = form.find('input[name="Id"]').val();
+                var url = keyId ? '/Tenant/' + keyId + '/UpdateKey' : '/Tenant/' + id + '/CreateKey';
+
+                console.log(`tenant ${id} - key ${keyId} - url ${url}`)
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#keyCreateContentBox' + id).html('');
+                            $('#tempDataMessageKey' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            loadTable();
+                        } else {
+                            $('#keyCreateContentBox' + id).html(result.html);
+                            if (result.message) {
+                                $('#tempDataMessageKey' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#keyCreateContentBox' + id).html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            });
+
+            $(document).on('click', '[id^=keyCreateCloseLink]', function (event) {
+                event.preventDefault();
+                var id = $(this).attr('id').replace('keyCreateCloseLink', '');
+                $('#keyCreateContentBox' + id).html('');
+            });
+        });
+    </script>
+}

@@ -3,34 +3,31 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - App</title>
+    <title>@ViewData["Title"] - Nexum</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-dark bg-gradient">
-    <header class="mb-1">
+<body>
+    <div id="svg-sprite" style="display:none">
+        @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+        @Html.Raw(System.IO.File.ReadAllText(System.IO.Path.Combine(WebHostEnvironment.WebRootPath, "lib", "bootstrap-icons", "bootstrap-icons.svg")))
+    </div>
+    <header class="bg-nexum-dark bg-gradient sticky-top">
         <partial name="_NavBarPartial" />
     </header>
-    <main role="main">
-        <partial name="_CookieSessionListPartial" /> @*for developement*@
+    <nav id="sideNav" class="vertical-nav d-flex flex-column align-items-center justify-content-between p-2 border border-3 border-start-0 rounded-end-5 overflow-y-auto">
+        <partial name="_DashboardSideNavPartial" />
+    </nav>
+    <main role="main" style="margin-left: 220px; margin-right: 10px; min-height: 90vh;">
+        @*<partial name="_CookieSessionListPartial" /> @*for developement*@
         <partial name="_TempDataMessagePartial" />
-        <div class="container-fluid p-0">
-            <div class="row gx-0">
-                <div class="col-1 p-0">
-                    <partial name="_DashboardSideNavPartial" />
-                </div>
-                <div class="col-11 p-0">
-                    @RenderBody()
-                </div>
-            </div>
+        <div id="tenantDeviceSelectorContainer"></div>
+        <div class="container-fluid">
+            @RenderBody()
         </div>
     </main>
-    <footer>
-        <div class="text-light text-end text-nowrap me-5">
-            &copy; 2024 Nexum Inc. <a asp-area="" asp-controller="Home" asp-action="Privacy" style="color:inherit;">Privacy</a>.
-        </div>
-    </footer>
+    <partial name="_FooterPartial" />
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -38,3 +35,122 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateSideNavClasses() {
+            var sideNavs = document.querySelectorAll('#sideNav');
+            sideNavs.forEach(function (sideNav) {
+                if (window.innerWidth < 1400) { // breakpoint for Bootstrap
+                    sideNav.classList.remove('vertical-nav', 'flex-column', 'border-start-0', 'rounded-end-5', 'overflow-y-auto');
+                    sideNav.classList.add('horizontal-nav', 'rounded-top-0', 'rounded-5', 'border-top-0', 'overflow-y-hidden');
+                    sideNav.style.width = '100%';
+                    var svgs = Array.from(sideNav.getElementsByTagName('svg'));
+                    svgs.forEach(function (svg) {
+                        svg.style.maxHeight = '55px';
+                        svg.style.minWidth = '50px';
+                    });
+                } else {
+                    sideNav.classList.remove('horizontal-nav', 'rounded-top-0', 'rounded-5', 'border-top-0', 'overflow-y-hidden');
+                    sideNav.classList.add('vertical-nav', 'flex-column', 'border-start-0', 'rounded-end-5', 'overflow-y-auto');
+                    sideNav.style.width = '210px';
+                    var svgs = Array.from(sideNav.getElementsByTagName('svg'));
+                    svgs.forEach(function (svg) {
+                        svg.style.height = '10vh';
+                        svg.style.maxHeight = '150px';
+                        svg.style.minHeight = '55px';
+                    });
+                }
+            });
+            var mainElement = document.querySelector('main[role="main"]');
+            if (window.innerWidth < 1400) {
+                mainElement.style.marginLeft = '10px';
+                mainElement.style.marginTop = '125px';
+            } else {
+                mainElement.style.marginLeft = '220px';
+                mainElement.style.marginTop = '10px';
+            }
+        }
+
+        // Run the function on load
+        updateSideNavClasses();
+
+        // Add event listener for window resize
+        window.addEventListener('resize', updateSideNavClasses);
+    });
+</script>
+<script>
+    document.getElementById('navDropdownMenuButton').addEventListener('click', function () {
+        var dropdownMenu = document.getElementById('navDropdownMenu');
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function setActiveLink(linkId) {
+            var sideNavs = document.querySelectorAll('#sideNav');
+            sideNavs.forEach(function (sideNav) {
+                var navLinks = sideNav.querySelectorAll('.nav-link');
+                navLinks.forEach(function (link) {
+                    link.classList.remove('active');
+                });
+            });
+            var activeLinks = document.querySelectorAll(`#${linkId}`);
+            activeLinks.forEach(function (activeLink) {
+                activeLink.classList.add('active');
+            });
+        }
+
+        // Get the active link from session storage
+        var activeLinkId = '@Context.Session.GetString("ActiveNavLink")';
+        if (activeLinkId) {
+            console.log('Active link from session:', activeLinkId);
+            setActiveLink(activeLinkId);
+        } else {
+            console.log('No active link found in session storage.');
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        
+        loadTenantDeviceSelectorPartial();
+
+        $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+            var prefix = form.attr('id').split('-')[0];
+
+            var ajaxUrl = '';
+            if (prefix === 'tenant') {
+                ajaxUrl = '/api/Session/Tenant/' + id;
+            } else if (prefix === 'device') {
+                ajaxUrl = '/api/Session/Device/' + id;
+            }
+
+            console.log('Ajax URL:', ajaxUrl);
+            console.log('Prefix:', prefix);
+            console.log('ID:', id);
+            console.log('Form:', form);
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                success: function (result) {
+                    var name = form.find('button').text();
+                    if (prefix === 'tenant') {
+                        $('#tenantDropdown').text(name);
+                    } else if (prefix === 'device') {
+                        $('#deviceDropdown').text(name);
+                    }
+                    loadTenantDeviceSelectorPartial();
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+</script>

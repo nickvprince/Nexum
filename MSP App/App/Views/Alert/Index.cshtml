@@ -3,24 +3,44 @@
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
 
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div id="contentBox" class="border text-center border-light text-white"></div>
+<div id="parentContentBox">
+    <div id="alertSeverityCardsContentBox"></div>
+    <div id="alertActionContentBox"></div>
+    <div id="alertContentBox"></div>
 </div>
 
 @section Scripts {
 
     <script>
-        $(document).ready(function () {
-            $.ajax({
-                url: '/Alert/Table',
-                type: 'GET',
-                success: function (result) {
-                    $('#contentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading partial view:', error);
-                }
-            });
+
+        function loadSeverityCards() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Severity Cards...</h5>';
+            $('#alertSeverityCardsContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Alert/SeverityCards',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#alertSeverityCardsContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#alertSeverityCardsContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
+        loadSeverityCards();
+
+        $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+
+            $('#alertActionContentBox').html('');
+            loadSeverityCards();
         });
+
     </script>
 }

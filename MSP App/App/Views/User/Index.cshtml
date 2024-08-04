@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_LayoutDashboardAdmin.cshtml";
+}
+
+<div id="parentContentBox">
+    <div id="contentBox" class="border border-nexum-light"></div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/User/Partial',
+                type: 'GET',
+                success: function (result) {
+                    $('#contentBox').html(result);
+                },
+                error: function (xhr, status, error) {
+                    $('#contentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        });
+    </script>
+}

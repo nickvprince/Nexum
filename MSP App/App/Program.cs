@@ -3,6 +3,8 @@ using App.Middleware;
 using App.Services.APIRequestServices;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SharedComponents.JWTToken.Entities;
 using SharedComponents.Services.APIRequestServices.Interfaces;
@@ -13,6 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var mvcBuilder = builder.Services.AddControllersWithViews();
+/*var mvcBuilder = builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new RequireHttpsAttribute());
+});*/
 
 if (builder.Environment.IsDevelopment())
 {
@@ -31,8 +37,9 @@ builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".Nexum.Session";
     options.IdleTimeout = TimeSpan.FromMinutes(15);
-    options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly = false;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
 /*builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
@@ -59,7 +66,10 @@ builder.Services.AddScoped<IAPIRequestRoleService, APIRequestRoleService>();
 builder.Services.AddScoped<IAPIRequestTenantService, APIRequestTenantService>();
 builder.Services.AddScoped<IAPIRequestUserService, APIRequestUserService>();
 
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AppAuthorizationMiddlewareResultHandler>();
+
 // Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -69,15 +79,15 @@ builder.Services.AddAuthentication(options =>
 .AddCookie(options =>
 {
     options.Cookie.Name = ".Nexum.AuthCookie";
-    options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly = false;
     options.Cookie.IsEssential = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+    options.Cookie.SameSite = SameSiteMode.Strict;
     options.SlidingExpiration = true;
-    options.LoginPath = "/Auth/Login";
+    options.LoginPath = "/Auth/Index";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
 })
 .AddJwtBearer(options =>
 {
-    var jwtSettings = builder.Configuration.GetSection("JWTSettings").Get<JWTSettings>();
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -120,5 +130,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Index}/{id?}");
 
-app.Run("https://0.0.0.0:6969");
-//app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);
+//app.Run();
+app.Run($"https://0.0.0.0:" + builder.Configuration["WebAppSettings:BasePort"]);

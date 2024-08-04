@@ -1,0 +1,88 @@
+﻿@model ICollection<Tenant>?
+
+<div class="table-responsive">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
+        <thead>
+            <tr class="text-center">
+                @{
+                    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+                }
+                @if (activeTenantId != null)
+                {
+                    <th class="border-0">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <a id="nasCreateLink@(int.Parse(activeTenantId))" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Storage" asp-action="CreateNAS" asp-route-id="@int.Parse(activeTenantId)" role="button">
+                                <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
+                                    <use xlink:href="#plus-circle"></use>
+                                </svg>
+                            </a>
+                        </div>
+                    </th>
+                }
+                else
+                {
+                    <th class="border-0 text-nexum-light">#</th>
+                }
+                @if (Model != null && Model.Count() > 1)
+                {
+                    <th class="border-0 text-nexum-light">Tenant</th>
+                }
+                <th class="border-0 text-nexum-light">Name</th>
+                <th class="border-0 text-nexum-light">Path</th>
+                <th class="border-0 text-nexum-light">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || Model.All(t => t.NASServers == null || !t.NASServers.Any()))
+            {
+                <tr>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No NAS Servers found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                foreach (var tenant in Model.OrderBy(t => t.Name))
+                {
+                    if (tenant.NASServers != null && tenant.NASServers.Any())
+                    {
+                        foreach (var nasServer in tenant.NASServers.OrderBy(n => n.Name))
+                        {
+                            i++;
+                            <tr>
+                                <td class="p-0 border-0" colspan="12">
+                                    <div id="tempDataMessageNASServer@(nasServer.Id)"></div>
+                                </td>
+                            </tr>
+                            <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap">
+                                <td class="border-0 text-nexum-light">@i</td>
+                                @if (Model.Count() > 1)
+                                {
+                                    <th class="border-0 text-nexum-light">@tenant.Name</th>
+                                }
+                                <td class="border-0 text-nexum-light">@nasServer.Name</td>
+                                <td class="border-0 text-nexum-light">@nasServer.Path</td>
+                                <td class="border-0">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <a id="nasEditLink@(tenant.Id)-@(nasServer.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Storage" asp-action="UpdateNAS" asp-route-id="@nasServer.Id" role="button">
+                                            <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                                <use xlink:href="#pencil-square"></use>
+                                            </svg>
+                                        </a>
+                                        <form id="nasDeletelink@(nasServer.Id)" asp-controller="Storage" asp-action="DeleteNAS" asp-route-id="@nasServer.Id">
+                                            <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                    <use xlink:href="#x-circle"></use>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>

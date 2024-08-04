@@ -2,75 +2,141 @@
     ViewData["Title"] = "Summary";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
-<div id="parentContentBox" class="border text-center border-light text-white container-fluid p-0" style="flex: 1 1 auto;">
-    <div class="border text-center border-light text-white container-fluid">
-        <!-- First Row: 2 Cards -->
-        <div class="row my-3">
-            <div class="col-6 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 1</h5>
-                        <p class="card-text text-light">This is the first card.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 2</h5>
-                        <p class="card-text text-light">This is the second card.</p>
-                    </div>
-                </div>
-            </div>
+
+<div id="parentContentBox">
+    <div id="homeSummaryCardsContentBox"></div>
+
+    <!-- Detailed Cards -->
+
+    <div class="row d-flex flex-wrap justify-content-between">
+        <div class="col-md-6">
+            <div id="homeAlertSummaryContentBox"></div>
         </div>
-        <!-- Second Row: 3 Cards -->
-        <div class="row mb-3">
-            <div class="col-4 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 3</h5>
-                        <p class="card-text text-light">This is the third card.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 4</h5>
-                        <p class="card-text text-light">This is the fourth card.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 p-0">
-                <div class="card bg-dark">
-                    <div class="card-body text-nowrap p-0" style="min-width: 100%;">
-                        <h5 class="card-title text-light">Card 5</h5>
-                        <p class="card-text text-light">This is the fifth card.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="col-md-6">
+            <div id="homeLogSummaryContentBox"></div>
+        </div>
+        <div class="col-md-6">
+            <div id="homeJobSummaryContentBox"></div>
+        </div>
+        <div class="col-md-6">
+            <div id="homeBackupSummaryContentBox"></div>
         </div>
     </div>
-    <br />
-    <div id="alertContentBox" class="border text-center border-light text-white"></div>
 </div>
 
 @section Scripts {
 
     <script>
         $(document).ready(function () {
-            $.ajax({
-                url: '/Alert/Table',
-                type: 'GET',
-                success: function (result) {
-                    $('#alertContentBox').html(result);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading partial view:', error);
-                }
+            function loadMiniSummaryCards() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Summary Cards...</h5>';
+                $('#homeSummaryCardsContentBox').prepend(loadingMessage);
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Home/SummaryCards',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#homeSummaryCardsContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#homeSummaryCardsContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            function loadAlertSummaryCard() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Alert Summary Card...</h5>';
+                $('#homeAlertSummaryContentBox').prepend(loadingMessage);
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Home/AlertSummaryCard',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#homeAlertSummaryContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#homeAlertSummaryContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            function loadLogSummaryCard() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Log Summary Card...</h5>';
+                $('#homeLogSummaryContentBox').prepend(loadingMessage);
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Home/LogSummaryCard',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#homeLogSummaryContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#homeLogSummaryContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            function loadJobSummaryCard() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Job Summary Card...</h5>';
+                $('#homeJobSummaryContentBox').prepend(loadingMessage);
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Home/JobSummaryCard',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#homeJobSummaryContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#homeJobSummaryContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            function loadBackupSummaryCard() {
+                var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Backup Summary Card...</h5>';
+                $('#homeBackupSummaryContentBox').prepend(loadingMessage);
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/Home/BackupSummaryCard',
+                        type: 'GET',
+                        success: function (result) {
+                            $('#homeBackupSummaryContentBox').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            $('#homeBackupSummaryContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                            console.error('Error loading partial view:', error);
+                        }
+                    });
+                }, 2000);
+            }
+
+            loadMiniSummaryCards();
+            loadAlertSummaryCard();
+            loadLogSummaryCard();
+            loadJobSummaryCard();
+            loadBackupSummaryCard();
+
+            $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var id = form.attr('id').replace(/^(tenant-select|device-select)/, '');
+
+                $('#homeSummaryCardsContentBox').html('');
+                loadMiniSummaryCards();
+                loadAlertSummaryCard();
+                loadLogSummaryCard();
+                loadJobSummaryCard();
+                loadBackupSummaryCard();
             });
         });
+
     </script>
 }
-
-@* @(await Html.RenderComponentAsync<SharedComponents.Components.Account.Login>(RenderMode.Server)) *@
