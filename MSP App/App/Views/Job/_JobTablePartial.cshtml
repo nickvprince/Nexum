@@ -6,12 +6,13 @@
             <tr class="text-center">
                 @{
                     var activeTenantId = Context.Session.GetString("ActiveTenantId");
+                    var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
                 }
-                @if (activeTenantId != null && Model != null)
+                @if (activeTenantId != null && Model != null && activeDeviceId != null)
                 {
                     <th class="border-0">
                         <div class="d-flex justify-content-center align-items-center">
-                            <a id="jobCreateLink@(int.Parse(activeTenantId))" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Job" asp-action="Create" asp-route-id="@int.Parse(activeTenantId)" role="button">
+                            <a id="jobCreateLink" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Job" asp-action="Create" role="button">
                                 <svg class="bi text-success" fill="currentColor" style="max-height: 25px; max-width: 25px;">
                                     <use xlink:href="#plus-circle"></use>
                                 </svg>
@@ -27,7 +28,7 @@
                 {
                     <th class="border-0 text-nexum-light">Tenant</th>
                 }
-                @if (Context.Session.GetString("ActiveDeviceId") == null)
+                @if (activeDeviceId == null)
                 {
                     <th class="border-0 text-nexum-light">Device</th>
                 }

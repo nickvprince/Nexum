@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SharedComponents.Entities.DbEntities;
+using SharedComponents.Entities.WebEntities.Requests.JobRequests;
+using SharedComponents.Entities.WebEntities.Requests.TenantRequests;
 using SharedComponents.Services.APIRequestServices.Interfaces;
+using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
@@ -92,6 +96,75 @@ namespace App.Controllers
         public async Task<IActionResult> TableAsync()
         {
             return await Task.FromResult(PartialView("_JobTablePartial", FilterTenantsBySession(await PopulateTenantsAsync())));
+        }
+
+        [HttpGet("Create")]
+        public async Task<IActionResult> CreatePartialAsync()
+        {
+            JobCreateViewModel request = new JobCreateViewModel()
+            {
+                NASServers = await _nasServerService.GetAllByTenantIdAsync(int.Parse(HttpContext.Session.GetString("ActiveTenantId"))),
+                JobCreateRequest = new JobCreateRequest()
+                {
+                    DeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId")),
+                },
+            };
+            return await Task.FromResult(PartialView("_JobCreatePartial", request));
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateAsync(JobCreateViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                Device? device = await _deviceService.GetAsync(viewModel.JobCreateRequest.DeviceId);
+
+                if (device == null)
+                {
+                    TempData["ErrorMessage"] = "Device not found.";
+                    return Json(new { success = false, message = TempData["ErrorMessage"].ToString() });
+                }
+                if (viewModel.JobCreateRequest.Settings.Type != DeviceJobType.Restore)
+                {
+                    ICollection<NASServer>? nasServers = await _nasServerService.GetAllByTenantIdAsync(device.TenantId);
+                    if (nasServers != null || nasServers.Any())
+                    {
+                        if(nasServers.Where(n => n.BackupServerId == viewModel.JobCreateRequest.Settings.BackupServerId).FirstOrDefault() != null)
+                        {
+                            ICollection<DeviceJob>? jobs = await _jobService.GetAllByDeviceIdAsync(viewModel.JobCreateRequest.DeviceId);
+                            if (jobs == null || !jobs.Any())
+                            {
+                                DeviceJob? job = await _jobService.CreateAsync(viewModel.JobCreateRequest);
+                                if (job != null)
+                                {
+                                    TempData["LastActionMessage"] = "Job created successfully.";
+                                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                                }
+                                TempData["ErrorMessage"] = "An error occurred while creating the job.";
+                            }
+                            else
+                            {
+                                TempData["ErrorMessage"] = "Job is already created on this device.";
+                            }
+                        }
+                        else
+                        {
+                            TempData["ErrorMessage"] = "NASServer server not found.";
+                        }
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "No NAS servers found.";
+                    }
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "This feature is disabled.";
+                }
+            }
+            viewModel.NASServers = await _nasServerService.GetAllByTenantIdAsync(int.Parse(HttpContext.Session.GetString("ActiveTenantId")));
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "Job/_JobCreatePartial", viewModel);
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString(), html });
         }
     }
 }

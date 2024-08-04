@@ -4,9 +4,10 @@
 }
 
 <div id="parentContentBox">
-    <div id="jobStatusCardsContentBox"></div>
-    <div id="jobActionContentBox"></div>
-    <div id="jobContentBox"></div>
+    <div id="jobStatusCardsContentBox" class="mb-2"></div>
+    <div id="tempDataMessage" class="mb-2"></div>
+    <div id="jobActionContentBox" class="mb-2"></div>
+    <div id="jobContentBox" class="mb-2"></div>
 </div>
 
 @section Scripts {
@@ -60,6 +61,51 @@
             $('#jobActionContentBox').html('');
             loadStatusCards();
             loadTable();
+        });
+
+        $(document).on('click', '#jobCreateLink', function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/Job/Create',
+                type: 'GET',
+                success: function (result) {
+                    $('#jobActionContentBox').html(result);
+                },
+                error: function (xhr, status, error) {
+                    $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        });
+
+        $('#jobActionContentBox').on('submit', '#jobForm', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var formData = form.serialize();
+            var id = form.find('input[name="Id"]').val();
+            var url = id ? '/Job/' + id + '/Update' : '/Job/Create';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#jobActionContentBox').html('');
+                        $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadTable();
+                    } else {
+                        $('#jobActionContentBox').html(result.html);
+                        if (result.message) {
+                            $('#tempDataMessage').html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                    console.error('Error loading partial view:', error);
+                }
+            });
         });
 
     </script>
