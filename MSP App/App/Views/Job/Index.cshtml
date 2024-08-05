@@ -79,6 +79,9 @@
                 error: function (xhr, status, error) {
                     $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
+                },
+                complete: function () {
+                    loadTenantDeviceSelectorPartial();
                 }
             });
         });
@@ -95,6 +98,9 @@
                 error: function (xhr, status, error) {
                     $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
+                },
+                complete: function () {
+                    loadTenantDeviceSelectorPartial();
                 }
             });
         });
@@ -121,6 +127,9 @@
                 error: function (xhr, status, error) {
                     $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     console.error('Error:', error);
+                },
+                complete: function () {
+                    loadTenantDeviceSelectorPartial();
                 }
             });
         });
@@ -151,6 +160,9 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             }, 5000);
@@ -182,6 +194,9 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    },
+                    complete: function() {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             }, 5000);
@@ -213,6 +228,9 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             }, 5000);
@@ -244,6 +262,9 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             }, 5000);
@@ -281,6 +302,9 @@
                 error: function (xhr, status, error) {
                     $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                     console.error('Error loading partial view:', error);
+                },
+                complete: function () {
+                    loadTenantDeviceSelectorPartial();
                 }
             });
         });

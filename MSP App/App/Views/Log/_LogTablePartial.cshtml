@@ -49,20 +49,51 @@
                                             <div id="tempDataMessageLog@(log.Id)"></div>
                                         </td>
                                     </tr>
-                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap">
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                         <td class="border-0 text-nexum-light">@i</td>
                                         <td class="border-0 text-nexum-light">@log.Time</td>
                                         @if (Model.Count() > 1)
                                         {
-                                            <th class="border-0 text-nexum-light">@tenant.Name</th>
+                                            <th class="border-0 text-nexum-light text-start">@tenant.Name</th>
                                         }
-                                        @if(Context.Session.GetString("ActiveDeviceId") == null)
+                                        @if (Context.Session.GetString("ActiveDeviceId") == null)
                                         {
-                                            <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == log.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
+                                            <td class="border-0 text-nexum-light">
+
+                                                @{
+                                                    var activeDevice = @Model?.Where(t => t.Devices != null).SelectMany(t => t.Devices).FirstOrDefault(d => d.Id == log.DeviceId);
+                                                }
+
+                                                @if (activeDevice != null && activeDevice.Status != null)
+                                                {
+                                                    <div class="rounded-1 d-flex align-items-center justify-content-start p-0" style="border: none; background: none;">
+                                                        @switch (activeDevice.Status)
+                                                        {
+                                                            case DeviceStatus.Online:
+                                                                <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                                                    <use xlink:href="#circle-fill"></use>
+                                                                </svg>
+                                                                break;
+                                                            case DeviceStatus.RestoreInProgress:
+                                                            case DeviceStatus.BackupInProgress:
+                                                                <svg class="bi text-warning table-button-nexum" fill="currentColor">
+                                                                    <use xlink:href="#circle-fill"></use>
+                                                                </svg>
+                                                                break;
+                                                            default:
+                                                                <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                                    <use xlink:href="#circle-fill"></use>
+                                                                </svg>
+                                                                break;
+                                                        }
+                                                        <b class="text-nexum-light ms-2"><span>@tenant.Devices.Where(d => d.Id == log.DeviceId).FirstOrDefault()?.DeviceInfo.Name</span></b>
+                                                    </div>
+                                                }
+                                            </td>
                                         }
                                         <td class="border-0 text-nexum-light">@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString(log.Type))</td>
                                         <td class="border-0 text-nexum-light">@log.Code</td>
-                                        <td class="border-0 text-nexum-light text-wrap">@log.Message</td>
+                                        <td class="border-0 text-nexum-light text-wrap" style="min-width:130px;">@log.Message</td>
                                         <td class="border-0">
                                             <div class="d-flex justify-content-center align-items-center">
                                                 <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(log.Id)">
@@ -95,7 +126,7 @@
                                                         <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                                             <td class="border-0 text-nexum-light">@log.Filename</td>
                                                             <td class="border-0 text-nexum-light">@log.Function</td>
-                                                            <td class="border-0 text-nexum-light">@((log.Stack_Trace ?? "N/A"))</td>
+                                                            <td class="border-0 text-nexum-light text-wrap" style="min-width:130px;">@((log.Stack_Trace ?? "N/A"))</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
