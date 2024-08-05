@@ -2,7 +2,7 @@
 
 <div class="d-flex justify-content-center container-fluid rounded-5 overflow-hidden bg-nexum-dark bg-gradient py-5">
     <div class="text-nexum-light" style="width: 80%">
-        <h2 class="">Create New Tenant</h2>
+        <h2 class="">Create New Job</h2>
         <form id="jobForm" asp-controller="Job" asp-action="Create">
             <div>
                 <input asp-for="JobCreateRequest.DeviceId" type="hidden" value="@Model.JobCreateRequest.DeviceId" />
@@ -92,7 +92,7 @@
         </form>
     </div>
     <div class="d-flex justify-content-end align-items-start">
-        <a id="tenantCloseLink" class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button">
+        <a id="jobCloseLink" class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button">
             <svg class="bi text-light" fill="currentColor" style="max-height: 25px; max-width: 25px;">
                 <use xlink:href="#x"></use>
             </svg>

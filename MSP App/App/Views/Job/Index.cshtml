@@ -78,12 +78,33 @@
             });
         });
 
+        $(document).on('click', '[id^=jobUpdateLink]', function (event) {
+            event.preventDefault();
+            var id = $(this).attr('id').replace('jobUpdateLink', '');
+            $.ajax({
+                url: '/Job/' + id + '/Update',
+                type: 'GET',
+                success: function (result) {
+                    $('#jobActionContentBox').html(result);
+                },
+                error: function (xhr, status, error) {
+                    $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        });
+
         $('#jobActionContentBox').on('submit', '#jobForm', function (event) {
             event.preventDefault();
             var form = $(this);
             var formData = form.serialize();
-            var id = form.find('input[name="Id"]').val();
+            var id = form.find('#JobUpdateRequest_Id').val();
             var url = id ? '/Job/' + id + '/Update' : '/Job/Create';
+
+            console.log(form);
+            console.log(formData);
+            console.log(id);
+            console.log(url);
 
             $.ajax({
                 url: url,
@@ -106,6 +127,12 @@
                     console.error('Error loading partial view:', error);
                 }
             });
+        });
+
+        $(document).on('click', '[id^=jobCloseLink]', function (event) {
+            event.preventDefault();
+            var id = $(this).attr('id').replace('jobCloseLink', '');
+            $('#jobActionContentBox' + id).html('');
         });
 
     </script>
