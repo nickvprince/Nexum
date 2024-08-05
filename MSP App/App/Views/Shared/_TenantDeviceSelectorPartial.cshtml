@@ -59,22 +59,7 @@
                 </li>
                 @if (Model != null)
                 {
-                    if (activeDeviceId != null)
-                    {
-                        var activeDeviceIdInt = int.Parse(activeDeviceId);
-                        foreach (var device in Model.Where(t => t.Devices != null).SelectMany(t => t.Devices).Where(d => d.Id == activeDeviceIdInt))
-                        {
-                            <li>
-                                <form id="device-select@(device.Id)" asp-controller="Session" asp-action="Device">
-                                    <input type="hidden" asp-for="@device.Id" value="@device.Id" />
-                                    <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
-                                        @device.DeviceInfo.Name
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                    }
-                    else if (activeTenantId != null)
+                    if (activeTenantId != null)
                     {
                         var activeTenantIdInt = int.Parse(activeTenantId);
                         foreach (var device in Model.Where(t => t.Id == activeTenantIdInt && t.Devices != null).SelectMany(t => t.Devices))
