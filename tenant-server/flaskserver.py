@@ -602,7 +602,7 @@ class FlaskServer():
                     server_address = MySqlite.read_setting(MSP_SERVER_SETTING)
                     msp_port = MySqlite.read_setting(MSP_PORT_SETTING)
                     try:
-                        client = MySqlite.get_client(identification))
+                        client = MySqlite.get_client(identification)
                         if str(client[4]) == str(2) and str(client[4] == str(1)) :
                             pass
                         else:
