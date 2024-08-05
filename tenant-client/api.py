@@ -60,7 +60,7 @@ class API():
         """
         # call 127.0.0.1:5004/get_status
         apikey = MySqlite.read_setting(APIKEY_SETTING)
-        
+
         headers = {
             "Content-Type": "application/json",
             "apikey": str(apikey),
@@ -75,6 +75,25 @@ class API():
                 if match:
                     percent = int(match.group(1))
 
+                    # call msp update job status
+                    route = f"http://{MySqlite.read_setting("server_address")}:{MySqlite.read_setting("server_port")}/Update-Job-Status"
+                    headers = {
+                        "apikey": MySqlite.read_setting("apikey"),
+                        "Content-Type": "application/json"
+                    }
+                    status = 1
+                    if percent == 100:
+                        status = 2
+                    content = {
+                        "client_id": int(MySqlite.read_setting("CLIENT_ID")),
+                        "uuid": MySqlite.read_setting("uuid"),
+                        "status": status,
+                        "progress": percent
+                    }
+                    try:
+                        _ = requests.put(route, headers=headers, json=content,timeout=10,verify=False)
+                    except Exception as e:
+                        pass
                     return str(percent) + str("%")
                 else:
                     return "0%"

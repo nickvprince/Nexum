@@ -102,7 +102,6 @@ class RunJob():
             global LOCAL_JOB
             #pylint: enable=global-variable-not-assigned
             LOCAL_JOB.load(0)
-
             if self.kill_job_var is True:
                 # stop the job
                 self.logger.log("INFO","RunJob","Killing job","0","runjob.py")
@@ -120,6 +119,7 @@ class RunJob():
                     else:
                         MySqlite.write_setting("job_status","NotStarted")
                         MySqlite.write_setting("Status","Online")
+                    self.logger.log("INFO","RunJob","Job killed successfully","0","runjob.py",alert=True)
                     self.kill_job_var = False
                 except ConnectionError:
                     self.logger.log("ERROR","RunJob","Connection Error","0","runjob.py")
@@ -130,7 +130,7 @@ class RunJob():
                     MySqlite.write_setting("job_status","NotStarted")
                     MySqlite.write_setting("Status","ServiceOffline")
                 except Exception as e:
-                    self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
+                    self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py",alert=True)
                     MySqlite.write_setting("job_status","NotStarted")
                     MySqlite.write_setting("Status","ServiceOffline")
                     Logger.debug_print("Error: "+str(e))
@@ -145,7 +145,7 @@ class RunJob():
                 # run the job
                 self.job_pending = False # set job pending to false since it was just run
                 command='-backupTarget:'+LOCAL_JOB.get_settings()[10]+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
-                self.logger.log("INFO","RunJob","Running job :" +str(command),"0","runjob.py")
+                self.logger.log("INFO","RunJob","Running job :" +str(command),"0","runjob.py",alert=True)
                 #command='-backupTarget:'+"d:"+' -include:C: -allCritical -vssFull -quiet'
 
                 url = 'http://127.0.0.1:5004/start_job_service'
@@ -165,7 +165,7 @@ class RunJob():
                         MySqlite.write_setting("Status","Online")
                         self.job_running_var = False # set job running to true
                     else:
-                        self.logger.log("INFO","RunJob","Job started successfully","0","runjob.py")
+                        self.logger.log("INFO","RunJob","Job started successfully","0","runjob.py",alert=True)
                         MySqlite.write_setting("job_status","InProgress")
                         MySqlite.write_setting("Status","Online")
                         self.job_running_var = True # set job running to true
@@ -180,7 +180,7 @@ class RunJob():
                     MySqlite.write_setting("Status","ServiceOffline")
                     self.job_running_var = False # set job running to true
                 except Exception as e:
-                    self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
+                    self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py",alert=True)
                     MySqlite.write_setting("job_status","NotStarted")
                     MySqlite.write_setting("Status","ServiceOffline")
                     Logger.debug_print("Error: "+str(e))
@@ -198,7 +198,7 @@ class RunJob():
                     self.logger.log("INFO","RunJob","Service is online","0","runjob.py")
                     MySqlite.write_setting("Status","Online")
             except Exception as e:
-                self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
+                self.logger.log("ERROR","RunJob","Service offline or did not respond properly","050","runjob.py",alert=True)
                 MySqlite.write_setting("Status","ServiceOffline")
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
@@ -257,6 +257,7 @@ class RunJob():
         """
         Triggers the job to run
         """
+        self.logger.log("INFO","RunJob","Triggering job","0","runjob.py")
         self.job_pending = True
     def enable_job(self):
         """
@@ -276,6 +277,7 @@ class RunJob():
         Stops the currently running job
         """
         # stop the job
+        self.logger.log("INFO","RunJob","Killing job","0","runjob.py")
         self.kill_job_var = True
 
     @staticmethod
