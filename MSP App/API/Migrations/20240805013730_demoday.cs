@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class auth : Migration
+    public partial class demoday : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -537,7 +537,7 @@ namespace API.Migrations
                     BackupServerId = table.Column<int>(type: "int", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UpdateInterval = table.Column<int>(type: "int", nullable: false),
-                    retryCount = table.Column<int>(type: "int", nullable: false),
+                    RetryCount = table.Column<int>(type: "int", nullable: false),
                     Sampling = table.Column<bool>(type: "bit", nullable: false),
                     Retention = table.Column<int>(type: "int", nullable: false),
                     DeviceJobId = table.Column<int>(type: "int", nullable: false),
