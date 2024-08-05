@@ -46,9 +46,9 @@ class IconManager():
         """
         while True :
             time.sleep(POLLING_INTERVAL)
-            status = IconManager.get_status()
             percent = IconManager.get_percent()
             version = IconManager.get_version()
+            status = IconManager.get_status()
             menu = IconManager.create_menu(status,percent,version ,logs, tenant_portal)
             self.update_menu(menu)
 

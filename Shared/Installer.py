@@ -496,7 +496,7 @@ def uninstall_from_device(window:tk.Tk):
     write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
                 0, get_time())
     
-    # if c:\windows\temp\settings exists delete it
+# if c:\windows\temp\settings exists delete it
     try:
         if os.path.exists("C:\\Windows\\Temp\\settings"):
             shutil.rmtree("C:\\Windows\\Temp\\settings")
@@ -729,12 +729,18 @@ def notify_server(backupserver:str,id:int,apikey:str,uuid:str,key:str):
         "uuid":uuid,
         "installationKey":key
         }
+        if id==0:
+            _ = requests.request("POST", f"{SERVER_PROTOCOL}{backupserver}/api/datalink/verify", 
+                    timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
+                    json=payload, verify=SSL_CHECK)
 
-        _ = requests.request("POST", f"{SERVER_PROTOCOL}{backupserver}/api/datalink/verify", 
-                timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
-                json=payload, verify=SSL_CHECK)
+            write_log("INFO", "Install Server", "Server notified server "+f"{SERVER_PROTOCOL}{backupserver}/api/datalink/verify", 0, get_time())
+        else:
+            _ = requests.request("GET", f"http://{backupserver}/verify",
+                    timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
+                    json=payload, verify=SSL_CHECK)
 
-        write_log("INFO", "Install Server", "Server notified", 0, get_time())
+            write_log("INFO", "Install Server", "Server notified client "+f"http://{backupserver}/verify", 0, get_time())
 
     except:
         write_log("ERROR", "Install Server", "Could not notify server", 1100, get_time())  
@@ -819,7 +825,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
                     verify=SSL_CHECK)
 
             request = request.json()
-            service_url=CLIENT_PROTOCOL+backupserver+"/nexumservice"
+            service_url=str("https://")+request["nexumServiceUrlLocal"]
             server_url=CLIENT_PROTOCOL+backupserver+"/nexum"
             portal_url=str("https://")+request["portalUrlLocal"]
             write_setting("TENANT_PORTAL_URL",portal_url)
@@ -1297,7 +1303,6 @@ def main():
     except:
         write_log("ERROR", "MySqlite", "Backup servers table not created", 500, time.localtime())
     # INITIALIZATION END
-
     #TESTING Area
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])

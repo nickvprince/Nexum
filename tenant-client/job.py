@@ -114,11 +114,12 @@ class Job():
         """
         Loads the job from the database
         """
-        conn = sqlite3.connect(settingsDirectory+jobFile)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
-        info = cursor.fetchone()
         try:
+            conn = sqlite3.connect(settingsDirectory+jobFile)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM job WHERE ID = ?', (id_in,))
+            info = cursor.fetchone()
+        
             self.set_id(info[0])
             self.set_title(info[1])
             self.set_created(info[2])
