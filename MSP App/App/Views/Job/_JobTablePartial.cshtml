@@ -56,7 +56,7 @@
                         {
                             if(device.Jobs != null && device.Jobs.Any())
                             {
-                                foreach (var job in device.Jobs)
+                                foreach (var job in device.Jobs.OrderBy(j => j.Progress))
                                 {
                                     i++;
                                     <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
