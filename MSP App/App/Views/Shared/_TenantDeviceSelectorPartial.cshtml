@@ -91,5 +91,36 @@
                 }
             </ul>
         </div>
+        <div class="ms-2">
+            @if (activeDeviceId != null)
+            {
+                var activeDevice = Model?.Where(t => t.Devices != null).SelectMany(t => t.Devices).FirstOrDefault(d => d.Id == int.Parse(activeDeviceId));
+                if(activeDevice != null && activeDevice.Status != null)
+                {
+                    <div class="rounded-1 d-flex align-items-center justify-content-center p-0" style="border: none; background: none;">
+                        <b class="text-nexum-light me-2"><span>@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString((DeviceStatus)activeDevice.Status))</span></b>
+                        @switch (activeDevice.Status)
+                        {
+                            case DeviceStatus.Online:
+                                    <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#circle-fill"></use>
+                                    </svg>
+                                break;
+                            case DeviceStatus.RestoreInProgress:
+                            case DeviceStatus.BackupInProgress:
+                                    <svg class="bi text-warning table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#circle-fill"></use>
+                                    </svg>
+                                break;
+                            default:
+                                    <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#circle-fill"></use>
+                                    </svg>
+                                break;
+                        }
+                    </div>
+                }
+            }
+        </div>
     </div>
 </div>
