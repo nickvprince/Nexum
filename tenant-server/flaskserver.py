@@ -1188,7 +1188,7 @@ class FlaskServer():
                 "installationKey":installationKey
                 }
 
-                _ = requests.request("POST", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/api/datalink/verify", 
+                _ = requests.request("POST", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/api/datalink/verify",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                         json=payload, verify=False)
             except ConnectionError:
