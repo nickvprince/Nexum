@@ -6,6 +6,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing roles.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -16,6 +19,13 @@ namespace API.Controllers
         private readonly IDbPermissionService _dbPermissionService;
         private readonly IDbTenantService _dbTenantService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RoleController"/> class.
+        /// </summary>
+        /// <param name="dbRoleService">The role service.</param>
+        /// <param name="dbUserService">The user service.</param>
+        /// <param name="dbPermissionService">The permission service.</param>
+        /// <param name="dbTenantService">The tenant service.</param>
         public RoleController(IDbRoleService dbRoleService, IDbUserService dbUserService,
             IDbPermissionService dbPermissionService, IDbTenantService dbTenantService)
         {
@@ -25,6 +35,11 @@ namespace API.Controllers
             _dbTenantService = dbTenantService;
         }
 
+        /// <summary>
+        /// Creates a new role.
+        /// </summary>
+        /// <param name="request">The role create request.</param>
+        /// <returns>An action result containing the created role.</returns>
         [HttpPost("")]
         [HasPermission("Role.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromBody] RoleCreateRequest request)
@@ -46,6 +61,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates an existing role.
+        /// </summary>
+        /// <param name="request">The role update request.</param>
+        /// <returns>An action result containing the updated role.</returns>
         [HttpPut("")]
         [HasPermission("Role.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> UpdateAsync([FromBody] RoleUpdateRequest request)
@@ -69,6 +89,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes a role by ID.
+        /// </summary>
+        /// <param name="id">The ID of the role to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Role.Delete.Permission", PermissionType.System)]
         public async Task<IActionResult> DeleteAsync(string? id)
@@ -84,6 +109,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets a role by ID.
+        /// </summary>
+        /// <param name="id">The ID of the role to retrieve.</param>
+        /// <returns>An action result containing the role.</returns>
         [HttpGet("{id}")]
         [HasPermission("Role.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAsync(string? id)
@@ -100,6 +130,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all roles.
+        /// </summary>
+        /// <returns>An action result containing all roles.</returns>
         [HttpGet("")]
         [HasPermission("Role.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
@@ -116,6 +150,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all roles by user ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>An action result containing the roles assigned to the user.</returns>
         [HttpGet("By-User/{userId}")]
         [HasPermission("Role.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllByUserIdAsync(string? userId)
@@ -137,6 +176,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all user roles by user ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>An action result containing the user roles assigned to the user.</returns>
         [HttpGet("UserRole/{userId}")]
         [HasPermission("Role.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllUserRolesByUserIdAsync(string? userId)
@@ -158,6 +202,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all role permissions by role ID.
+        /// </summary>
+        /// <param name="roleId">The ID of the role.</param>
+        /// <returns>An action result containing the permissions assigned to the role.</returns>
         [HttpGet("Permission/{roleId}")]
         [HasPermission("Role.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllRolePermissionsByIdAsync(string? roleId)
@@ -179,6 +228,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Assigns a role to a user.
+        /// </summary>
+        /// <param name="request">The role assign request.</param>
+        /// <returns>An action result indicating the outcome of the assignment.</returns>
         [HttpPost("Assign")]
         [HasPermission("Role.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> AssignAsync([FromBody] RoleAssignRequest request)
@@ -218,6 +272,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Unassigns a role from a user.
+        /// </summary>
+        /// <param name="request">The role unassign request.</param>
+        /// <returns>An action result indicating the outcome of the unassignment.</returns>
         [HttpPost("Unassign")]
         [HasPermission("Role.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> UnassignAsync([FromBody] RoleUnassignRequest request)
@@ -259,6 +318,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Assigns a permission to a role.
+        /// </summary>
+        /// <param name="request">The role assign permission request.</param>
+        /// <returns>An action result indicating the outcome of the assignment.</returns>
         [HttpPost("Assign-Permission")]
         [HasPermission("Role.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> AssignPermissionAsync([FromBody] RoleAssignPermissionRequest request)
@@ -303,6 +367,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Unassigns a permission from a role.
+        /// </summary>
+        /// <param name="request">The role unassign permission request.</param>
+        /// <returns>An action result indicating the outcome of the unassignment.</returns>
         [HttpPost("Unassign-Permission")]
         [HasPermission("Role.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> UnassignPermissionAsync([FromBody] RoleUnassignPermissionRequest request)

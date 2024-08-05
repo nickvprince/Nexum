@@ -9,6 +9,9 @@ using System.Data;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing users.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -18,6 +21,12 @@ namespace API.Controllers
         private readonly IDbRoleService _dbRoleService;
         private readonly IDbTenantService _dbTenantService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserController"/> class.
+        /// </summary>
+        /// <param name="dbUserService">The user service.</param>
+        /// <param name="dbRoleService">The role service.</param>
+        /// <param name="dbTenantService">The tenant service.</param>
         public UserController(IDbUserService dbUserService, IDbRoleService dbRoleService,
             IDbTenantService dbTenantService)
         {
@@ -26,6 +35,11 @@ namespace API.Controllers
             _dbTenantService = dbTenantService;
         }
 
+        /// <summary>
+        /// Creates a new user.
+        /// </summary>
+        /// <param name="request">The user create request.</param>
+        /// <returns>An action result containing the created user.</returns>
         [HttpPost("")]
         [HasPermission("User.Create.Permission", PermissionType.System)]
         public async Task<IActionResult> CreateAsync([FromBody] UserCreateRequest request)
@@ -86,6 +100,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Updates an existing user.
+        /// </summary>
+        /// <param name="request">The user update request.</param>
+        /// <returns>An action result containing the updated user.</returns>
         [HttpPut("")]
         [HasPermission("User.Update.Permission", PermissionType.System)]
         public async Task<IActionResult> UpdateAsync([FromBody] UserUpdateRequest request)
@@ -124,6 +143,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Deletes a user by ID.
+        /// </summary>
+        /// <param name="id">The ID of the user to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("User.Delete.Permission", PermissionType.System)]
         public async Task<IActionResult> DeleteAsync(string id)
@@ -143,6 +167,10 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all users.
+        /// </summary>
+        /// <returns>An action result containing all users.</returns>
         [HttpGet("")]
         [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()
@@ -171,6 +199,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets a user by ID.
+        /// </summary>
+        /// <param name="id">The ID of the user to retrieve.</param>
+        /// <returns>An action result containing the user.</returns>
         [HttpGet("By-Id/{id}")]
         [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByIdAsync(string id)
@@ -199,6 +232,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets a user by username.
+        /// </summary>
+        /// <param name="username">The username of the user to retrieve.</param>
+        /// <returns>An action result containing the user.</returns>
         [HttpGet("By-Username/{username}")]
         [HasPermission("User.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetByUserNameAsync(string username)

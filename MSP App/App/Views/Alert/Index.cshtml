@@ -31,7 +31,26 @@
             }, 2000);
         }
 
+        function loadAlertTable() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Alerts...</h5>';
+            $('#alertContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Alert/Table',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#alertContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#alertContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
         loadSeverityCards();
+        loadAlertTable();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
             event.preventDefault();
@@ -40,6 +59,33 @@
 
             $('#alertActionContentBox').html('');
             loadSeverityCards();
+            loadAlertTable();
+        });
+
+        $(document).on('submit', '[id^=alertDeletelink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('alertDeletelink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Alert/' + id + '/Delete',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageAlert' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadSeverityCards();
+                        loadAlertTable();
+                    } else {
+                        $('#tempDataMessageAlert' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageAlert' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
         });
 
     </script>

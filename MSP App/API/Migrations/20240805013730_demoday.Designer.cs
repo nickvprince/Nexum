@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240723223539_auth")]
-    partial class auth
+    [Migration("20240805013730_demoday")]
+    partial class demoday
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -509,6 +509,9 @@ namespace API.Migrations
                     b.Property<int>("Retention")
                         .HasColumnType("int");
 
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Sampling")
                         .HasColumnType("bit");
 
@@ -520,9 +523,6 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UpdateInterval")
-                        .HasColumnType("int");
-
-                    b.Property<int>("retryCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

@@ -9,6 +9,9 @@ using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing jobs.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -20,6 +23,14 @@ namespace API.Controllers
         private readonly IDbNASServerService _dbNASServerService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JobController"/> class.
+        /// </summary>
+        /// <param name="dbJobService">The job service.</param>
+        /// <param name="httpJobService">The tenant server job service.</param>
+        /// <param name="dbDeviceService">The device service.</param>
+        /// <param name="dbNASServerService">The NAS server service.</param>
+        /// <param name="authService">The authentication service.</param>
         public JobController(IDbJobService dbJobService, ITenantServerAPIJobService httpJobService, 
             IDbDeviceService dbDeviceService, IDbNASServerService dbNASServerService,
             IAPIAuthService authService)
@@ -31,6 +42,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new job.
+        /// </summary>
+        /// <param name="request">The job create request.</param>
+        /// <returns>An action result containing the created job.</returns>
         [HttpPost("")]
         [HasPermission("Job.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] JobCreateRequest request)
@@ -68,7 +84,7 @@ namespace API.Controllers
                                 StartTime = request.Settings.StartTime,
                                 EndTime = request.Settings.EndTime,
                                 UpdateInterval = request.Settings.UpdateInterval,
-                                retryCount = request.Settings.retryCount,
+                                RetryCount = request.Settings.RetryCount,
                                 Sampling = request.Settings.Sampling,
                                 Retention = request.Settings.Retention,
 
@@ -100,6 +116,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Updates an existing job.
+        /// </summary>
+        /// <param name="request">The job update request.</param>
+        /// <returns>An action result containing the updated job.</returns>
         [HttpPut("")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] JobUpdateRequest request)
@@ -136,12 +157,12 @@ namespace API.Controllers
                     if (request.Settings.Schedule != null && job.Settings.Schedule != null)
                     {
                         job.Name = request.Name;
-                        //job.Settings.BackupServerId = request.Settings.BackupServerId; #disable changing backup server
+                        job.Settings.BackupServerId = request.Settings.BackupServerId;
                         job.Settings.Type = request.Settings.Type;
                         job.Settings.StartTime = request.Settings.StartTime;
                         job.Settings.EndTime = request.Settings.EndTime;
                         job.Settings.UpdateInterval = request.Settings.UpdateInterval;
-                        job.Settings.retryCount = request.Settings.retryCount;
+                        job.Settings.RetryCount = request.Settings.RetryCount;
                         job.Settings.Sampling = request.Settings.Sampling;
                         job.Settings.Retention = request.Settings.Retention;
                         job.Settings.Schedule.Sunday = request.Settings.Schedule.Sunday;
@@ -174,6 +195,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Updates the status of an existing job.
+        /// </summary>
+        /// <param name="request">The job update status request.</param>
+        /// <returns>An action result containing the updated job status.</returns>
         [HttpPut("Status")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateStatusAsync([FromBody] JobUpdateStatusRequest request)
@@ -211,6 +237,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Deletes a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Job.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -237,11 +268,15 @@ namespace API.Controllers
                     // --- End of authentication check ---
                     if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.JobId))
                     {
-                        if (await _dbJobService.DeleteAsync(id))
+                        if (await _httpJobService.StopAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
-                            return Ok("Job deleted successfully.");
+                            if (await _dbJobService.DeleteAsync(id))
+                            {
+                                return Ok("Job deleted successfully.");
+                            }
+                            return BadRequest("An error occurred while deleting the job.");
                         }
-                        return BadRequest("An error occurred while deleting the job.");
+                        return BadRequest("An error occurred while stopping the job on the tenant server.");
                     }
                     return BadRequest("An error occurred while deleting the job on the tenant server.");
                 }
@@ -249,6 +284,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to retrieve.</param>
+        /// <returns>An action result containing the job.</returns>
         [HttpGet("{id}")]
         [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -276,6 +316,10 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all jobs accessible by the authenticated user.
+        /// </summary>
+        /// <returns>An action result containing all jobs accessible by the user.</returns>
         [HttpGet("")]
         [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -311,6 +355,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all jobs for a specific device.
+        /// </summary>
+        /// <param name="deviceId">The ID of the device.</param>
+        /// <returns>An action result containing the jobs for the device.</returns>
         [HttpGet("By-Device/{deviceId}")]
         [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
@@ -341,6 +390,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all jobs for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the jobs for the tenant.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("Job.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
@@ -366,6 +420,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Starts a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to start.</param>
+        /// <returns>An action result indicating the outcome of the start operation.</returns>
         [HttpPost("{id}/Start")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> StartAsync(int id)
@@ -400,6 +459,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Pauses a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to pause.</param>
+        /// <returns>An action result indicating the outcome of the pause operation.</returns>
         [HttpPost("{id}/Pause")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> PauseAsync(int id)
@@ -434,6 +498,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Resumes a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to resume.</param>
+        /// <returns>An action result indicating the outcome of the resume operation.</returns>
         [HttpPost("{id}/Resume")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> ResumeAsync(int id)
@@ -468,6 +537,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Stops a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to stop.</param>
+        /// <returns>An action result indicating the outcome of the stop operation.</returns>
         [HttpPost("{id}/Stop")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> StopAsync(int id)
@@ -502,6 +576,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Refreshes the status of a job by ID.
+        /// </summary>
+        /// <param name="id">The ID of the job to refresh.</param>
+        /// <returns>An action result indicating the outcome of the refresh operation.</returns>
         [HttpPost("{id}/Refresh")]
         [HasPermission("Job.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> RefreshAsync(int id)

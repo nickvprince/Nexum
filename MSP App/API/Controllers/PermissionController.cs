@@ -5,6 +5,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing permissions.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -12,12 +15,22 @@ namespace API.Controllers
     {
         private readonly IDbPermissionService _dbPermissionService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PermissionController"/> class.
+        /// </summary>
+        /// <param name="dbPermissionService">The permission service.</param>
         public PermissionController(IDbPermissionService dbPermissionService)
         {
             _dbPermissionService = dbPermissionService;
         }
         //Functions that can be added for debugging / future purposes (working code)
-        /*[HttpPost("")]
+        /*
+        /// <summary>
+        /// Creates a new permission.
+        /// </summary>
+        /// <param name="request">The permission create request.</param>
+        /// <returns>An action result containing the created permission.</returns>
+        [HttpPost("")]
         public async Task<IActionResult> CreateAsync([FromBody] PermissionCreateRequest request)
         {
             if(ModelState.IsValid)
@@ -37,6 +50,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates an existing permission.
+        /// </summary>
+        /// <param name="request">The permission update request.</param>
+        /// <returns>An action result containing the updated permission.</returns>
         [HttpPut("")]
         public async Task<IActionResult> UpdateAsync([FromBody] PermissionUpdateRequest request)
         {
@@ -59,6 +77,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes a permission by ID.
+        /// </summary>
+        /// <param name="id">The ID of the permission to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -73,6 +96,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }*/
 
+        /// <summary>
+        /// Gets a permission by ID.
+        /// </summary>
+        /// <param name="id">The ID of the permission to retrieve.</param>
+        /// <returns>An action result containing the permission.</returns>
         [HttpGet("{id}")]
         [HasPermission("Permission.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAsync(int id)
@@ -89,6 +117,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all permissions.
+        /// </summary>
+        /// <returns>An action result containing all permissions.</returns>
         [HttpGet("")]
         [HasPermission("Permission.Get.Permission", PermissionType.System)]
         public async Task<IActionResult> GetAllAsync()

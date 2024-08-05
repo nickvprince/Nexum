@@ -9,6 +9,9 @@ using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for handling device-related operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -20,6 +23,14 @@ namespace API.Controllers
         private readonly ITenantServerAPIDeviceService _httpDeviceService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeviceController"/> class.
+        /// </summary>
+        /// <param name="dbDeviceService">The device service.</param>
+        /// <param name="dbTenantService">The tenant service.</param>
+        /// <param name="dbInstallationKeyService">The installation key service.</param>
+        /// <param name="httpDeviceService">The HTTP device service.</param>
+        /// <param name="authService">The authentication service.</param>
         public DeviceController(IDbDeviceService dbDeviceService, IDbTenantService dbTenantService,
             IDbInstallationKeyService dbInstallationKeyService, ITenantServerAPIDeviceService httpDeviceService,
             IAPIAuthService authService)
@@ -31,6 +42,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new device.
+        /// </summary>
+        /// <param name="request">The device create request.</param>
+        /// <returns>An action result containing the created device.</returns>
         [HttpPost("")]
         [HasPermission("Device.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] DeviceCreateRequest request)
@@ -146,6 +162,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Creates a new device.
+        /// </summary>
+        /// <param name="request">The device create request.</param>
+        /// <returns>An action result containing the created device.</returns>
         [HttpPut("")]
         [HasPermission("Device.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] DeviceUpdateRequest request)
@@ -220,6 +241,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates the status of a device.
+        /// </summary>
+        /// <param name="request">The device update status request.</param>
+        /// <returns>An action result containing the updated device status.</returns>
         [HttpPut("Status")]
         [HasPermission("Device.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateStatusAsync([FromBody] DeviceUpdateStatusRequest request)
@@ -252,6 +278,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes a device by ID.
+        /// </summary>
+        /// <param name="id">The ID of the device to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Device.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -278,6 +309,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets a device by ID.
+        /// </summary>
+        /// <param name="id">The ID of the device to retrieve.</param>
+        /// <returns>An action result containing the device.</returns>
         [HttpGet("{id}")]
         [HasPermission("Device.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -300,6 +336,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all devices accessible by the authenticated user.
+        /// </summary>
+        /// <returns>An action result containing all devices accessible by the user.</returns>
         [HttpGet("")]
         [HasPermission("Device.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -335,6 +375,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all devices for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the devices for the tenant.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("Device.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)
@@ -360,6 +405,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Refreshes a device by ID.
+        /// </summary>
+        /// <param name="id">The ID of the device to refresh.</param>
+        /// <returns>An action result containing the refreshed device.</returns>
         [HttpPost("{id}/Refresh")]
         [HasPermission("Device.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> RefreshAsync(int id)

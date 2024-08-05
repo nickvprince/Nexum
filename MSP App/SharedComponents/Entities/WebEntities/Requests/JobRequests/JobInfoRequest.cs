@@ -17,7 +17,7 @@ namespace SharedComponents.Entities.WebEntities.Requests.JobRequests
         public int UpdateInterval { get; set; }
         [Required(ErrorMessage = "Retry Count is Required")]
         [Range(0, int.MaxValue, ErrorMessage = "Retry Count must be greater than or equal to 0")]
-        public int retryCount { get; set; }
+        public int RetryCount { get; set; }
         [Required(ErrorMessage = "Sampling is Required")]
         public bool Sampling { get; set; }
         [Required(ErrorMessage = "Retention is Required")]

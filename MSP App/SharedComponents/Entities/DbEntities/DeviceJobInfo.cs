@@ -11,7 +11,7 @@ namespace SharedComponents.Entities.DbEntities
         private DateTime? _endTime { get; set; }
         public DeviceJobSchedule? Schedule { get; set; }
         public int UpdateInterval { get; set; }
-        public int retryCount { get; set; }
+        public int RetryCount { get; set; }
         public bool Sampling { get; set; }
         public int Retention { get; set; }
         [Required]

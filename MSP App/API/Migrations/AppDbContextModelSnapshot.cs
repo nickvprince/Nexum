@@ -506,6 +506,9 @@ namespace API.Migrations
                     b.Property<int>("Retention")
                         .HasColumnType("int");
 
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Sampling")
                         .HasColumnType("bit");
 
@@ -517,9 +520,6 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UpdateInterval")
-                        .HasColumnType("int");
-
-                    b.Property<int>("retryCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

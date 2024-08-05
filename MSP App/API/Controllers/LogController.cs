@@ -8,6 +8,9 @@ using SharedComponents.Services.DbServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing device logs.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -17,6 +20,12 @@ namespace API.Controllers
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LogController"/> class.
+        /// </summary>
+        /// <param name="dbLogService">The log service.</param>
+        /// <param name="dbDeviceService">The device service.</param>
+        /// <param name="authService">The authentication service.</param>
         public LogController(IDbLogService dbLogService, IDbDeviceService dbDeviceService, IAPIAuthService authService)
         {
             _dbLogService = dbLogService;
@@ -24,6 +33,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new log entry.
+        /// </summary>
+        /// <param name="request">The log create request.</param>
+        /// <returns>An action result containing the created log entry.</returns>
         [HttpPost("")]
         [HasPermission("Log.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] LogCreateRequest request)
@@ -61,6 +75,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Updates an existing log entry.
+        /// </summary>
+        /// <param name="request">The log update request.</param>
+        /// <returns>An action result containing the updated log entry.</returns>
         [HttpPut("")]
         [HasPermission("Log.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] LogUpdateRequest request)
@@ -103,6 +122,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Acknowledges a log entry.
+        /// </summary>
+        /// <param name="id">The ID of the log entry to acknowledge.</param>
+        /// <returns>An action result indicating the outcome of the acknowledgment.</returns>
         [HttpPost("{id}/Acknowledge")]
         [HasPermission("Log.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> AcknowledgeAsync(int id)
@@ -144,6 +168,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Deletes a log entry by ID.
+        /// </summary>
+        /// <param name="id">The ID of the log entry to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("Log.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -175,6 +204,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets a log entry by ID.
+        /// </summary>
+        /// <param name="id">The ID of the log entry to retrieve.</param>
+        /// <returns>An action result containing the log entry.</returns>
         [HttpGet("{id}")]
         [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -202,6 +236,10 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all log entries accessible by the authenticated user.
+        /// </summary>
+        /// <returns>An action result containing all log entries accessible by the user.</returns>
         [HttpGet("")]
         [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -237,6 +275,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all log entries for a specific device.
+        /// </summary>
+        /// <param name="deviceId">The ID of the device.</param>
+        /// <returns>An action result containing the log entries for the device.</returns>
         [HttpGet("By-Device/{deviceId}")]
         [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
@@ -267,6 +310,11 @@ namespace API.Controllers
             return BadRequest("Invalid Request.");
         }
 
+        /// <summary>
+        /// Gets all log entries for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the log entries for the tenant.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("Log.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)

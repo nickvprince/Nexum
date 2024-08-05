@@ -41,6 +41,11 @@
                     type: 'GET',
                     success: function (result) {
                         $('#jobContentBox').html(result);
+                        $('.collapse').on('show.bs.collapse hide.bs.collapse', function () {
+                            $('#jobActionContentBox').html('');
+                            $('[id^=tempDataMessageJob]').html('');
+                            $('.collapse').not(this).collapse('hide');
+                        });
                     },
                     error: function (xhr, status, error) {
                         $('#jobContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
@@ -78,12 +83,163 @@
             });
         });
 
+        $(document).on('click', '[id^=jobUpdateLink]', function (event) {
+            event.preventDefault();
+            var id = $(this).attr('id').replace('jobUpdateLink', '');
+            $.ajax({
+                url: '/Job/' + id + '/Update',
+                type: 'GET',
+                success: function (result) {
+                    $('#jobActionContentBox').html(result);
+                },
+                error: function (xhr, status, error) {
+                    $('#jobActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                    console.error('Error loading partial view:', error);
+                }
+            });
+        });
+
+        $(document).on('submit', '[id^=jobDeletelink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('jobDeletelink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Job/' + id + '/Delete',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
+                        loadTable();
+                    } else {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('submit', '[id^=jobStartlink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('jobStartlink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Job/' + id + '/Start',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
+                        loadTable();
+                    } else {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('submit', '[id^=jobStoplink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('jobStoplink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Job/' + id + '/Stop',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
+                        loadTable();
+                    } else {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('submit', '[id^=jobResumelink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('jobResumelink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Job/' + id + '/Resume',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
+                        loadTable();
+                    } else {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('submit', '[id^=jobPauselink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('jobPauselink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Job/' + id + '/Pause',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
+                        loadTable();
+                    } else {
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
         $('#jobActionContentBox').on('submit', '#jobForm', function (event) {
             event.preventDefault();
             var form = $(this);
             var formData = form.serialize();
-            var id = form.find('input[name="Id"]').val();
+            var id = form.find('#JobUpdateRequest_Id').val();
             var url = id ? '/Job/' + id + '/Update' : '/Job/Create';
+
+            console.log(form);
+            console.log(formData);
+            console.log(id);
+            console.log(url);
 
             $.ajax({
                 url: url,
@@ -93,6 +249,7 @@
                     if (result.success) {
                         $('#jobActionContentBox').html('');
                         $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
                         loadTable();
                     } else {
                         $('#jobActionContentBox').html(result.html);
@@ -106,6 +263,12 @@
                     console.error('Error loading partial view:', error);
                 }
             });
+        });
+
+        $(document).on('click', '[id^=jobCloseLink]', function (event) {
+            event.preventDefault();
+            var id = $(this).attr('id').replace('jobCloseLink', '');
+            $('#jobActionContentBox' + id).html('');
         });
 
     </script>
