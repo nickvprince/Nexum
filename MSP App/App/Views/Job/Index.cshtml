@@ -41,6 +41,11 @@
                     type: 'GET',
                     success: function (result) {
                         $('#jobContentBox').html(result);
+                        $('.collapse').on('show.bs.collapse hide.bs.collapse', function () {
+                            $('#jobActionContentBox').html('');
+                            $('[id^=tempDataMessagejob]').html('');
+                            $('.collapse').not(this).collapse('hide');
+                        });
                     },
                     error: function (xhr, status, error) {
                         $('#jobContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');

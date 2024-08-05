@@ -204,28 +204,39 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr class="row-nexum-striped text-center text-nowrap">
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Phone</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Email</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Address</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.City</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.State</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Zip</td>
-                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Country</td>
+                                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                            <td class="border-0 text-nexum-light">@tenant.NASServers.Where(n => n.BackupServerId == job.Settings.BackupServerId).FirstOrDefault().Name</td>
+                                                            <td class="border-0 text-nexum-light">@job.Settings.UpdateInterval</td>
+                                                            <td class="border-0 text-nexum-light">@job.Settings.RetryCount</td>
+                                                            <td class="border-0 text-nexum-light">@job.Settings.Sampling</td>
+                                                            <td class="border-0 text-nexum-light">@job.Settings.Retention</td>
+                                                            <td class="border-0 text-nexum-light">@job.Settings.StartTime.ToString()</td>
+                                                            <td class="border-0 text-nexum-light">@job.Settings.EndTime.ToString()</td>
                                                         </tr>
                                                         <tr class="row-nexum-striped">
                                                             <td class="p-0 border-0" colspan="12">
-                                                                <div id="tempDataMessageKey@(tenant.Id)"></div>
-                                                                <div id="keyCreateContentBox@(tenant.Id)"></div>
                                                                 <table class="table m-0 table-nexum-dark border-0">
                                                                     <thead>
                                                                         <tr class="text-center text-nowrap">
-
+                                                                            <th class="border-0 text-nexum-light">Sunday</th>
+                                                                            <th class="border-0 text-nexum-light">Monday</th>
+                                                                            <th class="border-0 text-nexum-light">Tuesday</th>
+                                                                            <th class="border-0 text-nexum-light">Wednesday</th>
+                                                                            <th class="border-0 text-nexum-light">Thursday</th>
+                                                                            <th class="border-0 text-nexum-light">Friday</th>
+                                                                            <th class="border-0 text-nexum-light">Saturday</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-
+                                                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Sunday) ? "True" : "False")</td>
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Monday) ? "True" : "False")</td>
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Tuesday) ? "True" : "False")</td>
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Wednesday) ? "True" : "False")</td>
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Thursday) ? "True" : "False")</td>
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Friday) ? "True" : "False")</td>
+                                                                            <td class="border-0 text-nexum-light">@((job.Settings.Schedule.Saturday) ? "True" : "False")</td>
+                                                                        </tr>
                                                                     </tbody>
                                                                 </table>
                                                             </td>
