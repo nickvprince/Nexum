@@ -239,6 +239,21 @@ namespace App.Controllers
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
 
+        [HttpPost("{id}/Delete")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.DeleteAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job deleted successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while deleting the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
         [HttpPost("{id}/Start")]
         public async Task<IActionResult> StartAsync(int id)
         {

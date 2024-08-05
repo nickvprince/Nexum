@@ -107,6 +107,7 @@
                 success: function (result) {
                     if (result.success) {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
                         loadTable();
                     } else {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
@@ -132,6 +133,7 @@
                 success: function (result) {
                     if (result.success) {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
                         loadTable();
                     } else {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
@@ -157,6 +159,7 @@
                 success: function (result) {
                     if (result.success) {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
                         loadTable();
                     } else {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
@@ -182,6 +185,33 @@
                 success: function (result) {
                     if (result.success) {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
+                        loadTable();
+                    } else {
+                        $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('submit', '[id^=jobDeletelink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('jobDeletelink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Job/' + id + '/Delete',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
                         loadTable();
                     } else {
                         $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
@@ -214,6 +244,7 @@
                     if (result.success) {
                         $('#jobActionContentBox').html('');
                         $('#tempDataMessage').html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadStatusCards();
                         loadTable();
                     } else {
                         $('#jobActionContentBox').html(result.html);
