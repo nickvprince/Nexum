@@ -40,7 +40,7 @@
                             {
                                 if (nasServer.Backups != null)
                                 {
-                                    foreach (var backup in nasServer.Backups.OrderBy(b => b.Date))
+                                    foreach (var backup in nasServer.Backups.OrderBy(b => b.Date).Reverse())
                                     {
                                         i++;
                                         <tr>

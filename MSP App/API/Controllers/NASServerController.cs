@@ -12,6 +12,9 @@ using SharedComponents.Services.TenantServerAPIServices.Interfaces;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing NAS servers.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1-Web")]
@@ -24,6 +27,15 @@ namespace API.Controllers
         private readonly ITenantServerAPINASServerService _httpNASServerService;
         private readonly IAPIAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NASServerController"/> class.
+        /// </summary>
+        /// <param name="dbNASServerService">The NAS server service.</param>
+        /// <param name="dbJobService">The job service.</param>
+        /// <param name="dbTenantService">The tenant service.</param>
+        /// <param name="dbDeviceService">The device service.</param>
+        /// <param name="httpNASServerService">The HTTP NAS server service.</param>
+        /// <param name="authService">The authentication service.</param>
         public NASServerController(IDbNASServerService dbNASServerService, IDbJobService dbJobService,
             IDbTenantService dbTenantService, IDbDeviceService dbDeviceService,
             ITenantServerAPINASServerService httpNASServerService, IAPIAuthService authService)
@@ -36,6 +48,11 @@ namespace API.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Creates a new NAS server.
+        /// </summary>
+        /// <param name="request">The NAS server create request.</param>
+        /// <returns>An action result containing the created NAS server.</returns>
         [HttpPost("")]
         [HasPermission("NASServer.Create.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> CreateAsync([FromBody] NASServerCreateRequest request)
@@ -91,6 +108,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Updates an existing NAS server.
+        /// </summary>
+        /// <param name="request">The NAS server update request.</param>
+        /// <returns>An action result containing the updated NAS server.</returns>
         [HttpPut("")]
         [HasPermission("NASServer.Update.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> UpdateAsync([FromBody] NASServerUpdateRequest request)
@@ -139,6 +161,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Deletes a NAS server by ID.
+        /// </summary>
+        /// <param name="id">The ID of the NAS server to delete.</param>
+        /// <returns>An action result indicating the outcome of the deletion.</returns>
         [HttpDelete("{id}")]
         [HasPermission("NASServer.Delete.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> DeleteAsync(int id)
@@ -186,6 +213,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets a NAS server by ID.
+        /// </summary>
+        /// <param name="id">The ID of the NAS server to retrieve.</param>
+        /// <returns>An action result containing the NAS server.</returns>
         [HttpGet("{id}")]
         [HasPermission("NASServer.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAsync(int id)
@@ -208,6 +240,10 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all NAS servers accessible by the authenticated user.
+        /// </summary>
+        /// <returns>An action result containing all NAS servers accessible by the user.</returns>
         [HttpGet("")]
         [HasPermission("NASServer.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllAsync()
@@ -243,6 +279,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all NAS servers for a specific device.
+        /// </summary>
+        /// <param name="deviceId">The ID of the device.</param>
+        /// <returns>An action result containing the NAS servers for the device.</returns>
         [HttpGet("By-Device/{deviceId}")]
         [HasPermission("NASServer.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByDeviceIdAsync(int deviceId)
@@ -273,6 +314,11 @@ namespace API.Controllers
             return BadRequest("Invalid request.");
         }
 
+        /// <summary>
+        /// Gets all NAS servers for a specific tenant.
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant.</param>
+        /// <returns>An action result containing the NAS servers for the tenant.</returns>
         [HttpGet("By-Tenant/{tenantId}")]
         [HasPermission("NASServer.Get.Permission", PermissionType.Tenant)]
         public async Task<IActionResult> GetAllByTenantIdAsync(int tenantId)

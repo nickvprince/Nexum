@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SharedComponents.Entities.DbEntities;
 using SharedComponents.Entities.WebEntities.Requests.JobRequests;
+using SharedComponents.Entities.WebEntities.Requests.NASServerRequests;
 using SharedComponents.Entities.WebEntities.Requests.TenantRequests;
 using SharedComponents.Services.APIRequestServices.Interfaces;
 using SharedComponents.Utilities;
@@ -119,52 +120,198 @@ namespace App.Controllers
             {
                 Device? device = await _deviceService.GetAsync(viewModel.JobCreateRequest.DeviceId);
 
-                if (device == null)
+                if (device != null)
                 {
-                    TempData["ErrorMessage"] = "Device not found.";
-                    return Json(new { success = false, message = TempData["ErrorMessage"].ToString() });
-                }
-                if (viewModel.JobCreateRequest.Settings.Type != DeviceJobType.Restore)
-                {
-                    ICollection<NASServer>? nasServers = await _nasServerService.GetAllByTenantIdAsync(device.TenantId);
-                    if (nasServers != null || nasServers.Any())
+                    if (viewModel.JobCreateRequest.Settings.Type != DeviceJobType.Restore)
                     {
-                        if(nasServers.Where(n => n.BackupServerId == viewModel.JobCreateRequest.Settings.BackupServerId).FirstOrDefault() != null)
+                        ICollection<NASServer>? nasServers = await _nasServerService.GetAllByTenantIdAsync(device.TenantId);
+                        if (nasServers != null || nasServers.Any())
                         {
-                            ICollection<DeviceJob>? jobs = await _jobService.GetAllByDeviceIdAsync(viewModel.JobCreateRequest.DeviceId);
-                            if (jobs == null || !jobs.Any())
+                            if (nasServers.Where(n => n.BackupServerId == viewModel.JobCreateRequest.Settings.BackupServerId).FirstOrDefault() != null)
                             {
-                                DeviceJob? job = await _jobService.CreateAsync(viewModel.JobCreateRequest);
-                                if (job != null)
+                                ICollection<DeviceJob>? jobs = await _jobService.GetAllByDeviceIdAsync(viewModel.JobCreateRequest.DeviceId);
+                                if (jobs == null || !jobs.Any())
                                 {
-                                    TempData["LastActionMessage"] = "Job created successfully.";
-                                    return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                                    DeviceJob? job = await _jobService.CreateAsync(viewModel.JobCreateRequest);
+                                    if (job != null)
+                                    {
+                                        TempData["LastActionMessage"] = "Job created successfully.";
+                                        return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                                    }
+                                    TempData["ErrorMessage"] = "An error occurred while creating the job.";
                                 }
-                                TempData["ErrorMessage"] = "An error occurred while creating the job.";
+                                else
+                                {
+                                    TempData["ErrorMessage"] = "Job is already created on this device.";
+                                }
                             }
                             else
                             {
-                                TempData["ErrorMessage"] = "Job is already created on this device.";
+                                TempData["ErrorMessage"] = "NASServer server not found.";
                             }
                         }
                         else
                         {
-                            TempData["ErrorMessage"] = "NASServer server not found.";
+                            TempData["ErrorMessage"] = "No NAS servers found.";
                         }
                     }
                     else
                     {
-                        TempData["ErrorMessage"] = "No NAS servers found.";
+                        TempData["ErrorMessage"] = "This feature is disabled.";
                     }
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "This feature is disabled.";
+                    TempData["ErrorMessage"] = "Device not found.";
                 }
             }
             viewModel.NASServers = await _nasServerService.GetAllByTenantIdAsync(int.Parse(HttpContext.Session.GetString("ActiveTenantId")));
             string html = await RenderUtilities.RenderViewToStringAsync(this, "Job/_JobCreatePartial", viewModel);
             return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString(), html });
+        }
+
+        [HttpGet("{id}/Update")]
+        public async Task<IActionResult> UpdatePartialAsync(int id)
+        {
+            JobUpdateViewModel viewModel = new JobUpdateViewModel();
+            
+            DeviceJob? job = await _jobService.GetAsync(id);
+            if (job != null)
+            {
+                Device? device = await _deviceService.GetAsync((int)job.DeviceId);
+                if (device != null)
+                {
+                    viewModel.NASServers = await _nasServerService.GetAllByTenantIdAsync(device.TenantId);
+                }
+                viewModel.JobUpdateRequest = new JobUpdateRequest();
+                viewModel.JobUpdateRequest.Id = job.Id;
+                viewModel.JobUpdateRequest.Name = job.Name;
+                viewModel.JobUpdateRequest.Settings = new JobInfoRequest();
+                if(job.Settings != null)
+                {
+                    viewModel.JobUpdateRequest.Settings.BackupServerId = (int)job.Settings.BackupServerId;
+                    viewModel.JobUpdateRequest.Settings.Type = job.Settings.Type;
+                    viewModel.JobUpdateRequest.Settings.Retention = job.Settings.Retention;
+                    viewModel.JobUpdateRequest.Settings.RetryCount = job.Settings.RetryCount;
+                    viewModel.JobUpdateRequest.Settings.Sampling = job.Settings.Sampling;
+                    viewModel.JobUpdateRequest.Settings.StartTime = job.Settings.StartTime;
+                    viewModel.JobUpdateRequest.Settings.EndTime = job.Settings.EndTime;
+                    viewModel.JobUpdateRequest.Settings.UpdateInterval = job.Settings.UpdateInterval;
+                    viewModel.JobUpdateRequest.Settings.Schedule = new JobScheduleRequest();
+                    if(job.Settings.Schedule != null)
+                    {
+                        viewModel.JobUpdateRequest.Settings.Schedule.Sunday = job.Settings.Schedule!.Sunday;
+                        viewModel.JobUpdateRequest.Settings.Schedule.Monday = job.Settings.Schedule.Monday;
+                        viewModel.JobUpdateRequest.Settings.Schedule.Tuesday = job.Settings.Schedule.Tuesday;
+                        viewModel.JobUpdateRequest.Settings.Schedule.Wednesday = job.Settings.Schedule.Wednesday;
+                        viewModel.JobUpdateRequest.Settings.Schedule.Thursday = job.Settings.Schedule.Thursday;
+                        viewModel.JobUpdateRequest.Settings.Schedule.Friday = job.Settings.Schedule.Friday;
+                        viewModel.JobUpdateRequest.Settings.Schedule.Saturday = job.Settings.Schedule.Saturday;
+                    }
+                }
+            }
+            return await Task.FromResult(PartialView("_JobUpdatePartial", viewModel));
+        }
+
+        [HttpPost("{id}/Update")]
+        public async Task<IActionResult> UpdateTenantAsync(JobUpdateViewModel viewModel)
+        {
+            DeviceJob? job = await _jobService.GetAsync(viewModel.JobUpdateRequest.Id);
+            if (job != null)
+            {
+                Device? device = await _deviceService.GetAsync((int)job.DeviceId);
+                if(device != null)
+                {
+                    viewModel.NASServers = await _nasServerService.GetAllByTenantIdAsync(device.TenantId);
+                }
+                if (ModelState.IsValid)
+                {
+                    job = await _jobService.UpdateAsync(viewModel.JobUpdateRequest);
+                    if (job != null)
+                    {
+                        TempData["LastActionMessage"] = "Job updated successfully.";
+                        return Json(new { success = true, message = TempData["LastActionMessage"].ToString() });
+                    }
+                }
+            }
+            TempData["ErrorMessage"] = "An error occurred while updating the job.";
+            string html = await RenderUtilities.RenderViewToStringAsync(this, "Job/_JobUpdatePartial", viewModel);
+            return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
+        }
+
+        [HttpPost("{id}/Delete")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.DeleteAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job deleted successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while deleting the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Start")]
+        public async Task<IActionResult> StartAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.StartAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job started successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while starting the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Stop")]
+        public async Task<IActionResult> StopAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.StartAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job stopped successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while stopping the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Resume")]
+        public async Task<IActionResult> ResumeAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.ResumeAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job resumed successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while resuming the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Pause")]
+        public async Task<IActionResult> PauseAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.PauseAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job paused successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while pausing the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
         }
     }
 }

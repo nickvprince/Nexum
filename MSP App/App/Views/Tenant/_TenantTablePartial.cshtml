@@ -32,7 +32,7 @@
                 foreach (var tenant in Model.OrderBy(t => t.Name))
                 {
                     i++;
-                    <tr>
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                         <td class="p-0 border-0" colspan="12">
                             <div id="tempDataMessageTenant@(tenant.Id)"></div>
                         </td>
@@ -64,11 +64,16 @@
                             </div>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                         <td class="p-0 border-0" colspan="12">
                             <div id="details@(tenant.Id)" class="collapse">
                                 <table class="table m-0 table-nexum-dark border-0">
                                     <thead>
+                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                            <td colspan="12" class="border-0 text-nexum-light">
+                                                <strong>API Key: </strong>@tenant.ApiKey
+                                            </td>
+                                        </tr>
                                         <tr class="text-center text-nowrap">
                                             <th class="border-0 text-nexum-light">Name</th>
                                             <th class="border-0 text-nexum-light">Phone</th>
@@ -81,7 +86,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="row-nexum-striped text-center text-nowrap">
+                                        
+                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Phone</td>
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Email</td>
@@ -91,7 +97,7 @@
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Zip</td>
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Country</td>
                                         </tr>
-                                        <tr class="row-nexum-striped">
+                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                             <td class="p-0 border-0" colspan="12">
                                                 <div id="tempDataMessageKey@(tenant.Id)"></div>
                                                 <div id="keyCreateContentBox@(tenant.Id)"></div>
@@ -116,17 +122,17 @@
                                                     <tbody class="border-2 border-top-0 border-start-0 border-end-0">
                                                         @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Where(k => !k.IsDeleted).Count() == 0)
                                                         {
-                                                            <tr class="text-center text-nowrap">
+                                                            <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                                                 <td class="border-0 text-nexum-light" colspan="12">No keys found</td>
                                                             </tr>
                                                         }
                                                         else
                                                         {
                                                             int j = 0;
-                                                            foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted))
+                                                            foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted).OrderByDescending(k => k.Id))
                                                             {
                                                                 j++;
-                                                                <tr class="row-nexum-striped text-center text-nowrap align-middle">
+                                                                <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                                                     <td class="border-0 text-nexum-light">@j</td>
                                                                     <td class="border-0 text-nexum-light">@key.Key</td>
                                                                     <td class="border-0 text-nexum-light">@key.Type</td>

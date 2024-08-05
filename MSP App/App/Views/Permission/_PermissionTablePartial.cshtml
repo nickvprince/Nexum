@@ -1,0 +1,39 @@
+﻿@model ICollection<Permission>?
+
+<div class="table-responsive">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
+        <thead>
+            <tr class="text-center">
+                <th class="border-0 text-nexum-light">#</th>
+                <th class="border-0 text-nexum-light">Name</th>
+                <th class="border-0 text-nexum-light">Description</th>
+                <th class="border-0 text-nexum-light">Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || !Model.Any())
+            {
+                <tr>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No permissions found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                @foreach (var permission in Model.OrderBy(p => p.Type).ThenBy(p => p.Name))
+                {
+                    if (permission != null)
+                    {
+                        i++;
+                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap">
+                            <td class="border-0 text-nexum-light">@i</td>
+                            <td class="border-0 text-nexum-light">@permission.Type</td>
+                            <td class="border-0 text-nexum-light text-start">@permission.Name</td>
+                            <td class="border-0 text-nexum-light text-start">@permission.Description</td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>

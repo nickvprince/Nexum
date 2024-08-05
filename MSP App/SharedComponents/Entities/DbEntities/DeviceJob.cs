@@ -22,6 +22,8 @@ namespace SharedComponents.Entities.DbEntities
         InProgress,
         Complete,
         Failed,
-        Restarting
+        Restarting,
+        Paused,
+        Cancelled
     }
 }

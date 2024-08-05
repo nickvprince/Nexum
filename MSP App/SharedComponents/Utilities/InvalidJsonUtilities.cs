@@ -45,7 +45,7 @@ namespace SharedComponents.Utilities
                     writer.WritePropertyName("stopTime");
                     writer.WriteValue(job.Settings.EndTime);
                     writer.WritePropertyName("retryCount");
-                    writer.WriteValue(job.Settings.retryCount);
+                    writer.WriteValue(job.Settings.RetryCount);
                     writer.WritePropertyName("sampling");
                     writer.WriteValue(job.Settings.Sampling);
                     writer.WritePropertyName("heartbeat_interval");
