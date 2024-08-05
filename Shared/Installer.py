@@ -366,13 +366,7 @@ def uninstall_from_device(window:tk.Tk):
 
     # remove data
     
-    # if c:\windows\temp\settings exists delete it
-    if os.path.exists("C:\\Windows\\Temp\\settings"):
-        shutil.rmtree("C:\\Windows\\Temp\\settings")
 
-    #if users temp settings exists delete it
-    if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
-        shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
 
     identifiers_count += 1
     try:
@@ -501,6 +495,20 @@ def uninstall_from_device(window:tk.Tk):
     uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
     write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
                 0, get_time())
+    
+    # if c:\windows\temp\settings exists delete it
+    try:
+        if os.path.exists("C:\\Windows\\Temp\\settings"):
+            shutil.rmtree("C:\\Windows\\Temp\\settings")
+    except:
+        pass
+    #if users temp settings exists delete it
+    try:
+        if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+            shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+    except:
+        pass
+
     completed(window,"","uninstall completed")
 
 def uninstall_client(key:str,window:tk.Tk):
@@ -722,7 +730,7 @@ def notify_server(backupserver:str,id:int,apikey:str,uuid:str,key:str):
         "installationKey":key
         }
 
-        _ = requests.request("POST", f"{SERVER_PROTOCOL}{backupserver}/verify", 
+        _ = requests.request("POST", f"{SERVER_PROTOCOL}{backupserver}/api/datalink/verify", 
                 timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                 json=payload, verify=SSL_CHECK)
 
@@ -736,16 +744,6 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     The background process for installing the client on the server, 
     including the registry keys and the service, and the persistence
     """
-
-    # clean on install incase
-
-    # if c:\windows\temp\settings exists delete it
-    if os.path.exists("C:\\Windows\\Temp\\settings"):
-        shutil.rmtree("C:\\Windows\\Temp\\settings")
-
-    #if users temp settings exists delete it
-    if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
-        shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
 
 
     write_log("INFO", "Install Client", "Install Client Background Started", 0, get_time())
@@ -770,7 +768,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
         # send information to local server
         payload = {
             "name":socket.gethostname(),
-            "uuid":output[0:3],
+            "uuid":output[0:32],
             "ipaddress":socket.gethostbyname(socket.gethostname()),
             "port":PORT,
             "type":1,
@@ -967,14 +965,9 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     """
     # clean on install incase
     
-    # if c:\windows\temp\settings exists delete it
-    if os.path.exists("C:\\Windows\\Temp\\settings"):
-        shutil.rmtree("C:\\Windows\\Temp\\settings")
 
-    #if users temp settings exists delete it
-    if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
-        shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
 
+    
     write_log("INFO", "Install Server", "Install Server process starting", 0, get_time())
     # split backupserver as 127.0.0.1:5000 as [127.0.0.1,5000]
     server_address = backupserver.split(":")[0]
@@ -1239,6 +1232,20 @@ def main():
     # INITIALIZATION
     global SETTINGS_PATH
     global logpath
+    # if c:\windows\temp\settings exists delete it
+    try:
+        if os.path.exists("C:\\Windows\\Temp\\settings"):
+            shutil.rmtree("C:\\Windows\\Temp\\settings")
+    except: 
+        pass
+    #if users temp settings exists delete it
+    try:
+        if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+            shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+    except:
+        pass
+
+
     logpath = str(tempfile.gettempdir())+str("\\logs\\logs.db")
     if not os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
         os.mkdir(str(tempfile.gettempdir())+str("\\settings"))
@@ -1291,11 +1298,7 @@ def main():
         write_log("ERROR", "MySqlite", "Backup servers table not created", 500, time.localtime())
     # INITIALIZATION END
 
-
     #TESTING Area
-    t = tk.Tk() # bypass UAC for testing
-    main_window(t)
-
     if sys.argv[-1] != ASADMIN:
         script = os.path.abspath(sys.argv[0])
         params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
