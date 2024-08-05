@@ -1,0 +1,110 @@
+﻿@model ICollection<Tenant>?
+
+<div class="table-responsive">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
+        <thead>
+            <tr class="text-center">
+                <th class="border-0 text-nexum-light">#</th>
+                <th class="border-0 text-nexum-light">Time</th>
+                @if (Model != null && Model.Count() > 1)
+                {
+                    <th class="border-0 text-nexum-light">Tenant</th>
+                }
+                @if(Context.Session.GetString("ActiveDeviceId") == null)
+                {
+                    <th class="border-0 text-nexum-light">Device</th>
+                }
+                <th class="border-0 text-nexum-light">Type</th>
+                <th class="border-0 text-nexum-light">Code</th>
+                <th class="border-0 text-nexum-light">Message</th>
+                <th class="border-0 text-nexum-light">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Logs != null && d.Logs.Any())))
+            {
+                <tr>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Logs found</td>
+                </tr>
+            }
+            else
+            {
+                int i = 0;
+                foreach (var tenant in Model.OrderBy(t => t.Name))
+                {
+                    if (tenant.Devices != null && tenant.Devices.Any())
+                    {
+                        foreach (var device in tenant.Devices.OrderBy(n => n.DeviceInfo.Name))
+                        {
+                            if (device.Logs != null)
+                            {
+                            foreach (var log in device.Logs.Where(l => !l.IsDeleted).OrderBy(l => l.Time))
+                                {
+                                    i++;
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                        <td class="p-0 border-0" colspan="12">
+                                            <div id="tempDataMessageLog@(log.Id)"></div>
+                                        </td>
+                                    </tr>
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap">
+                                        <td class="border-0 text-nexum-light">@i</td>
+                                        <td class="border-0 text-nexum-light">@log.Time</td>
+                                        @if (Model.Count() > 1)
+                                        {
+                                            <th class="border-0 text-nexum-light">@tenant.Name</th>
+                                        }
+                                        @if(Context.Session.GetString("ActiveDeviceId") == null)
+                                        {
+                                            <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == log.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
+                                        }
+                                        <td class="border-0 text-nexum-light">@log.Type</td>
+                                        <td class="border-0 text-nexum-light">@log.Code</td>
+                                        <td class="border-0 text-nexum-light text-wrap">@log.Message</td>
+                                        <td class="border-0">
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(log.Id)">
+                                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                                        <use xlink:href="#eye"></use>
+                                                    </svg>
+                                                </a>
+                                                <form id="logDeletelink@(log.Id)" asp-controller="Log" asp-action="Delete" asp-route-id="@log.Id">
+                                                    <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#x-circle"></use>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                        <td class="p-0 border-0" colspan="12">
+                                            <div id="details@(log.Id)" class="collapse">
+                                                <table class="table m-0 table-nexum-dark border-0">
+                                                    <thead>
+                                                        <tr class="text-center text-nowrap">
+                                                            <th class="border-0 text-nexum-light">Filename</th>
+                                                            <th class="border-0 text-nexum-light">Function</th>
+                                                            <th class="border-0 text-nexum-light">Stack Trace</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                            <td class="border-0 text-nexum-light">@log.Filename</td>
+                                                            <td class="border-0 text-nexum-light">@log.Function</td>
+                                                            <td class="border-0 text-nexum-light">@((log.Stack_Trace ?? "N/A"))</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>

@@ -31,7 +31,26 @@
             }, 2000);
         }
 
+        function loadLogTable() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Backups...</h5>';
+            $('#logContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Log/Table',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#logContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#logContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
         loadTypeCards();
+        loadLogTable();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
             event.preventDefault();
@@ -40,6 +59,7 @@
 
             $('#logActionContentBox').html('');
             loadTypeCards();
+            loadLogTable();
         });
 
     </script>
