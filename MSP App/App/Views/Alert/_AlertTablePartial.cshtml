@@ -56,7 +56,7 @@
                                         {
                                             <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == alert.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
                                         }
-                                        <td class="border-0 text-nexum-light">@alert.Severity</td>
+                                        <td class="border-0 text-nexum-light">@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString(alert.Severity))</td>
                                         <td class="border-0 text-nexum-light text-wrap">@alert.Message</td>
                                         <td class="border-0">
                                             <div class="d-flex justify-content-center align-items-center">

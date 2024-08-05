@@ -57,7 +57,7 @@
                                         {
                                             <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == log.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
                                         }
-                                        <td class="border-0 text-nexum-light">@log.Type</td>
+                                        <td class="border-0 text-nexum-light">@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString(log.Type))</td>
                                         <td class="border-0 text-nexum-light">@log.Code</td>
                                         <td class="border-0 text-nexum-light text-wrap">@log.Message</td>
                                         <td class="border-0">
