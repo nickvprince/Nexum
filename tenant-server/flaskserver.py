@@ -551,13 +551,22 @@ class FlaskServer():
 
                     if str(i[0]) == str(identification):
                         url = f"{TENANT_PROTOCOL}{i[2]}:{i[3]}/modify_job"
+                        logger.log("DEBUG", "modify_job", f"Modifying job on {url}",0,FILENAME)
                         try:
                             content = request.get_json()
-                            server = MySqlite.get_backup_server(content.get('backupServerId', ''))
-                            content['backup_path'] = server[1]
-                            content['username'] = server[2]
-                            content['password'] = server[3]
-                            logger.log("INFO", "modify_job", f"Modifying job on {url}",0,FILENAME)
+                            
+                            server = MySqlite.get_backup_server(content.get('id', ''))
+                            if server is None:
+                                logger.log("ERROR", "modify_job", "Server not found",404,FILENAME)
+                                content['path'] = ""
+                                content['user'] = ""
+                                content['password'] = ""
+                            else:    
+                                content['path'] = server[1]
+                                content['user'] = server[2]
+                                content['password'] = server[3]
+                            
+                            logger.log("DEBUG", "modify_job", "Sending Request",0,FILENAME)
                             response=requests.request("POST", url, json=content, headers={"Content-Type":"application/json",APIKEY:MySqlite.read_setting(APIKEY)},timeout=TIMEOUT)
                             return make_response("", response.status_code)
                         except requests.exceptions.ConnectTimeout :

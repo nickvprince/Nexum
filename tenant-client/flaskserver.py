@@ -497,7 +497,7 @@ class FlaskServer():
             try:
                 job_to_save.save()
                 RUN_JOB_OBJECT.set_job(job_to_save)
-                return "200 OK"
+                return make_response("200 OK", 200)
             except Exception:
                 return make_response("Job exists",200)
         elif FlaskServer.auth(secret, logger, id) == 405:
