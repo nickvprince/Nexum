@@ -366,18 +366,7 @@ def uninstall_from_device(window:tk.Tk):
 
     # remove data
     
-    # if c:\windows\temp\settings exists delete it
-    try:
-        if os.path.exists("C:\\Windows\\Temp\\settings"):
-            shutil.rmtree("C:\\Windows\\Temp\\settings")
-    except:
-        pass
-    #if users temp settings exists delete it
-    try:
-        if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
-            shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
-    except:
-        pass
+
 
     identifiers_count += 1
     try:
@@ -506,6 +495,20 @@ def uninstall_from_device(window:tk.Tk):
     uninstall_percentage:float = (not_installed_indentifiers/identifiers_count) * 100
     write_log("INFO", "Uninstall", "Uninstall percentage: " + str(uninstall_percentage),
                 0, get_time())
+    
+    # if c:\windows\temp\settings exists delete it
+    try:
+        if os.path.exists("C:\\Windows\\Temp\\settings"):
+            shutil.rmtree("C:\\Windows\\Temp\\settings")
+    except:
+        pass
+    #if users temp settings exists delete it
+    try:
+        if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
+            shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+    except:
+        pass
+
     completed(window,"","uninstall completed")
 
 def uninstall_client(key:str,window:tk.Tk):
@@ -727,7 +730,7 @@ def notify_server(backupserver:str,id:int,apikey:str,uuid:str,key:str):
         "installationKey":key
         }
 
-        _ = requests.request("POST", f"{SERVER_PROTOCOL}{backupserver}/verify", 
+        _ = requests.request("POST", f"{SERVER_PROTOCOL}{backupserver}/api/datalink/verify", 
                 timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                 json=payload, verify=SSL_CHECK)
 
