@@ -268,11 +268,15 @@ namespace API.Controllers
                     // --- End of authentication check ---
                     if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.JobId))
                     {
-                        if (await _dbJobService.DeleteAsync(id))
+                        if (await _httpJobService.StopAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
-                            return Ok("Job deleted successfully.");
+                            if (await _dbJobService.DeleteAsync(id))
+                            {
+                                return Ok("Job deleted successfully.");
+                            }
+                            return BadRequest("An error occurred while deleting the job.");
                         }
-                        return BadRequest("An error occurred while deleting the job.");
+                        return BadRequest("An error occurred while stopping the job on the tenant server.");
                     }
                     return BadRequest("An error occurred while deleting the job on the tenant server.");
                 }
