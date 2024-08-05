@@ -97,6 +97,7 @@ class API():
             else:
                 new_client = list(new_client)
                 new_client.remove(new_client[4])
+
                 new_client.insert(4,"service --offline")
                 MySqlite.update_client(new_client)
                 return "0%"

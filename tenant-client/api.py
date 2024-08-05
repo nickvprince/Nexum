@@ -60,17 +60,13 @@ class API():
         """
         # call 127.0.0.1:5004/get_status
         apikey = MySqlite.read_setting(APIKEY_SETTING)
-        client_id = MySqlite.read_setting(CLIENT_ID_SETTING)
-
-        url = f"http://{MySqlite.read_setting(SERVICE_ADDRESS_SETTING)}{STATUS_URL}"
-
+        
         headers = {
             "Content-Type": "application/json",
             "apikey": str(apikey),
-            "id": str(client_id)
         }
         try:
-            response = requests.get(url, headers=headers,timeout=TIMEOUT,verify=False)
+            response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
             data = response.json()
             result = data["result"]
             if "copied" in result:
@@ -79,21 +75,6 @@ class API():
                 if match:
                     percent = int(match.group(1))
 
-                    try:
-                        # update MSP
-                        headers = {
-                            "Content-Type": "application/json",
-                            "apikey": str(apikey),
-                        }
-                        content = {
-                            "client_id": str(client_id),
-                            "status":1,
-                            "progress":percent
-                        }
-                        route = "http://"+MySqlite.read_setting("server_address")+":"+MySqlite.read_setting("server_port")+"/update_job_status"
-                        response = requests.post(route, headers=headers, json=content,timeout=TIMEOUT,verify=False)
-                    except Exception as e:
-                        _ = e
                     return str(percent) + str("%")
                 else:
                     return "0%"
@@ -109,7 +90,7 @@ class API():
                 MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
                 return "0%"
             else:
-                MySqlite.write_setting(STATUS_SETTING,"service --offline")
+                #MySqlite.write_setting(STATUS_SETTING,"service --offline")
                 return "0%"
 
     @staticmethod

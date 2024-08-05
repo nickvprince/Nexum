@@ -177,7 +177,7 @@ class RunJob():
                     "Content-Type": "application/json"
                 }
                 response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
-                if MySqlite.read_setting("Status") != "Online":
+                if (MySqlite.read_setting("Status")!= "Online"):
                     self.logger.log("INFO","RunJob","Service is online","0","runjob.py")
                     MySqlite.write_setting("Status","Online")
             except Exception as e:
@@ -185,7 +185,7 @@ class RunJob():
                 MySqlite.write_setting("Status","ServiceOffline")
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
-            if LOCAL_JOB.get_settings()is not None:
+            if LOCAL_JOB.get_settings().get_stop_time() is not None and LOCAL_JOB.get_settings().get_start_time() is not None:
                 if LOCAL_JOB.get_settings()[2] is None or LOCAL_JOB.get_settings()[3] is None:
                     setting = LOCAL_JOB.get_settings()
                     setting = list(setting)

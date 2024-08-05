@@ -671,7 +671,7 @@ class FlaskServer():
         if FlaskServer.auth(apikey, logger, identification) == 200:
             try:
                 logger.log("INFO", "nexumservice", "Getting URLS",0,FILENAME)
-                request2 = requests.request("GET", f"{"http://"}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}{URLS_ROUTE}",
+                request2 = requests.request("GET", f"{"https://"}{MySqlite.read_setting(MSP_SERVER_SETTING)}:{MySqlite.read_setting(MSP_PORT_SETTING)}/{URLS_ROUTE}",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:MySqlite.read_setting(APIKEY)},
                         verify=VERIFY)
 
@@ -679,11 +679,11 @@ class FlaskServer():
 
                 service_url=request["nexumServiceUrlLocal"]
 
-                request2 = requests.request("GET", f"{TENANT_PROTOCOL}{service_url}",
+                request3 = requests.request("GET", f"{MSP_PROTOCOL}{service_url}",
                         timeout=TIMEOUT, headers={"Content-Type": "application/json",APIKEY:MySqlite.read_setting(APIKEY)},
                         verify=VERIFY)
                 logger.log("INFO", "nexumservice", "Got Nexum Service File.. Relaying",0,FILENAME)
-                return make_response(request2.content,request2.status_code)
+                return make_response(request3.content,request3.status_code)
 
             except ConnectionError:
                 logger.log("ERROR","nexumservice", "Failed to get URLS","1009",FILENAME)
@@ -1188,7 +1188,7 @@ class FlaskServer():
                 "installationKey":installationKey
                 }
 
-                _ = requests.request("POST", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/verify", 
+                _ = requests.request("POST", f"{"https://"}{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp-port")}/api/datalink/verify", 
                         timeout=TIMEOUT, headers={"Content-Type": "application/json","apikey":apikey},
                         json=payload, verify=False)
             except ConnectionError:
