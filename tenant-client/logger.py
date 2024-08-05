@@ -34,17 +34,18 @@ def convert_type(log_type):
     """
     Convert a string to a type
     """
-    if log_type == "Trace":
+    log_type = log_type.upper()
+    if log_type == "TRACE":
         return 0
-    elif log_type == "Debug":
+    elif log_type == "DEBUG":
         return 1
     elif log_type == "INFO":
         return 2
-    elif log_type == "warning":
+    elif log_type == "WARNING":
         return 3
-    elif log_type == "Error":
+    elif log_type == "ERROR":
         return 4
-    elif log_type == "Critical":
+    elif log_type == "CRITICAL":
         return 5
     else:
         return -1

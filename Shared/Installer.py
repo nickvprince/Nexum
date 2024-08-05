@@ -523,7 +523,7 @@ def uninstall_client(key:str,window:tk.Tk):
         "client_id": read_setting("CLIENT_ID")
     }
     try:
-        response = requests.post(f"{CLIENT_PROTOCOL}{read_setting('server_address')}:{read_setting('server_port')}/uninstall",
+        response = requests.get(f"{CLIENT_PROTOCOL}{read_setting('server_address')}:{read_setting('server_port')}/uninstall",
                                 headers=headers, json=content, timeout=TIMEOUT, verify=SSL_CHECK)
         if response.status_code == 200:
             write_log("INFO", "Uninstall", "Uninstall request sent", 0, get_time())
@@ -556,13 +556,13 @@ def uninstall_program(key:str,window:tk.Tk):
             if response.status_code == 200:
                 write_log("INFO", "Uninstall", "Uninstall request sent", 0, get_time())
                 # post to msp to check install key
-
+                uninstall_from_device(window)
 
             else:
                 write_log("ERROR", "Uninstall", "Uninstall request failed", 1115, get_time())
         except Exception as e:
             write_log("ERROR", "Uninstall", f"Could not connect to server {e}", 1100, get_time())
-        uninstall_from_device(window)
+        #uninstall_from_device(window) if crashes change above back to here
 
 
 

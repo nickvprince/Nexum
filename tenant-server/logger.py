@@ -19,21 +19,22 @@ from sql import MySqlite,InitSql
 
 
 @staticmethod
-def convert_type(type):
+def convert_type(in_type):
     """
     Convert a string to a type
     """
-    if type == "Trace":
+    in_type = in_type.upper()
+    if in_type == "TRACE":
         return 0
-    elif type == "Debug":
+    elif in_type == "DEBUG":
         return 1
-    elif type == "INFO":
+    elif in_type == "INFO":
         return 2
-    elif type == "warning":
+    elif in_type == "WARNING":
         return 3
-    elif type == "Error":
+    elif in_type == "ERROR":
         return 4
-    elif type == "Critical":
+    elif in_type == "CRITICAL":
         return 5
     else:
         return -1
@@ -64,7 +65,7 @@ class Logger():
         }
         content = {
             "client_id": identifier,
-            "severity": severity,
+            "type": convert_type(severity),
             "function": function,
             "message": message,
             "uuid": MySqlite.read_setting("uuid"),

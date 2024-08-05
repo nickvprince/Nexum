@@ -77,6 +77,26 @@ class API():
                 match = re.search(r'copied \((\d+)%\)', result)
                 if match:
                     percent = int(match.group(1))
+
+                    # call msp update job status
+                    route = f"{MSP_PROTOCOL}{MySqlite.read_setting(MSP_SERVER_ADDRESS)}:{MySqlite.read_setting(MSP_PORT)}/api/DataLink/Update-Job-Status"
+                    headers = {
+                        "apikey": MySqlite.read_setting(APIKEY),
+                        "Content-Type": "application/json"
+                    }
+                    status = 1
+                    if percent == 100:
+                        status = 2
+                    content = {
+                        "client_id": int(MySqlite.read_setting(CLIENT_ID)),
+                        "uuid": MySqlite.read_setting("uuid"),
+                        "status": status,
+                        "progress": percent
+                    }
+                    try:
+                        _ = requests.put(route, headers=headers, json=content,timeout=10,verify=False)
+                    except Exception as e:
+                        pass
                     return str(percent) + str("%")
                 else:
                     return "0%"
