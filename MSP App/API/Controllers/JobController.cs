@@ -157,7 +157,7 @@ namespace API.Controllers
                     if (request.Settings.Schedule != null && job.Settings.Schedule != null)
                     {
                         job.Name = request.Name;
-                        //job.Settings.BackupServerId = request.Settings.BackupServerId; #disable changing backup server
+                        job.Settings.BackupServerId = request.Settings.BackupServerId;
                         job.Settings.Type = request.Settings.Type;
                         job.Settings.StartTime = request.Settings.StartTime;
                         job.Settings.EndTime = request.Settings.EndTime;
