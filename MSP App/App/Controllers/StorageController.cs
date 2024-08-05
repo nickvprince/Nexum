@@ -21,12 +21,13 @@ namespace App.Controllers
 
         public StorageController(IAPIRequestTenantService tenantService, IAPIRequestDeviceService deviceService,
             IAPIRequestNASServerService nasServerService, IAPIRequestBackupService backupService,
-            IAPIRequestJobService _jobService)
+            IAPIRequestJobService jobService)
         {
             _tenantService = tenantService;
             _deviceService = deviceService;
             _nasServerService = nasServerService;
             _backupService = backupService;
+            _jobService = jobService;
         }
 
         public override async void OnActionExecuting(ActionExecutingContext context)
@@ -47,6 +48,13 @@ namespace App.Controllers
                 foreach (var tenant in tenants)
                 {
                     tenant.Devices = await _deviceService.GetAllByTenantIdAsync(tenant.Id);
+                    if (tenant.Devices != null)
+                    {
+                        foreach (var device in tenant.Devices)
+                        {
+                            device.Jobs = await _jobService.GetAllByDeviceIdAsync(device.Id);
+                        }
+                    }
                     tenant.NASServers = await _nasServerService.GetAllByTenantIdAsync(tenant.Id);
                     if (tenant.NASServers != null)
                     {
