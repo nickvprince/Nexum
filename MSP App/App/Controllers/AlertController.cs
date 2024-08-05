@@ -92,5 +92,20 @@ namespace App.Controllers
         {
             return await Task.FromResult(PartialView("_AlertTablePartial", FilterTenantsBySession(await PopulateTenantsAsync())));
         }
+
+        [HttpPost("{id}/Delete")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _alertService.DeleteAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Alert deleted successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while deleting the alert.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
     }
 }

@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Alerts != null && d.Alerts.Any())))
+            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Alerts != null && d.Alerts.Any(a => !a.IsDeleted))))
             {
                 <tr>
                     <td class="text-center text-nowrap text-nexum-light" colspan="12">No Alerts found</td>

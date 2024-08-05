@@ -62,5 +62,31 @@
             loadLogTable();
         });
 
+        $(document).on('submit', '[id^=logDeletelink]', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var id = form.attr('id').replace('logDeletelink', '');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/Log/' + id + '/Delete',
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result.success) {
+                        $('#tempDataMessageLog' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        loadTypeCards();
+                        loadLogTable();
+                    } else {
+                        $('#tempDataMessageLog' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#tempDataMessageLog' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    console.error('Error:', error);
+                }
+            });
+        });
+
     </script>
 }

@@ -21,7 +21,10 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Logs != null && d.Logs.Any())))
+            @{
+                string? activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+            }
+            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Logs != null && d.Logs.Any(l => !l.IsDeleted))))
             {
                 <tr>
                     <td class="text-center text-nowrap text-nexum-light" colspan="12">No Logs found</td>
