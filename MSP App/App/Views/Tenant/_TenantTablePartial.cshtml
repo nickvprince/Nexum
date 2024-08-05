@@ -123,7 +123,7 @@
                                                         else
                                                         {
                                                             int j = 0;
-                                                            foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted))
+                                                            foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted).OrderByDescending(k => k.Id))
                                                             {
                                                                 j++;
                                                                 <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
