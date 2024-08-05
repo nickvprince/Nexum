@@ -74,29 +74,97 @@
                                         {
                                             <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == job.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
                                         }
-                                        <td class="border-0 text-nexum-light">@AddSpacesToCapital(EnumUtilities.EnumToString(job.Status))</td>
-                                        <td class="border-0 text-nexum-light">@AddSpacesToCapital(EnumUtilities.EnumToString(job.Settings.Type))</td>
-                                        <td class="border-0 text-nexum-light">
-                                            @if (@job.Progress != null)
-                                            {
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" style="width: @job.Progress%;" aria-valuenow="@job.Progress" aria-valuemin="0" aria-valuemax="100">
-                                                        @job.Progress%
-                                                    </div>
+                                        <td class="border-0 text-nexum-light">@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString(job.Status))</td>
+                                        <td class="border-0 text-nexum-light">@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString(job.Settings.Type))</td>
+                                        <td class="border-0">
+                                            <div class="d-flex justify-content-center align-items-center text-nexum-light">
+                                                <div class="h-100 w-100">
+                                                    @if (@job.Progress != null && job.Status != DeviceJobStatus.NotStarted)
+                                                    {
+                                                        <div class="progress">
+                                                            <div class="progress-bar" role="progressbar" style="width: @job.Progress%;" aria-valuenow="@job.Progress" aria-valuemin="0" aria-valuemax="100">
+                                                                @job.Progress%
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else if (job.Status == DeviceJobStatus.Complete)
+                                                    {
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                                                100%
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>N/A</text>
+                                                    }
                                                 </div>
-                                            }
-                                            else if(job.Status == DeviceJobStatus.Complete)
-                                            {
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                                                        100%
+                                                @if (job.Status == DeviceJobStatus.NotStarted)
+                                                {
+                                                    <form id="jobStartlink@(job.Id)" asp-controller="Job" asp-action="Start" asp-route-id="@job.Id">
+                                                        <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                            <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                                                <use xlink:href="#play"></use>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (job.Status == DeviceJobStatus.Paused)
+                                                {
+                                                    <form id="jobResumelink@(job.Id)" asp-controller="Job" asp-action="Resume" asp-route-id="@job.Id">
+                                                        <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                            <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                                                <use xlink:href="#play"></use>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (job.Status == DeviceJobStatus.InProgress || job.Status == DeviceJobStatus.Restarting)
+                                                {
+                                                    <form id="jobPauselink@(job.Id)" asp-controller="Job" asp-action="Pause" asp-route-id="@job.Id">
+                                                        <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                            <svg class="bi text-warning table-button-nexum" fill="currentColor">
+                                                                <use xlink:href="#pause"></use>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (job.Status == DeviceJobStatus.Complete)
+                                                {
+                                                    <div class="rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#check-lg"></use>
+                                                        </svg>
                                                     </div>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <text>N/A</text>
-                                            }
+                                                }
+                                                else
+                                                {
+                                                    <div class="rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#arrow-clockwise"></use>
+                                                        </svg>
+                                                    </div>
+                                                }
+                                                @if (job.Status == DeviceJobStatus.InProgress || job.Status == DeviceJobStatus.Restarting || job.Status == DeviceJobStatus.Paused)
+                                                {
+                                                    <form id="jobStoplink@(job.Id)" asp-controller="Job" asp-action="Stop" asp-route-id="@job.Id">
+                                                        <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                            <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                                <use xlink:href="#stop"></use>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <div class="rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi opacity-0 table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#dot"></use>
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
                                         </td>
                                         <td class="border-0">
                                             <div class="d-flex justify-content-center align-items-center">
@@ -120,6 +188,53 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="p-0 border-0" colspan="12">
+                                            <div id="details@(job.Id)" class="collapse">
+                                                <table class="table m-0 table-nexum-dark border-0">
+                                                    <thead>
+                                                        <tr class="text-center text-nowrap">
+                                                            <th class="border-0 text-nexum-light">NAS</th>
+                                                            <th class="border-0 text-nexum-light">Update Interval</th>
+                                                            <th class="border-0 text-nexum-light">Retry Count</th>
+                                                            <th class="border-0 text-nexum-light">Sampling</th>
+                                                            <th class="border-0 text-nexum-light">Retention</th>
+                                                            <th class="border-0 text-nexum-light">Start Time</th>
+                                                            <th class="border-0 text-nexum-light">End Time</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="row-nexum-striped text-center text-nowrap">
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Phone</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Email</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Address</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.City</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.State</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Zip</td>
+                                                            <td class="border-0 text-nexum-light">@tenant.TenantInfo.Country</td>
+                                                        </tr>
+                                                        <tr class="row-nexum-striped">
+                                                            <td class="p-0 border-0" colspan="12">
+                                                                <div id="tempDataMessageKey@(tenant.Id)"></div>
+                                                                <div id="keyCreateContentBox@(tenant.Id)"></div>
+                                                                <table class="table m-0 table-nexum-dark border-0">
+                                                                    <thead>
+                                                                        <tr class="text-center text-nowrap">
+
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 }
                             }
                         }
@@ -129,24 +244,3 @@
         </tbody>
     </table>
 </div>
-
-@functions {
-    public static string AddSpacesToCapital(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-
-        var newText = new System.Text.StringBuilder(text.Length * 2);
-        newText.Append(text[0]);
-
-        for (int i = 1; i < text.Length; i++)
-        {
-            if (char.IsUpper(text[i]) && text[i - 1] != ' ')
-            {
-                newText.Append(' ');
-            }
-            newText.Append(text[i]);
-        }
-        return newText.ToString();
-    }
-}

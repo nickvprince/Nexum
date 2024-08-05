@@ -238,5 +238,65 @@ namespace App.Controllers
             string html = await RenderUtilities.RenderViewToStringAsync(this, "Job/_JobUpdatePartial", viewModel);
             return Json(new { success = false, message = TempData["ErrorMessage"].ToString(), html });
         }
+
+        [HttpPost("{id}/Start")]
+        public async Task<IActionResult> StartAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.StartAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job started successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while starting the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Stop")]
+        public async Task<IActionResult> StopAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.StartAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job stopped successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while stopping the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Resume")]
+        public async Task<IActionResult> ResumeAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.ResumeAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job resumed successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while resuming the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
+
+        [HttpPost("{id}/Pause")]
+        public async Task<IActionResult> PauseAsync(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _jobService.PauseAsync(id))
+                {
+                    TempData["LastActionMessage"] = "Job paused successfully.";
+                    return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
+                }
+                TempData["ErrorMessage"] = "An error occurred while pausing the job.";
+            }
+            return Json(new { success = false, message = TempData["ErrorMessage"]?.ToString() });
+        }
     }
 }
