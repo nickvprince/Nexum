@@ -43,7 +43,7 @@
                         $('#jobContentBox').html(result);
                         $('.collapse').on('show.bs.collapse hide.bs.collapse', function () {
                             $('#jobActionContentBox').html('');
-                            $('[id^=tempDataMessagejob]').html('');
+                            $('[id^=tempDataMessageJob]').html('');
                             $('.collapse').not(this).collapse('hide');
                         });
                     },
@@ -111,15 +111,15 @@
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         loadStatusCards();
                         loadTable();
                     } else {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     }
                 },
                 error: function (xhr, status, error) {
-                    $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     console.error('Error:', error);
                 }
             });
@@ -137,15 +137,15 @@
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         loadStatusCards();
                         loadTable();
                     } else {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     }
                 },
                 error: function (xhr, status, error) {
-                    $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     console.error('Error:', error);
                 }
             });
@@ -163,15 +163,15 @@
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         loadStatusCards();
                         loadTable();
                     } else {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     }
                 },
                 error: function (xhr, status, error) {
-                    $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     console.error('Error:', error);
                 }
             });
@@ -189,15 +189,15 @@
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         loadStatusCards();
                         loadTable();
                     } else {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     }
                 },
                 error: function (xhr, status, error) {
-                    $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     console.error('Error:', error);
                 }
             });
@@ -215,15 +215,15 @@
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-success alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         loadStatusCards();
                         loadTable();
                     } else {
-                        $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">' + result.message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     }
                 },
                 error: function (xhr, status, error) {
-                    $('#tempDataMessagejob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    $('#tempDataMessageJob' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                     console.error('Error:', error);
                 }
             });
