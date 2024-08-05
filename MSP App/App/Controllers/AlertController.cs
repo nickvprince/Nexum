@@ -87,11 +87,10 @@ namespace App.Controllers
             return await Task.FromResult(PartialView("_AlertSeverityCardsPartial", FilterTenantsBySession(await PopulateTenantsAsync())));
         }
 
-        /*[HttpGet]
-        public async Task<IActionResult> Table()
+        [HttpGet("Table")]
+        public async Task<IActionResult> TableAsync()
         {
-            ICollection<DeviceAlert>? alerts = await _alertService.GetAllAsync();
-            return PartialView("_AlertTablePartial", alerts);
-        }*/
+            return await Task.FromResult(PartialView("_AlertTablePartial", FilterTenantsBySession(await PopulateTenantsAsync())));
+        }
     }
 }

@@ -31,7 +31,26 @@
             }, 2000);
         }
 
+        function loadAlertTable() {
+            var loadingMessage = '<h5 id="loadingMessage" class="text-nexum-light">Loading Alerts...</h5>';
+            $('#alertContentBox').prepend(loadingMessage);
+            setTimeout(function () {
+                $.ajax({
+                    url: '/Alert/Table',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#alertContentBox').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#alertContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
+                        console.error('Error loading partial view:', error);
+                    }
+                });
+            }, 2000);
+        }
+
         loadSeverityCards();
+        loadAlertTable();
 
         $(document).on('submit', '[id^=tenant-select], [id^=device-select]', function (event) {
             event.preventDefault();
@@ -40,6 +59,7 @@
 
             $('#alertActionContentBox').html('');
             loadSeverityCards();
+            loadAlertTable();
         });
 
     </script>

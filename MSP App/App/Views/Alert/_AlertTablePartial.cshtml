@@ -1,41 +1,79 @@
-﻿@model ICollection<DeviceAlert>?
+﻿@model ICollection<Tenant>?
 
 <div class="table-responsive">
-    <table class="table table-striped m-0">
+    <table class="table m-0 table-nexum-dark rounded-5 overflow-hidden">
         <thead>
-            <tr>
-                <th>#</th>
-                <th>Severity</th>
-                <th>Message</th>
-                <th>Time</th>
-                <th>Device</th>
-                <th></th>
+            <tr class="text-center">
+                <th class="border-0 text-nexum-light">#</th>
+                <th class="border-0 text-nexum-light">Time</th>
+                @if (Model != null && Model.Count() > 1)
+                {
+                    <th class="border-0 text-nexum-light">Tenant</th>
+                }
+                @if (Context.Session.GetString("ActiveDeviceId") == null)
+                {
+                    <th class="border-0 text-nexum-light">Device</th>
+                }
+                <th class="border-0 text-nexum-light">Severity</th>
+                <th class="border-0 text-nexum-light">Message</th>
+                <th class="border-0 text-nexum-light">Actions</th>
             </tr>
         </thead>
         <tbody>
-            @if( Model == null || Model.Count == 0)
+            @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Alerts != null && d.Alerts.Any())))
             {
                 <tr>
-                    <td colspan="6">No alerts found</td>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Alerts found</td>
                 </tr>
             }
             else
             {
                 int i = 0;
-                foreach (var alert in Model)
+                foreach (var tenant in Model.OrderBy(t => t.Name))
                 {
-                    i++;
-                    <tr>
-                        <td class="text-nowrap">@i</td>
-                        <td class="text-nowrap">@alert.Severity</td>
-                        <td class="text-nowrap">@alert.Message</td>
-                        <td class="text-nowrap">@alert.Time</td>
-                        <td class="text-nowrap">@alert.DeviceId</td>
-                        <td class="text-nowrap">
-                            <a href="#">✔</a> |
-                            <a href="#">✘</a>
-                        </td>
-                    </tr>
+                    if (tenant.Devices != null && tenant.Devices.Any())
+                    {
+                        foreach (var device in tenant.Devices.OrderBy(n => n.DeviceInfo.Name))
+                        {
+                            if (device.Alerts != null)
+                            {
+                                foreach (var alert in device.Alerts.Where(a => !a.IsDeleted).OrderBy(a => a.Time).Reverse())
+                                {
+                                    i++;
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                        <td class="p-0 border-0" colspan="12">
+                                            <div id="tempDataMessageAlert@(alert.Id)"></div>
+                                        </td>
+                                    </tr>
+                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap">
+                                        <td class="border-0 text-nexum-light">@i</td>
+                                        <td class="border-0 text-nexum-light">@alert.Time</td>
+                                        @if (Model.Count() > 1)
+                                        {
+                                            <th class="border-0 text-nexum-light">@tenant.Name</th>
+                                        }
+                                        @if (Context.Session.GetString("ActiveDeviceId") == null)
+                                        {
+                                            <td class="border-0 text-nexum-light">@tenant.Devices.Where(d => d.Id == alert.DeviceId).FirstOrDefault()?.DeviceInfo.Name</td>
+                                        }
+                                        <td class="border-0 text-nexum-light">@alert.Severity</td>
+                                        <td class="border-0 text-nexum-light text-wrap">@alert.Message</td>
+                                        <td class="border-0">
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <form id="alertDeletelink@(alert.Id)" asp-controller="Alert" asp-action="Delete" asp-route-id="@alert.Id">
+                                                    <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#x-circle"></use>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    }
                 }
             }
         </tbody>
