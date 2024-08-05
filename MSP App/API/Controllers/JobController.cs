@@ -107,6 +107,7 @@ namespace API.Controllers
                             {
                                 return Ok(job);
                             }
+                            await _dbJobService.DeleteAsync(job.Id);
                             return BadRequest("An error occurred while creating the job on the tenant server.");
                         }
                     }
