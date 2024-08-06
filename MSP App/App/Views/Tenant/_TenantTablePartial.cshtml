@@ -37,7 +37,7 @@
                             <div id="tempDataMessageTenant@(tenant.Id)"></div>
                         </td>
                     </tr>
-                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle" data-bs-toggle="collapse" data-bs-target="#detailsDevice@(tenant.Id)">
                         <td class="border-0 text-nexum-light">@i</td>
                         <td class="border-0 text-nexum-light">@tenant.Name</td>
                         <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
@@ -85,23 +85,34 @@
                                             <tr class="text-center text-nowrap">
                                                 <th class="border-0 text-nexum-light">#</th>
                                                 <th class="border-0 text-nexum-light">Name</th>
+                                                <th class="border-0 text-nexum-light">Type</th>
                                                 <th class="border-0 text-nexum-light">Status</th>
                                                 <th class="border-0 text-nexum-light">Is Verified</th>
                                                 <th class="border-0 text-nexum-light">Is Active</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody class="border-2 border-top-0 border-start-0 border-end-0">
                                             @{int j = 0;}
-                                            @foreach (var device in tenant.Devices.OrderByDescending(d => d.DeviceInfo.Type).ThenBy(d => d.DeviceInfo.Name))
+                                            @foreach (var device in tenant.Devices.OrderBy(d => d.DeviceInfo.Type).ThenBy(d => d.DeviceInfo.Name))
                                             {
                                                 j++;
                                                 <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                                     <td class="border-0 text-nexum-light">@j</td>
-                                                    <td class="border-0 text-nexum-light">@device.DeviceInfo?.Name</td>
+                                                    <td class="border-0 text-nexum-light">
+                                                        <div class="rounded-1 d-flex align-items-center justify-content-start p-0" style="border: none; background: none;">
+                                                            <span>@device.DeviceInfo?.Name</span>
+                                                            <a class="nav-link rounded-1 d-flex align-items-center justify-content-center ms-2" role="button" data-bs-toggle="collapse" data-bs-target="#detailsDeviceExtra@(tenant.Id)">
+                                                                <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                                                    <use xlink:href="#three-dots"></use>
+                                                                </svg>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                    <td class="border-0 text-nexum-light">@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString((DeviceType)device.DeviceInfo?.Type))</td>
                                                     <td class="border-0 text-nexum-light">
                                                         @if (device != null && device.Status != null)
                                                         {
-                                                            <div class="rounded-1 d-flex align-items-center justify-content-start p-0" style="border: none; background: none;">
+                                                            <div class="rounded-1 d-flex align-items-center justify-content-center p-0" style="border: none; background: none;">
                                                                 @switch (device.Status)
                                                                 {
                                                                     case DeviceStatus.Online:
@@ -127,6 +138,30 @@
                                                     </td>
                                                     <td class="border-0 text-nexum-light">@(device.IsVerified ? "true" : "false")</td>
                                                     <td class="border-0 text-nexum-light">@(device.IsActive ? "true" : "false")</td>
+                                                </tr>
+                                                <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                    <td class="p-0 border-0" colspan="12">
+                                                        <div id="detailsDeviceExtra@(tenant.Id)" class="collapse">
+                                                            <table class="table m-0 table-nexum-dark border-0">
+                                                                <thead>
+                                                                    <tr class="text-center text-nowrap">
+                                                                        <th class="border-0 text-nexum-light">Nickname</th>
+                                                                        <th class="border-0 text-nexum-light">UUID</th>
+                                                                        <th class="border-0 text-nexum-light">IP Address</th>
+                                                                        <th class="border-0 text-nexum-light">Port</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody class="border-2 border-top-0 border-start-0 border-end-0">
+                                                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                                        <td class="border-0 text-nexum-light">@(device.DeviceInfo?.Nickname ?? "N/A")</td>
+                                                                        <td class="border-0 text-nexum-light">@device.DeviceInfo?.Uuid</td>
+                                                                        <td class="border-0 text-nexum-light">@device.DeviceInfo?.IpAddress</td>
+                                                                        <td class="border-0 text-nexum-light">@device.DeviceInfo?.Port</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -157,7 +192,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        
                                         <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
                                             <td class="border-0 text-nexum-light">@tenant.TenantInfo.Phone</td>
