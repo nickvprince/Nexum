@@ -61,7 +61,7 @@
                                     <th class="border-0 text-nexum-light">@tenant.Name</th>
                                 }
                                 <td class="border-0 text-nexum-light">@nasServer.Name</td>
-                                <td class="border-0 text-nexum-light">@nasServer.Path</td>
+                                <td class="border-0 text-nexum-light text-start">@nasServer.Path</td>
                                 <td class="border-0">
                                     <div class="d-flex justify-content-center align-items-center">
                                         <a id="nasEditLink@(tenant.Id)-@(nasServer.Id)" class="nav-link rounded-1 d-flex align-items-center justify-content-center" asp-controller="Storage" asp-action="UpdateNAS" asp-route-id="@nasServer.Id" role="button">
