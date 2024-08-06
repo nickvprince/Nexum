@@ -17,14 +17,17 @@ namespace App.Controllers
         private readonly IAPIRequestDeviceService _deviceService;
         private readonly IAPIRequestNASServerService _nasServerService;
         private readonly IAPIRequestBackupService _backupService;
+        private readonly IAPIRequestJobService _jobService;
 
         public StorageController(IAPIRequestTenantService tenantService, IAPIRequestDeviceService deviceService,
-            IAPIRequestNASServerService nasServerService, IAPIRequestBackupService backupService)
+            IAPIRequestNASServerService nasServerService, IAPIRequestBackupService backupService,
+            IAPIRequestJobService jobService)
         {
             _tenantService = tenantService;
             _deviceService = deviceService;
             _nasServerService = nasServerService;
             _backupService = backupService;
+            _jobService = jobService;
         }
 
         public override async void OnActionExecuting(ActionExecutingContext context)
@@ -45,6 +48,13 @@ namespace App.Controllers
                 foreach (var tenant in tenants)
                 {
                     tenant.Devices = await _deviceService.GetAllByTenantIdAsync(tenant.Id);
+                    if (tenant.Devices != null)
+                    {
+                        foreach (var device in tenant.Devices)
+                        {
+                            device.Jobs = await _jobService.GetAllByDeviceIdAsync(device.Id);
+                        }
+                    }
                     tenant.NASServers = await _nasServerService.GetAllByTenantIdAsync(tenant.Id);
                     if (tenant.NASServers != null)
                     {
@@ -67,12 +77,27 @@ namespace App.Controllers
             if (HttpContext.Session.GetString("ActiveDeviceId") != null)
             {
                 int? activeDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
-                return tenants?.Where(t => t.NASServers != null && t.Devices != null &&
-                        t.NASServers.Any(n => n.Backups != null &&
-                            n.Backups.Any(b => b.Client_Id == t.Devices
-                                .Where(d => d.Id == activeDeviceId)
-                                .Select(d => d.DeviceInfo?.ClientId)
-                                .FirstOrDefault()))).ToList();
+                return tenants?.Where(t =>
+                    t.NASServers != null &&
+                    t.Devices != null &&
+                    t.NASServers.Any(n =>
+                        (n.Backups != null && n.Backups.Any(b =>
+                            b.Client_Id == t.Devices
+                                .Where(dn => dn.Id == activeDeviceId)
+                                .Select(dn => dn.DeviceInfo?.ClientId)
+                                .FirstOrDefault()
+                        ))
+                        ||
+                        (t.Devices.Any(dj =>
+                            dj.Jobs != null &&
+                            dj.Jobs.Any(j =>
+                                j.Settings != null &&
+                                j.Settings.BackupServerId == n.BackupServerId &&
+                                j.DeviceId == activeDeviceId
+                            )
+                        ))
+                    )
+                ).ToList();
             }
             if (HttpContext.Session.GetString("ActiveTenantId") != null)
             {

@@ -1,23 +1,170 @@
-﻿<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
+﻿@model ICollection<Tenant>?
+
+@{
+    var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+
+    int totalAlertsCount;
+    int totalAlertsTodayCount;
+    int totalAlertsAckCount;
+    int totalAlertsNotAckCount;
+
+    int informationAlertsCount;
+    int lowAlertsCount;
+    int mediumAlertsCount;
+    int highAlertsCount;
+    int criticalAlertsCount;
+
+    if (activeDeviceId != null)
+    {
+        totalAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId))
+            .Count() ?? 0;
+
+        totalAlertsTodayCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Time >= DateTime.Now.AddHours(-24))
+            .Count() ?? 0;
+
+        totalAlertsAckCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Acknowledged == true)
+            .Count() ?? 0;
+
+        totalAlertsNotAckCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Acknowledged == false)
+            .Count() ?? 0;
+
+        informationAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Information)
+            .Count() ?? 0;
+
+        lowAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Low)
+            .Count() ?? 0;
+
+        mediumAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Medium)
+            .Count() ?? 0;
+
+        highAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.High)
+            .Count() ?? 0;
+
+        criticalAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Critical)
+            .Count() ?? 0;
+    }
+    else
+    {
+        totalAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Count() ?? 0;
+
+        totalAlertsTodayCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Time >= DateTime.Now.AddHours(-24))
+            .Count() ?? 0;
+
+        totalAlertsAckCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Acknowledged == true)
+            .Count() ?? 0;
+
+        totalAlertsNotAckCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Acknowledged == false)
+            .Count() ?? 0;
+
+        informationAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Severity == AlertSeverity.Information)
+            .Count() ?? 0;
+
+        lowAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Severity == AlertSeverity.Low)
+            .Count() ?? 0;
+
+        mediumAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Severity == AlertSeverity.Medium)
+            .Count() ?? 0;
+
+        highAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Severity == AlertSeverity.High)
+            .Count() ?? 0;
+
+        criticalAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.Severity == AlertSeverity.Critical)
+            .Count() ?? 0;
+    }
+}
+<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
     <div class="card-body">
         <h5 class="nexum-summary-card-title">Alerts Summary</h5>
         <div class="row">
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-bell-fill nexum-summary-icon"></i>
-                    <span>Total Alerts: 50</span>
+                    <span>Total Alerts: @totalAlertsCount</span>
                 </div>
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-calendar2-plus-fill nexum-summary-icon"></i>
-                    <span>New Alerts Today: 5</span>
+                    <span>New Alerts Today: @totalAlertsTodayCount</span>
                 </div>
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-check-circle-fill nexum-summary-icon"></i>
-                    <span>Resolved Alerts: 45</span>
+                    <span>Resolved Alerts: @totalAlertsAckCount</span>
                 </div>
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-clock-fill nexum-summary-icon"></i>
-                    <span>Pending Alerts: 5</span>
+                    <span>Pending Alerts: @totalAlertsNotAckCount</span>
                 </div>
             </div>
         </div>
@@ -26,23 +173,23 @@
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.15);">
                     <i class="bi bi-info-circle-fill nexum-summary-icon"></i>
-                    <span>Information: 20</span>
+                    <span>Information: @informationAlertsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.25);">
                     <i class="bi bi-arrow-down-right-circle-fill nexum-summary-icon"></i>
-                    <span>Low: 10</span>
+                    <span>Low: @lowAlertsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.35);">
                     <i class="bi bi-exclamation-circle-fill nexum-summary-icon"></i>
-                    <span>Medium: 8</span>
+                    <span>Medium: @mediumAlertsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.45);">
                     <i class="bi bi-exclamation-triangle-fill nexum-summary-icon"></i>
-                    <span>High: 7</span>
+                    <span>High: @highAlertsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.50" );>
                     <i class="bi bi-exclamation-circle-fill nexum-summary-icon"></i>
-                    <span>Critical: 5</span>
+                    <span>Critical: @criticalAlertsCount</span>
                 </div>
             </div>
         </div>

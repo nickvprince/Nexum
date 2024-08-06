@@ -30,6 +30,18 @@
                                     .Where(d => d.Jobs != null)
                                     .SelectMany(d => d.Jobs!)
                                     .Count(j => j.Status == DeviceJobStatus.Restarting) ?? 0;
+
+    var cancelledJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.Cancelled) ?? 0;
+
+    var pausedJobsCount = Model?.Where(t => t.Devices != null)
+                                    .SelectMany(t => t.Devices!)
+                                    .Where(d => d.Jobs != null)
+                                    .SelectMany(d => d.Jobs!)
+                                    .Count(j => j.Status == DeviceJobStatus.Paused) ?? 0;
 }
 
 <!-- Jobs Cards -->
@@ -49,6 +61,15 @@
             <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
                 <h3 class="nexum-card-title-square mb-0">@inProgressJobsCount</h3>
                 <p class="nexum-card-text-square mb-0">In Progress</p>
+            </div>
+        </div>
+    </div>
+    <!-- Pause Job Card -->
+    <div class="card bg-paused text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@pausedJobsCount</h3>
+                <p class="nexum-card-text-square mb-0">Paused</p>
             </div>
         </div>
     </div>
@@ -76,6 +97,15 @@
             <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
                 <h3 class="nexum-card-title-square mb-0">@restartingJobsCount</h3>
                 <p class="nexum-card-text-square mb-0">Restarting</p>
+            </div>
+        </div>
+    </div>
+    <!-- Canceled Job Card -->
+    <div class="card bg-cancelled text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-container-square nexum-card-shadow-square">
+        <div class="card-body nexum-card-body-square">
+            <div class="d-flex flex-column justify-content-center justify-content-center nexum-card-shadow-inset rounded-2">
+                <h3 class="nexum-card-title-square mb-0">@cancelledJobsCount</h3>
+                <p class="nexum-card-text-square mb-0">Cancelled</p>
             </div>
         </div>
     </div>

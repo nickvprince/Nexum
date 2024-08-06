@@ -19,6 +19,7 @@ namespace API.Controllers
     {
         private readonly IDbJobService _dbJobService;
         private readonly ITenantServerAPIJobService _httpJobService;
+        private readonly ITenantServerAPIDeviceService _httpDeviceService;
         private readonly IDbDeviceService _dbDeviceService;
         private readonly IDbNASServerService _dbNASServerService;
         private readonly IAPIAuthService _authService;
@@ -31,12 +32,13 @@ namespace API.Controllers
         /// <param name="dbDeviceService">The device service.</param>
         /// <param name="dbNASServerService">The NAS server service.</param>
         /// <param name="authService">The authentication service.</param>
-        public JobController(IDbJobService dbJobService, ITenantServerAPIJobService httpJobService, 
-            IDbDeviceService dbDeviceService, IDbNASServerService dbNASServerService,
-            IAPIAuthService authService)
+        public JobController(IDbJobService dbJobService, ITenantServerAPIJobService httpJobService,
+            ITenantServerAPIDeviceService httpDeviceService, IDbDeviceService dbDeviceService, 
+            IDbNASServerService dbNASServerService, IAPIAuthService authService)
         {
             _dbJobService = dbJobService;
             _httpJobService = httpJobService;
+            _httpDeviceService = httpDeviceService;
             _dbDeviceService = dbDeviceService;
             _dbNASServerService = dbNASServerService;
             _authService = authService;
@@ -106,6 +108,23 @@ namespace API.Controllers
                             if(await _httpJobService.CreateAsync(device.TenantId, job))
                             {
                                 return Ok(job);
+                            }
+                            await _dbJobService.DeleteAsync(job.Id);
+                            ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                            if (devices != null)
+                            {
+                                Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                                if (server != null)
+                                {
+                                    if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                    {
+                                        foreach (var dev in devices)
+                                        {
+                                            dev.Status = DeviceStatus.Offline;
+                                            await _dbDeviceService.UpdateAsync(dev);
+                                        }
+                                    }
+                                }
                             }
                             return BadRequest("An error occurred while creating the job on the tenant server.");
                         }
@@ -183,6 +202,22 @@ namespace API.Controllers
                                     if (await _httpJobService.UpdateAsync(device.TenantId, job))
                                     {
                                         return Ok(job);
+                                    }
+                                    ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                                    if (devices != null)
+                                    {
+                                        Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                                        if (server != null)
+                                        {
+                                            if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                            {
+                                                foreach (var dev in devices)
+                                                {
+                                                    dev.Status = DeviceStatus.Offline;
+                                                    await _dbDeviceService.UpdateAsync(dev);
+                                                }
+                                            }
+                                        }
                                     }
                                     return BadRequest("An error occurred while updating the job on the tenant server.");
                                 }
@@ -273,6 +308,22 @@ namespace API.Controllers
                             if (await _dbJobService.DeleteAsync(id))
                             {
                                 return Ok("Job deleted successfully.");
+                            }
+                            ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                            if (devices != null)
+                            {
+                                Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                                if (server != null)
+                                {
+                                    if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                    {
+                                        foreach (var dev in devices)
+                                        {
+                                            dev.Status = DeviceStatus.Offline;
+                                            await _dbDeviceService.UpdateAsync(dev);
+                                        }
+                                    }
+                                }
                             }
                             return BadRequest("An error occurred while deleting the job.");
                         }
@@ -451,6 +502,22 @@ namespace API.Controllers
                         {
                             return Ok("Job started successfully.");
                         }
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                        if (devices != null)
+                        {
+                            Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                            if (server != null)
+                            {
+                                if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                {
+                                    foreach (var dev in devices)
+                                    {
+                                        dev.Status = DeviceStatus.Offline;
+                                        await _dbDeviceService.UpdateAsync(dev);
+                                    }
+                                }
+                            }
+                        }
                         return BadRequest("An error occurred while starting the job on the tenant server.");
                     }
                 }
@@ -489,6 +556,22 @@ namespace API.Controllers
                         if (await _httpJobService.PauseAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
                             return Ok("Job paused successfully.");
+                        }
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                        if (devices != null)
+                        {
+                            Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                            if (server != null)
+                            {
+                                if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                {
+                                    foreach (var dev in devices)
+                                    {
+                                        dev.Status = DeviceStatus.Offline;
+                                        await _dbDeviceService.UpdateAsync(dev);
+                                    }
+                                }
+                            }
                         }
                         return BadRequest("An error occurred while pausing the job on the tenant server.");
                     }
@@ -529,6 +612,22 @@ namespace API.Controllers
                         {
                             return Ok("Job resumed successfully.");
                         }
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                        if (devices != null)
+                        {
+                            Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                            if (server != null)
+                            {
+                                if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                {
+                                    foreach (var dev in devices)
+                                    {
+                                        dev.Status = DeviceStatus.Offline;
+                                        await _dbDeviceService.UpdateAsync(dev);
+                                    }
+                                }
+                            }
+                        }
                         return BadRequest("An error occurred while resuming the job on the tenant server.");
                     }
                 }
@@ -567,6 +666,22 @@ namespace API.Controllers
                         if (await _httpJobService.StopAsync(device.TenantId, device.DeviceInfo.ClientId))
                         {
                             return Ok("Job stopped successfully.");
+                        }
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                        if (devices != null)
+                        {
+                            Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                            if (server != null)
+                            {
+                                if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                {
+                                    foreach (var dev in devices)
+                                    {
+                                        dev.Status = DeviceStatus.Offline;
+                                        await _dbDeviceService.UpdateAsync(dev);
+                                    }
+                                }
+                            }
                         }
                         return BadRequest("An error occurred while stopping the job on the tenant server.");
                     }
@@ -611,6 +726,22 @@ namespace API.Controllers
                             if (job != null)
                             {
                                 return Ok("Job status refreshed.");
+                            }
+                        }
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                        if (devices != null)
+                        {
+                            Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                            if (server != null)
+                            {
+                                if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                {
+                                    foreach (var dev in devices)
+                                    {
+                                        dev.Status = DeviceStatus.Offline;
+                                        await _dbDeviceService.UpdateAsync(dev);
+                                    }
+                                }
                             }
                         }
                         return BadRequest("An error occurred while getting the job status from the tenant server.");
