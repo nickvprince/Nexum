@@ -15,11 +15,14 @@ namespace App.Controllers
     {
         private readonly IAPIRequestTenantService _tenantService;
         private readonly IAPIRequestInstallationKeyService _installationKeyService;
+        private readonly IAPIRequestDeviceService _deviceService;
 
-        public TenantController(IAPIRequestTenantService tenantService, IAPIRequestInstallationKeyService installationKeyService)
+        public TenantController(IAPIRequestTenantService tenantService, IAPIRequestInstallationKeyService installationKeyService,
+            IAPIRequestDeviceService deviceService)
         {
             _tenantService = tenantService;
             _installationKeyService = installationKeyService;
+            _deviceService = deviceService;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -42,11 +45,13 @@ namespace App.Controllers
         public async Task<IActionResult> TableAsync()
         {
             ICollection<Tenant>? tenants = await _tenantService.GetAllAsync();
+            ICollection<Device>? devices = await _deviceService.GetAllAsync();
             if (tenants != null)
             {
                 foreach (var tenant in tenants)
                 {
                     tenant.InstallationKeys = await _installationKeyService.GetAllByTenantIdAsync(tenant.Id);
+                    tenant.Devices = devices?.Where(d => d.TenantId == tenant.Id).ToList();
                 }
             }
             return await Task.FromResult(PartialView("_TenantTablePartial", tenants));

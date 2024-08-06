@@ -37,14 +37,19 @@
                             <div id="tempDataMessageTenant@(tenant.Id)"></div>
                         </td>
                     </tr>
-                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                         <td class="border-0 text-nexum-light">@i</td>
                         <td class="border-0 text-nexum-light">@tenant.Name</td>
                         <td class="border-0 text-nexum-light">@tenant.TenantInfo.Name</td>
                         <td class="border-0 text-nexum-light">@tenant.IsActive.ToString()</td>
                         <td class="border-0">
                             <div class="d-flex justify-content-center align-items-center">
-                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(tenant.Id)">
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#detailsDevice@(tenant.Id)">
+                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#pc-display-horizontal"></use>
+                                    </svg>
+                                </a>
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#detailsKey@(tenant.Id)">
                                     <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
                                         <use xlink:href="#key"></use>
                                     </svg>
@@ -66,7 +71,73 @@
                     </tr>
                     <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                         <td class="p-0 border-0" colspan="12">
-                            <div id="details@(tenant.Id)" class="collapse">
+                            <div id="detailsDevice@(tenant.Id)" class="collapse">
+                                @if (tenant.Devices == null || tenant.Devices.Count == 0)
+                                {
+                                    <tr>
+                                        <td class="text-center text-nowrap text-nexum-light" colspan="12">No devices found</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <table class="table m-0 table-nexum-dark border-0">
+                                        <thead>
+                                            <tr class="text-center text-nowrap">
+                                                <th class="border-0 text-nexum-light">#</th>
+                                                <th class="border-0 text-nexum-light">Name</th>
+                                                <th class="border-0 text-nexum-light">Status</th>
+                                                <th class="border-0 text-nexum-light">Is Verified</th>
+                                                <th class="border-0 text-nexum-light">Is Active</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{int j = 0;}
+                                            @foreach (var device in tenant.Devices.OrderByDescending(d => d.DeviceInfo.Type).ThenBy(d => d.DeviceInfo.Name))
+                                            {
+                                                j++;
+                                                <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                    <td class="border-0 text-nexum-light">@j</td>
+                                                    <td class="border-0 text-nexum-light">@device.DeviceInfo?.Name</td>
+                                                    <td class="border-0 text-nexum-light">
+                                                        @if (device != null && device.Status != null)
+                                                        {
+                                                            <div class="rounded-1 d-flex align-items-center justify-content-start p-0" style="border: none; background: none;">
+                                                                @switch (device.Status)
+                                                                {
+                                                                    case DeviceStatus.Online:
+                                                                        <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                                                            <use xlink:href="#circle-fill"></use>
+                                                                        </svg>
+                                                                        break;
+                                                                    case DeviceStatus.RestoreInProgress:
+                                                                    case DeviceStatus.BackupInProgress:
+                                                                        <svg class="bi text-warning table-button-nexum" fill="currentColor">
+                                                                            <use xlink:href="#circle-fill"></use>
+                                                                        </svg>
+                                                                        break;
+                                                                    default:
+                                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                                            <use xlink:href="#circle-fill"></use>
+                                                                        </svg>
+                                                                        break;
+                                                                }
+                                                                <b class="text-nexum-light ms-2"><span>@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString((DeviceStatus)device.Status))</span></b>
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                    <td class="border-0 text-nexum-light">@(device.IsVerified ? "true" : "false")</td>
+                                                    <td class="border-0 text-nexum-light">@(device.IsActive ? "true" : "false")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                        <td class="p-0 border-0" colspan="12">
+                            <div id="detailsKey@(tenant.Id)" class="collapse">
                                 <table class="table m-0 table-nexum-dark border-0">
                                     <thead>
                                         <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
@@ -115,7 +186,7 @@
                                                             </th>
                                                             <th class="border-0 text-nexum-light">Value</th>
                                                             <th class="border-0 text-nexum-light">Type</th>
-                                                            <th class="border-0 text-nexum-light">isActive</th>
+                                                            <th class="border-0 text-nexum-light">Is Active</th>
                                                             <th class="border-0 text-nexum-light">Actions</th>
                                                         </tr>
                                                     </thead>
