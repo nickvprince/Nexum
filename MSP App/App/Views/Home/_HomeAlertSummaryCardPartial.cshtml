@@ -17,132 +17,132 @@
 
     if (activeDeviceId != null)
     {
-        totalAlertsCount = Model.Where(t => t.Devices != null)
+        totalAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId))
-            .Count();
+            .Count() ?? 0;
 
-        totalAlertsTodayCount = Model.Where(t => t.Devices != null)
+        totalAlertsTodayCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Time >= DateTime.Now.AddHours(-24))
-            .Count();
+            .Count() ?? 0;
 
-        totalAlertsAckCount = Model.Where(t => t.Devices != null)
+        totalAlertsAckCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Acknowledged == true)
-            .Count();
+            .Count() ?? 0;
 
-        totalAlertsNotAckCount = Model.Where(t => t.Devices != null)
+        totalAlertsNotAckCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Acknowledged == false)
-            .Count();
+            .Count() ?? 0;
 
-        informationAlertsCount = Model.Where(t => t.Devices != null)
+        informationAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Information)
-            .Count();
+            .Count() ?? 0;
 
-        lowAlertsCount = Model.Where(t => t.Devices != null)
+        lowAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Low)
-            .Count();
+            .Count() ?? 0;
 
-        mediumAlertsCount = Model.Where(t => t.Devices != null)
+        mediumAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Medium)
-            .Count();
+            .Count() ?? 0;
 
-        highAlertsCount = Model.Where(t => t.Devices != null)
+        highAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.High)
-            .Count();
+            .Count() ?? 0;
 
-        criticalAlertsCount = Model.Where(t => t.Devices != null)
+        criticalAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.DeviceId == int.Parse(activeDeviceId) && a.Severity == AlertSeverity.Critical)
-            .Count();
+            .Count() ?? 0;
     }
     else
     {
-        totalAlertsCount = Model.Where(t => t.Devices != null)
+        totalAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
-            .Count();
+            .Count() ?? 0;
 
-        totalAlertsTodayCount = Model.Where(t => t.Devices != null)
+        totalAlertsTodayCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Time >= DateTime.Now.AddHours(-24))
-            .Count();
+            .Count() ?? 0;
 
-        totalAlertsAckCount = Model.Where(t => t.Devices != null)
+        totalAlertsAckCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Acknowledged == true)
-            .Count();
+            .Count() ?? 0;
 
-        totalAlertsNotAckCount = Model.Where(t => t.Devices != null)
+        totalAlertsNotAckCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Acknowledged == false)
-            .Count();
+            .Count() ?? 0;
 
-        informationAlertsCount = Model.Where(t => t.Devices != null)
+        informationAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Severity == AlertSeverity.Information)
-            .Count();
+            .Count() ?? 0;
 
-        lowAlertsCount = Model.Where(t => t.Devices != null)
+        lowAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Severity == AlertSeverity.Low)
-            .Count();
+            .Count() ?? 0;
 
-        mediumAlertsCount = Model.Where(t => t.Devices != null)
+        mediumAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Severity == AlertSeverity.Medium)
-            .Count();
+            .Count() ?? 0;
 
-        highAlertsCount = Model.Where(t => t.Devices != null)
+        highAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Severity == AlertSeverity.High)
-            .Count();
+            .Count() ?? 0;
 
-        criticalAlertsCount = Model.Where(t => t.Devices != null)
+        criticalAlertsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Alerts != null)
             .SelectMany(d => d.Alerts!)
             .Where(a => a.Severity == AlertSeverity.Critical)
-            .Count();
+            .Count() ?? 0;
     }
 }
 <div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">

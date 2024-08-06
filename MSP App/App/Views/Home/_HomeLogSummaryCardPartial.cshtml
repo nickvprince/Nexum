@@ -15,104 +15,104 @@
 
     if (activeDeviceId != null)
     {
-        totalLogsCount = Model.Where(t => t.Devices != null)
+        totalLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId))
-            .Count();
+            .Count() ?? 0;
 
-        totalLogsTodayCount = Model.Where(t => t.Devices != null)
+        totalLogsTodayCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Time >= DateTime.Now.AddHours(-24))
-            .Count();
+            .Count() ?? 0;
 
-        traceLogsCount = Model.Where(t => t.Devices != null)
+        traceLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Trace)
-            .Count();
+            .Count() ?? 0;
 
-        debugLogsCount = Model.Where(t => t.Devices != null)
+        debugLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Debug)
-            .Count();
+            .Count() ?? 0;
 
-        informationLogsCount = Model.Where(t => t.Devices != null)
+        informationLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Information)
-            .Count();
+            .Count() ?? 0;
 
-        warningLogsCount = Model.Where(t => t.Devices != null)
+        warningLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Warning)
-            .Count();
+            .Count() ?? 0;
 
-        errorLogsCount = Model.Where(t => t.Devices != null)
+        errorLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Error)
-            .Count();
+            .Count() ?? 0;
     }
     else
     {
-        totalLogsCount = Model.Where(t => t.Devices != null)
+        totalLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
-            .Count();
+            .Count() ?? 0;
 
-        totalLogsTodayCount = Model.Where(t => t.Devices != null)
+        totalLogsTodayCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.Time >= DateTime.Now.AddHours(-24))
-            .Count();
+            .Count() ?? 0;
 
-        traceLogsCount = Model.Where(t => t.Devices != null)
+        traceLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.Type == LogType.Trace)
-            .Count();
+            .Count() ?? 0;
 
-        debugLogsCount = Model.Where(t => t.Devices != null)
+        debugLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.Type == LogType.Debug)
-            .Count();
+            .Count() ?? 0;
 
-        informationLogsCount = Model.Where(t => t.Devices != null)
+        informationLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.Type == LogType.Information)
-            .Count();
+            .Count() ?? 0;
 
-        warningLogsCount = Model.Where(t => t.Devices != null)
+        warningLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.Type == LogType.Warning)
-            .Count();
+            .Count() ?? 0;
 
-        errorLogsCount = Model.Where(t => t.Devices != null)
+        errorLogsCount = Model?.Where(t => t.Devices != null)
             .SelectMany(t => t.Devices!)
             .Where(d => d.Logs != null)
             .SelectMany(d => d.Logs!)
             .Where(l => l.Type == LogType.Error)
-            .Count();
+            .Count() ?? 0;
     }
 }
 <div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
