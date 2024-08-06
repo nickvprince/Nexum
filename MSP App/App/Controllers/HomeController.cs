@@ -182,33 +182,5 @@ namespace App.Controllers
         {
             return await Task.FromResult(PartialView("_HomeBackupSummaryCardPartial", FilterTenantsBySession(await PopulateTenantsAsync())));
         }
-        /*
-         if (HttpContext.Session.GetString("ActiveDeviceId") != null)
-            {
-                int? activeDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
-                return await Task.FromResult(PartialView("_HomeBackupSummaryCardPartial", tenants?.Where(t =>
-                    t.NASServers != null &&
-                    t.Devices != null &&
-                    t.NASServers.Any(n =>
-                        (n.Backups != null && n.Backups.Any(b =>
-                            b.Client_Id == t.Devices
-                                .Where(dn => dn.Id == activeDeviceId)
-                                .Select(dn => dn.DeviceInfo?.ClientId)
-                                .FirstOrDefault()
-                        ))
-                        ||
-                        (t.Devices.Any(dj =>
-                            dj.Jobs != null &&
-                            dj.Jobs.Any(j =>
-                                j.Settings != null &&
-                                j.Settings.BackupServerId == n.BackupServerId &&
-                                j.DeviceId == activeDeviceId
-                            )
-                        ))
-                    )
-                ).ToList()));
-            }
-         */
-
     }
 }
