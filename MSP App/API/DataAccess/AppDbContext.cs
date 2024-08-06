@@ -284,11 +284,19 @@ namespace API.DataAccess
                     return; // DB has been seeded
                 }
                 // Add Tenants first to get the generated IDs
-                var tenant1 = new Tenant { Name = "TD", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
-                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
-                var tenant3 = new Tenant { Name = "Scotia", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://localhost", ApiBasePort = 1111, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant1 = new Tenant { Name = "TD Bank", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.tdbank.com", ApiBasePort = 8080, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant2 = new Tenant { Name = "RBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.rbc.com", ApiBasePort = 9090, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant3 = new Tenant { Name = "Scotiabank", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.scotiabank.com", ApiBasePort = 7070, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant4 = new Tenant { Name = "BMO", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.bmo.com", ApiBasePort = 6060, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant5 = new Tenant { Name = "CIBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.cibc.com", ApiBasePort = 5050, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant6 = new Tenant { Name = "HSBC", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.hsbc.com", ApiBasePort = 4040, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant7 = new Tenant { Name = "National Bank", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.nationalbank.com", ApiBasePort = 3030, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant8 = new Tenant { Name = "ING Direct", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.ingdirect.com", ApiBasePort = 2020, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant9 = new Tenant { Name = "Capital One", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.capitalone.com", ApiBasePort = 1010, ApiKeyServer = Guid.NewGuid().ToString() };
+                var tenant10 = new Tenant { Name = "American Express", IsActive = true, ApiKey = Guid.NewGuid().ToString(), ApiBaseUrl = "https://api.americanexpress.com", ApiBasePort = 8888, ApiKeyServer = Guid.NewGuid().ToString() };
 
-                context.Tenants.AddRange(tenant1, tenant2, tenant3);
+
+                context.Tenants.AddRange(tenant1, tenant2, tenant3, tenant4, tenant5, tenant6, tenant7, tenant8, tenant9, tenant10);
                 context.SaveChanges();
 
                 var tenants = context.Tenants.ToList();
@@ -297,32 +305,59 @@ namespace API.DataAccess
                 var tenantInfo1 = new TenantInfo { Name = "Dave Seagel", Email = "dseagel@td.com", Phone = "123-456-7890", TenantId = tenant1.Id, Address = "123 Laurelwood dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "A1B 2C3" };
                 var tenantInfo2 = new TenantInfo { Name = "John Doe", Email = "jdoe@rbc.com", Phone = "098-765-4321", TenantId = tenant2.Id, Address = "213 destiny dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "2C3 A1B" };
                 var tenantInfo3 = new TenantInfo { Name = "Mel Sauve", Email = "msauve@scotia.com", Phone = "111-222-3333", TenantId = tenant3.Id, Address = "325 Conestoga dr", City = "Waterloo", Country = "Canada", State = "Ontario", Zip = "3C2 B1A" };
+                var tenantInfo4 = new TenantInfo { Name = "Alice Smith", Email = "asmith@bmo.com", Phone = "222-333-4444", TenantId = tenant4.Id, Address = "456 Elm St", City = "Toronto", Country = "Canada", State = "Ontario", Zip = "B1A 2C3" };
+                var tenantInfo5 = new TenantInfo { Name = "Bob Johnson", Email = "bjohnson@cibc.com", Phone = "333-444-5555", TenantId = tenant5.Id, Address = "789 Pine St", City = "Mississauga", Country = "Canada", State = "Ontario", Zip = "C2B 3A1" };
+                var tenantInfo6 = new TenantInfo { Name = "Carol White", Email = "cwhite@hsbc.com", Phone = "444-555-6666", TenantId = tenant6.Id, Address = "321 Oak St", City = "Ottawa", Country = "Canada", State = "Ontario", Zip = "D3C 4B2" };
+                var tenantInfo7 = new TenantInfo { Name = "Dan Brown", Email = "dbrown@nationalbank.com", Phone = "555-666-7777", TenantId = tenant7.Id, Address = "654 Maple St", City = "Vancouver", Country = "Canada", State = "British Columbia", Zip = "E4D 5C6" };
+                var tenantInfo8 = new TenantInfo { Name = "Eve Black", Email = "eblack@ingdirect.com", Phone = "666-777-8888", TenantId = tenant8.Id, Address = "987 Birch St", City = "Calgary", Country = "Canada", State = "Alberta", Zip = "F5E 6D7" };
+                var tenantInfo9 = new TenantInfo { Name = "Frank Green", Email = "fgreen@capitalone.com", Phone = "777-888-9999", TenantId = tenant9.Id, Address = "654 Cedar St", City = "Edmonton", Country = "Canada", State = "Alberta", Zip = "G6F 7E8" };
+                var tenantInfo10 = new TenantInfo { Name = "Grace Blue", Email = "gblue@americanexpress.com", Phone = "888-999-0000", TenantId = tenant10.Id, Address = "321 Spruce St", City = "Montreal", Country = "Canada", State = "Quebec", Zip = "H7G 8F9" };
 
-                context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3);
+                context.TenantInfos.AddRange(tenantInfo1, tenantInfo2, tenantInfo3, tenantInfo4, tenantInfo5, tenantInfo6, tenantInfo7, tenantInfo8, tenantInfo9, tenantInfo10);
                 context.SaveChanges();
 
                 // Add NASServers
+                var nas1 = new NASServer { Name = "NAS-TD Bank-001", BackupServerId = 0, Path = @"\\198.51.100.1\TD\SMBShare001", TenantId = tenant1.Id };
+                var nas2 = new NASServer { Name = "NAS-RBC-001", BackupServerId = 0, Path = @"\\203.0.113.2\RBC\SMBShare001", TenantId = tenant2.Id };
+                var nas3 = new NASServer { Name = "NAS-Scotiabank-001", BackupServerId = 0, Path = @"\\192.0.2.3\Scotiabank\SMBShare001", TenantId = tenant3.Id };
+                var nas4 = new NASServer { Name = "NAS-BMO-001", BackupServerId = 0, Path = @"\\203.0.113.4\BMO\SMBShare001", TenantId = tenant4.Id };
+                var nas5 = new NASServer { Name = "NAS-CIBC-001", BackupServerId = 0, Path = @"\\198.51.100.5\CIBC\SMBShare001", TenantId = tenant5.Id };
+                var nas6 = new NASServer { Name = "NAS-HSBC-001", BackupServerId = 0, Path = @"\\192.0.2.6\HSBC\SMBShare001", TenantId = tenant6.Id };
+                var nas7 = new NASServer { Name = "NAS-National Bank-001", BackupServerId = 0, Path = @"\\198.51.100.7\NationalBank\SMBShare001", TenantId = tenant7.Id };
+                var nas8 = new NASServer { Name = "NAS-ING Direct-001", BackupServerId = 0, Path = @"\\203.0.113.8\INGDirect\SMBShare001", TenantId = tenant8.Id };
+                var nas9 = new NASServer { Name = "NAS-Capital One-001", BackupServerId = 0, Path = @"\\192.0.2.9\CapitalOne\SMBShare001", TenantId = tenant9.Id };
+                var nas10 = new NASServer { Name = "NAS-American Express-001", BackupServerId = 0, Path = @"\\198.51.100.10\AmericanExpress\SMBShare001", TenantId = tenant10.Id };
 
-                var nas1 = new NASServer { Name = "NAS1", BackupServerId = 0, Path = "/path/to/something", TenantId = tenant1.Id };
-                var nas2 = new NASServer { Name = "NAS2", BackupServerId = 0, Path = "/path/to/something", TenantId = tenant2.Id };
-                var nas3 = new NASServer { Name = "NAS3", BackupServerId = 0, Path = "/path/to/something", TenantId = tenant3.Id };
-
-                context.NASServers.AddRange(nas1, nas2, nas3);
+                context.NASServers.AddRange(nas1, nas2, nas3, nas4, nas5, nas6, nas7, nas8, nas9, nas10);
                 context.SaveChanges();
 
                 // Add Devices and DeviceInfos
                 var device1 = new Device { TenantId = tenant1.Id, IsVerified = true, Status = DeviceStatus.Online };
-                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true, Status = DeviceStatus.BackupInProgress };
-                var device3 = new Device { TenantId = tenant3.Id, IsVerified = false, Status = DeviceStatus.Offline };
+                var device2 = new Device { TenantId = tenant2.Id, IsVerified = true, Status = DeviceStatus.Offline };
+                var device3 = new Device { TenantId = tenant3.Id, IsVerified = true, Status = DeviceStatus.ServiceOffline };
+                var device4 = new Device { TenantId = tenant4.Id, IsVerified = true, Status = DeviceStatus.BackupInProgress };
+                var device5 = new Device { TenantId = tenant5.Id, IsVerified = true, Status = DeviceStatus.RestoreInProgress };
+                var device6 = new Device { TenantId = tenant6.Id, IsVerified = true, Status = DeviceStatus.Online };
+                var device7 = new Device { TenantId = tenant7.Id, IsVerified = true, Status = DeviceStatus.Offline };
+                var device8 = new Device { TenantId = tenant8.Id, IsVerified = true, Status = DeviceStatus.ServiceOffline };
+                var device9 = new Device { TenantId = tenant9.Id, IsVerified = true, Status = DeviceStatus.BackupInProgress };
+                var device10 = new Device { TenantId = tenant10.Id, IsVerified = true, Status = DeviceStatus.RestoreInProgress };
 
-                context.Devices.AddRange(device1, device2, device3);
+                context.Devices.AddRange(device1, device2, device3,device4, device5, device6,device7, device8, device9, device10);
                 context.SaveChanges();
 
-                var deviceInfo1 = new DeviceInfo { Name = "TD-001 ", DeviceId = device1.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.1", Port = 8080, Type = DeviceType.Server };
-                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.2", Port = 8081, Type = DeviceType.Server };
-                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.168.1.3", Port = 8082, Type = DeviceType.Server };
+                var deviceInfo1 = new DeviceInfo { Name = "TD-001", DeviceId = device1.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "203.0.113.11", Port = 8080, Type = DeviceType.Server };
+                var deviceInfo2 = new DeviceInfo { Name = "RBC-001", DeviceId = device2.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "203.0.113.12", Port = 8081, Type = DeviceType.Server };
+                var deviceInfo3 = new DeviceInfo { Name = "Scotia-001", DeviceId = device3.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "198.51.100.13", Port = 8082, Type = DeviceType.Server };
+                var deviceInfo4 = new DeviceInfo { Name = "BMO-001", DeviceId = device4.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "198.51.100.14", Port = 8083, Type = DeviceType.Server };
+                var deviceInfo5 = new DeviceInfo { Name = "CIBC-001", DeviceId = device5.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.0.2.15", Port = 8084, Type = DeviceType.Server };
+                var deviceInfo6 = new DeviceInfo { Name = "HSBC-001", DeviceId = device6.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "192.0.2.16", Port = 8085, Type = DeviceType.Server };
+                var deviceInfo7 = new DeviceInfo { Name = "NationalBank-001", DeviceId = device7.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "203.0.113.17", Port = 8086, Type = DeviceType.Server };
+                var deviceInfo8 = new DeviceInfo { Name = "INGDirect-001", DeviceId = device8.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "203.0.113.18", Port = 8087, Type = DeviceType.Server };
+                var deviceInfo9 = new DeviceInfo { Name = "CapitalOne-001", DeviceId = device9.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "198.51.100.19", Port = 8088, Type = DeviceType.Server };
+                var deviceInfo10 = new DeviceInfo { Name = "AmericanExpress-001", DeviceId = device10.Id, ClientId = 0, Uuid = Guid.NewGuid().ToString(), IpAddress = "198.51.100.20", Port = 8089, Type = DeviceType.Server };
 
-                context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3);
+                context.DeviceInfos.AddRange(deviceInfo1, deviceInfo2, deviceInfo3, deviceInfo4, deviceInfo5, deviceInfo6, deviceInfo7, deviceInfo8, deviceInfo9, deviceInfo10);
                 context.SaveChanges();
 
                 var macAddress1 = new MACAddress { Address = "00:0a:95:9d:68:16", DeviceInfoId = deviceInfo1.Id };
@@ -330,17 +365,39 @@ namespace API.DataAccess
                 var macAddress3 = new MACAddress { Address = "00:0a:95:9d:68:18", DeviceInfoId = deviceInfo2.Id };
                 var macAddress4 = new MACAddress { Address = "00:0a:95:9d:68:19", DeviceInfoId = deviceInfo3.Id };
                 var macAddress5 = new MACAddress { Address = "00:0a:95:9d:68:20", DeviceInfoId = deviceInfo3.Id };
+                var macAddress6 = new MACAddress { Address = "00:0a:95:9d:68:21", DeviceInfoId = deviceInfo3.Id };
+                var macAddress7 = new MACAddress { Address = "00:0a:95:9d:68:22", DeviceInfoId = deviceInfo4.Id };
+                var macAddress8 = new MACAddress { Address = "00:0a:95:9d:68:23", DeviceInfoId = deviceInfo4.Id };
+                var macAddress9 = new MACAddress { Address = "00:0a:95:9d:68:24", DeviceInfoId = deviceInfo5.Id };
+                var macAddress10 = new MACAddress { Address = "00:0a:95:9d:68:25", DeviceInfoId = deviceInfo6.Id };
+                var macAddress11 = new MACAddress { Address = "00:0a:95:9d:68:26", DeviceInfoId = deviceInfo6.Id };
+                var macAddress12 = new MACAddress { Address = "00:0a:95:9d:68:27", DeviceInfoId = deviceInfo7.Id };
+                var macAddress13 = new MACAddress { Address = "00:0a:95:9d:68:28", DeviceInfoId = deviceInfo7.Id };
+                var macAddress14 = new MACAddress { Address = "00:0a:95:9d:68:29", DeviceInfoId = deviceInfo7.Id };
+                var macAddress15 = new MACAddress { Address = "00:0a:95:9d:68:30", DeviceInfoId = deviceInfo8.Id };
+                var macAddress16 = new MACAddress { Address = "00:0a:95:9d:68:31", DeviceInfoId = deviceInfo8.Id };
+                var macAddress17 = new MACAddress { Address = "00:0a:95:9d:68:32", DeviceInfoId = deviceInfo9.Id };
+                var macAddress18 = new MACAddress { Address = "00:0a:95:9d:68:33", DeviceInfoId = deviceInfo9.Id };
+                var macAddress19 = new MACAddress { Address = "00:0a:95:9d:68:34", DeviceInfoId = deviceInfo10.Id };
 
-                context.MACAddresses.AddRange(macAddress1, macAddress2, macAddress3, macAddress4, macAddress5);
+                context.MACAddresses.AddRange(macAddress1, macAddress2, macAddress3, macAddress4, macAddress5, macAddress6, macAddress7, macAddress8, macAddress9, macAddress10, macAddress11, macAddress12, macAddress13, macAddress14, macAddress15, macAddress16, macAddress17, macAddress18, macAddress19);
                 context.SaveChanges();
 
                 // Add InstallationKeys
-                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id, Type = InstallationKeyType.Server, IsActive = true };
-                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id, Type = InstallationKeyType.Server, IsActive = true };
+                var installationKey1 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant1.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey2 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant2.Id, Type = InstallationKeyType.Server, IsActive = false };
                 var installationKey3 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant3.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey4 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant4.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey5 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant5.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey6 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant6.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey7 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant7.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey8 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant8.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey9 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant9.Id, Type = InstallationKeyType.Server, IsActive = false };
+                var installationKey10 = new InstallationKey { Key = Guid.NewGuid().ToString(), TenantId = tenant10.Id, Type = InstallationKeyType.Server, IsActive = false };
 
-                context.InstallationKeys.AddRange(installationKey1, installationKey2, installationKey3);
+                context.InstallationKeys.AddRange(installationKey1, installationKey2, installationKey3, installationKey4, installationKey5, installationKey6, installationKey7, installationKey8, installationKey9, installationKey10);
                 context.SaveChanges();
+
 
                 // Add Permissions
                 var permissions = new List<Permission>();
@@ -437,56 +494,196 @@ namespace API.DataAccess
 
                 // Add DeviceAlerts
 
-                var alert1 = new DeviceAlert { DeviceId = device1.Id, Severity = AlertSeverity.Critical, Message = "Device is offline" };
-                var alert2 = new DeviceAlert { DeviceId = device2.Id, Severity = AlertSeverity.Information, Message = "Device is Online" };
-                var alert3 = new DeviceAlert { DeviceId = device3.Id, Severity = AlertSeverity.Low, Message = "Heart beat missed" };
+                // Get all devices and their related information
+                var deviceInfos = context.DeviceInfos.Include(d => d.Device).ThenInclude(d => d.Tenant).ToList();
 
-                context.DeviceAlerts.AddRange(alert1, alert2, alert3);
+                var random = new Random();
+                var alertMessages = new List<(string message, AlertSeverity severity)>
+                {
+                    ("Device is offline", AlertSeverity.Critical),
+                    ("Device is Online", AlertSeverity.Information),
+                    ("Heart beat missed", AlertSeverity.Low),
+                    ("Disk space low", AlertSeverity.Medium),
+                    ("CPU usage high", AlertSeverity.High),
+                    ("Temperature threshold exceeded", AlertSeverity.Critical),
+                    ("Memory usage high", AlertSeverity.High),
+                    ("Network latency detected", AlertSeverity.Medium),
+                    ("Power supply failure", AlertSeverity.Critical),
+                    ("Unauthorized access attempt", AlertSeverity.High)
+                };
+
+                var alerts = new List<DeviceAlert>();
+
+                foreach (var device in deviceInfos)
+                {
+                    int numAlerts = random.Next(5, 11); // between 5 and 10 alerts
+                    for (int j = 0; j < numAlerts; j++)
+                    {
+                        var alertMessage = alertMessages[random.Next(alertMessages.Count)];
+                        var alert = new DeviceAlert
+                        {
+                            DeviceId = device.DeviceId,
+                            Severity = alertMessage.severity,
+                            Message = alertMessage.message,
+                            Time = DateTime.Now.AddHours(random.Next(-48, 48)),
+                            Acknowledged = random.Next(0, 2) == 1
+                        };
+                        alerts.Add(alert);
+                    }
+                }
+
+                context.DeviceAlerts.AddRange(alerts);
                 context.SaveChanges();
 
                 // Add DeviceLogs
 
-                var log1 = new DeviceLog { DeviceId = device1.Id, Type = LogType.Information, Filename = "something.py", Function = "online()", Message = "Device is online", Code = 0, Time = DateTime.Now };
-                var log2 = new DeviceLog { DeviceId = device2.Id, Type = LogType.Warning, Filename = "something.py", Function = "offline()", Message = "Device is offline", Code = 1, Time = DateTime.Now.AddMinutes(1) };
-                var log3 = new DeviceLog { DeviceId = device3.Id, Type = LogType.Error, Filename = "something.py", Function = "heartbeat()", Message = "Heart beat missed", Code = 3, Time = DateTime.Now.AddMinutes(2) };
+                var logMessages = new List<(string filename, string function, string message, int code, LogType type)>
+                {
+                    ("network.py", "connect()", "Network connection established", 100, LogType.Information),
+                    ("network.py", "disconnect()", "Network connection lost", 101, LogType.Warning),
+                    ("sensor.py", "readTemp()", "Temperature reading successful", 200, LogType.Information),
+                    ("sensor.py", "readTemp()", "Temperature sensor error", 201, LogType.Error),
+                    ("disk.py", "checkSpace()", "Disk space sufficient", 300, LogType.Information),
+                    ("disk.py", "checkSpace()", "Disk space low", 301, LogType.Warning),
+                    ("cpu.py", "monitorUsage()", "CPU usage normal", 400, LogType.Information),
+                    ("cpu.py", "monitorUsage()", "High CPU usage detected", 401, LogType.Critical),
+                    ("memory.py", "checkMemory()", "Memory usage normal", 500, LogType.Information),
+                    ("memory.py", "checkMemory()", "Memory usage high", 501, LogType.Warning)
+                };
 
-                context.DeviceLogs.AddRange(log1, log2, log3);
+                var logs = new List<DeviceLog>();
+
+                foreach (var device in deviceInfos)
+                {
+                    int numLogs = random.Next(5, 11); // between 5 and 10 logs
+                    for (int j = 0; j < numLogs; j++)
+                    {
+                        var logMessage = logMessages[random.Next(logMessages.Count)];
+                        var log = new DeviceLog
+                        {
+                            DeviceId = device.DeviceId,
+                            Type = logMessage.type,
+                            Filename = logMessage.filename,
+                            Function = logMessage.function,
+                            Message = logMessage.message,
+                            Code = logMessage.code,
+                            Time = DateTime.Now.AddHours(random.Next(-24, 25))
+                        };
+                        logs.Add(log);
+                    }
+                }
+
+                context.DeviceLogs.AddRange(logs);
                 context.SaveChanges();
 
                 // Add DeviceJobs
 
-                var job1 = new DeviceJob { DeviceId = device1.Id, Name = "Job 1", Status = DeviceJobStatus.NotStarted };
-                var job2 = new DeviceJob { DeviceId = device2.Id, Name = "Job 2", Status = DeviceJobStatus.NotStarted };
-                var job3 = new DeviceJob { DeviceId = device3.Id, Name = "Job 3", Status = DeviceJobStatus.NotStarted };
+                var jobStatuses = Enum.GetValues(typeof(DeviceJobStatus)).Cast<DeviceJobStatus>().ToList();
+                var jobTypes = Enum.GetValues(typeof(DeviceJobType)).Cast<DeviceJobType>().ToList();
 
-                context.DeviceJobs.AddRange(job1, job2, job3);
+                // Create jobs for each device
+                var jobs = new List<DeviceJob>();
+
+                // Get all DeviceInfos
+                var devices = context.DeviceInfos.ToList();
+
+                foreach (var device in devices)
+                {
+                    var job = new DeviceJob
+                    {
+                        DeviceId = device.DeviceId,
+                        Name = $"Job for {device.Name}",
+                        Status = jobStatuses[random.Next(jobStatuses.Count)]
+                    };
+                    jobs.Add(job);
+                }
+
+                context.DeviceJobs.AddRange(jobs);
                 context.SaveChanges();
 
-                // Add DeviceJobInfos
+                var createdJobs = context.DeviceJobs.ToList();
 
-                var jobInfo1 = new DeviceJobInfo { DeviceJobId = job1.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now.ToString("HH:mm"), EndTime = DateTime.Now.AddMinutes(1000).ToString("HH:mm"), UpdateInterval = 30, Retention = 14 };
-                var jobInfo2 = new DeviceJobInfo { DeviceJobId = job2.Id, BackupServerId = 0, Type = DeviceJobType.Restore, Sampling = true, StartTime = DateTime.Now.ToString("HH:mm"), EndTime = DateTime.Now.AddMinutes(2000).ToString("HH:mm"), UpdateInterval = 30, Retention = 14 };
-                var jobInfo3 = new DeviceJobInfo { DeviceJobId = job3.Id, BackupServerId = 0, Type = DeviceJobType.Backup, Sampling = false, StartTime = DateTime.Now.ToString("HH:mm"), EndTime = DateTime.Now.AddMinutes(3000).ToString("HH:mm"), UpdateInterval = 30, Retention = 14 };
+                // Create job info for each job with randomized data
+                var jobInfos = new List<DeviceJobInfo>();
 
-                context.DeviceJobInfos.AddRange(jobInfo1, jobInfo2, jobInfo3);
+                foreach (var job in createdJobs)
+                {
+                    var jobInfo = new DeviceJobInfo
+                    {
+                        DeviceJobId = job.Id,
+                        BackupServerId = 0,
+                        Type = jobTypes[random.Next(jobTypes.Count)], // Random job type
+                        Sampling = random.Next(0, 2) == 0, // Random boolean value for Sampling
+                        StartTime = DateTime.Now.AddMinutes(random.Next(-1000, 1000)).ToString("HH:mm"), // Random start time within approximately +/- 16 hours from now
+                        EndTime = DateTime.Now.AddMinutes(random.Next(500, 2000)).ToString("HH:mm"), // Random end time within approximately 8 to 33 hours from now
+                        UpdateInterval = random.Next(10, 60), // Random update interval between 10 and 60 minutes
+                        Retention = random.Next(7, 30) // Random retention between 7 and 30 days
+                    };
+                    jobInfos.Add(jobInfo);
+                }
+
+                context.DeviceJobInfos.AddRange(jobInfos);
                 context.SaveChanges();
 
-                // Add DeviceJobSchedules
+                var createdJobInfos = context.DeviceJobInfos.ToList();
 
-                var schedule1 = new DeviceJobSchedule { DeviceJobInfoId = jobInfo1.Id, Sunday = false, Monday = true, Tuesday = false, Wednesday = true, Thursday = false, Friday = true, Saturday = false };
-                var schedule2 = new DeviceJobSchedule { DeviceJobInfoId = jobInfo2.Id, Sunday = true, Monday = false, Tuesday = true, Wednesday = false, Thursday = false, Friday = true, Saturday = false };
-                var schedule3 = new DeviceJobSchedule { DeviceJobInfoId = jobInfo3.Id, Sunday = true, Monday = false, Tuesday = false, Wednesday = true, Thursday = true, Friday = false, Saturday = true };
+                // Create job schedules for each job info with randomized days
+                var jobSchedules = new List<DeviceJobSchedule>();
 
-                context.DeviceJobSchedules.AddRange(schedule1, schedule2, schedule3);
+                foreach (var jobInfo in createdJobInfos)
+                {
+                    var schedule = new DeviceJobSchedule
+                    {
+                        DeviceJobInfoId = jobInfo.Id,
+                        Sunday = random.Next(0, 2) == 1,
+                        Monday = random.Next(0, 2) == 1,
+                        Tuesday = random.Next(0, 2) == 1,
+                        Wednesday = random.Next(0, 2) == 1,
+                        Thursday = random.Next(0, 2) == 1,
+                        Friday = random.Next(0, 2) == 1,
+                        Saturday = random.Next(0, 2) == 1
+                    };
+                    jobSchedules.Add(schedule);
+                }
+
+                context.DeviceJobSchedules.AddRange(jobSchedules);
                 context.SaveChanges();
 
                 // Add DeviceBackups
 
-                var backup1 = new DeviceBackup { Client_Id = deviceInfo1.ClientId, Uuid = deviceInfo1.Uuid, TenantId = tenant1.Id, Filename = "Backup 1.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas1.Id };
-                var backup2 = new DeviceBackup { Client_Id = deviceInfo2.ClientId, Uuid = deviceInfo2.Uuid, TenantId = tenant2.Id, Filename = "Backup 2.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas2.Id };
-                var backup3 = new DeviceBackup { Client_Id = deviceInfo3.ClientId, Uuid = deviceInfo3.Uuid, TenantId = tenant3.Id, Filename = "Backup 3.bak", Date = DateTime.Now, Path = "/path/to/something", NASServerId = nas3.Id };
+                // Function to generate a tenant-specific backup filename
+                string GenerateBackupFilename(string tenantName, int backupNumber) => $"{tenantName}_Backup_{backupNumber}.bak";
 
-                context.DeviceBackups.AddRange(backup1, backup2, backup3);
+                // Function to generate a subset path for backups
+                string GenerateSubsetPath(string nasPath, int backupNumber) => $"{nasPath.Substring(nasPath.IndexOf('\\'))}\\Backup{backupNumber}";
+
+                var backups = new List<DeviceBackup>();
+
+                foreach (var deviceInfo in deviceInfos)
+                {
+                    var tenant = deviceInfo.Device.Tenant;
+                    var tenantName = tenant.Name.Replace(" ", "");
+                    var nas = context.NASServers.FirstOrDefault(n => n.TenantId == tenant.Id);
+
+                    int numBackups = random.Next(2, 11); // Between 2 and 10 backups
+
+                    for (int j = 1; j <= numBackups; j++)
+                    {
+                        var backup = new DeviceBackup
+                        {
+                            Client_Id = deviceInfo.ClientId,
+                            Uuid = deviceInfo.Uuid,
+                            TenantId = tenant.Id,
+                            Filename = GenerateBackupFilename(tenantName, j),
+                            Date = DateTime.Now.AddMinutes(random.Next(-1000, 1000)), // Random date within approximately +/- 16 hours from now
+                            Path = GenerateSubsetPath(nas.Path, j),
+                            NASServerId = nas.Id
+                        };
+                        backups.Add(backup);
+                    }
+                }
+
+                context.DeviceBackups.AddRange(backups);
                 context.SaveChanges();
             }
         }
