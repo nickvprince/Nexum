@@ -59,22 +59,7 @@
                 </li>
                 @if (Model != null)
                 {
-                    if (activeDeviceId != null)
-                    {
-                        var activeDeviceIdInt = int.Parse(activeDeviceId);
-                        foreach (var device in Model.Where(t => t.Devices != null).SelectMany(t => t.Devices).Where(d => d.Id == activeDeviceIdInt))
-                        {
-                            <li>
-                                <form id="device-select@(device.Id)" asp-controller="Session" asp-action="Device">
-                                    <input type="hidden" asp-for="@device.Id" value="@device.Id" />
-                                    <button type="submit" class="dropdown-item text-nexum-light" style="border: none; background: none;">
-                                        @device.DeviceInfo.Name
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                    }
-                    else if (activeTenantId != null)
+                    if (activeTenantId != null)
                     {
                         var activeTenantIdInt = int.Parse(activeTenantId);
                         foreach (var device in Model.Where(t => t.Id == activeTenantIdInt && t.Devices != null).SelectMany(t => t.Devices))
@@ -105,6 +90,37 @@
                     }
                 }
             </ul>
+        </div>
+        <div class="ms-2">
+            @if (activeDeviceId != null)
+            {
+                var activeDevice = Model?.Where(t => t.Devices != null).SelectMany(t => t.Devices).FirstOrDefault(d => d.Id == int.Parse(activeDeviceId));
+                if(activeDevice != null && activeDevice.Status != null)
+                {
+                    <div class="rounded-1 d-flex align-items-center justify-content-center p-0" style="border: none; background: none;">
+                        <b class="text-nexum-light me-2"><span>@EnumUtilities.AddSpacesToCapital(EnumUtilities.EnumToString((DeviceStatus)activeDevice.Status))</span></b>
+                        @switch (activeDevice.Status)
+                        {
+                            case DeviceStatus.Online:
+                                    <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#circle-fill"></use>
+                                    </svg>
+                                break;
+                            case DeviceStatus.RestoreInProgress:
+                            case DeviceStatus.BackupInProgress:
+                                    <svg class="bi text-warning table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#circle-fill"></use>
+                                    </svg>
+                                break;
+                            default:
+                                    <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#circle-fill"></use>
+                                    </svg>
+                                break;
+                        }
+                    </div>
+                }
+            }
         </div>
     </div>
 </div>

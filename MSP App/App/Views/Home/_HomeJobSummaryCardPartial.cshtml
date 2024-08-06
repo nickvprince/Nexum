@@ -1,11 +1,135 @@
-﻿<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
+﻿@model ICollection<Tenant>?
+
+@{
+    var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+
+    int totalJobsCount;
+    int totalJobsNotStartedCount;
+    int totalJobsInProgressCount;
+    int totalJobsPausedCount;
+    int totalJobsCompleteCount;
+    int totalJobsFailedCount;
+    int totalJobsRestartingCount;
+    int totalJobsCancelledCount;
+
+    if (activeDeviceId != null)
+    {
+        totalJobsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count() ?? 0;
+
+        totalJobsNotStartedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.NotStarted) ?? 0;
+
+        totalJobsInProgressCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.InProgress) ?? 0;
+
+        totalJobsPausedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Paused) ?? 0;
+
+        totalJobsCompleteCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Complete) ?? 0;
+
+        totalJobsFailedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Failed) ?? 0;
+
+        totalJobsRestartingCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Restarting) ?? 0;
+
+        totalJobsCancelledCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Cancelled) ?? 0;
+    }
+    else
+    {
+        totalJobsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count() ?? 0;
+
+        totalJobsNotStartedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.NotStarted) ?? 0;
+
+        totalJobsInProgressCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.InProgress) ?? 0;
+
+        totalJobsPausedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Paused) ?? 0;
+
+        totalJobsCompleteCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Complete) ?? 0;
+
+        totalJobsFailedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Failed) ?? 0;
+
+        totalJobsRestartingCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Restarting) ?? 0;
+
+        totalJobsCancelledCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Cancelled) ?? 0;
+    }
+}
+<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
     <div class="card-body">
         <h5 class="nexum-summary-card-title">Jobs Summary</h5>
         <div class="row">
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-briefcase-fill nexum-summary-icon"></i>
-                    <span>Total Jobs: 15</span>
+                    <span>Total Jobs: @totalJobsCount</span>
                 </div>
             </div>
         </div>
@@ -14,23 +138,31 @@
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.15);">
                     <i class="bi bi-hourglass-split nexum-summary-icon"></i>
-                    <span>Not Started: 4</span>
+                    <span>Not Started: @totalJobsNotStartedCount</span>
                 </div>
-                <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.25);">
+                <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.17);">
                     <i class="bi bi-play-fill nexum-summary-icon"></i>
-                    <span>In Progress: 2</span>
+                    <span>In Progress: @totalJobsInProgressCount</span>
                 </div>
-                <div class="nexum-mini-card bg-teal d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.30);">
-                    <i class="bi bi-check-circle-fill nexum-summary-icon"></i>
-                    <span>Completed: 8</span>
+                <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.22);">
+                    <i class="bi bi-pause nexum-summary-icon"></i>
+                    <span>Paused: @totalJobsPausedCount</span>
                 </div>
-                <div class="nexum-mini-card bg-red d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.35);">
+                <div class="nexum-mini-card bg-red d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.27);">
                     <i class="bi bi-x-circle-fill nexum-summary-icon"></i>
-                    <span>Failed: 1</span>
+                    <span>Failed: @totalJobsFailedCount</span>
                 </div>
-                <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.40);">
+                <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.32);">
+                    <i class="bi bi-ban nexum-summary-icon"></i>
+                    <span>Cancelled: @totalJobsCancelledCount</span>
+                </div>
+                <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.37);">
                     <i class="bi bi-arrow-repeat nexum-summary-icon"></i>
-                    <span>Restarting: 3</span>
+                    <span>Restarting: @totalJobsRestartingCount</span>
+                </div>
+                <div class="nexum-mini-card bg-teal d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.40);">
+                    <i class="bi bi-check-circle-fill nexum-summary-icon"></i>
+                    <span>Completed: @totalJobsCompleteCount</span>
                 </div>
             </div>
         </div>

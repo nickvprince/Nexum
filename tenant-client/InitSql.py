@@ -71,10 +71,10 @@ def decrypt_string(password, string):
 
     # Decode the string from base64
     decoded_string = base64.b64decode(string)
-
-    # Decrypt the string using AES
-    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
     try:
+    # Decrypt the string using AES
+        decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+
         return decrypted_string.decode('utf-8')
     except UnicodeDecodeError:
         MySqlite.write_log("ERROR", "SQL", "Failed to decrypt string - Unicode decode error",
@@ -164,6 +164,29 @@ class InitSql():
         conn.close()
 
     @staticmethod
+    def load_settings():
+        """
+        Loads settings into memory
+        """
+        MySqlite.create_db_file(settingsDirectory,SETTINGS_PATH)
+        # create settings table
+        conn = sqlite3.connect(SETTINGS_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''Select * from settings''')
+        settings = cursor.fetchall()
+        result = subprocess.run(['wmic', 'csproduct', 'get', 'uuid'],
+        capture_output=True, text=True,check=True,shell=True) # enc with uuid
+        output = result.stdout.strip()
+        output = output.split('\n\n', 1)[-1]
+        output = output[:32]
+        global memory_settings
+        for setting in settings:
+            sett = decrypt_string(output,setting[1])
+            memory_settings[setting[0]] =sett.rstrip()
+        # Close connection
+        conn.commit()
+        conn.close()
+    @staticmethod
     def settings():
         """
         Ensure settings file exists and the table is created
@@ -186,6 +209,7 @@ class InitSql():
         # initialize all tables when the object is created
         InitSql.log_files()
         InitSql.settings()
+        InitSql.load_settings()
         InitSql.job_files()
         InitSql.config_files()
         InitSql.job_settings()

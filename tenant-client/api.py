@@ -60,17 +60,13 @@ class API():
         """
         # call 127.0.0.1:5004/get_status
         apikey = MySqlite.read_setting(APIKEY_SETTING)
-        client_id = MySqlite.read_setting(CLIENT_ID_SETTING)
-
-        url = MySqlite.read_setting(SERVICE_ADDRESS_SETTING)+STATUS_URL
-
+        
         headers = {
             "Content-Type": "application/json",
             "apikey": str(apikey),
-            "id": str(client_id)
         }
         try:
-            response = requests.get(url, headers=headers,timeout=TIMEOUT)
+            response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
             data = response.json()
             result = data["result"]
             if "copied" in result:
@@ -78,21 +74,23 @@ class API():
                 match = re.search(r'copied \((\d+)%\)', result)
                 if match:
                     percent = int(match.group(1))
-                    return percent
+
+                    return str(percent) + str("%")
                 else:
                     return "0%"
             else:
                                 # set job status to idle
                 new_client =MySqlite.write_setting(JOB_STATUS_SETTING,"NotRunning")
                 return "0%"
-        except Exception:
+        except Exception as e:
+            _ = e
             MySqlite.write_log("ERROR","API","Error getting percent","0",datetime.datetime.now())
             new_client = MySqlite.read_setting("CLIENT_ID")
             if new_client is None:
                 MySqlite.write_log("ERROR","API","Client not found","0",datetime.datetime.now())
                 return "0%"
             else:
-                MySqlite.write_setting(STATUS_SETTING,"service --offline")
+                #MySqlite.write_setting(STATUS_SETTING,"service --offline")
                 return "0%"
 
     @staticmethod

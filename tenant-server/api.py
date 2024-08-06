@@ -77,7 +77,7 @@ class API():
                 match = re.search(r'copied \((\d+)%\)', result)
                 if match:
                     percent = int(match.group(1))
-                    return percent
+                    return str(percent) + str("%")
                 else:
                     return "0%"
             else:
@@ -97,6 +97,7 @@ class API():
             else:
                 new_client = list(new_client)
                 new_client.remove(new_client[4])
+
                 new_client.insert(4,"service --offline")
                 MySqlite.update_client(new_client)
                 return "0%"

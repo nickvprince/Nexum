@@ -28,7 +28,7 @@
                         console.error('Error loading partial view:', error);
                     }
                 });
-            }, 2000);
+            }, 1500);
         }
 
         function loadLogTable() {
@@ -40,13 +40,17 @@
                     type: 'GET',
                     success: function (result) {
                         $('#logContentBox').html(result);
+                        $('.collapse').on('show.bs.collapse', function () {
+                            $('#logActionContentBox').html('');
+                            $('.collapse').not(this).collapse('hide');
+                        });
                     },
                     error: function (xhr, status, error) {
                         $('#logContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
                     }
                 });
-            }, 2000);
+            }, 1500);
         }
 
         loadTypeCards();

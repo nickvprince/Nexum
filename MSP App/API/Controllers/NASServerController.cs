@@ -9,6 +9,7 @@ using SharedComponents.Entities.TenantServerHttpEntities.Requests;
 using SharedComponents.Entities.TenantServerHttpEntities.Responses;
 using SharedComponents.Services.APIServices.Interfaces;
 using SharedComponents.Services.TenantServerAPIServices.Interfaces;
+using Azure.Core;
 
 namespace API.Controllers
 {
@@ -25,6 +26,7 @@ namespace API.Controllers
         private readonly IDbTenantService _dbTenantService;
         private readonly IDbDeviceService _dbDeviceService;
         private readonly ITenantServerAPINASServerService _httpNASServerService;
+        private readonly ITenantServerAPIDeviceService _httpDeviceService;
         private readonly IAPIAuthService _authService;
 
         /// <summary>
@@ -38,13 +40,15 @@ namespace API.Controllers
         /// <param name="authService">The authentication service.</param>
         public NASServerController(IDbNASServerService dbNASServerService, IDbJobService dbJobService,
             IDbTenantService dbTenantService, IDbDeviceService dbDeviceService,
-            ITenantServerAPINASServerService httpNASServerService, IAPIAuthService authService)
+            ITenantServerAPINASServerService httpNASServerService, ITenantServerAPIDeviceService httpDeviceService,
+            IAPIAuthService authService)
         {
             _dbNASServerService = dbNASServerService;
             _dbJobService = dbJobService;
             _dbTenantService = dbTenantService;
             _dbDeviceService = dbDeviceService;
             _httpNASServerService = httpNASServerService;
+            _httpDeviceService = httpDeviceService;
             _authService = authService;
         }
 
@@ -101,6 +105,22 @@ namespace API.Controllers
                     {
                         Console.WriteLine("An error occurred while deleting the NAS Server.");
                     }
+                    tenant.Devices = await _dbDeviceService.GetAllByTenantIdAsync(tenant.Id);
+                    if (tenant.Devices != null)
+                    {
+                        Device? server = tenant.Devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                        if (server != null)
+                        {
+                            if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(request.TenantId, server.DeviceInfo.ClientId))
+                            {
+                                foreach (var device in tenant.Devices)
+                                {
+                                    device.Status = DeviceStatus.Offline;
+                                    await _dbDeviceService.UpdateAsync(device);
+                                }
+                            }
+                        }
+                    }
                     return BadRequest("An error occurred while creating the NAS Server on the tenant server.");
                 }
                 return BadRequest("An error occurred while creating the NAS Server.");
@@ -153,7 +173,22 @@ namespace API.Controllers
                     {
                         return Ok(nasServer);
                     }
-                    
+                    tenant.Devices = await _dbDeviceService.GetAllByTenantIdAsync(tenant.Id);
+                    if (tenant.Devices != null)
+                    {
+                        Device? server = tenant.Devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                        if (server != null)
+                        {
+                            if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(tenant.Id, server.DeviceInfo.ClientId))
+                            {
+                                foreach (var device in tenant.Devices)
+                                {
+                                    device.Status = DeviceStatus.Offline;
+                                    await _dbDeviceService.UpdateAsync(device);
+                                }
+                            }
+                        }
+                    }
                     return BadRequest("An error occurred while updating the NAS Server on the tenant server.");
                 }
                 return BadRequest("An error occurred while updating the NAS Server.");
@@ -188,13 +223,12 @@ namespace API.Controllers
                 {
                     foreach (DeviceJob job in jobs)
                     {
-                        if (job.Status == DeviceJobStatus.InProgress || job.Status == DeviceJobStatus.Restarting)
+                        if (job.Status == DeviceJobStatus.InProgress || job.Status == DeviceJobStatus.Restarting || job.Status == DeviceJobStatus.Paused)
                         {
                             return BadRequest("Cannot delete NAS Server while jobs are running.");
                         }
                     }
                 }
-                
                 DeleteNASServerRequest serverRequest = new DeleteNASServerRequest
                 {
                     Id = nasServer.BackupServerId
@@ -205,6 +239,22 @@ namespace API.Controllers
                     if (await _dbNASServerService.DeleteAsync(id))
                     {
                         return Ok("NAS Server deleted.");
+                    }
+                    ICollection<Device> devices = await _dbDeviceService.GetAllByTenantIdAsync(nasServer.Id);
+                    if (devices != null)
+                    {
+                        Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                        if (server != null)
+                        {
+                            if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(nasServer.TenantId, server.DeviceInfo.ClientId))
+                            {
+                                foreach (var device in devices)
+                                {
+                                    device.Status = DeviceStatus.Offline;
+                                    await _dbDeviceService.UpdateAsync(device);
+                                }
+                            }
+                        }
                     }
                     return BadRequest("An error occurred while deleting the NAS Server.");
                 }

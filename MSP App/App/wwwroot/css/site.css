@@ -355,11 +355,19 @@ input.form-control:valid, input.form-control:invalid, input.form-control:focus {
 }
 
 .bg-restarting {
-    background-color: #ff8c00; /* Dark Orange */
+    background-color: #ffaa00; /* Dark Orange */
 }
 
 .bg-failed {
     background-color: #8b0000; /* Dark Red */
+}
+
+.bg-paused {
+    background-color: #ff8c00; /* Yellow */
+}
+
+.bg-cancelled {
+    background-color: #e0371d; /* Salmon Red Orange */
 }
 
 /*-------------------------------------------------------------------------*/

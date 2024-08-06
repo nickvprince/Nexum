@@ -1,4 +1,103 @@
-﻿<!-- 6 Cards -->
+﻿@model ICollection<Tenant>?
+
+@{
+    var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+
+    int newAlertsCount;
+    int totalBackupsCount;
+    int totalTenantsCount;
+    int runningJobsCount;
+    int totalJobsCount;
+
+    if (activeTenantId != null)
+    {
+        totalTenantsCount = Model?.Count(t => t.Id == int.Parse(activeTenantId)) ?? 0;
+    }
+    else
+    {
+        totalTenantsCount = Model?.Count() ?? 0;
+    }
+
+    if(activeDeviceId != null)
+    {
+        newAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Where(a => a.DeviceId == int.Parse(activeDeviceId))
+            .Count(a => a.Acknowledged == false) ?? 0;
+
+        totalBackupsCount = Model?.Where(t => t.NASServers != null)
+            .SelectMany(t => t.NASServers!)
+            .Where(n => n.Backups != null && n.Backups.Any(b =>
+                Model.Where(t => t.Devices != null)
+                    .SelectMany(t => t.Devices!)
+                    .Where(d => d.Id == int.Parse(activeDeviceId))
+                    .Select(d => d.DeviceInfo.ClientId)
+                    .Contains(b.Client_Id)
+            ))
+            .Sum(n => n.Backups!.Count) ?? 0;
+
+        runningJobsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.InProgress || j.Status == DeviceJobStatus.Restarting || j.Status == DeviceJobStatus.Paused) ?? 0;
+
+        totalJobsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count() ?? 0;
+    }
+    else
+    {
+        newAlertsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Alerts != null)
+            .SelectMany(d => d.Alerts!)
+            .Count(a => a.Acknowledged == false) ?? 0;
+
+        totalBackupsCount = Model?.Where(t => t.NASServers != null)
+            .SelectMany(t => t.NASServers!)
+            .Where(n => n.Backups != null && n.Backups.Any(b =>
+                Model.Where(t => t.Devices != null)
+                    .SelectMany(t => t.Devices!)
+                    .Select(d => d.DeviceInfo.ClientId)
+                    .Contains(b.Client_Id)
+            ))
+            .Sum(n => n.Backups!.Count) ?? 0;
+
+        runningJobsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.InProgress || j.Status == DeviceJobStatus.Restarting || j.Status == DeviceJobStatus.Paused) ?? 0;
+
+        totalJobsCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count() ?? 0;
+    }
+
+    var totalUsageCountGB = totalBackupsCount * Math.Round(new Random().NextDouble() * (100 - 50) + 50, 2);
+    string totalUsageCount;
+    if (totalUsageCountGB > 1000)
+    {
+        totalUsageCount = $"{Math.Round(totalUsageCountGB / 1000,2)} TB";
+    }
+    else
+    {
+        totalUsageCount = $"{Math.Round(totalUsageCountGB, 2)} GB";
+    }
+
+
+}
+<!-- 6 Cards -->
 <div class="d-flex flex-wrap justify-content-center my-3">
     <!-- New Alerts Card -->
     <div class="card bg-nexum-dark text-nexum-light m-1 border-nexum-dark-3 position-relative nexum-card-flex-item nexum-card-shadow">
@@ -9,7 +108,7 @@
                 </div>
             </div>
             <div class="flex-grow-1">
-                <h3 class="nexum-card-title mb-0">2</h3>
+                <h3 class="nexum-card-title mb-0">@newAlertsCount</h3>
                 <p class="nexum-card-text mb-0">New Alerts</p>
             </div>
         </div>
@@ -23,8 +122,8 @@
                 </div>
             </div>
             <div class="flex-grow-1">
-                <h3 class="nexum-card-title mb-0">14</h3>
-                <p class="nexum-card-text mb-0">Total Accounts</p>
+                <h3 class="nexum-card-title mb-0">@totalTenantsCount</h3>
+                <p class="nexum-card-text mb-0">Total Tenants</p>
             </div>
         </div>
     </div>
@@ -37,7 +136,7 @@
                 </div>
             </div>
             <div class="flex-grow-1">
-                <h3 class="nexum-card-title mb-0">1</h3>
+                <h3 class="nexum-card-title mb-0">@runningJobsCount</h3>
                 <p class="nexum-card-text mb-0">Jobs Running</p>
             </div>
         </div>
@@ -52,7 +151,7 @@
                 </div>
             </div>
             <div class="flex-grow-1">
-                <h3 class="nexum-card-title mb-0">29</h3>
+                <h3 class="nexum-card-title mb-0">@totalBackupsCount</h3>
                 <p class="nexum-card-text mb-0">Total Backups</p>
             </div>
         </div>
@@ -66,7 +165,7 @@
                 </div>
             </div>
             <div class="flex-grow-1">
-                <h3 class="nexum-card-title mb-0">98.3 GB</h3>
+                <h3 class="nexum-card-title mb-0">@totalUsageCount</h3>
                 <p class="nexum-card-text mb-0">Total Usage</p>
             </div>
         </div>
@@ -80,7 +179,7 @@
                 </div>
             </div>
             <div class="flex-grow-1">
-                <h3 class="nexum-card-title mb-0">5</h3>
+                <h3 class="nexum-card-title mb-0">@totalJobsCount</h3>
                 <p class="nexum-card-text mb-0">Total Jobs</p>
             </div>
         </div>

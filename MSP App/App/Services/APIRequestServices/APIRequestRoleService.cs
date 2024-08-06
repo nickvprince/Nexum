@@ -119,7 +119,7 @@ namespace App.Services.APIRequestServices
         {
             try
             {
-                var response = await _httpClient.GetAsync($"Assignments/{roleId}");
+                var response = await _httpClient.GetAsync($"Permission/{roleId}");
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ICollection<ApplicationRolePermission>>(responseData);
             }

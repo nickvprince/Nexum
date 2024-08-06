@@ -23,10 +23,18 @@
                         type: 'GET',
                         success: function (result) {
                             $('#contentBox').html(result);
-                            $('.collapse').on('show.bs.collapse', function () {
-                                $('#tenantActionContentBox').html('');
-                                $('[id^=keyCreateContentBox]').html('');
-                                $('.collapse').not(this).collapse('hide');
+                            $(document).on('show.bs.collapse', '.collapse', function () {
+                                // Check if the current element is not 'detailsDeviceExtra'
+                                if (!$(this).is('[id^=detailsDeviceExtra]')) {
+                                    // Check if the current element has an ID starting with 'detailsDevice' or 'detailsKey'
+                                    if ($(this).is('[id^=detailsDevice], [id^=detailsKey]')) {
+                                        $('#tenantActionContentBox').html('');
+                                        $('[id^=keyCreateContentBox]').html('');
+                                        $('.collapse[id^=detailsDevice]:not([id^=detailsDeviceExtra]), .collapse[id^=detailsKey]')
+                                            .not(this)
+                                            .collapse('hide');
+                                    }
+                                }
                             });
                         },
                         error: function (xhr, status, error) {
@@ -34,7 +42,7 @@
                             console.error('Error loading partial view:', error);
                         }
                     });
-                }, 2000);
+                }, 1500);
             }
 
             function fillCountryRegionSelectors() {

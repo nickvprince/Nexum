@@ -51,7 +51,7 @@
                             console.error('Error loading partial view:', error);
                         }
                     });
-                }, 2000);
+                }, 1500);
             }
 
             function loadBackupTable() {
@@ -69,7 +69,7 @@
                             console.error('Error loading partial view:', error);
                         }
                     });
-                }, 2000);
+                }, 1500);
             }
 
             loadNASTable();
@@ -98,6 +98,9 @@
                     error: function (xhr, status, error) {
                         $('#nasActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             });
@@ -119,12 +122,14 @@
                                 type: 'POST',
                                 success: function (result) {
                                     loadEdit(nasId);
-                                    loadTenantDeviceSelectorPartial();
                                     loadNASTable();
                                     loadBackupTable();
                                 },
                                 error: function (xhr, status, error) {
                                     console.error('Error:', error);
+                                },
+                                complete: function () {
+                                    loadTenantDeviceSelectorPartial();
                                 }
                             });
                         } else {
@@ -171,6 +176,9 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageNASServer' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             });
@@ -195,6 +203,9 @@
                     error: function (xhr, status, error) {
                         $('#tempDataMessageBackup' + id).html('<div class="alert alert-danger alert-dismissible fade show">An error occurred while processing your request.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                         console.error('Error:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             });
@@ -227,6 +238,9 @@
                     error: function (xhr, status, error) {
                         $('#nasActionContentBox').html('<p class="text-nexum-light">' + 'No Partial Found' + '</p>');
                         console.error('Error loading partial view:', error);
+                    },
+                    complete: function () {
+                        loadTenantDeviceSelectorPartial();
                     }
                 });
             });

@@ -1,19 +1,86 @@
-﻿<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
+﻿@model ICollection<Tenant>?
+
+@{
+    var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+
+    int totalBackupsCount;
+    int totalBackupsSuccessfulCount;
+
+    int totalBackupsFailedCount;
+
+    if (activeDeviceId != null)
+    {
+        totalBackupsCount = Model?.Where(t => t.NASServers != null)
+            .SelectMany(t => t.NASServers!)
+            .Where(n => n.Backups != null && n.Backups.Any(b =>
+                Model.Where(t => t.Devices != null)
+                    .SelectMany(t => t.Devices!)
+                    .Where(d => d.Id == int.Parse(activeDeviceId))
+                    .Select(d => d.DeviceInfo.ClientId)
+                    .Contains(b.Client_Id)
+            ))
+            .Sum(n => n.Backups!.Count) ?? 0;
+
+        int numCompletedJobs = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Complete) ?? 0;
+
+        totalBackupsSuccessfulCount = Math.Max(totalBackupsCount, numCompletedJobs);
+
+        totalBackupsFailedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Where(j => j.DeviceId == int.Parse(activeDeviceId))
+            .Count(j => j.Status == DeviceJobStatus.Failed) ?? 0;
+    }
+    else
+    {
+        totalBackupsCount = Model?.Where(t => t.NASServers != null)
+           .SelectMany(t => t.NASServers!)
+           .Where(n => n.Backups != null && n.Backups.Any(b =>
+               Model.Where(t => t.Devices != null)
+                   .SelectMany(t => t.Devices!)
+                   .Select(d => d.DeviceInfo.ClientId)
+                   .Contains(b.Client_Id)
+           ))
+           .Sum(n => n.Backups!.Count) ?? 0;
+
+        int numCompletedJobs = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Complete) ?? 0;
+
+        totalBackupsSuccessfulCount = Math.Max(totalBackupsCount, numCompletedJobs);
+
+        totalBackupsFailedCount = Model?.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Jobs != null)
+            .SelectMany(d => d.Jobs!)
+            .Count(j => j.Status == DeviceJobStatus.Failed) ?? 0;
+    }
+}
+<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
     <div class="card-body">
         <h5 class="nexum-summary-card-title">Backups Summary</h5>
         <div class="row">
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-server nexum-summary-icon"></i>
-                    <span>Total Backups: 29</span>
+                    <span>Total Backups: @totalBackupsCount</span>
                 </div>
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1" ">
                     <i class="bi bi-check-circle-fill nexum-summary-icon"></i>
-                    <span>Successful Backups: 2</span>
+                    <span>Successful Backups: @totalBackupsSuccessfulCount</span>
                 </div>
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-x-circle-fill nexum-summary-icon"></i>
-                    <span>Failed Backups: 4</span>
+                    <span>Failed Backups: @totalBackupsFailedCount</span>
                 </div>
             </div>
         </div>
@@ -22,15 +89,15 @@
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.15);">
                     <i class="bi bi-hdd-fill nexum-summary-icon"></i>
-                    <span>Full: 10</span>
+                    <span>Full: @totalBackupsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.25);">
                     <i class="bi bi-hdd-fill nexum-summary-icon"></i>
-                    <span>Incremental: 15</span>
+                    <span>Incremental: 0</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.35);">
                     <i class="bi bi-hdd-fill nexum-summary-icon"></i>
-                    <span>Differential: 4</span>
+                    <span>Differential: 0</span>
                 </div>
             </div>
         </div>

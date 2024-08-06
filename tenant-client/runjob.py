@@ -47,9 +47,12 @@ def shuffle():
     msp=MySqlite.read_setting("msp-api")
     # for char in range mspapi-1 password = msp_api[i]+api[i+1]
     password = ""
-    for i in range(len(msp)):
-       password+=msp[i]+api[i]
-    return password
+    try:
+        for i in range(len(msp)):
+            password+=msp[i]+api[i]
+            return password
+    except:
+        return ""
 @staticmethod
 def decrypt_password(password:str):
     """
@@ -59,20 +62,22 @@ def decrypt_password(password:str):
 
     # only take first 32 chars
     encryption_key=encryption_key[:32]
+    try:
+        cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
+        decryptor = cipher.decryptor()
 
-    cipher = Cipher(algorithms.AES(encryption_key.encode("utf-8")), modes.ECB(), backend=default_backend())
-    decryptor = cipher.decryptor()
 
+        # Decode the string from base64
+        decoded_string = base64.b64decode(password)
 
-    # Decode the string from base64
-    decoded_string = base64.b64decode(password)
-
-    # Decrypt the string using AES
-    decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
-    decrypted_string = str(decrypted_string.decode("utf-8"))
-    #rstrip \0b
-    decrypted_string = decrypted_string.rstrip("\x0b")
-    return str(decrypted_string)
+        # Decrypt the string using AES
+        decrypted_string = decryptor.update(decoded_string) + decryptor.finalize()
+        decrypted_string = str(decrypted_string.decode("utf-8"))
+        #rstrip \0b
+        decrypted_string = decrypted_string.rstrip("\x0b")
+        return str(decrypted_string)
+    except Exception as e:
+        return ""
 
 
 LOCAL_JOB = job.Job() # job assigned to this computer
@@ -88,6 +93,7 @@ class RunJob():
     stop_job_var = False # stop the job
     kill_job_var = False # stop the job
     job_running_var = False
+    day_ran = False
     logger = Logger()
     def run(self):
         """
@@ -103,6 +109,7 @@ class RunJob():
                 # stop the job
                 self.kill_job_var = False
                 self.job_pending = False
+
                 url = 'http://127.0.0.1:5004/start_job_service'
                 headers = {
                     "apikey": MySqlite.read_setting("apikey"),
@@ -111,6 +118,7 @@ class RunJob():
                 try:
                     response = requests.post(url, data={}, headers=headers,timeout=15)
                     MySqlite.write_setting("status","Idle")
+                    self.logger.log("INFO","RunJob","Job stopped","0","runjob.py")
                     self.job_running_var = False
                 except Exception as e:
                     self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
@@ -168,28 +176,32 @@ class RunJob():
                     "apikey": MySqlite.read_setting("apikey"),
                     "Content-Type": "application/json"
                 }
-                self.logger.log("INFO","RunJob","Checking status of service","0","runjob.py")
-                response = requests.post("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
-                MySqlite.write_setting("Status","Online")
+                response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                if (MySqlite.read_setting("Status")!= "Online"):
+                    self.logger.log("INFO","RunJob","Service is online","0","runjob.py")
+                    MySqlite.write_setting("Status","Online")
             except Exception as e:
-                self.logger.log("ERROR","RunJob","Service offline or did not respond properly","0","runjob.py")
+                self.logger.log("ERROR","RunJob","Service offline or did not respond properly " +str(e),"0","runjob.py")
                 MySqlite.write_setting("Status","ServiceOffline")
             Logger.debug_print("Check backup status schedule here and run accordingly")
             # check if time has passed since it should have run
-            if LOCAL_JOB.get_settings()is not None:
+            if LOCAL_JOB.get_settings().get_stop_time() is not None and LOCAL_JOB.get_settings().get_start_time() is not None:
                 if LOCAL_JOB.get_settings()[2] is None or LOCAL_JOB.get_settings()[3] is None:
                     setting = LOCAL_JOB.get_settings()
                     setting = list(setting)
                     setting[2] = "00:00"
                     setting[3] = "00:00"
-                    set3=LOCAL_JOB.settings
                     LOCAL_JOB.settings=setting
-                if (LOCAL_JOB.get_settings()[2] < str(datetime.datetime.now().time())) and (LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time())):
+                if LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time()): #past current schreduled time can be re enabled
+                    self.day_ran=False
+                    self.logger.log("INFO","RunJob","Job passed schedule ready for next day","0","runjob.py")
+                if (LOCAL_JOB.get_settings()[2] < str(datetime.datetime.now().time())) and (LOCAL_JOB.get_settings()[3] > str(datetime.datetime.now().time()) and self.day_ran is False):
 
                     schedule = LOCAL_JOB.get_settings()[1]
                     today = datetime.datetime.now().weekday()
                     if schedule[today] == "1":
                         # check if backup allowed to run today
+                        self.day_ran = True
                         Logger.debug_print("Job Triggered by time")
                         command='-backupTarget:'+os.path.abspath(LOCAL_JOB.get_settings()[10])+' -include:C: -allCritical -vssFull -quiet -user:'+LOCAL_JOB.get_settings()[11]+' -password:'+decrypt_password(LOCAL_JOB.get_settings()[12])
                         self.logger.log("INFO","RunJob","Running job by time :" +str(command),"0","runjob.py")
@@ -204,6 +216,7 @@ class RunJob():
                         try:
                             response = requests.post(url, data=json.dumps(body), headers=headers,timeout=15)
                             MySqlite.write_setting("job_status","InProgress")
+                            self.logger.log("INFO","RunJob","Job started successfully","0","runjob.py")
                         except TimeoutError:
                             self.logger.log("ERROR","RunJob","Timeout Error","0","runjob.py")
                             MySqlite.write_setting("job_status","NotStarted")
