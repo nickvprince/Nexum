@@ -14,7 +14,7 @@
             @if (Model == null || !Model.Any())
             {
                 <tr>
-                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Users found</td>
+                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No users found</td>
                 </tr>
             }
             else
@@ -25,9 +25,59 @@
                     i++;
                     <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                         <td class="border-0 text-nexum-light">@i</td>
-                        <td class="border-0 text-nexum-light">@user.UserName</td>
+                        <td class="border-0 text-nexum-light">
+                            <div class="rounded-1 d-flex align-items-center justify-content-start p-0" style="border: none; background: none;">
+                                <a class="nav-link rounded-1 d-flex align-items-center justify-content-center" role="button" data-bs-toggle="collapse" data-bs-target="#details@(user.Id)">
+                                    <svg class="bi text-nexum-light table-button-nexum" fill="currentColor">
+                                        <use xlink:href="#eye"></use>
+                                    </svg>
+                                </a>
+                                <b class="text-nexum-light ms-2"><span>@user.UserName</span></b>
+                            </div>
+                        </td>
                         <td class="border-0 text-nexum-light">@(EnumUtilities.EnumToString(user.Type))</td>
                         <td class="border-0 text-nexum-light">@user.Id</td>
+                    </tr>
+                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                        <td class="p-0 border-0" colspan="12">
+                            <div id="details@(user.Id)" class="collapse">
+                                <table class="table m-0 table-nexum-dark border-0">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th class="border-0 text-nexum-light">#</th>
+                                            <th class="border-0 text-nexum-light">Role</th>
+                                            <th class="border-0 text-nexum-light">Description</th>
+                                            <th class="border-0 text-nexum-light">Is Active</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (user.UserRoles == null || !user.UserRoles.Any())
+                                        {
+                                            <tr>
+                                                <td class="text-center text-nowrap text-nexum-light" colspan="12">No roles found</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            int j = 0;
+                                            @foreach (var userRole in user.UserRoles.OrderBy(ur => ur.Role.Name))
+                                            {
+                                                if (userRole != null)
+                                                {
+                                                    j++;
+                                                    <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
+                                                        <td class="border-0 text-nexum-light">@j</td>
+                                                        <td class="border-0 text-nexum-light text-start" style="max-width:100px;">@userRole.Role?.Name</td>
+                                                        <td class="border-0 text-nexum-light text-start" style="max-width:100px;">@userRole.Role?.Description</td>
+                                                        <td class="border-0 text-nexum-light text-start" style="max-width:100px;">@((userRole.Role?.IsActive ?? true) ? "True" : "False")</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
                     </tr>
                 }
             }

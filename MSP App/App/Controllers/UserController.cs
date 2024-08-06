@@ -12,10 +12,12 @@ namespace App.Controllers
     public class UserController : Controller
     {
         private readonly IAPIRequestUserService _userService;
+        private readonly IAPIRequestRoleService _roleService;
 
-        public UserController(IAPIRequestUserService userService)
+        public UserController(IAPIRequestUserService userService, IAPIRequestRoleService roleService)
         {
             _userService = userService;
+            _roleService = roleService;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -51,6 +53,21 @@ namespace App.Controllers
                         LastName = userResponse.LastName,
                         Type = userResponse.Type
                     });
+                }
+            }
+            foreach (var user in users)
+            {
+                user.UserRoles = await _roleService.GetAllUserRolesByUserIdAsync(user.Id);
+                if (user.UserRoles != null)
+                {
+                    var roles = await _roleService.GetAllAsync();
+                    if(roles != null)
+                    {
+                        foreach (var userRole in user.UserRoles)
+                        {
+                            userRole.Role = roles.Where(r => r.Id == userRole.RoleId).FirstOrDefault();
+                        }
+                    }
                 }
             }
             return await Task.FromResult(PartialView("_UserTablePartial", users));
