@@ -65,6 +65,7 @@ builder.Services.AddScoped<IAPIRequestPermissionService, APIRequestPermissionSer
 builder.Services.AddScoped<IAPIRequestRoleService, APIRequestRoleService>();
 builder.Services.AddScoped<IAPIRequestTenantService, APIRequestTenantService>();
 builder.Services.AddScoped<IAPIRequestUserService, APIRequestUserService>();
+builder.Services.AddScoped<IAPIRequestSoftwareService, APIRequestSoftwareService>();
 
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AppAuthorizationMiddlewareResultHandler>();
 

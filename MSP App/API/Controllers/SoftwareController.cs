@@ -236,5 +236,28 @@ namespace API.Controllers
             }
             return Unauthorized("Invalid API Key.");
         }
+
+        /// <summary>
+        /// Downloads the Nexum Installer software file.
+        /// </summary>
+        /// <returns>The Nexum Installer software file.</returns></returns>
+        [HttpGet("Installer")]
+        public async Task<IActionResult> InstallerAsync()
+        {
+            string installerFilePath = Path.Combine(_softwareFolder, "Installer.exe");
+            if (!System.IO.File.Exists(installerFilePath))
+            {
+                return NotFound("File not found.");
+            }
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(installerFilePath, FileMode.Open))
+            {
+                stream.CopyTo(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, "application/octet-stream", Path.GetFileName(installerFilePath));
+        }
     }
 }

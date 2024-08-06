@@ -8,9 +8,9 @@ using SharedComponents.Utilities;
 
 namespace App.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class SessionController : ControllerBase
     {
         private readonly IAPIRequestTenantService _tenantService;
