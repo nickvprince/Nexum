@@ -79,6 +79,14 @@ namespace App.Controllers
                                 device.Alerts = alerts.Where(a => a.DeviceId == device.Id).ToList();
                             }
                         }
+                        var deviceBackups = await _backupService.GetAllByTenantIdAsync(tenant.Id);
+                        if (deviceBackups != null)
+                        {
+                            foreach (var device in tenant.Devices)
+                            {
+                                device.Backups = deviceBackups.Where(b => b.Client_Id == device.DeviceInfo.ClientId).ToList();
+                            }
+                        }
                     }
                     tenant.NASServers = await _nasServerService.GetAllByTenantIdAsync(tenant.Id);
                     if (tenant.NASServers != null)
@@ -102,8 +110,16 @@ namespace App.Controllers
             if (HttpContext.Session.GetString("ActiveDeviceId") != null)
             {
                 int? activeDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
-                return tenants?.Where(t => t.Devices != null &&
-                        t.Devices.Any(d => d.Jobs != null)).ToList();
+                return tenants?.Where(t =>
+                    (t.Devices != null && t.Devices.Any(d => d.Id == activeDeviceId)) ||
+                    (t.NASServers != null && t.NASServers.Any(n =>
+                        t.Devices
+                            .Where(d => d.Jobs != null && d.Jobs.Any(j => j.DeviceId == activeDeviceId))
+                            .SelectMany(d => d.Jobs)
+                            .Select(j => j.Settings.BackupServerId)
+                            .Contains(n.BackupServerId)
+                    ))
+                ).ToList();
             }
             if (HttpContext.Session.GetString("ActiveTenantId") != null)
             {
@@ -166,6 +182,33 @@ namespace App.Controllers
         {
             return await Task.FromResult(PartialView("_HomeBackupSummaryCardPartial", FilterTenantsBySession(await PopulateTenantsAsync())));
         }
-        
+        /*
+         if (HttpContext.Session.GetString("ActiveDeviceId") != null)
+            {
+                int? activeDeviceId = int.Parse(HttpContext.Session.GetString("ActiveDeviceId"));
+                return await Task.FromResult(PartialView("_HomeBackupSummaryCardPartial", tenants?.Where(t =>
+                    t.NASServers != null &&
+                    t.Devices != null &&
+                    t.NASServers.Any(n =>
+                        (n.Backups != null && n.Backups.Any(b =>
+                            b.Client_Id == t.Devices
+                                .Where(dn => dn.Id == activeDeviceId)
+                                .Select(dn => dn.DeviceInfo?.ClientId)
+                                .FirstOrDefault()
+                        ))
+                        ||
+                        (t.Devices.Any(dj =>
+                            dj.Jobs != null &&
+                            dj.Jobs.Any(j =>
+                                j.Settings != null &&
+                                j.Settings.BackupServerId == n.BackupServerId &&
+                                j.DeviceId == activeDeviceId
+                            )
+                        ))
+                    )
+                ).ToList()));
+            }
+         */
+
     }
 }
