@@ -24,7 +24,7 @@
             @if (Model == null || !Model.Any() || Model.All(t => t.NASServers == null || !t.NASServers.Any(ns => ns.Backups != null && ns.Backups.Any())))
             {
                 <tr>
-                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Backups found</td>
+                    <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No Backups found</td>
                 </tr>
             }
             else

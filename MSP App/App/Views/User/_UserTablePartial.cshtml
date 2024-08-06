@@ -14,7 +14,7 @@
             @if (Model == null || !Model.Any())
             {
                 <tr>
-                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No users found</td>
+                    <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No users found</td>
                 </tr>
             }
             else
@@ -54,7 +54,7 @@
                                         @if (user.UserRoles == null || !user.UserRoles.Any())
                                         {
                                             <tr>
-                                                <td class="text-center text-nowrap text-nexum-light" colspan="12">No roles found</td>
+                                                <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No roles found</td>
                                             </tr>
                                         }
                                         else
@@ -69,7 +69,7 @@
                                                         <td class="border-0 text-nexum-light">@j</td>
                                                         <td class="border-0 text-nexum-light text-start" style="max-width:100px;">@userRole.Role?.Name</td>
                                                         <td class="border-0 text-nexum-light text-start" style="max-width:100px;">@userRole.Role?.Description</td>
-                                                        <td class="border-0 text-nexum-light text-start" style="max-width:100px;">@((userRole.Role?.IsActive ?? true) ? "True" : "False")</td>
+                                                        <td class="border-0 text-nexum-light" style="max-width:100px;">@((userRole.Role?.IsActive ?? true) ? "True" : "False")</td>
                                                     </tr>
                                                 }
                                             }

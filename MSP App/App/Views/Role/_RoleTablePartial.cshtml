@@ -14,7 +14,7 @@
             @if (Model == null || Model.Roles == null || !Model.Roles.Any())
             {
                 <tr>
-                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Roles found</td>
+                    <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No Roles found</td>
                 </tr>
             }
             else
@@ -55,7 +55,7 @@
                                         @if (role.RolePermissions == null || !role.RolePermissions.Any())
                                         {
                                             <tr>
-                                                <td class="text-center text-nowrap text-nexum-light" colspan="12">No permissions found</td>
+                                                <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No permissions found</td>
                                             </tr>
                                         }
                                         else

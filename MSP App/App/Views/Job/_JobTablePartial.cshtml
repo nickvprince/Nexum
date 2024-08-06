@@ -42,7 +42,7 @@
             @if (Model == null || !Model.Any() || Model.All(t => t.Devices == null || !t.Devices.Any(d => d.Jobs != null && d.Jobs.Any())))
             {
                 <tr>
-                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No Jobs found</td>
+                    <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No Jobs found</td>
                 </tr>
             }
             else

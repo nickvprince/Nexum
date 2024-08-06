@@ -27,7 +27,7 @@
                                 // Check if the current element is not 'detailsDeviceExtra'
                                 if (!$(this).is('[id^=detailsDeviceExtra]')) {
                                     // Check if the current element has an ID starting with 'detailsDevice' or 'detailsKey'
-                                    if ($(this).is('[id^=detailsDevice], [id^=detailsKey]')) {
+                                    if ($(this).is('[id^=detailsDevice], [id^=detailsKey] ')) {
                                         $('#tenantActionContentBox').html('');
                                         $('[id^=keyCreateContentBox]').html('');
                                         $('.collapse[id^=detailsDevice]:not([id^=detailsDeviceExtra]), .collapse[id^=detailsKey]')

@@ -23,7 +23,7 @@
             @if (Model == null || Model.Count == 0)
             {
                 <tr>
-                    <td class="text-center text-nowrap text-nexum-light" colspan="12">No tenants found</td>
+                    <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No tenants found</td>
                 </tr>
             }
             else
@@ -72,27 +72,29 @@
                     <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
                         <td class="p-0 border-0" colspan="12">
                             <div id="detailsDevice@(tenant.Id)" class="collapse">
-                                @if (tenant.Devices == null || tenant.Devices.Count == 0)
-                                {
-                                    <tr>
-                                        <td class="text-center text-nowrap text-nexum-light" colspan="12">No devices found</td>
-                                    </tr>
-                                }
-                                else
-                                {
-                                    <table class="table m-0 table-nexum-dark border-0">
-                                        <thead>
-                                            <tr class="text-center text-nowrap">
-                                                <th class="border-0 text-nexum-light">#</th>
-                                                <th class="border-0 text-nexum-light">Name</th>
-                                                <th class="border-0 text-nexum-light">Type</th>
-                                                <th class="border-0 text-nexum-light">Status</th>
-                                                <th class="border-0 text-nexum-light">Is Verified</th>
-                                                <th class="border-0 text-nexum-light">Is Active</th>
+                                <table class="table m-0 table-nexum-dark border-0">
+                                    <thead>
+                                        <tr class="text-center text-nowrap">
+                                            <th class="border-0 text-nexum-light">#</th>
+                                            <th class="border-0 text-nexum-light">Name</th>
+                                            <th class="border-0 text-nexum-light">Type</th>
+                                            <th class="border-0 text-nexum-light">Status</th>
+                                            <th class="border-0 text-nexum-light">Is Verified</th>
+                                            <th class="border-0 text-nexum-light">Is Active</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="border-2 border-top-0 border-start-0 border-end-0">
+                                        @{
+                                            int j = 0;
+                                        }
+                                        @if (tenant.Devices == null || tenant.Devices.Count == 0)
+                                        {
+                                            <tr>
+                                                <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No devices found</td>
                                             </tr>
-                                        </thead>
-                                        <tbody class="border-2 border-top-0 border-start-0 border-end-0">
-                                            @{int j = 0;}
+                                        }
+                                        else
+                                        {
                                             @foreach (var device in tenant.Devices.OrderBy(d => d.DeviceInfo.Type).ThenBy(d => d.DeviceInfo.Name))
                                             {
                                                 j++;
@@ -164,9 +166,9 @@
                                                     </td>
                                                 </tr>
                                             }
-                                        </tbody>
-                                    </table>
-                                }
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </td>
                     </tr>
@@ -228,17 +230,17 @@
                                                         @if (tenant.InstallationKeys == null || tenant.InstallationKeys.Where(k => !k.IsDeleted).Count() == 0)
                                                         {
                                                             <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
-                                                                <td class="border-0 text-nexum-light" colspan="12">No keys found</td>
+                                                                <td class="border-2 border-top-0 border-start-0 border-end-0 text-center text-nowrap text-nexum-light" colspan="12">No keys found</td>
                                                             </tr>
                                                         }
                                                         else
                                                         {
-                                                            int j = 0;
+                                                            int k = 0;
                                                             foreach (var key in tenant.InstallationKeys.Where(k => !k.IsDeleted).OrderByDescending(k => k.Id))
                                                             {
-                                                                j++;
+                                                                k++;
                                                                 <tr class="@(i % 2 == 0 ? "row-nexum-striped-odd" : "row-nexum-striped-even") text-center text-nowrap align-middle">
-                                                                    <td class="border-0 text-nexum-light">@j</td>
+                                                                    <td class="border-0 text-nexum-light">@k</td>
                                                                     <td class="border-0 text-nexum-light">@key.Key</td>
                                                                     <td class="border-0 text-nexum-light">@key.Type</td>
                                                                     <td class="border-0 text-nexum-light">@key.IsActive.ToString()</td>
