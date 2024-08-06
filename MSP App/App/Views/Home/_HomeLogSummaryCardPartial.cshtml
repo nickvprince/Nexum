@@ -1,15 +1,132 @@
-﻿<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
+﻿@model ICollection<Tenant>?
+
+@{
+    var activeDeviceId = Context.Session.GetString("ActiveDeviceId");
+    var activeTenantId = Context.Session.GetString("ActiveTenantId");
+
+    int totalLogsCount;
+    int totalLogsTodayCount;
+
+    int traceLogsCount;
+    int debugLogsCount;
+    int informationLogsCount;
+    int warningLogsCount;
+    int errorLogsCount;
+
+    if (activeDeviceId != null)
+    {
+        totalLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId))
+            .Count();
+
+        totalLogsTodayCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Time >= DateTime.Now.AddHours(-24))
+            .Count();
+
+        traceLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Trace)
+            .Count();
+
+        debugLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Debug)
+            .Count();
+
+        informationLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Information)
+            .Count();
+
+        warningLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Warning)
+            .Count();
+
+        errorLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.DeviceId == int.Parse(activeDeviceId) && l.Type == LogType.Error)
+            .Count();
+    }
+    else
+    {
+        totalLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Count();
+
+        totalLogsTodayCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.Time >= DateTime.Now.AddHours(-24))
+            .Count();
+
+        traceLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.Type == LogType.Trace)
+            .Count();
+
+        debugLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.Type == LogType.Debug)
+            .Count();
+
+        informationLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.Type == LogType.Information)
+            .Count();
+
+        warningLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.Type == LogType.Warning)
+            .Count();
+
+        errorLogsCount = Model.Where(t => t.Devices != null)
+            .SelectMany(t => t.Devices!)
+            .Where(d => d.Logs != null)
+            .SelectMany(d => d.Logs!)
+            .Where(l => l.Type == LogType.Error)
+            .Count();
+    }
+}
+<div class="card nexum-summary-card bg-nexum-dark nexum-card-shadow-light text-nexum-light">
     <div class="card-body">
         <h5 class="nexum-summary-card-title">Logs Summary</h5>
         <div class="row">
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-file-earmark-text-fill nexum-summary-icon"></i>
-                    <span>Total Logs: 100</span>
+                    <span>Total Logs: @totalLogsCount</span>
                 </div>
                 <div class="nexum-mini-card bg-mini-card d-flex align-items-center m-1">
                     <i class="bi bi-file-earmark-plus-fill nexum-summary-icon"></i>
-                    <span>Logs Today: 15</span>
+                    <span>Logs Today: @totalLogsTodayCount</span>
                 </div>
             </div>
         </div>
@@ -18,23 +135,23 @@
             <div class="col-12 d-flex flex-wrap justify-content-between">
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.15);">
                     <i class="bi bi-info-circle-fill nexum-summary-icon"></i>
-                    <span>Trace: 25</span>
+                    <span>Trace: @traceLogsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.25);">
                     <i class="bi bi-bug-fill nexum-summary-icon"></i>
-                    <span>Debug: 20</span>
+                    <span>Debug: @debugLogsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.35);">
                     <i class="bi bi-info-circle-fill nexum-summary-icon"></i>
-                    <span>Information: 30</span>
+                    <span>Information: @informationLogsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.45);">
                     <i class="bi bi-exclamation-circle-fill nexum-summary-icon"></i>
-                    <span>Warning: 15</span>
+                    <span>Warning: @warningLogsCount</span>
                 </div>
                 <div class="nexum-mini-card d-flex align-items-center m-1" style="background-color: rgba(198, 186, 210, 0.50);">
                     <i class="bi bi-x-circle-fill nexum-summary-icon"></i>
-                    <span>Error: 10</span>
+                    <span>Error: @errorLogsCount</span>
                 </div>
             </div>
         </div>
