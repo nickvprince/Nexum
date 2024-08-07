@@ -504,8 +504,9 @@ def uninstall_from_device(window:tk.Tk):
         pass
     #if users temp settings exists delete it
     try:
-        if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
-            shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
+        # delete c:\users\%user%\appdata\local\temp\settings
+        if os.path.exists(f"C:\\Users\\{os.getlogin()}\\AppData\\Local\\Temp\\settings"):
+            shutil.rmtree(f"C:\\Users\\{os.getlogin()}\\AppData\\Local\\Temp\\settings")
     except:
         pass
 
@@ -750,6 +751,7 @@ def install_client_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     The background process for installing the client on the server, 
     including the registry keys and the service, and the persistence
     """
+        # if c:\windows\temp\settings exists delete it
 
 
     write_log("INFO", "Install Client", "Install Client Background Started", 0, get_time())
@@ -970,8 +972,7 @@ def install_server_background(window:tk.Tk, backupserver:str, key:str,apikey:str
     Main loop for installing the server in the backend
     """
     # clean on install incase
-    
-
+        # if c:\windows\temp\settings exists delete it
 
     
     write_log("INFO", "Install Server", "Install Server process starting", 0, get_time())
@@ -1238,18 +1239,6 @@ def main():
     # INITIALIZATION
     global SETTINGS_PATH
     global logpath
-    # if c:\windows\temp\settings exists delete it
-    try:
-        if os.path.exists("C:\\Windows\\Temp\\settings"):
-            shutil.rmtree("C:\\Windows\\Temp\\settings")
-    except: 
-        pass
-    #if users temp settings exists delete it
-    try:
-        if os.path.exists(str(tempfile.gettempdir())+str("\\settings")):
-            shutil.rmtree(str(tempfile.gettempdir())+str("\\settings"))
-    except:
-        pass
 
 
     logpath = str(tempfile.gettempdir())+str("\\logs\\logs.db")

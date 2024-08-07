@@ -27,6 +27,7 @@ import job
 import jobsettings
 from logger import Logger
 from sql import MySqlite
+import socket
 # pylint: disable=line-too-long
 
 
@@ -112,13 +113,29 @@ class RunJob():
                 }
                 
                 try:
-                    response = requests.post(url, headers=headers,timeout=15)
+                    response = requests.post(url, headers=headers,timeout=60)
                     if response.json()["result"] == "{[b'wbadmin 1.0 - Backup command-line tool\\r\\n', b'(C) Copyright Microsoft Corporation. All rights reserved.\\r\\n', b'\\r\\n', b'ERROR - The user name or password is unexpected because the backup location \\r\\n', b'is not a remote shared folder.\\r\\n', b'\\r\\n']}":
                         MySqlite.write_setting("job_status","NotStarted")
                         MySqlite.write_setting("Status","Online")
                     else:
                         MySqlite.write_setting("job_status","NotStarted")
                         MySqlite.write_setting("Status","Online")
+                    #Tells MSP job is running
+                    route = f"https://{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp_port")}/api/DataLink/Update-Job-Status"
+                    headers = {
+                        "apikey": MySqlite.read_setting("apikey"),
+                        "Content-Type": "application/json"
+                    }
+                    content = {
+                        "client_id": int(MySqlite.read_setting("CLIENT_ID")),
+                        "uuid": MySqlite.read_setting("uuid"),
+                        "status": 0,
+                        "progress": 0
+                    }
+                    try:
+                        _ = requests.put(route, headers=headers, json=content,timeout=10,verify=False)
+                    except Exception as e:
+                        pass
                     self.logger.log("INFO","RunJob","Job killed successfully","0","runjob.py",alert=True)
                     self.kill_job_var = False
                 except ConnectionError:
@@ -168,6 +185,22 @@ class RunJob():
                         self.logger.log("INFO","RunJob","Job started successfully","0","runjob.py",alert=True)
                         MySqlite.write_setting("job_status","InProgress")
                         MySqlite.write_setting("Status","Online")
+                                                #Tells MSP job is running
+                        route = f"https://{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp_port")}/api/DataLink/Update-Job-Status"
+                        headers = {
+                            "apikey": MySqlite.read_setting("apikey"),
+                            "Content-Type": "application/json"
+                        }
+                        content = {
+                            "client_id": int(MySqlite.read_setting("CLIENT_ID")),
+                            "uuid": MySqlite.read_setting("uuid"),
+                            "status": 1,
+                            "progress": 0
+                        }
+                        try:
+                            _ = requests.put(route, headers=headers, json=content,timeout=10,verify=False)
+                        except Exception as e:
+                            pass
                         self.job_running_var = True # set job running to true
                 except TimeoutError:
                     self.logger.log("ERROR","RunJob","Timeout Error","0","runjob.py")
@@ -193,10 +226,10 @@ class RunJob():
                     "apikey": MySqlite.read_setting("apikey"),
                     "Content-Type": "application/json"
                 }
-                response = requests.get("http://127.0.0.1:5004/get_status", headers=headers,timeout=15)
+                response = requests.get("http://127.0.0.1:5004/check_online", headers=headers,timeout=15)
                 if (MySqlite.read_setting("Status")!= "Online"):
                     self.logger.log("INFO","RunJob","Service is online","0","runjob.py")
-                    MySqlite.write_setting("Status","Online")
+                MySqlite.write_setting("Status","Online")
             except Exception as e:
                 self.logger.log("ERROR","RunJob","Service offline or did not respond properly","050","runjob.py",alert=True)
                 MySqlite.write_setting("Status","ServiceOffline")
@@ -241,6 +274,52 @@ class RunJob():
                             self.logger.log("ERROR","RunJob","Error: "+str(e),"0","runjob.py")
                             Logger.debug_print("Error: "+str(e))
 
+                        #Tells MSP job is running
+                        route = f"https://{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp_port")}/api/DataLink/Update-Job-Status"
+                        headers = {
+                            "apikey": MySqlite.read_setting("apikey"),
+                            "Content-Type": "application/json"
+                        }
+                        content = {
+                            "client_id": int(MySqlite.read_setting("CLIENT_ID")),
+                            "uuid": MySqlite.read_setting("uuid"),
+                            "status": 1,
+                            "progress": 0
+                        }
+                        try:
+                            _ = requests.put(route, headers=headers, json=content,timeout=10,verify=False)
+                        except Exception as e:
+                            pass
+
+                        # write file to msp
+                        """
+                        {
+    "client_id": {{serverClientId}},
+    "uuid": "{{serverUuid}}",
+    "filename": "backup1",
+    "Path": "../../backup1.vdhk",
+    "Date": "2024-06-20T08:33:09.203Z",
+    "BackupServerId": 0
+}
+"""
+                        route = f"https://{MySqlite.read_setting("msp_server_address")}:{MySqlite.read_setting("msp_port")}/api/DataLink/Backup"
+                        headers = {
+                            "apikey": MySqlite.read_setting("apikey"),
+                            "Content-Type": "application/json"
+                        }
+                        device_name = socket.gethostname()
+                        content = {
+                            "client_id": int(MySqlite.read_setting("CLIENT_ID")),
+                            "uuid": MySqlite.read_setting("uuid"),
+                            "filename": "*.vhdx",
+                            "Path": f"{os.path.abspath(LOCAL_JOB.get_settings()[10])}\\WindowsImageBackup\\{device_name}\\Backup {datetime.datetime.now().strftime('%Y-%m-%d')}\\",
+                            "Date": str(datetime.datetime.now()),
+                            "BackupServerId": 0
+                        }
+                        try:
+                            _ = requests.post(route, headers=headers, json=content,timeout=10,verify=False)
+                        except Exception as e:
+                            self.logger.log("ERROR","RunJob"," sending file name: "+str(e),"0","runjob.py")
                         # set job status to running
                         self.job_running_var = True
                     else:
