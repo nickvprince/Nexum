@@ -593,8 +593,12 @@ namespace API.DataAccess
                     {
                         DeviceId = device.DeviceId,
                         Name = $"Job for {device.Name}",
-                        Status = jobStatuses[random.Next(jobStatuses.Count)]
+                        Status = jobStatuses[random.Next(jobStatuses.Count)],
                     };
+                    if(job.Status != DeviceJobStatus.Complete || job.Status != DeviceJobStatus.NotStarted)
+                    {
+                        job.Progress = random.Next(0, 101);
+                    }
                     jobs.Add(job);
                 }
 
