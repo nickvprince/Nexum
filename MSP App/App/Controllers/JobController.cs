@@ -274,7 +274,7 @@ namespace App.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (await _jobService.StartAsync(id))
+                if (await _jobService.StopAsync(id))
                 {
                     TempData["LastActionMessage"] = "Job stopped successfully.";
                     return Json(new { success = true, message = TempData["LastActionMessage"]?.ToString() });
