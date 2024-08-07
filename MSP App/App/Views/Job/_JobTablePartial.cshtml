@@ -131,7 +131,28 @@
                                                         <text>N/A</text>
                                                     }
                                                 </div>
-                                                @if (job.Status == DeviceJobStatus.NotStarted)
+                                                <form id="jobStartlink@(job.Id)" asp-controller="Job" asp-action="Start" asp-route-id="@job.Id">
+                                                    <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-success table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#play"></use>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                <form id="jobPauselink@(job.Id)" asp-controller="Job" asp-action="Pause" asp-route-id="@job.Id">
+                                                    <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-warning table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#pause"></use>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                <form id="jobStoplink@(job.Id)" asp-controller="Job" asp-action="Stop" asp-route-id="@job.Id">
+                                                    <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
+                                                        <svg class="bi text-danger table-button-nexum" fill="currentColor">
+                                                            <use xlink:href="#stop"></use>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                @* @if (job.Status == DeviceJobStatus.NotStarted)
                                                 {
                                                     <form id="jobStartlink@(job.Id)" asp-controller="Job" asp-action="Start" asp-route-id="@job.Id">
                                                         <button type="submit" class="nav-link rounded-1 d-flex align-items-center justify-content-center btn btn-link p-0" style="border: none; background: none;">
@@ -194,7 +215,7 @@
                                                             <use xlink:href="#dot"></use>
                                                         </svg>
                                                     </div>
-                                                }
+                                                } *@
                                             </div>
                                         </td>
                                         <td class="border-0">

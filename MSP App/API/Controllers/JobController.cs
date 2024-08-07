@@ -301,35 +301,31 @@ namespace API.Controllers
                         return new CustomForbidResult("User do not have access to this feature for the specified tenant");
                     }
                     // --- End of authentication check ---
-                    if (await _httpJobService.DeleteAsync(device.TenantId, device.DeviceInfo.ClientId, job.JobId))
+                    if (await _httpJobService.StopAsync(device.TenantId, device.DeviceInfo.ClientId))
                     {
-                        if (await _httpJobService.StopAsync(device.TenantId, device.DeviceInfo.ClientId))
+                        if (await _dbJobService.DeleteAsync(id))
                         {
-                            if (await _dbJobService.DeleteAsync(id))
+                            return Ok("Job deleted successfully.");
+                        }
+                        ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
+                        if (devices != null)
+                        {
+                            Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
+                            if (server != null)
                             {
-                                return Ok("Job deleted successfully.");
-                            }
-                            ICollection<Device>? devices = await _dbDeviceService.GetAllByTenantIdAsync(device.TenantId);
-                            if (devices != null)
-                            {
-                                Device? server = devices.Where(d => d.DeviceInfo.Type == DeviceType.Server).FirstOrDefault();
-                                if (server != null)
+                                if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
                                 {
-                                    if ((bool)!await _httpDeviceService.ForceDeviceCheckinAsync(device.TenantId, server.DeviceInfo.ClientId))
+                                    foreach (var dev in devices)
                                     {
-                                        foreach (var dev in devices)
-                                        {
-                                            dev.Status = DeviceStatus.Offline;
-                                            await _dbDeviceService.UpdateAsync(dev);
-                                        }
+                                        dev.Status = DeviceStatus.Offline;
+                                        await _dbDeviceService.UpdateAsync(dev);
                                     }
                                 }
                             }
-                            return BadRequest("An error occurred while deleting the job.");
                         }
-                        return BadRequest("An error occurred while stopping the job on the tenant server.");
+                        return BadRequest("An error occurred while deleting the job.");
                     }
-                    return BadRequest("An error occurred while deleting the job on the tenant server.");
+                    return BadRequest("An error occurred while stopping the job on the tenant server.");
                 }
             }
             return BadRequest("Invalid request.");
