@@ -85,7 +85,7 @@ class API():
                         "Content-Type": "application/json"
                     }
                     status = 1
-                    if percent == 100:
+                    if percent > 99:
                         status = 2
                     content = {
                         "client_id": int(MySqlite.read_setting(CLIENT_ID)),

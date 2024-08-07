@@ -120,7 +120,10 @@ def stop_job():
         return "Job stopped"
     else:
         return make_response("405 Unauthorized", 405)
-
+@app.route('/check_online',methods=['GET'])
+def check_online():
+    if (auth(request.headers.get('apikey')) == 200):
+        return make_response("200 OK", 200)
 @app.route('/get_status',methods=['GET'])
 def get_status():
     """
